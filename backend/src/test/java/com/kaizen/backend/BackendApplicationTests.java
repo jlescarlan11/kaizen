@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,7 +65,7 @@ class BackendApplicationTests {
     void openApiSpecIsPublicAndIncludesProbeEndpoint() throws Exception {
         mockMvc.perform(get("/v3/api-docs"))
             .andExpect(status().isOk())
-            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(content().contentTypeCompatibleWith("application/json"))
             .andExpect(jsonPath("$['paths']['/api/probe']['get']['operationId']").value("getProbeStatus"))
             .andExpect(jsonPath("$['paths']['/api/probe']['get']['responses']['401']['content']['application/json']['examples']['unauthorized']['value']['code']")
                 .value("AUTHENTICATION_REQUIRED"))
