@@ -6,6 +6,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# Avoid treating stderr text from native tools (for example git fetch progress)
+# as terminating PowerShell errors; rely on explicit exit code checks instead.
+$PSNativeCommandUseErrorActionPreference = $false
 
 if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
     Write-Error "GitHub CLI (gh) is not installed or not in PATH."
