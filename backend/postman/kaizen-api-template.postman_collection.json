@@ -1,0 +1,92 @@
+{
+  "info": {
+    "_postman_id": "03dcf87d-ad20-4b68-8c34-ccfc8cb97be9",
+    "name": "Kaizen API Template",
+    "description": "Template collection for Kaizen backend APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{basicAuthUsername}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{basicAuthPassword}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "basicAuthUsername",
+      "value": "dev-user",
+      "type": "string"
+    },
+    {
+      "key": "basicAuthPassword",
+      "value": "dev-password",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Probe Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/probe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "probe"
+              ]
+            },
+            "description": "Returns probe status for authenticated clients."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status code is 200\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"status payload is ok\", function () {",
+                  "  var body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql(\"ok\");",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": []
+    },
+    {
+      "name": "Core APIs",
+      "item": []
+    }
+  ]
+}

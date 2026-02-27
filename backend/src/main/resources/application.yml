@@ -29,7 +29,11 @@ management:
       show-details: when_authorized
 
 springdoc:
+  api-docs:
+    enabled: false
+    path: /v3/api-docs
   swagger-ui:
+    enabled: false
     path: /swagger-ui.html
 
 app:

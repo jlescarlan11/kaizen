@@ -16,3 +16,9 @@ app:
     user:
       name: dev-user
       password: dev-password
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
