@@ -33,6 +33,8 @@ venv/
 backend/.pytest_cache/
 backend/.mypy_cache/
 backend/.ruff_cache/
+backend/target/
+backend/effective-pom.xml
 
 # --- Frontend ---
 frontend/.next/
