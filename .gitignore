@@ -1,0 +1,42 @@
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Environment ---
+.env
+.env.*
+!.env.example
+
+# --- Dependencies ---
+node_modules/
+
+# --- Build output ---
+dist/
+build/
+coverage/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Backend ---
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# --- Frontend ---
+frontend/.next/
+frontend/.nuxt/
+frontend/.svelte-kit/
+frontend/.turbo/
+frontend/.cache/
