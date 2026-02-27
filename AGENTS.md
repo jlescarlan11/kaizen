@@ -10,3 +10,11 @@ When adding or changing environment-variable usage in backend, frontend, Docker,
 - Update the corresponding `.env.example` file in the same change.
 - Keep examples non-secret and runnable for local development when possible.
 - If a variable is required only in staging/production, include it in `.env.example` with a clear comment.
+
+## Mandatory API documentation policy
+For any backend API endpoint addition or change (path, method, params, request body, response, status codes, auth, or behavior):
+- Follow `backend/docs/API_DOCUMENTATION_STANDARDS.md`.
+- Update the OpenAPI/Swagger documentation in the same change.
+- Update examples and schemas so Swagger UI reflects the current contract.
+- Update the Postman collection template when the endpoint contract or usage changes.
+- Do not treat endpoint work as complete until API documentation updates are included.

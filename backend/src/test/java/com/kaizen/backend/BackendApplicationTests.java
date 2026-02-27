@@ -1,10 +1,13 @@
 package com.kaizen.backend;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,6 +60,22 @@ class BackendApplicationTests {
                     "Expected /swagger-ui.html to be public (200/3xx), got " + code
                 );
             });
+    }
+
+    @Test
+    void openApiSpecIsPublicAndIncludesProbeEndpoint() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$['paths']['/api/probe']['get']['operationId']").value("getProbeStatus"))
+            .andExpect(jsonPath("$['paths']['/api/probe']['get']['responses']['401']['content']['application/json']['examples']['unauthorized']['value']['code']")
+                .value("AUTHENTICATION_REQUIRED"))
+            .andExpect(jsonPath("$['paths']['/api/probe']['get']['responses']['401']['content']['application/json']['examples']['unauthorized']['value']['message']")
+                .value("Authentication is required to access this resource."))
+            .andExpect(jsonPath("$['paths']['/api/probe']['get']['responses']['401']['content']['application/json']['examples']['unauthorized']['value']['details']")
+                .isMap())
+            .andExpect(jsonPath("$['paths']['/api/probe']['get']['responses']['401']['content']['application/json']['examples']['unauthorized']['value']['traceId']")
+                .value("0af7651916cd43dd8448eb211c80319c"));
     }
 
     @Test
