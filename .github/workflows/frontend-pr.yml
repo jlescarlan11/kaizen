@@ -1,0 +1,41 @@
+name: Frontend PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-pr.yml"
+
+jobs:
+  frontend-pr:
+    runs-on: ubuntu-latest
+    env:
+      VITE_API_BASE_URL: http://localhost:8080/api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm --prefix frontend ci
+
+      - name: Lint frontend
+        run: npm --prefix frontend run lint
+
+      - name: Test frontend
+        run: npm --prefix frontend run test
+
+      - name: Build frontend
+        run: npm --prefix frontend run build
+
+      - name: Build frontend Docker image
+        run: docker build --build-arg VITE_API_BASE_URL=http://localhost:8080/api -t kaizen-frontend:pr -f frontend/Dockerfile frontend

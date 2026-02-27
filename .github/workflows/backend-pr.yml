@@ -1,0 +1,33 @@
+name: Backend PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-pr.yml"
+
+jobs:
+  backend-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build and test backend
+        run: mvn -f backend/pom.xml -B verify
+
+      - name: SpotBugs scan
+        run: mvn -f backend/pom.xml -B com.github.spotbugs:spotbugs-maven-plugin:4.8.6.6:check
+
+      - name: Build backend Docker image
+        run: docker build -t kaizen-backend:pr -f backend/Dockerfile backend
