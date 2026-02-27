@@ -1,7 +1,7 @@
 param(
     [string]$Base = "main",
     [string]$Title = "",
-    [string]$BodyFile = ".github/pull_request_template.md",
+    [string]$BodyFile = "",
     [switch]$Draft
 )
 
@@ -26,6 +26,14 @@ if ([string]::IsNullOrWhiteSpace($currentBranch)) {
 
 if ($currentBranch -eq $Base) {
     Write-Error "Current branch is '$Base'. Switch to a feature branch before creating a PR."
+}
+
+if ([string]::IsNullOrWhiteSpace($BodyFile)) {
+    if (Test-Path -Path ".github/.smart-pr-body.md" -PathType Leaf) {
+        $BodyFile = ".github/.smart-pr-body.md"
+    } else {
+        $BodyFile = ".github/pull_request_template.md"
+    }
 }
 
 if (-not (Test-Path -Path $BodyFile -PathType Leaf)) {

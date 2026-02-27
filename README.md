@@ -43,6 +43,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\create-pr.ps1
 
 The command infers the PR title from the latest commit subject and auto-pushes the
 current branch to `origin` if it does not have an upstream yet.
+If `.github/.smart-pr-body.md` exists, it is used as the PR body; otherwise the
+default template file is used.
 
 Optional flags:
 
