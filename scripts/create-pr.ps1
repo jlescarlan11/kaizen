@@ -50,8 +50,12 @@ if ($LASTEXITCODE -ne 0) {
     git push -u origin $currentBranch
 }
 
-git fetch origin $Base $currentBranch *> $null
-if ($LASTEXITCODE -ne 0) {
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+git fetch origin $Base $currentBranch 2>$null | Out-Null
+$fetchExitCode = $LASTEXITCODE
+$ErrorActionPreference = $previousErrorActionPreference
+if ($fetchExitCode -ne 0) {
     Write-Error "Failed to fetch origin refs for '$Base' and '$currentBranch'."
 }
 
