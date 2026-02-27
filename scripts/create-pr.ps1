@@ -47,12 +47,23 @@ if ($LASTEXITCODE -ne 0) {
 
 git rev-parse --abbrev-ref --symbolic-full-name "@{u}" *> $null
 if ($LASTEXITCODE -ne 0) {
-    git push -u origin $currentBranch
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    git push -u origin $currentBranch 2>$null | Out-Null
+    $pushUpstreamExitCode = $LASTEXITCODE
+    $ErrorActionPreference = $previousErrorActionPreference
+    if ($pushUpstreamExitCode -ne 0) {
+        Write-Error "Failed to push and set upstream for '$currentBranch'."
+    }
 }
 
 # Always push current local commits before comparing remote refs.
-git push origin $currentBranch *> $null
-if ($LASTEXITCODE -ne 0) {
+$previousErrorActionPreference = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+git push origin $currentBranch 2>$null | Out-Null
+$pushExitCode = $LASTEXITCODE
+$ErrorActionPreference = $previousErrorActionPreference
+if ($pushExitCode -ne 0) {
     Write-Error "Failed to push '$currentBranch' to origin."
 }
 
