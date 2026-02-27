@@ -32,3 +32,20 @@ kaizen/
 - Add backend runtime and package manager configuration.
 - Add frontend framework bootstrap.
 - Add CI checks (lint, test, build) and make them required on `main`.
+
+## Pull request automation
+
+Create a PR with the repository template prefilled automatically:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\create-pr.ps1
+```
+
+The command infers the PR title from the latest commit subject and auto-pushes the
+current branch to `origin` if it does not have an upstream yet.
+
+Optional flags:
+
+- `-Title "your pr title"` to override the inferred title (latest commit subject)
+- `-Base main` to set a different base branch
+- `-Draft` to open a draft PR
