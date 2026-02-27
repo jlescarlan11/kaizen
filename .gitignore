@@ -42,3 +42,6 @@ frontend/.nuxt/
 frontend/.svelte-kit/
 frontend/.turbo/
 frontend/.cache/
+
+# --- PR automation ---
+.github/.smart-pr-body.md
