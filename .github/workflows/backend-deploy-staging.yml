@@ -1,0 +1,72 @@
+name: Backend Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-deploy-staging.yml"
+
+concurrency:
+  group: backend-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy-backend-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight validate staging deploy configuration
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets['RENDER_DEPLOY_HOOK_URL'] }}
+          RENDER_STAGING_URL: ${{ vars['RENDER_STAGING_URL'] }}
+        run: |
+          if [ -z "${RENDER_DEPLOY_HOOK_URL:-}" ]; then
+            echo "::error::Missing required secret RENDER_DEPLOY_HOOK_URL. Set repository/environment secret RENDER_DEPLOY_HOOK_URL."
+            exit 1
+          fi
+
+          if [ -z "${RENDER_STAGING_URL:-}" ]; then
+            echo "::error::Missing required variable RENDER_STAGING_URL. Set repository/environment variable RENDER_STAGING_URL."
+            exit 1
+          fi
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build and test backend
+        run: mvn -f backend/pom.xml -B verify
+
+      - name: SpotBugs scan
+        run: mvn -f backend/pom.xml -B com.github.spotbugs:spotbugs-maven-plugin:4.8.6.6:check
+
+      - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets['RENDER_DEPLOY_HOOK_URL'] }}
+        run: curl -fsS --connect-timeout 5 --max-time 20 --retry 5 --retry-all-errors --retry-delay 2 -X POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Wait for backend health check
+        env:
+          RENDER_STAGING_URL: ${{ vars['RENDER_STAGING_URL'] }}
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS --connect-timeout 5 --max-time 10 "$RENDER_STAGING_URL/actuator/health/readiness" >/dev/null; then
+              echo "Backend readiness check passed."
+              exit 0
+            fi
+
+            echo "Backend not ready yet (attempt $attempt/30). Waiting 10 seconds..."
+            sleep 10
+          done
+
+          echo "Backend readiness check failed after waiting."
+          exit 1
