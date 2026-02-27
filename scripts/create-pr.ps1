@@ -50,6 +50,12 @@ if ($LASTEXITCODE -ne 0) {
     git push -u origin $currentBranch
 }
 
+# Always push current local commits before comparing remote refs.
+git push origin $currentBranch *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to push '$currentBranch' to origin."
+}
+
 $previousErrorActionPreference = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 git fetch origin $Base $currentBranch 2>$null | Out-Null
