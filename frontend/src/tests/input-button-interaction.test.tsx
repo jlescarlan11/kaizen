@@ -17,7 +17,10 @@ describe('Input and Button interactions', () => {
     const handleClick = vi.fn()
 
     render(<Button onClick={handleClick}>Submit</Button>)
-    fireEvent.click(screen.getByRole('button', { name: /submit/i }))
+    const button = screen.getByRole('button', { name: /submit/i })
+
+    expect(button).toHaveClass('bg-primary', 'text-on-primary')
+    fireEvent.click(button)
 
     expect(handleClick).toHaveBeenCalledTimes(1)
   })

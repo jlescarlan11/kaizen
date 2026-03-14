@@ -24,7 +24,7 @@ export function RootLayout(): ReactElement {
                   [
                     'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-primary text-text-primary hover:bg-primary-hover'
+                      ? 'bg-primary text-on-primary hover:bg-primary-hover'
                       : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary',
                   ].join(' ')
                 }

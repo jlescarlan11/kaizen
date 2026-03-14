@@ -9,7 +9,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-text-primary hover:bg-primary-hover focus-visible:ring-primary disabled:bg-surface-secondary disabled:text-text-tertiary',
+    'bg-primary text-on-primary hover:bg-primary-hover focus-visible:ring-primary disabled:bg-surface-secondary disabled:text-text-tertiary',
   secondary:
     'bg-surface text-text-primary hover:bg-surface-secondary focus-visible:ring-primary disabled:bg-surface disabled:text-text-tertiary',
 }

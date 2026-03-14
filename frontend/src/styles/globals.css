@@ -15,12 +15,12 @@
   --color-text-tertiary: #45474b;
   --color-text-inverse: #ffffff;
 
-  /* Primary (Lime) */
-  --color-primary: #b9e937;
-  --color-primary-hover: #a3d22f;
-  --color-primary-active: #8dba24;
-  --color-primary-light: #edfab0;
-  --color-primary-dark: #92400e;
+  /* Primary */
+  --color-primary: #9fe870;
+  --color-primary-hover: #8cd95c;
+  --color-primary-active: #77c447;
+  --color-primary-light: #e7f8da;
+  --color-primary-dark: #3d6c1f;
 
   /* Success */
   --color-success: #2d7a61;
@@ -85,12 +85,12 @@
   --color-text-tertiary: #d1d5db;
   --color-text-inverse: #424242;
 
-  /* Primary - adjusted to pass with dark text */
-  --color-primary: #32cd32;
-  --color-primary-hover: #22c55e;
-  --color-primary-active: #16a34a;
-  --color-primary-light: #14532d;
-  --color-primary-dark: #dcfce7;
+  /* Primary */
+  --color-primary: #208220;
+  --color-primary-hover: #1b6f1b;
+  --color-primary-active: #165c16;
+  --color-primary-light: #d7edd7;
+  --color-primary-dark: #0f3d0f;
 
   /* Success */
   --color-success: #b9e937;
@@ -125,7 +125,7 @@
   --color-expense: #fee2e2;
 
   /* Accessible on-color text */
-  --color-on-primary: #424242;
+  --color-on-primary: #ffffff;
   --color-on-success: #424242;
   --color-on-error: #424242;
   --color-on-warning: #424242;
@@ -155,11 +155,11 @@
     --color-text-inverse: #424242;
 
     /* Primary */
-    --color-primary: #32cd32;
-    --color-primary-hover: #22c55e;
-    --color-primary-active: #16a34a;
-    --color-primary-light: #14532d;
-    --color-primary-dark: #dcfce7;
+    --color-primary: #208220;
+    --color-primary-hover: #1b6f1b;
+    --color-primary-active: #165c16;
+    --color-primary-light: #d7edd7;
+    --color-primary-dark: #0f3d0f;
 
     /* Success */
     --color-success: #b9e937;
@@ -194,7 +194,7 @@
     --color-expense: #fee2e2;
 
     /* Accessible on-color text */
-    --color-on-primary: #424242;
+    --color-on-primary: #ffffff;
     --color-on-success: #424242;
     --color-on-error: #424242;
     --color-on-warning: #424242;

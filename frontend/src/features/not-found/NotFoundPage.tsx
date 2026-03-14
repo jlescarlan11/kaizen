@@ -11,7 +11,7 @@ export function NotFoundPage(): ReactElement {
       </p>
       <Link
         to="/"
-        className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-text-inverse transition hover:bg-primary-hover"
+        className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-on-primary transition hover:bg-primary-hover"
       >
         Return home
       </Link>

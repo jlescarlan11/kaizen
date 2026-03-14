@@ -18,7 +18,7 @@ describe('RootLayout', () => {
 
     expect(shell).toHaveClass('bg-background', 'text-text-primary')
     expect(header).toHaveClass('border-border', 'bg-surface')
-    expect(homeLink).toHaveClass('bg-primary', 'text-text-primary')
+    expect(homeLink).toHaveClass('bg-primary', 'text-on-primary')
     expect(playgroundLink).toHaveClass(
       'text-text-secondary',
       'hover:bg-surface-secondary',
