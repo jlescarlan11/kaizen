@@ -13,13 +13,26 @@ describe('Input and Button interactions', () => {
     expect(input).toHaveValue('dev@kaizen.test')
   })
 
+  it('exposes the error state semantically and visually', () => {
+    render(<Input id="password" label="Password" error="Password is required" />)
+
+    const input = screen.getByLabelText(/password/i)
+    const message = screen.getByText(/password is required/i)
+
+    expect(input).toHaveAttribute('aria-invalid', 'true')
+    expect(input).toHaveAttribute('aria-describedby', 'password-error')
+    expect(input).toHaveClass('placeholder:text-ui-subtle', 'border-ui-danger')
+    expect(message).toHaveAttribute('id', 'password-error')
+    expect(message).toHaveClass('text-ui-danger-text-soft')
+  })
+
   it('invokes click handler when button is pressed', () => {
     const handleClick = vi.fn()
 
     render(<Button onClick={handleClick}>Submit</Button>)
     const button = screen.getByRole('button', { name: /submit/i })
 
-    expect(button).toHaveClass('bg-primary', 'text-on-primary')
+    expect(button).toHaveClass('bg-ui-action', 'text-ui-action-text')
     fireEvent.click(button)
 
     expect(handleClick).toHaveBeenCalledTimes(1)

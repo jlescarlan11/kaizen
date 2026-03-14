@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
+import { Card } from '../../shared/components'
 import { cn } from '../../shared/lib/cn'
 
 type AccountItem = {
@@ -55,25 +56,19 @@ const accountSections: ReadonlyArray<{
 
 function AccountRow({ item }: { item: AccountItem }): ReactElement {
   const baseClassName = cn(
-    'flex items-center justify-between rounded-xl border border-border bg-surface px-4 py-4 text-left shadow-sm transition-colors',
+    'flex items-center justify-between rounded-xl border border-ui-border bg-ui-surface px-4 py-4 text-left text-foreground shadow-sm transition-colors',
     item.to
-      ? 'hover:bg-surface-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+      ? 'hover:bg-ui-accent-subtle hover:border-ui-border-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-focus'
       : '',
   )
 
   const content = (
     <>
       <div className="space-y-1">
-        <p className="text-sm font-semibold text-text-primary">{item.label}</p>
-        <p className="text-sm text-text-secondary">{item.description}</p>
+        <p className="text-base leading-7 text-foreground">{item.label}</p>
+        <p className="text-sm leading-6 text-muted-foreground">{item.description}</p>
       </div>
-      <span
-        className={cn(
-          'text-sm font-medium',
-          item.to ? 'text-text-secondary' : 'text-text-tertiary',
-        )}
-        aria-hidden="true"
-      >
+      <span className="text-sm font-medium leading-none text-subtle-foreground" aria-hidden="true">
         {item.to ? '>' : ''}
       </span>
     </>
@@ -97,24 +92,26 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
 export function YourAccountPage(): ReactElement {
   return (
     <section className="mx-auto max-w-3xl space-y-8">
-      <header className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-light text-lg font-semibold text-text-primary">
-            JL
+      <header>
+        <Card className="rounded-2xl">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-ui-accent-subtle text-lg leading-7 text-foreground">
+              JL
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs leading-5 text-subtle-foreground">Your account</p>
+              <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+                Jordan Lee
+              </h1>
+              <p className="text-sm leading-6 text-muted-foreground">jordan.lee@kaizen.test</p>
+            </div>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-tertiary">
-              Your account
-            </p>
-            <h1 className="text-2xl font-bold text-text-primary">Jordan Lee</h1>
-            <p className="text-sm text-text-secondary">jordan.lee@kaizen.test</p>
-          </div>
-        </div>
+        </Card>
       </header>
 
       {accountSections.map((section) => (
         <div key={section.title} className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-text-tertiary">
+          <h2 className="text-lg md:text-xl font-medium leading-snug text-foreground">
             {section.title}
           </h2>
           <div className="space-y-3">
