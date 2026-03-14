@@ -9,9 +9,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-slate-900 text-white hover:bg-slate-700 focus-visible:ring-slate-400 disabled:bg-slate-300',
+    'bg-primary text-on-primary hover:bg-primary-hover focus-visible:ring-primary disabled:bg-surface-secondary disabled:text-text-tertiary',
   secondary:
-    'bg-slate-100 text-slate-900 hover:bg-slate-200 focus-visible:ring-slate-300 disabled:bg-slate-100 disabled:text-slate-400',
+    'bg-surface text-text-primary hover:bg-surface-secondary focus-visible:ring-primary disabled:bg-surface disabled:text-text-tertiary',
 }
 
 export function Button({
