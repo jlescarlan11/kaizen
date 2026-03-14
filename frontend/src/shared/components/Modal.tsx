@@ -30,7 +30,7 @@ export function Modal({ children, footer, onClose, open, title }: ModalProps): R
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <DialogBackdrop className="fixed inset-0 bg-slate-900/50" />
+          <DialogBackdrop className="fixed inset-0 bg-background/80" />
         </TransitionChild>
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -43,8 +43,8 @@ export function Modal({ children, footer, onClose, open, title }: ModalProps): R
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="w-full max-w-md space-y-4 rounded-xl bg-white p-6 shadow-xl">
-              <DialogTitle className="text-lg font-semibold text-slate-900">{title}</DialogTitle>
+            <DialogPanel className="w-full max-w-md space-y-4 rounded-xl bg-surface p-6 shadow-xl">
+              <DialogTitle className="text-lg font-semibold text-text-primary">{title}</DialogTitle>
               {children}
               {footer}
             </DialogPanel>

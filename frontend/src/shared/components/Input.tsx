@@ -10,21 +10,21 @@ export function Input({ className, error, id, label, ...props }: InputProps): Re
   return (
     <div className="space-y-1">
       {label ? (
-        <label htmlFor={id} className="text-sm font-medium text-slate-700">
+        <label htmlFor={id} className="text-sm font-medium text-text-primary">
           {label}
         </label>
       ) : null}
       <input
         id={id}
         className={cn(
-          'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900',
-          'placeholder:text-slate-400 focus:border-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-300',
-          error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : '',
+          'w-full rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-text-primary',
+          'placeholder:text-text-tertiary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary',
+          error ? 'border-error focus:border-error focus:ring-error-light' : '',
           className,
         )}
         {...props}
       />
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="text-xs text-error">{error}</p> : null}
     </div>
   )
 }

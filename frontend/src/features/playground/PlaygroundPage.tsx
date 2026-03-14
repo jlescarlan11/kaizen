@@ -13,13 +13,13 @@ export function PlaygroundPage(): ReactElement {
   return (
     <section className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold text-slate-900">Base Components Playground</h1>
-        <p className="text-sm text-slate-600">
+        <h1 className="text-2xl font-bold text-text-primary">Base Components Playground</h1>
+        <p className="text-sm text-text-secondary">
           Use this route to manually verify base UI behavior while developing features.
         </p>
       </header>
 
-      <div className="grid gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border border-border bg-surface p-6 shadow-sm sm:grid-cols-2">
         <Button onClick={() => setModalOpen(true)}>Open modal</Button>
         <Button variant="secondary" disabled>
           Disabled action
@@ -47,7 +47,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
         }
       >
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-text-secondary">
           Hello{name ? `, ${name}` : ''}. This modal confirms Headless UI is integrated and
           render-safe.
         </p>
