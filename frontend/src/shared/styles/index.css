@@ -4,37 +4,55 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
+  /* Background & Surface */
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
   --color-surface-secondary: var(--color-surface-secondary);
+
+  /* Borders */
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
+
+  /* Text */
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-tertiary: var(--color-text-tertiary);
   --color-text-inverse: var(--color-text-inverse);
+
+  /* Primary */
   --color-primary: var(--color-primary);
   --color-primary-hover: var(--color-primary-hover);
   --color-primary-active: var(--color-primary-active);
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
+
+  /* Success */
   --color-success: var(--color-success);
   --color-success-hover: var(--color-success-hover);
   --color-success-light: var(--color-success-light);
   --color-success-dark: var(--color-success-dark);
+
+  /* Error */
   --color-error: var(--color-error);
   --color-error-hover: var(--color-error-hover);
   --color-error-light: var(--color-error-light);
   --color-error-dark: var(--color-error-dark);
+
+  /* Warning */
   --color-warning: var(--color-warning);
   --color-warning-light: var(--color-warning-light);
   --color-warning-dark: var(--color-warning-dark);
+
+  /* Info */
   --color-info: var(--color-info);
   --color-info-light: var(--color-info-light);
   --color-info-dark: var(--color-info-dark);
+
+  /* Financial */
   --color-income: var(--color-income);
   --color-expense: var(--color-expense);
 
+  /* Shadows */
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
