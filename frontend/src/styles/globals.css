@@ -1,0 +1,186 @@
+/* Light Mode (Default) */
+:root {
+  /* Background */
+  --color-background: rgb(245, 247, 248);
+  --color-surface: #ffffff;
+  --color-surface-secondary: rgb(245, 247, 248);
+
+  /* Border */
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+
+  /* Text */
+  --color-text-primary: rgb(69, 71, 75);
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+  --color-text-inverse: #ffffff;
+
+  /* Primary */
+  --color-primary: rgb(244, 206, 20);
+  --color-primary-hover: #d69e12;
+  --color-primary-active: #b87510;
+  --color-primary-light: #fef3c7;
+  --color-primary-dark: #92400e;
+
+  /* Success */
+  --color-success: rgb(55, 151, 119);
+  --color-success-hover: #2d7a61;
+  --color-success-light: #d1fae5;
+  --color-success-dark: #1a4434;
+
+  /* Error */
+  --color-error: #ef4444;
+  --color-error-hover: #dc2626;
+  --color-error-light: #fee2e2;
+  --color-error-dark: #7f1d1d;
+
+  /* Warning */
+  --color-warning: #f97316;
+  --color-warning-light: #ffedd5;
+  --color-warning-dark: #7c2d12;
+
+  /* Info */
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+  --color-info-dark: #1e3a8a;
+
+  /* Semantic Financial */
+  --color-budget-safe: rgb(55, 151, 119);
+  --color-budget-warning: #f97316;
+  --color-budget-danger: #ef4444;
+  --color-income: rgb(55, 151, 119);
+  --color-expense: #ef4444;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Dark Mode */
+.dark,
+[data-theme='dark'] {
+  /* Background */
+  --color-background: #0a0a0b;
+  --color-surface: #1f2937;
+  --color-surface-secondary: #111827;
+
+  /* Border */
+  --color-border: #374151;
+  --color-border-strong: rgb(69, 71, 75);
+
+  /* Text */
+  --color-text-primary: #f5f7f8;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+  --color-text-inverse: rgb(69, 71, 75);
+
+  /* Primary */
+  --color-primary: #fcd34d;
+  --color-primary-hover: #fbbf24;
+  --color-primary-active: #fde68a;
+  --color-primary-light: #92400e;
+  --color-primary-dark: #fffbeb;
+
+  /* Success */
+  --color-success: #6ee7b7;
+  --color-success-hover: #34d399;
+  --color-success-light: #1a4434;
+  --color-success-dark: #ecfdf5;
+
+  /* Error */
+  --color-error: #fca5a5;
+  --color-error-hover: #f87171;
+  --color-error-light: #7f1d1d;
+  --color-error-dark: #fef2f2;
+
+  /* Warning */
+  --color-warning: #fdba74;
+  --color-warning-light: #7c2d12;
+  --color-warning-dark: #fff7ed;
+
+  /* Info */
+  --color-info: #93c5fd;
+  --color-info-light: #1e3a8a;
+  --color-info-dark: #eff6ff;
+
+  /* Semantic Financial */
+  --color-budget-safe: rgb(55, 151, 119);
+  --color-budget-warning: #f97316;
+  --color-budget-danger: #ef4444;
+  --color-income: #6ee7b7;
+  --color-expense: #fca5a5;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme='light']) {
+    /* Background */
+    --color-background: #0a0a0b;
+    --color-surface: #1f2937;
+    --color-surface-secondary: #111827;
+
+    /* Border */
+    --color-border: #374151;
+    --color-border-strong: rgb(69, 71, 75);
+
+    /* Text */
+    --color-text-primary: #f5f7f8;
+    --color-text-secondary: #d1d5db;
+    --color-text-tertiary: #9ca3af;
+    --color-text-inverse: rgb(69, 71, 75);
+
+    /* Primary */
+    --color-primary: #fcd34d;
+    --color-primary-hover: #fbbf24;
+    --color-primary-active: #fde68a;
+    --color-primary-light: #92400e;
+    --color-primary-dark: #fffbeb;
+
+    /* Success */
+    --color-success: #6ee7b7;
+    --color-success-hover: #34d399;
+    --color-success-light: #1a4434;
+    --color-success-dark: #ecfdf5;
+
+    /* Error */
+    --color-error: #fca5a5;
+    --color-error-hover: #f87171;
+    --color-error-light: #7f1d1d;
+    --color-error-dark: #fef2f2;
+
+    /* Warning */
+    --color-warning: #fdba74;
+    --color-warning-light: #7c2d12;
+    --color-warning-dark: #fff7ed;
+
+    /* Info */
+    --color-info: #93c5fd;
+    --color-info-light: #1e3a8a;
+    --color-info-dark: #eff6ff;
+
+    /* Semantic Financial */
+    --color-budget-safe: rgb(55, 151, 119);
+    --color-budget-warning: #f97316;
+    --color-budget-danger: #ef4444;
+    --color-income: #6ee7b7;
+    --color-expense: #fca5a5;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  }
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
