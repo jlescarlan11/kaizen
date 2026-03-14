@@ -8,10 +8,10 @@ const navigationItems = [
 
 export function RootLayout(): ReactElement {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
+    <div className="min-h-screen bg-background text-text-primary">
+      <header className="border-b border-border bg-surface">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
-          <p className="text-sm font-semibold uppercase tracking-widest text-slate-600">
+          <p className="text-sm font-semibold uppercase tracking-widest text-text-secondary">
             Kaizen Frontend
           </p>
           <nav className="flex items-center gap-2" aria-label="Main navigation">
@@ -23,7 +23,9 @@ export function RootLayout(): ReactElement {
                 className={({ isActive }): string =>
                   [
                     'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100',
+                    isActive
+                      ? 'bg-primary text-text-primary hover:bg-primary-hover'
+                      : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary',
                   ].join(' ')
                 }
               >
