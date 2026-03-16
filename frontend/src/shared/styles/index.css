@@ -8,17 +8,35 @@
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
   --color-surface-secondary: var(--color-surface-secondary);
+  --color-ui-bg: var(--ui-bg);
+  --color-ui-surface: var(--ui-surface);
+  --color-ui-surface-muted: var(--ui-surface-muted);
+  --color-ui-surface-subtle: var(--ui-surface-subtle);
 
   /* Borders */
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
+  --color-ui-border: var(--ui-border);
+  --color-ui-border-strong: var(--ui-border-strong);
+  --color-ui-border-muted: var(--ui-border-muted);
 
   /* Text */
+  --color-foreground: var(--color-text-primary);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-ui: var(--ui-text);
+  --color-ui-muted: var(--ui-text-muted);
+  --color-ui-subtle: var(--ui-text-subtle);
+  --color-ui-inverse: var(--ui-text-inverse);
+  --color-ui-disabled: var(--ui-disabled-text);
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-tertiary: var(--color-text-tertiary);
   --color-text-inverse: var(--color-text-inverse);
   --color-on-primary: var(--color-on-primary);
+  --color-on-success: var(--color-on-success);
+  --color-on-error: var(--color-on-error);
+  --color-on-warning: var(--color-on-warning);
+  --color-on-info: var(--color-on-info);
 
   /* Primary */
   --color-primary: var(--color-primary);
@@ -26,28 +44,60 @@
   --color-primary-active: var(--color-primary-active);
   --color-primary-light: var(--color-primary-light);
   --color-primary-dark: var(--color-primary-dark);
+  --color-ui-action: var(--ui-action-bg);
+  --color-ui-action-hover: var(--ui-action-bg-hover);
+  --color-ui-action-active: var(--ui-action-bg-active);
+  --color-ui-action-text: var(--ui-action-text);
+  --color-ui-accent: var(--ui-accent-bg);
+  --color-ui-accent-hover: var(--ui-accent-bg-hover);
+  --color-ui-accent-active: var(--ui-accent-bg-active);
+  --color-ui-accent-subtle: var(--ui-accent-subtle);
+  --color-ui-accent-muted: var(--ui-accent-muted);
+  --color-ui-accent-text: var(--ui-accent-text);
 
   /* Success */
   --color-success: var(--color-success);
   --color-success-hover: var(--color-success-hover);
+  --color-success-active: var(--color-success-active);
   --color-success-light: var(--color-success-light);
   --color-success-dark: var(--color-success-dark);
+  --color-ui-success: var(--ui-success-bg);
+  --color-ui-success-text: var(--ui-success-text);
+  --color-ui-success-subtle: var(--ui-success-subtle);
 
   /* Error */
   --color-error: var(--color-error);
   --color-error-hover: var(--color-error-hover);
+  --color-error-active: var(--color-error-active);
   --color-error-light: var(--color-error-light);
   --color-error-dark: var(--color-error-dark);
+  --color-ui-danger: var(--ui-danger-bg);
+  --color-ui-danger-hover: var(--ui-danger-bg-hover);
+  --color-ui-danger-active: var(--ui-danger-bg-active);
+  --color-ui-danger-text: var(--ui-danger-text);
+  --color-ui-danger-text-soft: var(--ui-danger-text-soft);
+  --color-ui-danger-subtle: var(--ui-danger-subtle);
 
   /* Warning */
   --color-warning: var(--color-warning);
+  --color-warning-hover: var(--color-warning-hover);
+  --color-warning-active: var(--color-warning-active);
   --color-warning-light: var(--color-warning-light);
   --color-warning-dark: var(--color-warning-dark);
+  --color-ui-warning: var(--ui-warning-bg);
+  --color-ui-warning-text: var(--ui-warning-text);
+  --color-ui-warning-subtle: var(--ui-warning-subtle);
 
   /* Info */
   --color-info: var(--color-info);
+  --color-info-hover: var(--color-info-hover);
+  --color-info-active: var(--color-info-active);
   --color-info-light: var(--color-info-light);
   --color-info-dark: var(--color-info-dark);
+  --color-ui-info: var(--ui-info-bg);
+  --color-ui-info-text: var(--ui-info-text);
+  --color-ui-info-subtle: var(--ui-info-subtle);
+  --color-ui-focus: var(--ui-focus-ring);
 
   /* Financial */
   --color-income: var(--color-income);
@@ -78,4 +128,18 @@
 body {
   margin: 0;
   min-width: 320px;
+}
+
+/* Ensure native date and time picker icons are visible in dark mode */
+.dark input[type='date'],
+.dark input[type='time'] {
+  color-scheme: dark;
+}
+
+input[type='date'],
+input[type='time'],
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'] {
+  accent-color: var(--color-primary);
 }

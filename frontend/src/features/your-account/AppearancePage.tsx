@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import { useTheme, type Theme } from '../../providers/theme'
+import { Card } from '../../shared/components'
 import { cn } from '../../shared/lib/cn'
 
 const themeOptions: ReadonlyArray<{
@@ -21,23 +22,25 @@ export function AppearancePage(): ReactElement {
       <div className="space-y-3">
         <Link
           to="/your-account"
-          className="inline-flex rounded-md px-1 py-1 text-sm font-medium text-text-secondary transition-colors hover:text-text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          className="inline-flex rounded-md px-1 py-1 text-sm font-medium leading-none text-foreground transition-colors hover:bg-ui-accent-subtle hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-focus"
         >
           Back to account
         </Link>
         <header className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-tertiary">
-            Preferences
-          </p>
-          <h1 className="text-2xl font-bold text-text-primary">Appearance</h1>
-          <p className="text-sm text-text-secondary">
+          <p className="text-xs leading-5 text-subtle-foreground">Preferences</p>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+            Appearance
+          </h1>
+          <p className="text-lg leading-7 text-muted-foreground">
             Choose how Kaizen looks across your account.
           </p>
         </header>
       </div>
 
-      <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-text-primary">Theme</h2>
+      <Card className="rounded-2xl">
+        <h2 className="mb-4 text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          Theme
+        </h2>
 
         <div className="grid grid-cols-3 gap-2">
           {themeOptions.map((option) => {
@@ -49,30 +52,30 @@ export function AppearancePage(): ReactElement {
                 type="button"
                 onClick={() => setTheme(option.value)}
                 className={cn(
-                  'rounded-lg border p-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+                  'rounded-lg border p-3 text-foreground transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-focus',
                   isSelected
-                    ? 'border-primary bg-primary-light'
-                    : 'border-border bg-surface hover:bg-surface-secondary',
+                    ? 'border-ui-accent bg-ui-accent-subtle'
+                    : 'border-ui-border bg-ui-surface hover:bg-ui-accent-subtle hover:border-ui-border-strong',
                 )}
                 aria-pressed={isSelected}
               >
                 <div className="text-center">
-                  <div className="mb-1 text-base font-semibold text-text-secondary">
+                  <div className="mb-1 text-sm font-medium leading-none text-foreground">
                     {option.icon}
                   </div>
-                  <div className="text-sm text-text-primary">{option.label}</div>
+                  <p className="text-sm leading-6 text-muted-foreground">{option.label}</p>
                 </div>
               </button>
             )
           })}
         </div>
 
-        <p className="mt-3 text-xs text-text-tertiary">
+        <p className="mt-3 text-xs leading-5 text-subtle-foreground">
           {theme === 'system'
             ? `Following system preference (${resolvedTheme})`
             : `Theme set to ${theme} mode`}
         </p>
-      </div>
+      </Card>
     </section>
   )
 }

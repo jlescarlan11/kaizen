@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { KaizenLogo } from '../../shared/components/KaizenLogo'
 
 const navigationItems = [
   { label: 'Home', to: '/' },
@@ -8,12 +9,18 @@ const navigationItems = [
 
 export function RootLayout(): ReactElement {
   return (
-    <div className="min-h-screen bg-background text-text-primary">
-      <header className="border-b border-border bg-surface">
+    <div className="min-h-screen bg-ui-bg text-foreground">
+      <header className="border-b border-ui-border bg-ui-surface">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between px-4">
-          <p className="text-sm font-semibold uppercase tracking-widest text-text-secondary">
-            Kaizen Frontend
-          </p>
+          <NavLink
+            to="/"
+            end
+            className="flex items-center gap-3 rounded-md text-foreground transition-opacity hover:opacity-90"
+            aria-label="Kaizen home"
+          >
+            <KaizenLogo className="h-10 w-10 shrink-0" />
+            <span className="text-sm font-medium leading-none text-foreground">Kaizen</span>
+          </NavLink>
           <nav className="flex items-center gap-2" aria-label="Main navigation">
             {navigationItems.map((item) => (
               <NavLink
@@ -24,8 +31,8 @@ export function RootLayout(): ReactElement {
                   [
                     'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-primary text-on-primary hover:bg-primary-hover'
-                      : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary',
+                      ? 'bg-ui-accent-subtle text-foreground hover:bg-ui-accent-subtle'
+                      : 'text-foreground hover:bg-ui-accent-subtle hover:text-foreground',
                   ].join(' ')
                 }
               >

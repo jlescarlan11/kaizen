@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, ReactElement } from 'react'
 import { cn } from '../lib/cn'
 
-type ButtonVariant = 'primary' | 'secondary'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
@@ -9,9 +9,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary text-on-primary hover:bg-primary-hover focus-visible:ring-primary disabled:bg-surface-secondary disabled:text-text-tertiary',
+    'border border-transparent bg-ui-action text-ui-action-text hover:bg-ui-action-hover active:bg-ui-action-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
   secondary:
-    'bg-surface text-text-primary hover:bg-surface-secondary focus-visible:ring-primary disabled:bg-surface disabled:text-text-tertiary',
+    'border border-ui-border bg-ui-surface text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface disabled:text-foreground disabled:opacity-60',
+  ghost:
+    'border border-transparent bg-transparent text-foreground hover:bg-ui-surface-muted hover:text-foreground focus-visible:ring-ui-focus disabled:text-foreground disabled:opacity-60',
+  destructive:
+    'border border-transparent bg-ui-danger text-ui-danger-text hover:bg-ui-danger-hover active:bg-ui-danger-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
 }
 
 export function Button({
