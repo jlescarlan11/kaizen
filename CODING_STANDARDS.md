@@ -337,6 +337,143 @@ Final agent instruction:
 - Keep body text readable and stable.
 - Maintain calm, clean, consistent typography across the app.
 
+### 1.7.2 Form Field Standards
+
+#### 1. Form Styling Standard
+- Use Tailwind CSS as the primary styling method for all form components.
+- Use global CSS variables (`--ui-*`) as the source of truth for colors and theme values.
+- Tailwind classes must reference semantic tokens through CSS variables, not hardcoded palette values.
+- Prefer reusable Tailwind class abstractions for repeated field patterns instead of large custom CSS files.
+- Only use custom CSS when Tailwind alone is insufficient or when defining global tokens/themes.
+
+#### 2. Field States
+A field can exist in one of the following states:
+
+| State | Description |
+|---|---|
+| default | normal editable field |
+| focus | user is interacting with the field |
+| filled | field has a value |
+| hover | pointer hovering |
+| disabled | interaction prevented |
+| read-only | value visible but not editable |
+| error | validation failed |
+| success | (optional) value validated successfully |
+
+**Rule:** A field must never visually combine incompatible states (e.g., disabled + error).
+
+#### 3. Validation Timing
+Validation errors should appear:
+
+| Event | Behavior |
+|---|---|
+| typing | do not show errors yet |
+| blur | validate field |
+| submit | validate all fields |
+
+**Rule:** Errors should not appear before the user has interacted with a field. Validation should trigger on blur or form submission.
+
+#### 4. Label Rules
+Every field must include a visible label.
+- Labels must be visible.
+- Placeholders cannot replace labels.
+- Labels should be concise and descriptive.
+- Required fields: Use `*` or `(required)` consistently.
+- Optional fields: Use `(optional)` when needed.
+
+#### 5. Accessibility Requirements
+Every field must include:
+- label → input association
+- visible focus state
+- keyboard navigation
+- screen reader compatibility
+- error association
+
+**Required attributes:** `id`, `htmlFor` (on label), `aria-invalid`, `aria-describedby` (for helpers/errors).
+
+#### 6. Input Type Usage
+| Use | Input Type |
+|---|---|
+| name | `text` |
+| email | `email` |
+| password | `password` |
+| phone | `text` + `inputMode="tel"` |
+| quantity | `number` |
+| date | `date` |
+| search | `search` |
+| long text | `textarea` |
+
+**Rule:** Do not use `type="number"` for phone numbers, IDs, OTP codes, or postal codes. Use `type="text"` with the correct `inputMode`.
+
+#### 7. Layout Rules
+Each field block must follow this order:
+1. label
+2. input
+3. helper text OR error text
+
+**Spacing rules:**
+- label → input: `4px` (`gap-1` or `gap-1.5`)
+- input → helper/error: `4px`
+- field → field: `16px` (`gap-4`)
+- section → section: `24px` (`gap-6`)
+
+#### 8. Read-only vs Disabled
+**Disabled:**
+- User cannot interact.
+- Field skipped in form submission.
+- Used when field is temporarily unavailable.
+
+**Read-only:**
+- User cannot modify value.
+- Value still submitted with form.
+- Used for system-generated values.
+
+#### 9. Helper vs Error Text Priority
+- Error text replaces helper text. They should never appear simultaneously.
+- Helper text → before validation
+- Error text → after validation
+
+#### 10. Keyboard Interaction Rules
+- `Tab` → move between fields
+- `Shift + Tab` → reverse navigation
+- `Space` → toggle checkbox
+- `Arrow keys` → change radio selection
+- `Enter` → submit form
+
+#### 11. Component API Standard
+Form components should expose a standard API:
+```tsx
+<Input
+  label="Email"
+  name="email"
+  type="email"
+  placeholder="name@example.com"
+  helperText="We'll never share your email."
+  error="Enter a valid email"
+/>
+```
+**Supported props:** `label`, `name`, `type`, `value`, `defaultValue`, `placeholder`, `required`, `disabled`, `readOnly`, `helperText`, `error`.
+
+#### 12. Mobile Rules
+- Minimum input height: `44px` (e.g. `h-11`)
+- Touch targets must be accessible.
+- Use correct mobile keyboard via `inputMode`:
+  - email → `inputMode="email"`
+  - phone → `inputMode="tel"`
+  - numeric → `inputMode="numeric"`
+
+#### 13. Structured Input and Auto-Formatting
+- Use guided formatting for inputs with fixed, predictable structures such as phone numbers, OTPs, and account references.
+- When a prefix is required by business rules, render it as non-editable UI instead of requiring the user to type it manually.
+- For Philippines-only phone fields, `+63` must be fixed and non-editable.
+- The phone field must visually format the number during entry.
+- The component must accept pasted values in common user formats and normalize them automatically.
+- Display format and stored format may differ:
+  - display format is optimized for readability
+  - stored format is normalized for consistency
+- Placeholder must not be the only formatting guidance.
+- Input formatting must not break keyboard editing, deletion, cursor movement, or paste behavior.
+
 ### 1.8 Linting / Formatting (Enforced)
 
 - Prettier for formatting.

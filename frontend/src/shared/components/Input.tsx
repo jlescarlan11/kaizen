@@ -1,38 +1,74 @@
-import { useId, type InputHTMLAttributes, type ReactElement } from 'react'
+import { useId, type InputHTMLAttributes, type ReactElement, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
+import { formFieldClasses } from '../styles/form'
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
   label?: string
   error?: string
+  helperText?: string
+  startAdornment?: ReactNode
+  endAdornment?: ReactNode
 }
 
-export function Input({ className, error, id, label, ...props }: InputProps): ReactElement {
+export function Input({
+  className,
+  defaultValue,
+  error,
+  helperText,
+  id,
+  label,
+  value,
+  startAdornment,
+  endAdornment,
+  ...props
+}: InputProps): ReactElement {
   const generatedId = useId()
   const inputId = id ?? generatedId
   const errorId = error ? `${inputId}-error` : undefined
+  const helperId = helperText && !error ? `${inputId}-helper` : undefined
+
+  const ariaDescribedBy = error ? errorId : helperId
 
   return (
-    <div className="space-y-1">
+    <div className={formFieldClasses.container}>
       {label ? (
-        <label htmlFor={inputId} className="text-sm font-medium leading-none text-foreground">
+        <label htmlFor={inputId} className={formFieldClasses.label}>
           {label}
         </label>
       ) : null}
-      <input
-        id={inputId}
-        aria-describedby={errorId}
-        aria-invalid={error ? 'true' : 'false'}
-        className={cn(
-          'w-full rounded-md border border-ui-border-strong bg-ui-surface px-3 py-2 text-sm leading-6 text-foreground',
-          'placeholder:text-ui-subtle focus:border-ui-accent focus:outline-none focus:ring-2 focus:ring-ui-focus',
-          error ? 'border-ui-danger focus:border-ui-danger focus:ring-ui-danger' : '',
-          className,
-        )}
-        {...props}
-      />
+      <div className="relative flex items-center">
+        {startAdornment ? (
+          <div className="pointer-events-none absolute left-3 flex items-center text-ui-subtle">
+            {startAdornment}
+          </div>
+        ) : null}
+        <input
+          id={inputId}
+          value={value}
+          defaultValue={defaultValue}
+          {...props}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={error ? 'true' : undefined}
+          className={cn(
+            formFieldClasses.input,
+            Boolean(startAdornment) && 'pl-10',
+            Boolean(endAdornment) && 'pr-12',
+            className,
+          )}
+        />
+        {endAdornment ? (
+          <div className="pointer-events-none absolute right-3 flex items-center text-sm font-medium text-ui-subtle uppercase">
+            {endAdornment}
+          </div>
+        ) : null}
+      </div>
       {error ? (
-        <p id={errorId} className="text-xs leading-5 text-ui-danger-text-soft">
+        <p id={errorId} className={formFieldClasses.error}>
           {error}
+        </p>
+      ) : helperText ? (
+        <p id={helperId} className={formFieldClasses.helper}>
+          {helperText}
         </p>
       ) : null}
     </div>
