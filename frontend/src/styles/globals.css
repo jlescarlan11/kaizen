@@ -69,6 +69,7 @@
   --ui-border: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
   --ui-border-muted: var(--color-border);
+  --ui-border-subtle: rgba(134, 151, 135, 0.2);
   --ui-text: var(--color-text-primary);
   --ui-text-muted: var(--color-text-secondary);
   --ui-text-subtle: var(--color-text-tertiary);
@@ -180,6 +181,7 @@
   --ui-border: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
   --ui-border-muted: var(--color-border);
+  --ui-border-subtle: rgba(134, 151, 135, 0.2);
   --ui-text: var(--color-text-primary);
   --ui-text-muted: var(--color-text-secondary);
   --ui-text-subtle: var(--color-text-tertiary);
@@ -341,8 +343,11 @@ body {
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    @supports (scrollbar-width: none) {
+      scrollbar-width: none; /* Firefox */
+    }
   }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
   }

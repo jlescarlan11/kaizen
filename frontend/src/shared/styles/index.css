@@ -19,6 +19,7 @@
   --color-ui-border: var(--ui-border);
   --color-ui-border-strong: var(--ui-border-strong);
   --color-ui-border-muted: var(--ui-border-muted);
+  --color-ui-border-subtle: var(--ui-border-subtle);
 
   /* Text */
   --color-foreground: var(--color-text-primary);
@@ -107,10 +108,14 @@
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
+
+  /* Fonts */
+  --font-display: 'Poppins', sans-serif;
+  --font-body: 'Poppins', sans-serif;
 }
 
 :root {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
