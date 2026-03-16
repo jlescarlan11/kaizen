@@ -38,22 +38,32 @@ describe('RootLayout', () => {
     const shell = container.firstElementChild
     const header = container.querySelector('header')
     const brandLink = screen.getByRole('link', { name: /kaizen home/i })
-    const homeLink = screen.getByRole('link', { name: /^home$/i })
+    const platformLink = screen.getByRole('link', { name: /^platform$/i })
     const playgroundLink = screen.getByRole('link', { name: /^playground$/i })
     const brandLogo = screen.getByRole('img', { name: /kaizen/i })
     const brandLogos = screen.getAllByRole('img', { name: /kaizen/i })
 
-    expect(shell).toHaveClass('bg-ui-bg', 'text-foreground')
-    expect(header).toHaveClass('border-ui-border', 'bg-ui-surface')
+    expect(shell).toHaveClass(
+      'min-h-screen',
+      'flex',
+      'flex-col',
+      'bg-background',
+      'text-foreground',
+    )
+    expect(header).toHaveClass('bg-background')
     expect(brandLink).toHaveAttribute('href', '/')
     expect(brandLink).toHaveClass('text-foreground')
     expect(brandLogo.tagName.toLowerCase()).toBe('span')
     expect(brandLogo).toHaveClass('h-10', 'w-10', 'shrink-0')
     expect(brandLogos).toHaveLength(1)
-    expect(homeLink).toHaveClass('bg-ui-accent-subtle', 'text-foreground')
+    expect(platformLink).toHaveClass(
+      'text-muted-foreground',
+      'hover:bg-black/5',
+      'hover:text-foreground',
+    )
     expect(playgroundLink).toHaveClass(
-      'text-foreground',
-      'hover:bg-ui-accent-subtle',
+      'text-muted-foreground',
+      'hover:bg-black/5',
       'hover:text-foreground',
     )
   })
