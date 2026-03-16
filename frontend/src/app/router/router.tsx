@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { HomePage } from '../../features/home/HomePage'
+import { HomeGuard } from '../../features/home/HomeGuard'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
 import { PlaygroundPage } from '../../features/playground/PlaygroundPage'
 import { AppearancePage } from '../../features/your-account/AppearancePage'
@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <HomeGuard />,
       },
       {
         path: 'playground',
