@@ -1,7 +1,8 @@
-import type { ReactElement } from 'react'
+import { type ReactElement, Suspense, lazy } from 'react'
 import { useAuthState } from '../../shared/hooks/useAuthState'
-import { HomePage } from './HomePage'
 import { UnauthenticatedHome } from './UnauthenticatedHome'
+
+const HomePage = lazy(() => import('./HomePage').then((m) => ({ default: m.HomePage })))
 
 /**
  * HomeGuard: A root route guard that conditionally mounts the authenticated
@@ -15,12 +16,15 @@ export function HomeGuard(): ReactElement | null {
     return null
   }
 
-  // 2. Auth Conditional Branch: Mount the appropriate screen
-  // If unauthenticated, show the UnauthenticatedHome screen (stub for now)
-  if (!isAuthenticated) {
-    return <UnauthenticatedHome />
+  // 2. Auth Conditional Branch: Render UnauthenticatedHome directly for speed,
+  // or the lazy-loaded HomePage if authenticated.
+  if (isAuthenticated) {
+    return (
+      <Suspense fallback={null}>
+        <HomePage />
+      </Suspense>
+    )
   }
 
-  // 3. Authenticated Branch: Mount the existing HomePage screen
-  return <HomePage />
+  return <UnauthenticatedHome />
 }

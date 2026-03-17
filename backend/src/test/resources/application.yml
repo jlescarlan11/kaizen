@@ -22,6 +22,10 @@ app:
     user:
       name: test-user
       password: test-password
+  auth:
+    post-signup-redirect-uri: http://localhost:5173/
+    signup-screen-uri: http://localhost:5173/signup
+    token-encryption-key-base64: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
 
 springdoc:
   api-docs:
