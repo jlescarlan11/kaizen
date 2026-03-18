@@ -6,6 +6,7 @@ import { Button } from './Button'
 import { useAuthState } from '../hooks/useAuthState'
 import { useLogoutMutation } from '../../app/store/api/authApi'
 import { cn } from '../lib/cn'
+import { LogoutConfirmationModal } from './LogoutConfirmationModal'
 
 /**
  * SiteHeader: The main navigation header.
@@ -14,9 +15,10 @@ import { cn } from '../lib/cn'
  */
 export function SiteHeader(): ReactElement {
   const { isAuthenticated } = useAuthState()
-  const [logoutMutation] = useLogoutMutation()
+  const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const navigate = useNavigate()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [isFixed, setIsFixed] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const lastScrollY = useRef(0)
@@ -25,6 +27,7 @@ export function SiteHeader(): ReactElement {
   const handleLogout = async (): Promise<void> => {
     try {
       await logoutMutation().unwrap()
+      setIsLogoutModalOpen(false)
       setIsDrawerOpen(false)
       navigate('/')
     } catch (error) {
@@ -167,7 +170,7 @@ export function SiteHeader(): ReactElement {
                             <button
                               type="button"
                               className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-black/5 transition-colors text-foreground text-left w-full"
-                              onClick={handleLogout}
+                              onClick={() => setIsLogoutModalOpen(true)}
                             >
                               Log out
                               <span className="text-muted-foreground">
@@ -202,6 +205,13 @@ export function SiteHeader(): ReactElement {
           </div>
         </Dialog>
       </Transition>
+
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        isLoading={isLoggingOut}
+      />
 
       {/* ───────── HEADER ───────── */}
       <header
@@ -248,7 +258,7 @@ export function SiteHeader(): ReactElement {
                 <button
                   type="button"
                   className="rounded-md px-3 py-1.5 text-sm font-medium transition-all text-muted-foreground hover:bg-black/5 hover:text-foreground"
-                  onClick={handleLogout}
+                  onClick={() => setIsLogoutModalOpen(true)}
                 >
                   Log out
                 </button>

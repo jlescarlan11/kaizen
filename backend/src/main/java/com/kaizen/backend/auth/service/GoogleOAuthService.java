@@ -16,12 +16,15 @@ import com.kaizen.backend.auth.dto.GoogleTokenResponse;
 import com.kaizen.backend.auth.dto.GoogleUserInfoResponse;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class GoogleOAuthService {
 
     private static final String GOOGLE_PROVIDER_NAME = "google";
     private static final String GOOGLE_SCOPE = "openid profile email";
+    private static final String GOOGLE_REVOCATION_URI = "https://oauth2.googleapis.com/revoke";
 
     private final GoogleOAuthProperties googleOAuthProperties;
     private final OAuthTokenCipher oAuthTokenCipher;
@@ -38,6 +41,40 @@ public class GoogleOAuthService {
         this.oAuthTokenCipher = oAuthTokenCipher;
         this.restClient = restClientBuilder.build();
         this.userAccountRepository = userAccountRepository;
+    }
+
+    /**
+     * Decrypts and revokes all stored Google OAuth tokens for a given user email.
+     * 
+     * @param email The user's email.
+     */
+    public void revokeTokens(String email) {
+        userAccountRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
+            try {
+                if (user.getEncryptedAccessToken() != null && !user.getEncryptedAccessToken().isBlank()) {
+                    String accessToken = oAuthTokenCipher.decrypt(user.getEncryptedAccessToken());
+                    revokeTokenAtProvider(accessToken);
+                }
+                if (user.getEncryptedRefreshToken() != null && !user.getEncryptedRefreshToken().isBlank()) {
+                    String refreshToken = oAuthTokenCipher.decrypt(user.getEncryptedRefreshToken());
+                    revokeTokenAtProvider(refreshToken);
+                }
+            } catch (Exception e) {
+                log.warn("Failed to revoke Google tokens for user {}: {}", email, e.getMessage());
+            }
+        });
+    }
+
+    private void revokeTokenAtProvider(String token) {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("token", token);
+
+        restClient.post()
+            .uri(GOOGLE_REVOCATION_URI)
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .body(formData)
+            .retrieve()
+            .toBodilessEntity();
     }
 
     @NonNull

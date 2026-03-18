@@ -30,10 +30,23 @@ export const authApi = baseApi.injectEndpoints({
       }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
+          // 1. Wait for server-side invalidation
           await queryFulfilled
-          dispatch(logout())
         } catch (error) {
-          console.error('Logout failed', error)
+          // 2. If server fails, we still must clear the client state
+          // to satisfy the requirement of not staying in a half-logged-out state.
+          console.error('Server-side logout failed, forcing client-side cleanup:', error)
+        } finally {
+          // 3. Clear Redux auth state
+          dispatch(logout())
+
+          // 4. Clear browser storage artifacts
+          try {
+            localStorage.clear()
+            sessionStorage.clear()
+          } catch (storageError) {
+            console.warn('Storage cleanup failed:', storageError)
+          }
         }
       },
     }),

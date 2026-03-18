@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { RootLayout } from './RootLayout'
+import { ProtectedRoute } from './ProtectedRoute'
 
 // Critical/small pages are imported directly to avoid unnecessary network overhead
 import { HomeGuard } from '../../features/home/HomeGuard'
@@ -50,17 +51,23 @@ export const router = createBrowserRouter([
         path: 'signin',
         element: <SigninPage />,
       },
+      // Protected routes
       {
-        path: 'your-account',
-        element: <YourAccountPage />,
-      },
-      {
-        path: 'your-account/appearance',
-        element: <AppearancePage />,
-      },
-      {
-        path: 'your-account/sessions',
-        element: <SessionsPage />,
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: 'your-account',
+            element: <YourAccountPage />,
+          },
+          {
+            path: 'your-account/appearance',
+            element: <AppearancePage />,
+          },
+          {
+            path: 'your-account/sessions',
+            element: <SessionsPage />,
+          },
+        ],
       },
     ],
   },
