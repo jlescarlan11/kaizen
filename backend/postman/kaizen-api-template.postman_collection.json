@@ -89,7 +89,7 @@
       "name": "Auth",
       "item": [
         {
-          "name": "Start Google Sign-Up",
+          "name": "Start Google Sign-In",
           "request": {
             "method": "GET",
             "header": [],
@@ -105,12 +105,12 @@
                 "authorize"
               ]
             },
-            "description": "Redirects the client to Google's OAuth 2.0 consent screen for social sign-up."
+            "description": "Redirects the client to Google's OAuth 2.0 consent screen for social sign-in."
           },
           "response": []
         },
         {
-          "name": "Handle Google Sign-Up Callback",
+          "name": "Handle Google Sign-In Callback",
           "request": {
             "method": "GET",
             "header": [],
@@ -132,7 +132,7 @@
                 }
               ]
             },
-            "description": "Exchanges Google's authorization code for tokens, creates a user account, and redirects to the configured post-signup destination."
+            "description": "Exchanges Google's authorization code for tokens, creates or resolves a social account, and redirects to the configured post-auth destination."
           },
           "response": []
         }

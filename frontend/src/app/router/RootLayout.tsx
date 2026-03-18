@@ -12,11 +12,11 @@ import { Button } from '../../shared/components/Button'
 export function RootLayout(): ReactElement {
   const location = useLocation()
   const navigate = useNavigate()
-  const isSignupPage = location.pathname === '/signup'
+  const isSigninPage = location.pathname === '/signin'
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground font-body">
-      {isSignupPage ? (
+      {isSigninPage ? (
         <header className="h-20 w-full flex items-center">
           <div className="mx-auto w-full max-w-5xl px-5 md:px-10">
             <Button
@@ -58,7 +58,7 @@ export function RootLayout(): ReactElement {
         <Outlet />
       </MainContent>
 
-      {!isSignupPage && <SiteFooter />}
+      {!isSigninPage && <SiteFooter />}
     </div>
   )
 }

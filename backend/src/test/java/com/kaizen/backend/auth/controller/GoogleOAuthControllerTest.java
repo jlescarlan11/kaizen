@@ -42,8 +42,8 @@ class GoogleOAuthControllerTest {
 
     @Test
     void authorizeRedirectsToGoogleConsentScreen() throws Exception {
-        when(authFlowProperties.signupScreenUri())
-            .thenReturn(Objects.requireNonNull("http://localhost:5173/signup"));
+        when(authFlowProperties.authScreenUri())
+            .thenReturn(Objects.requireNonNull("http://localhost:5173/auth"));
 
         when(googleOAuthService.buildAuthorizationRedirectUri(anyString()))
             .thenReturn(URI.create("https://accounts.google.com/o/oauth2/v2/auth?client_id=test&state=random"));
@@ -57,7 +57,7 @@ class GoogleOAuthControllerTest {
     }
 
     @Test
-    void callbackRedirectsToConfiguredPostSignupDestination() throws Exception {
+    void callbackRedirectsToConfiguredPostAuthDestination() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("oauth2_state", "test-state");
 
@@ -68,7 +68,7 @@ class GoogleOAuthControllerTest {
             Collections.emptyList()
         );
 
-        when(authFlowProperties.postSignupRedirectUri())
+        when(authFlowProperties.postAuthRedirectUri())
             .thenReturn(Objects.requireNonNull("http://localhost:5173/app"));
 
         when(googleOAuthService.handleGoogleCallback("auth-code"))
@@ -89,18 +89,18 @@ class GoogleOAuthControllerTest {
     }
 
     @Test
-    void callbackRedirectsToSignupWithErrorOnStateMismatch() throws Exception {
+    void callbackRedirectsToAuthWithErrorOnStateMismatch() throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("oauth2_state", "correct-state");
 
-        when(authFlowProperties.signupScreenUri())
-            .thenReturn(Objects.requireNonNull("http://localhost:5173/signup"));
+        when(authFlowProperties.authScreenUri())
+            .thenReturn(Objects.requireNonNull("http://localhost:5173/auth"));
 
         mockMvc.perform(get("/api/auth/google/callback")
                 .param("code", "auth-code")
                 .param("state", "wrong-state")
                 .session(session))
             .andExpect(status().isFound())
-            .andExpect(header().string("Location", "http://localhost:5173/signup?error=PROVIDER_UNAVAILABLE"));
+            .andExpect(header().string("Location", "http://localhost:5173/auth?error=PROVIDER_UNAVAILABLE"));
     }
 }

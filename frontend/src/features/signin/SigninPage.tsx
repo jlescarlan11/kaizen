@@ -5,10 +5,10 @@ import { KaizenLogo, typography, GoogleLoginButton } from '../../shared/componen
 const ERROR_MESSAGES: Record<string, string> = {
   ACCOUNT_EXISTS: 'An account with this email already exists. Please log in instead.',
   PROVIDER_UNAVAILABLE: 'Google service is temporarily unavailable. Please try again later.',
-  INVALID_REQUEST: 'Something went wrong with the sign-up request. Please try again.',
+  INVALID_REQUEST: 'Something went wrong with the request. Please try again.',
 }
 
-export function SignupPage(): ReactElement {
+export function SigninPage(): ReactElement {
   const currentYear = new Date().getFullYear()
   const [searchParams] = useSearchParams()
   const error = searchParams.get('error')
@@ -48,9 +48,9 @@ export function SignupPage(): ReactElement {
         <div className="mt-12 flex items-center justify-center lg:mt-0 lg:justify-start">
           <div className="w-full max-w-md space-y-12 text-center lg:max-w-xl lg:space-y-8 lg:text-left">
             <header className="hidden space-y-2 text-left lg:block">
-              <h2 className={typography.h2}>Sign up to continue</h2>
+              <h2 className={typography.h2}>Sign in to continue</h2>
               <p className={typography['body-lg']}>
-                Choose your preferred method to create your Kaizen account
+                Use your preferred method to access your Kaizen account
               </p>
             </header>
 
@@ -67,7 +67,7 @@ export function SignupPage(): ReactElement {
               <GoogleLoginButton />
 
               <p className={`px-4 ${typography['body-sm']} lg:max-w-lg lg:px-0`}>
-                By signing up, you agree to our{' '}
+                By signing in, you agree to our{' '}
                 <Link to="/terms" className="font-medium text-foreground hover:underline">
                   Terms
                 </Link>{' '}

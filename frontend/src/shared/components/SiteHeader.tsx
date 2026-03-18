@@ -68,7 +68,6 @@ export function SiteHeader(): ReactElement {
     : [
         { label: 'Platform', to: '#' },
         { label: 'Help', to: '#' },
-        { label: 'Log in', to: '/login' },
         ...(isDev ? [{ label: 'Playground', to: '/playground' }] : []),
       ]
 
@@ -188,9 +187,9 @@ export function SiteHeader(): ReactElement {
                       </div>
                       {!isAuthenticated && (
                         <div className="border-t border-ui-border-subtle bg-background p-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
-                          <Link to="/signup" onClick={() => setIsDrawerOpen(false)}>
+                          <Link to="/signin" onClick={() => setIsDrawerOpen(false)}>
                             <Button variant="primary" className="w-full">
-                              Sign up
+                              Sign in
                             </Button>
                           </Link>
                         </div>
@@ -257,9 +256,9 @@ export function SiteHeader(): ReactElement {
             </div>
 
             {!isAuthenticated && (
-              <NavLink to="/signup" className="ml-2">
+              <NavLink to="/signin" className="ml-2">
                 <Button variant="primary" className="px-3! py-1.5! border-none">
-                  Sign up
+                  Sign in
                 </Button>
               </NavLink>
             )}

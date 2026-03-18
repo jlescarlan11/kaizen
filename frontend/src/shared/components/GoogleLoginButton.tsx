@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
 import { Button } from './Button'
 
-function initiateGoogleOAuthSignUp(): void {
+function initiateGoogleOAuthSignIn(): void {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
   window.location.href = `${apiBaseUrl}/auth/google/authorize`
 }
@@ -19,7 +19,7 @@ export function GoogleLoginButton({
     <Button
       variant="secondary"
       className={`h-12 w-full gap-3 text-base font-medium lg:h-10 lg:text-sm ${className || ''}`}
-      onClick={initiateGoogleOAuthSignUp}
+      onClick={initiateGoogleOAuthSignIn}
     >
       <svg
         width="20"

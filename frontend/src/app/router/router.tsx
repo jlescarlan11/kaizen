@@ -4,8 +4,8 @@ import { RootLayout } from './RootLayout'
 
 // Critical/small pages are imported directly to avoid unnecessary network overhead
 import { HomeGuard } from '../../features/home/HomeGuard'
+import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
-import { SignupPage } from '../../features/signup/SignupPage'
 
 // Lazy load larger or secondary feature pages
 const PlaygroundPage = lazy(() =>
@@ -44,8 +44,8 @@ export const router = createBrowserRouter([
         element: <PlaygroundPage />,
       },
       {
-        path: 'signup',
-        element: <SignupPage />,
+        path: 'signin',
+        element: <SigninPage />,
       },
       {
         path: 'your-account',

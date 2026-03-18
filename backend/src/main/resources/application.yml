@@ -52,8 +52,8 @@ app:
       name: ${APP_SECURITY_USER}
       password: ${APP_SECURITY_PASSWORD}
   auth:
-    post-signup-redirect-uri: ${APP_AUTH_POST_SIGNUP_REDIRECT_URI:http://localhost:5173/}
-    signup-screen-uri: ${APP_AUTH_SIGNUP_SCREEN_URI:http://localhost:5173/signup}
+    post-auth-redirect-uri: ${APP_AUTH_POST_AUTH_REDIRECT_URI:http://localhost:5173/}
+    auth-screen-uri: ${APP_AUTH_SCREEN_URI:http://localhost:5173/signin}
     token-encryption-key-base64: ${APP_AUTH_TOKEN_ENCRYPTION_KEY_BASE64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
     google:
       client-id: ${GOOGLE_OAUTH_CLIENT_ID:google-client-id}

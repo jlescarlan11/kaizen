@@ -3,15 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { AppProviders } from '../app/providers/AppProviders'
 import { RootLayout } from '../app/router/RootLayout'
-import { SignupPage } from '../features/signup/SignupPage'
+import { SigninPage } from '../features/signin/SigninPage'
 
-const renderSignupPage = (initialEntry = '/signup') => {
+const renderSigninPage = (initialEntry = '/signin') => {
   return render(
     <AppProviders>
       <MemoryRouter initialEntries={[initialEntry]}>
         <Routes>
           <Route element={<RootLayout />}>
-            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/signin" element={<SigninPage />} />
           </Route>
         </Routes>
       </MemoryRouter>
@@ -19,16 +19,16 @@ const renderSignupPage = (initialEntry = '/signup') => {
   )
 }
 
-describe('SignupPage', () => {
-  it('renders Google social sign-up button', () => {
-    renderSignupPage()
+describe('SigninPage', () => {
+  it('renders Google social auth button', () => {
+    renderSigninPage()
 
     expect(screen.getByRole('button', { name: 'Continue with Google' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Continue with Facebook' })).not.toBeInTheDocument()
   })
 
   it('renders error message from URL query parameter', () => {
-    renderSignupPage('/signup?error=ACCOUNT_EXISTS')
+    renderSigninPage('/signin?error=ACCOUNT_EXISTS')
 
     expect(
       screen.getByText('An account with this email already exists. Please log in instead.'),
@@ -36,7 +36,7 @@ describe('SignupPage', () => {
   })
 
   it('renders generic error message for unknown error code', () => {
-    renderSignupPage('/signup?error=SOME_UNKNOWN_ERROR')
+    renderSigninPage('/signin?error=SOME_UNKNOWN_ERROR')
 
     expect(screen.getByText('An unexpected error occurred. Please try again.')).toBeInTheDocument()
   })
@@ -50,7 +50,7 @@ describe('SignupPage', () => {
     // @ts-expect-error - mock window.location
     window.location = { href: '' } as unknown as Location
 
-    renderSignupPage()
+    renderSigninPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Continue with Google' }))
     expect(window.location.href).toContain('/auth/google/authorize')

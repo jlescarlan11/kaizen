@@ -61,9 +61,9 @@ public class GoogleOAuthController {
     }
 
     @Operation(
-        summary = "Start Google sign-up",
+        summary = "Start Google auth",
         description = "Builds the Google OAuth 2.0 authorization URL and redirects the client to Google's consent screen.",
-        operationId = "startGoogleSignup"
+        operationId = "startGoogleAuth"
     )
     @ApiResponses({
         @ApiResponse(
@@ -102,14 +102,14 @@ public class GoogleOAuthController {
     }
 
     @Operation(
-        summary = "Handle Google sign-up callback",
-        description = "Exchanges the Google authorization code for tokens, fetches user identity data, creates a social account, and redirects to the configured post-signup destination.",
-        operationId = "handleGoogleSignupCallback"
+        summary = "Handle Google auth callback",
+        description = "Exchanges the Google authorization code for tokens, fetches user identity data, creates or resolves a social account, and redirects to the configured post-auth destination.",
+        operationId = "handleGoogleAuthCallback"
     )
     @ApiResponses({
         @ApiResponse(
             responseCode = "302",
-            description = "Redirects to the configured post-signup destination after account creation."
+            description = "Redirects to the configured post-auth destination after account resolution."
         ),
         @ApiResponse(
             responseCode = "400",
@@ -136,31 +136,31 @@ public class GoogleOAuthController {
 
             if (state == null || !state.equals(storedState)) {
                 log.warn("Google OAuth callback: state mismatch or state missing.");
-                return redirectToSignupWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
             }
 
             // Instruction 6 owns explicit cancellation/provider-error behavior for `state` and `error`.
             if (error != null) {
                 if ("access_denied".equals(error)) {
-                    log.info("Google OAuth sign-up cancelled by user.");
+                    log.info("Google OAuth flow cancelled by user.");
 
-                    String signupUri = Objects.requireNonNull(
-                        authFlowProperties.signupScreenUri(),
-                        "Signup screen URI must not be null"
+                    String authUri = Objects.requireNonNull(
+                        authFlowProperties.authScreenUri(),
+                        "Auth screen URI must not be null"
                     );
 
                     return ResponseEntity
                         .status(HttpStatus.FOUND)
-                        .location(URI.create(signupUri))
+                        .location(URI.create(authUri))
                         .build();
                 }
                 log.warn("Google OAuth provider returned an error: {}", error);
-                return redirectToSignupWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
             }
 
             if (code == null || code.isBlank()) {
                 log.warn("Google OAuth callback missing required 'code' parameter.");
-                return redirectToSignupWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
             }
 
             String email = googleOAuthService.handleGoogleCallback(code);
@@ -178,37 +178,37 @@ public class GoogleOAuthController {
                 SecurityContextHolder.getContext()
             );
 
-            String postSignupUri = authFlowProperties.postSignupRedirectUri();
-            URI redirectUri = URI.create(Objects.requireNonNull(postSignupUri, "Post-signup redirect URI must not be null"));
+            String postAuthUri = authFlowProperties.postAuthRedirectUri();
+            URI redirectUri = URI.create(Objects.requireNonNull(postAuthUri, "Post-auth redirect URI must not be null"));
 
             return ResponseEntity
                 .status(HttpStatus.FOUND)
                 .location(Objects.requireNonNull(redirectUri))
                 .build();
         } catch (ApiException e) {
-            log.warn("Google OAuth sign-up: API error: {} (Code: {})", e.getMessage(), e.getCode());
-            return redirectToSignupWithError(e.getCode());
+            log.warn("Google OAuth auth flow: API error: {} (Code: {})", e.getMessage(), e.getCode());
+            return redirectToAuthWithError(e.getCode());
         } catch (RestClientException | IllegalStateException e) {
             log.error("Google OAuth provider error or token exchange/userinfo fetch failure.", e);
-            return redirectToSignupWithError("PROVIDER_UNAVAILABLE");
+            return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
         } catch (Exception e) {
             log.error("Unexpected error during Google OAuth callback processing.", e);
-            return redirectToSignupWithError("PROVIDER_UNAVAILABLE");
+            return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
         }
     }
 
 
-    private ResponseEntity<Void> redirectToSignupWithError(String errorCode) {
-        String signupUri = Objects.requireNonNull(
-            authFlowProperties.signupScreenUri(),
-            "Signup screen URI must not be null"
+    private ResponseEntity<Void> redirectToAuthWithError(String errorCode) {
+        String authUri = Objects.requireNonNull(
+            authFlowProperties.authScreenUri(),
+            "Auth screen URI must not be null"
         );
 
         return ResponseEntity
             .status(HttpStatus.FOUND)
             .location(Objects.requireNonNull(
                 UriComponentsBuilder
-                    .fromUriString(signupUri)
+                    .fromUriString(authUri)
                     .queryParam("error", errorCode)
                     .build()
                     .toUri(),
@@ -217,5 +217,3 @@ public class GoogleOAuthController {
             .build();
     }
 }
-
-

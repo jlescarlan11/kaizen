@@ -15,7 +15,7 @@ class OAuthTokenCipherTest {
     private final OAuthTokenCipher cipher = new OAuthTokenCipher(
         new AuthFlowProperties(
             "http://localhost:5173/app",
-            "http://localhost:5173/signup",
+            "http://localhost:5173/signin",
             "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
         )
     );

@@ -5,8 +5,8 @@ import org.springframework.lang.NonNull;
 
 @ConfigurationProperties(prefix = "app.auth")
 public record AuthFlowProperties(
-    @NonNull String postSignupRedirectUri,
-    @NonNull String signupScreenUri,
+    @NonNull String postAuthRedirectUri,
+    @NonNull String authScreenUri,
     @NonNull String tokenEncryptionKeyBase64
 ) {
 }

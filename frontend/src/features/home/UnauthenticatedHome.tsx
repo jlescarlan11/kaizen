@@ -39,7 +39,7 @@ export function UnauthenticatedHome(): ReactElement {
         </p>
 
         <div className="animate-fade-up flex flex-col md:flex-row w-full md:w-auto md:items-start gap-4 mb-12 [animation-delay:0.30s]">
-          <Link to="/signup" className="w-full md:w-auto">
+          <Link to="/signin" className="w-full md:w-auto">
             <Button className="w-full md:w-auto">Start your tracking</Button>
           </Link>
           <a href="#how-it-works" className="w-full md:w-auto">
