@@ -46,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GoogleOAuthController {
 
     private static final String STATE_SESSION_ATTRIBUTE = "oauth2_state";
+    private static final String REDIRECT_URI_SESSION_ATTRIBUTE = "oauth2_redirect_uri";
     private final SecureRandom secureRandom = new SecureRandom();
 
     private final AuthFlowProperties authFlowProperties;
@@ -88,12 +89,21 @@ public class GoogleOAuthController {
         )
     })
     @GetMapping("/authorize")
-    public ResponseEntity<GoogleOAuthRedirectResponse> authorize(HttpSession session) {
+    public ResponseEntity<GoogleOAuthRedirectResponse> authorize(
+            @RequestParam(value = "redirect_uri", required = false) String redirectUriParam,
+            HttpSession session) {
         byte[] randomBytes = new byte[32];
         secureRandom.nextBytes(randomBytes);
         String state = Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
 
         session.setAttribute(STATE_SESSION_ATTRIBUTE, state);
+        
+        // Store the dynamic redirect URI from the frontend in the session
+        if (redirectUriParam != null && !redirectUriParam.isBlank()) {
+            session.setAttribute(REDIRECT_URI_SESSION_ATTRIBUTE, redirectUriParam);
+        } else {
+            session.removeAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
+        }
 
         URI redirectUri = Objects.requireNonNull(
             googleOAuthService.buildAuthorizationRedirectUri(Objects.requireNonNull(state, "state must not be null")),
@@ -135,23 +145,25 @@ public class GoogleOAuthController {
         @RequestParam(value = "error", required = false) String error,
         HttpSession session
     ) {
+        // Retrieve dynamic redirect URI from session or use fallback from properties
+        String dynamicBaseUri = (String) session.getAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
+        
         try {
             String storedState = (String) session.getAttribute(STATE_SESSION_ATTRIBUTE);
             session.removeAttribute(STATE_SESSION_ATTRIBUTE);
 
             if (state == null || !state.equals(storedState)) {
                 log.warn("Google OAuth callback: state mismatch or state missing.");
-                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
             }
 
             if (error != null) {
                 if ("access_denied".equals(error)) {
                     log.info("Google OAuth flow cancelled by user.");
 
-                    String authUri = Objects.requireNonNull(
-                        authFlowProperties.authScreenUri(),
-                        "Auth screen URI must not be null"
-                    );
+                    String authUri = dynamicBaseUri != null 
+                        ? UriComponentsBuilder.fromUriString(dynamicBaseUri).path("/signin").build().toString()
+                        : authFlowProperties.authScreenUri();
 
                     return ResponseEntity
                         .status(HttpStatus.FOUND)
@@ -159,12 +171,12 @@ public class GoogleOAuthController {
                         .build();
                 }
                 log.warn("Google OAuth provider returned an error: {}", error);
-                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
             }
 
             if (code == null || code.isBlank()) {
                 log.warn("Google OAuth callback missing required 'code' parameter.");
-                return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
+                return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
             }
 
             String email = googleOAuthService.handleGoogleCallback(code);
@@ -185,7 +197,10 @@ public class GoogleOAuthController {
                 SecurityContextHolder.getContext()
             );
 
-            String postAuthUri = authFlowProperties.postAuthRedirectUri();
+            String postAuthUri = dynamicBaseUri != null
+                ? UriComponentsBuilder.fromUriString(dynamicBaseUri).build().toString()
+                : authFlowProperties.postAuthRedirectUri();
+                
             URI redirectUri = URI.create(postAuthUri);
 
             ResponseCookie cookie = ResponseCookie.from("kzn_pst", persistentToken)
@@ -203,22 +218,24 @@ public class GoogleOAuthController {
                 .build();
         } catch (ApiException e) {
             log.warn("Google OAuth auth flow: API error: {} (Code: {})", e.getMessage(), e.getCode());
-            return redirectToAuthWithError(e.getCode());
+            return redirectToAuthWithError(e.getCode(), dynamicBaseUri);
         } catch (RestClientException | IllegalStateException e) {
             log.error("Google OAuth provider error or token exchange/userinfo fetch failure.", e);
-            return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
+            return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
         } catch (Exception e) {
             log.error("Unexpected error during Google OAuth callback processing.", e);
-            return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
+            return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
+        } finally {
+            // Cleanup the session attribute after processing
+            session.removeAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
         }
     }
 
 
-    private ResponseEntity<Void> redirectToAuthWithError(String errorCode) {
-        String authUri = Objects.requireNonNull(
-            authFlowProperties.authScreenUri(),
-            "Auth screen URI must not be null"
-        );
+    private ResponseEntity<Void> redirectToAuthWithError(String errorCode, String dynamicBaseUri) {
+        String authUri = dynamicBaseUri != null
+            ? UriComponentsBuilder.fromUriString(dynamicBaseUri).path("/signin").build().toString()
+            : authFlowProperties.authScreenUri();
 
         return ResponseEntity
             .status(HttpStatus.FOUND)

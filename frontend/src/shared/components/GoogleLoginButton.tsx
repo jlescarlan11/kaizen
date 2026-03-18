@@ -3,7 +3,11 @@ import { Button } from './Button'
 
 function initiateGoogleOAuthSignIn(): void {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
-  window.location.href = `${apiBaseUrl}/auth/google/authorize`
+  const currentOrigin = window.location.origin
+  // Use replace to avoid adding the redirect step to history
+  window.location.replace(
+    `${apiBaseUrl}/auth/google/authorize?redirect_uri=${encodeURIComponent(currentOrigin)}`,
+  )
 }
 
 interface GoogleLoginButtonProps {

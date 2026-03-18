@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 
 /**
@@ -8,7 +8,6 @@ import { useAuthState } from '../../shared/hooks/useAuthState'
  */
 export function ProtectedRoute(): ReactElement | null {
   const { isAuthenticated, isLoading } = useAuthState()
-  const location = useLocation()
 
   // 1. Loading Guard: Show nothing while auth state is resolving
   if (isLoading) {
@@ -21,8 +20,7 @@ export function ProtectedRoute(): ReactElement | null {
 
   // 2. Auth Guard: Redirect to signin if not authenticated
   if (!isAuthenticated) {
-    // Save the current location to redirect back after login
-    return <Navigate to="/signin" state={{ from: location }} replace />
+    return <Navigate to="/signin" replace />
   }
 
   // 3. Authenticated: Render the matched child route

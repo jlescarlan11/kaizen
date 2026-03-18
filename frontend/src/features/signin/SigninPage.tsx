@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { KaizenLogo, typography, GoogleLoginButton } from '../../shared/components'
 
@@ -12,6 +12,14 @@ export function SigninPage(): ReactElement {
   const currentYear = new Date().getFullYear()
   const [searchParams] = useSearchParams()
   const error = searchParams.get('error')
+
+  useEffect(() => {
+    if (error) {
+      // Strip error from URL without refreshing or adding a history entry
+      const newUrl = window.location.origin + window.location.pathname
+      window.history.replaceState({ path: newUrl }, '', newUrl)
+    }
+  }, [error])
 
   const errorMessage = error
     ? ERROR_MESSAGES[error] || 'An unexpected error occurred. Please try again.'

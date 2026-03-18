@@ -56,8 +56,7 @@ export function SessionsPage(): ReactElement {
               </div>
               {!session.isCurrent && (
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="secondary"
                   onClick={() => handleRevoke(session.id)}
                   disabled={isRevoking}
                   className="text-destructive hover:bg-destructive/10"

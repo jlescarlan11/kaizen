@@ -50,6 +50,13 @@ export const router = createBrowserRouter([
       {
         path: 'signin',
         element: <SigninPage />,
+        handle: {
+          backButton: {
+            label: 'Back',
+            // Default fallback if no state.from is present
+            fallbackPath: '/',
+          },
+        },
       },
       // Protected routes
       {
@@ -58,14 +65,32 @@ export const router = createBrowserRouter([
           {
             path: 'your-account',
             element: <YourAccountPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
           },
           {
             path: 'your-account/appearance',
             element: <AppearancePage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
           },
           {
             path: 'your-account/sessions',
             element: <SessionsPage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
           },
         ],
       },
