@@ -14,6 +14,9 @@ const PlaygroundPage = lazy(() =>
 const AppearancePage = lazy(() =>
   import('../../features/your-account/AppearancePage').then((m) => ({ default: m.AppearancePage })),
 )
+const SessionsPage = lazy(() =>
+  import('../../features/your-account/SessionsPage').then((m) => ({ default: m.SessionsPage })),
+)
 const YourAccountPage = lazy(() =>
   import('../../features/your-account/YourAccountPage').then((m) => ({
     default: m.YourAccountPage,
@@ -54,6 +57,10 @@ export const router = createBrowserRouter([
       {
         path: 'your-account/appearance',
         element: <AppearancePage />,
+      },
+      {
+        path: 'your-account/sessions',
+        element: <SessionsPage />,
       },
     ],
   },

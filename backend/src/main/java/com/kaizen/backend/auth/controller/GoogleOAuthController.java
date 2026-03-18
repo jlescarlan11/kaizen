@@ -8,6 +8,7 @@ import java.util.Objects;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,7 @@ import com.kaizen.backend.auth.config.AuthFlowProperties;
 import com.kaizen.backend.auth.dto.GoogleOAuthRedirectResponse;
 import com.kaizen.backend.auth.service.CustomUserDetailsService;
 import com.kaizen.backend.auth.service.GoogleOAuthService;
+import com.kaizen.backend.auth.service.PersistentSessionService;
 import com.kaizen.backend.common.exception.ApiException;
 
 
@@ -49,15 +51,18 @@ public class GoogleOAuthController {
     private final AuthFlowProperties authFlowProperties;
     private final GoogleOAuthService googleOAuthService;
     private final CustomUserDetailsService userDetailsService;
+    private final PersistentSessionService persistentSessionService;
 
     public GoogleOAuthController(
         AuthFlowProperties authFlowProperties,
         GoogleOAuthService googleOAuthService,
-        CustomUserDetailsService userDetailsService
+        CustomUserDetailsService userDetailsService,
+        PersistentSessionService persistentSessionService
     ) {
         this.authFlowProperties = authFlowProperties;
         this.googleOAuthService = googleOAuthService;
         this.userDetailsService = userDetailsService;
+        this.persistentSessionService = persistentSessionService;
     }
 
     @Operation(
@@ -139,7 +144,6 @@ public class GoogleOAuthController {
                 return redirectToAuthWithError("PROVIDER_UNAVAILABLE");
             }
 
-            // Instruction 6 owns explicit cancellation/provider-error behavior for `state` and `error`.
             if (error != null) {
                 if ("access_denied".equals(error)) {
                     log.info("Google OAuth flow cancelled by user.");
@@ -165,6 +169,9 @@ public class GoogleOAuthController {
 
             String email = googleOAuthService.handleGoogleCallback(code);
 
+            // Create persistent session
+            String persistentToken = persistentSessionService.createSession(email);
+
             // After successful callback (user created/updated), log them in
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -179,11 +186,20 @@ public class GoogleOAuthController {
             );
 
             String postAuthUri = authFlowProperties.postAuthRedirectUri();
-            URI redirectUri = URI.create(Objects.requireNonNull(postAuthUri, "Post-auth redirect URI must not be null"));
+            URI redirectUri = URI.create(postAuthUri);
+
+            ResponseCookie cookie = ResponseCookie.from("kzn_pst", persistentToken)
+                .httpOnly(true)
+                .secure(true) // Assumes production is over HTTPS
+                .path("/")
+                .maxAge(90 * 24 * 60 * 60) // 90 days in seconds
+                .sameSite("Lax")
+                .build();
 
             return ResponseEntity
                 .status(HttpStatus.FOUND)
-                .location(Objects.requireNonNull(redirectUri))
+                .location(redirectUri)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
         } catch (ApiException e) {
             log.warn("Google OAuth auth flow: API error: {} (Code: {})", e.getMessage(), e.getCode());

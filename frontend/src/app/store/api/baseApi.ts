@@ -12,6 +12,7 @@ if (!/^https?:\/\//.test(apiBaseUrl)) {
 
 export const baseApi = createApi({
   reducerPath: 'baseApi',
+  tagTypes: ['Sessions'],
   baseQuery: fetchBaseQuery({
     baseUrl: apiBaseUrl,
     prepareHeaders: (headers) => {
