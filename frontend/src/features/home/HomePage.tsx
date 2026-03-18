@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { Badge } from '../../shared/components'
+import { Badge } from '../../shared/components/Badge'
 
 export function HomePage(): ReactElement {
   return (

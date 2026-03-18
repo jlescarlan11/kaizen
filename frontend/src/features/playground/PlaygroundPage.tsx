@@ -1,20 +1,18 @@
 import type { ChangeEvent, ReactElement } from 'react'
 import { useState } from 'react'
-import {
-  Badge,
-  Button,
-  Card,
-  Checkbox,
-  DailyLineChart,
-  Input,
-  LineChart,
-  Modal,
-  PhoneInput,
-  ProgressBar,
-  Radio,
-  ResponsiveModal,
-  Select,
-} from '../../shared/components'
+import { Badge } from '../../shared/components/Badge'
+import { Button } from '../../shared/components/Button'
+import { Card } from '../../shared/components/Card'
+import { Checkbox } from '../../shared/components/Checkbox'
+import { DailyLineChart } from '../../shared/components/DailyLineChart'
+import { Input } from '../../shared/components/Input'
+import { LineChart } from '../../shared/components/LineChart'
+import { Modal } from '../../shared/components/Modal'
+import { PhoneInput } from '../../shared/components/PhoneInput'
+import { ProgressBar } from '../../shared/components/ProgressBar'
+import { Radio } from '../../shared/components/Radio'
+import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
+import { Select } from '../../shared/components/Select'
 
 const DAILY_TREND_DATA = Array.from({ length: 31 }, (_, i) => ({
   day: i + 1,

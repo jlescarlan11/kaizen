@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react'
 import { KaizenLogo } from './KaizenLogo'
 import { Button } from './Button'
 import { useAuthState } from '../hooks/useAuthState'
+import { useLogoutMutation } from '../../app/store/api/authApi'
 import { cn } from '../lib/cn'
 
 /**
@@ -13,11 +14,23 @@ import { cn } from '../lib/cn'
  */
 export function SiteHeader(): ReactElement {
   const { isAuthenticated } = useAuthState()
+  const [logoutMutation] = useLogoutMutation()
+  const navigate = useNavigate()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isFixed, setIsFixed] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const lastScrollY = useRef(0)
   const isDev = import.meta.env.DEV
+
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await logoutMutation().unwrap()
+      setIsDrawerOpen(false)
+      navigate('/')
+    } catch (error) {
+      console.error('Logout failed', error)
+    }
+  }
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -150,13 +163,33 @@ export function SiteHeader(): ReactElement {
                               </span>
                             </Link>
                           ))}
+                          {isAuthenticated && (
+                            <button
+                              type="button"
+                              className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-black/5 transition-colors text-foreground text-left w-full"
+                              onClick={handleLogout}
+                            >
+                              Log out
+                              <span className="text-muted-foreground">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                  <path
+                                    d="M7 5l5 5-5 5"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </span>
+                            </button>
+                          )}
                         </nav>
                       </div>
                       {!isAuthenticated && (
                         <div className="border-t border-ui-border-subtle bg-background p-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
-                          <Link to="/login" onClick={() => setIsDrawerOpen(false)}>
+                          <Link to="/signin" onClick={() => setIsDrawerOpen(false)}>
                             <Button variant="primary" className="w-full">
-                              Log in
+                              Sign in
                             </Button>
                           </Link>
                         </div>
@@ -191,7 +224,7 @@ export function SiteHeader(): ReactElement {
             <span className="text-sm font-medium leading-none text-foreground">Kaizen</span>
           </NavLink>
 
-          <nav className="flex items-center gap-1 md:gap-2" aria-label="Main navigation">
+          <nav className="flex items-center" aria-label="Main navigation">
             <div className="hidden md:flex items-center gap-1">
               {navItems.map((item) => (
                 <NavLink
@@ -211,11 +244,22 @@ export function SiteHeader(): ReactElement {
                   {item.label}
                 </NavLink>
               ))}
+              {isAuthenticated && (
+                <button
+                  type="button"
+                  className="rounded-md px-3 py-1.5 text-sm font-medium transition-all text-muted-foreground hover:bg-black/5 hover:text-foreground"
+                  onClick={handleLogout}
+                >
+                  Log out
+                </button>
+              )}
             </div>
 
             {!isAuthenticated && (
-              <NavLink to="/login" className="ml-2">
-                <Button variant="primary">Log in</Button>
+              <NavLink to="/signin" className="ml-2">
+                <Button variant="primary" className="px-3! py-1.5! border-none">
+                  Sign in
+                </Button>
               </NavLink>
             )}
 

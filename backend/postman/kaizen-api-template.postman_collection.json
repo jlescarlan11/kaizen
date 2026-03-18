@@ -35,6 +35,11 @@
       "key": "basicAuthPassword",
       "value": "dev-password",
       "type": "string"
+    },
+    {
+      "key": "googleAuthorizationCode",
+      "value": "replace-me",
+      "type": "string"
     }
   ],
   "item": [
@@ -82,7 +87,56 @@
     },
     {
       "name": "Auth",
-      "item": []
+      "item": [
+        {
+          "name": "Start Google Sign-In",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google/authorize",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "google",
+                "authorize"
+              ]
+            },
+            "description": "Redirects the client to Google's OAuth 2.0 consent screen for social sign-in."
+          },
+          "response": []
+        },
+        {
+          "name": "Handle Google Sign-In Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/google/callback?code={{googleAuthorizationCode}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "google",
+                "callback"
+              ],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "{{googleAuthorizationCode}}"
+                }
+              ]
+            },
+            "description": "Exchanges Google's authorization code for tokens, creates or resolves a social account, and redirects to the configured post-auth destination."
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "Core APIs",

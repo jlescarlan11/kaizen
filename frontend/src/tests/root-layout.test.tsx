@@ -1,11 +1,9 @@
-import { cleanup, render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { screen } from '@testing-library/react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { RootLayout } from '../app/router/RootLayout'
-import { ThemeProvider } from '../providers/theme'
+import { render } from './test-utils'
 
 afterEach(() => {
-  cleanup()
   localStorage.clear()
 })
 
@@ -27,13 +25,7 @@ beforeAll(() => {
 
 describe('RootLayout', () => {
   it('uses theme token classes for the shell and active navigation', () => {
-    const { container } = render(
-      <ThemeProvider>
-        <MemoryRouter initialEntries={['/']}>
-          <RootLayout />
-        </MemoryRouter>
-      </ThemeProvider>,
-    )
+    const { container } = render(<RootLayout />)
 
     const shell = container.firstElementChild
     const header = container.querySelector('header')
@@ -71,13 +63,7 @@ describe('RootLayout', () => {
   it('keeps the same inline logo in dark mode', () => {
     localStorage.setItem('kaizen-theme', 'dark')
 
-    render(
-      <ThemeProvider>
-        <MemoryRouter initialEntries={['/']}>
-          <RootLayout />
-        </MemoryRouter>
-      </ThemeProvider>,
-    )
+    render(<RootLayout />)
 
     const brandLogo = screen.getByRole('img', { name: /kaizen/i })
 
