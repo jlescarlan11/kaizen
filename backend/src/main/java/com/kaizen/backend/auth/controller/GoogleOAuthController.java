@@ -22,6 +22,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.kaizen.backend.auth.config.AuthFlowProperties;
+import com.kaizen.backend.auth.config.PublicEndpoint;
 import com.kaizen.backend.auth.dto.GoogleOAuthRedirectResponse;
 import com.kaizen.backend.auth.service.CustomUserDetailsService;
 import com.kaizen.backend.auth.service.GoogleOAuthService;
