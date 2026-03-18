@@ -18,6 +18,9 @@ const AppearancePage = lazy(() =>
 const SessionsPage = lazy(() =>
   import('../../features/your-account/SessionsPage').then((m) => ({ default: m.SessionsPage })),
 )
+const ProfilePage = lazy(() =>
+  import('../../features/your-account/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+)
 const YourAccountPage = lazy(() =>
   import('../../features/your-account/YourAccountPage').then((m) => ({
     default: m.YourAccountPage,
@@ -85,6 +88,16 @@ export const router = createBrowserRouter([
           {
             path: 'your-account/sessions',
             element: <SessionsPage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'your-account/profile',
+            element: <ProfilePage />,
             handle: {
               backButton: {
                 label: 'Account',
