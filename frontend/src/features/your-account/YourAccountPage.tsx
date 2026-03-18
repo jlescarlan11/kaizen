@@ -35,6 +35,11 @@ const accountSections: ReadonlyArray<{
     title: 'Account',
     items: [
       {
+        label: 'Active Sessions',
+        description: 'View and manage devices currently signed in',
+        to: '/your-account/sessions',
+      },
+      {
         label: 'Statement and reports',
         description: 'Download statements and export summaries',
       },
