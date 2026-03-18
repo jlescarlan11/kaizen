@@ -1,9 +1,17 @@
 package com.kaizen.backend.user.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.kaizen.backend.common.entity.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -50,6 +58,14 @@ public class UserAccount extends BaseEntity {
     @Column(name = "encrypted_refresh_token")
     private String encryptedRefreshToken;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_role",
+        joinColumns = @JoinColumn(name = "user_account_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
     public UserAccount(
         String name,
         String email,
@@ -66,5 +82,13 @@ public class UserAccount extends BaseEntity {
         this.passwordHash = passwordHash;
         this.encryptedAccessToken = encryptedAccessToken;
         this.encryptedRefreshToken = encryptedRefreshToken;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 }

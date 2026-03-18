@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Tag(name = "Auth", description = "Authentication entry points and OAuth callbacks.")
+@PublicEndpoint(rationale = "OAuth entry points must be publicly accessible to initiate authentication flow.")
 @RestController
 @RequestMapping("/api/auth/google")
 public class GoogleOAuthController {

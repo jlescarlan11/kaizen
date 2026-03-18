@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Health", description = "Service health and probe endpoints.")
+@PublicEndpoint(rationale = "Public probe endpoint for basic availability checks.")
 @RestController
 @RequestMapping("/api")
 public class ProbeController {
