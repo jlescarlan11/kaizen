@@ -36,6 +36,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                 .requestMatchers(
+                    "/api/users/me",
                     "/api/auth/google/**",
                     "/actuator/health/**",
                     "/swagger-ui.html",

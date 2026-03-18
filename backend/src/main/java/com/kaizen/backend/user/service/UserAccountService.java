@@ -3,7 +3,9 @@ package com.kaizen.backend.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
+import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
 @Service
@@ -24,5 +26,16 @@ public class UserAccountService {
                 account.getEmail()
             ))
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+    }
+
+    public UserProfileResponse getProfileByEmail(String email) {
+        return userAccountRepository.findByEmailIgnoreCase(email)
+            .map(account -> new UserProfileResponse(
+                account.getId(),
+                account.getName(),
+                account.getEmail(),
+                account.getCreatedAt()
+            ))
+            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
     }
 }

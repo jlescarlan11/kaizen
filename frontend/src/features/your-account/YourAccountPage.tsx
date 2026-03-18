@@ -46,6 +46,7 @@ const accountSections: ReadonlyArray<{
       {
         label: 'Personal details',
         description: 'Update your profile and contact information',
+        to: '/your-account/profile',
       },
       {
         label: 'Close Account',
