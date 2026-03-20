@@ -7,6 +7,8 @@ interface User {
   email: string
   picture?: string
   createdAt: string
+  onboardingCompleted: boolean
+  openingBalance: number
 }
 
 export const authApi = baseApi.injectEndpoints({

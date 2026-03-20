@@ -8,6 +8,8 @@ import { HomeGuard } from '../../features/home/HomeGuard'
 import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
 
+import { OnboardingGuard } from '../../features/onboarding/OnboardingGuard'
+
 // Lazy load larger or secondary feature pages
 const PlaygroundPage = lazy(() =>
   import('../../features/playground/PlaygroundPage').then((m) => ({ default: m.PlaygroundPage })),
@@ -72,7 +74,13 @@ export const router = createBrowserRouter([
         children: [
           {
             path: 'onboarding',
-            element: <OnboardingPage />,
+            element: <OnboardingGuard />,
+            children: [
+              {
+                index: true,
+                element: <OnboardingPage />,
+              },
+            ],
           },
           {
             path: 'playground',
