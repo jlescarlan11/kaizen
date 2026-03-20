@@ -6,6 +6,8 @@ export interface User {
   email: string
   picture?: string
   createdAt?: string
+  onboardingCompleted: boolean
+  openingBalance: number
 }
 
 export interface AuthState {

@@ -3,8 +3,10 @@ package com.kaizen.backend.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
+import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
@@ -24,7 +26,9 @@ public class UserAccountService {
                 account.getId(),
                 account.getName(),
                 account.getEmail(),
-                account.getPictureUrl()
+                account.getPictureUrl(),
+                account.isOnboardingCompleted(),
+                account.getOpeningBalance()
             ))
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
@@ -36,8 +40,30 @@ public class UserAccountService {
                 account.getName(),
                 account.getEmail(),
                 account.getPictureUrl(),
-                account.getCreatedAt()
+                account.getCreatedAt(),
+                account.isOnboardingCompleted(),
+                account.getOpeningBalance()
             ))
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+    }
+
+    @Transactional
+    public UserResponse completeOnboarding(String email, OnboardingRequest request) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        account.setOpeningBalance(request.openingBalance());
+        account.setOnboardingCompleted(true);
+        
+        UserAccount updated = userAccountRepository.save(account);
+        
+        return new UserResponse(
+            updated.getId(),
+            updated.getName(),
+            updated.getEmail(),
+            updated.getPictureUrl(),
+            updated.isOnboardingCompleted(),
+            updated.getOpeningBalance()
+        );
     }
 }

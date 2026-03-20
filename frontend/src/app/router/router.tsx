@@ -26,6 +26,11 @@ const YourAccountPage = lazy(() =>
     default: m.YourAccountPage,
   })),
 )
+const OnboardingPage = lazy(() =>
+  import('../../features/onboarding/OnboardingPage').then((m) => ({
+    default: m.OnboardingPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -65,6 +70,10 @@ export const router = createBrowserRouter([
       {
         element: <ProtectedRoute />,
         children: [
+          {
+            path: 'onboarding',
+            element: <OnboardingPage />,
+          },
           {
             path: 'playground',
             element: <PlaygroundPage />,

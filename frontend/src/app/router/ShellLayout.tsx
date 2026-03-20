@@ -23,12 +23,12 @@ export function ShellLayout(): ReactElement {
     )
   }
 
-  const isSigninPage = location.pathname === '/signin'
+  const isFullPage = location.pathname === '/signin' || location.pathname === '/onboarding'
 
   // 2. Decision logic:
-  // If the user is authenticated and NOT on the sign-in page, use the Sidebar-based shell.
+  // If the user is authenticated and NOT on a full-page route, use the Sidebar-based shell.
   // Otherwise, use the standard top-navigation shell.
-  if (isAuthenticated && !isSigninPage) {
+  if (isAuthenticated && !isFullPage) {
     return <AuthenticatedLayout />
   }
 

@@ -1,4 +1,5 @@
 import { type ReactElement, Suspense, lazy } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { UnauthenticatedHome } from './UnauthenticatedHome'
 
@@ -9,7 +10,7 @@ const HomePage = lazy(() => import('./HomePage').then((m) => ({ default: m.HomeP
  * or unauthenticated home screen based on the current auth state.
  */
 export function HomeGuard(): ReactElement | null {
-  const { isAuthenticated, isLoading } = useAuthState()
+  const { isAuthenticated, isLoading, user } = useAuthState()
 
   // 1. Loading Guard: Show nothing while auth state is resolving
   if (isLoading) {
@@ -19,6 +20,11 @@ export function HomeGuard(): ReactElement | null {
   // 2. Auth Conditional Branch: Render UnauthenticatedHome directly for speed,
   // or the lazy-loaded HomePage if authenticated.
   if (isAuthenticated) {
+    // 3. Onboarding Guard: If authenticated but onboarding not complete, redirect.
+    if (user && !user.onboardingCompleted) {
+      return <Navigate to="/onboarding" replace />
+    }
+
     return (
       <Suspense fallback={null}>
         <HomePage />

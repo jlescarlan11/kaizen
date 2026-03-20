@@ -59,6 +59,12 @@ public class UserAccount extends BaseEntity {
     @Column(name = "encrypted_refresh_token", columnDefinition = "TEXT")
     private String encryptedRefreshToken;
 
+    @Column(name = "onboarding_completed", nullable = false)
+    private boolean onboardingCompleted = false;
+
+    @Column(name = "opening_balance", precision = 15, scale = 2)
+    private java.math.BigDecimal openingBalance = java.math.BigDecimal.ZERO;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_role",

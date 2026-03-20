@@ -3,11 +3,15 @@ package com.kaizen.backend.user.controller;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaizen.backend.common.dto.ErrorResponse;
+import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
+import com.kaizen.backend.user.dto.UserResponse;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.service.UserAccountService;
 
@@ -17,6 +21,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @Tag(name = "User", description = "User account management.")
 @RestController
@@ -52,5 +57,33 @@ public class UserAccountController {
             throw new ProfileNotFoundException();
         }
         return userAccountService.getProfileByEmail(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Complete onboarding",
+        description = "Sets the initial balance and marks onboarding as completed for the current user.",
+        operationId = "completeOnboarding"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Onboarding completed successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid request data.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/onboarding")
+    public UserResponse completeOnboarding(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody OnboardingRequest request
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+        return userAccountService.completeOnboarding(userDetails.getUsername(), request);
     }
 }
