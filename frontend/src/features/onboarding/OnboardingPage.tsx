@@ -35,9 +35,15 @@ export function OnboardingPage(): ReactElement {
   const handleCompleteOnboarding = async () => {
     setIsSubmitting(true)
     setError(null)
+
+    // PRD Open Question 4: Should an empty input block or default to 0.00?
+    // Current implementation: Defaults to 0.00 if input is empty or invalid.
+    // Confirm behavior: If blocking is required, add a check here to prevent submission.
+    const numericBalance = parseFloat(balance) || 0
+
     try {
       await completeOnboarding({
-        openingBalance: parseFloat(balance) || 0,
+        openingBalance: numericBalance,
       }).unwrap()
 
       navigate('/')
@@ -72,14 +78,21 @@ export function OnboardingPage(): ReactElement {
               </p>
             </div>
 
+            {/* 
+                INTEGRATION POINT: Instruction 5 — Validation. 
+                Validation logic and error message rendering (e.g., via the 'error' prop) 
+                should be attached to this Input component.
+            */}
             <Input
               label="Opening Balance"
               type="number"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
               placeholder="0.00"
+              startAdornment="₱"
               endAdornment="PHP"
               min="0"
+              step="0.01"
               autoFocus
             />
 
