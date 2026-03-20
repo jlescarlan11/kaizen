@@ -27,6 +27,21 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    completeOnboarding: builder.mutation<User, { openingBalance: number }>({
+      query: (body) => ({
+        url: '/users/onboarding',
+        method: 'POST',
+        body,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to complete onboarding:', error)
+        }
+      },
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
@@ -57,4 +72,4 @@ export const authApi = baseApi.injectEndpoints({
   }),
 })
 
-export const { useGetMeQuery, useLogoutMutation } = authApi
+export const { useGetMeQuery, useLogoutMutation, useCompleteOnboardingMutation } = authApi

@@ -42,8 +42,7 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
     private final PersistentSessionRepository persistentSessionRepository;
     private final CustomUserDetailsService userDetailsService;
     private final AuthenticationEntryPoint authenticationEntryPoint;
-
-    private static final String SESSION_COOKIE_NAME = "kzn_pst";
+    private final SessionProperties sessionProperties;
     
     // Consistent failure signal attributes for Instruction 5 audit logger
     public static final String AUTH_FAILURE_SIGNAL_ATTR = "KZN_AUTH_FAILURE_SIGNAL";
@@ -104,7 +103,7 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
             return Optional.empty();
         }
         return Arrays.stream(request.getCookies())
-                .filter(cookie -> SESSION_COOKIE_NAME.equals(cookie.getName()))
+                .filter(cookie -> sessionProperties.cookieName().equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst();
     }

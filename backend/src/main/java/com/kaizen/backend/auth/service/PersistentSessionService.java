@@ -20,8 +20,7 @@ public class PersistentSessionService {
 
     private final PersistentSessionRepository persistentSessionRepository;
     private final UserAccountRepository userAccountRepository;
-
-    private static final int SESSION_EXPIRY_DAYS = 90;
+    private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
 
     /**
      * Creates a new persistent session for the given user email.
@@ -36,11 +35,15 @@ public class PersistentSessionService {
 
         String rawToken = SessionTokenUtil.generateToken();
         String tokenHash = SessionTokenUtil.hashToken(rawToken);
-        Instant expiresAt = Instant.now().plus(SESSION_EXPIRY_DAYS, ChronoUnit.DAYS);
+        Instant expiresAt = Instant.now().plus(sessionProperties.expiryDays(), ChronoUnit.DAYS);
 
         PersistentSession session = new PersistentSession(userAccount, tokenHash, expiresAt);
         persistentSessionRepository.save(session);
 
         return rawToken;
+    }
+
+    public int getSessionExpirySeconds() {
+        return sessionProperties.expiryDays() * 24 * 60 * 60;
     }
 }

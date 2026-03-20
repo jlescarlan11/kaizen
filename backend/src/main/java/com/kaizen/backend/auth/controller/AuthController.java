@@ -30,8 +30,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final PersistentSessionRepository persistentSessionRepository;
-    private final GoogleOAuthService googleOAuthService;
-    private static final String SESSION_COOKIE_NAME = "kzn_pst";
+    private final com.kaizen.backend.auth.service.GoogleOAuthService googleOAuthService;
+    private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
 
     @Operation(summary = "Logout the current user", description = "Invalidates the current session.")
     @PostMapping("/logout")
@@ -55,19 +55,19 @@ public class AuthController {
         // 4. Clear persistent session from database if present
         if (request.getCookies() != null) {
             Arrays.stream(request.getCookies())
-                .filter(c -> SESSION_COOKIE_NAME.equals(c.getName()))
+                .filter(c -> sessionProperties.cookieName().equals(c.getName()))
                 .findFirst()
                 .ifPresent(cookie -> {
                     String token = cookie.getValue();
                     if (token != null && !token.isBlank()) {
-                        String tokenHash = SessionTokenUtil.hashToken(token);
+                        String tokenHash = com.kaizen.backend.auth.util.SessionTokenUtil.hashToken(token);
                         persistentSessionRepository.deleteByTokenHash(tokenHash);
                     }
                 });
         }
 
         // 5. Clear the cookie from the client
-        ResponseCookie clearCookie = ResponseCookie.from(SESSION_COOKIE_NAME, "")
+        ResponseCookie clearCookie = ResponseCookie.from(sessionProperties.cookieName(), "")
             .httpOnly(true)
             .secure(request.isSecure()) // Dynamic based on request protocol
             .path("/")

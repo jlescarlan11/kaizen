@@ -1,5 +1,8 @@
 package com.kaizen.backend.user.controller;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.auth.config.SessionProperties;
+import com.kaizen.backend.auth.service.PersistentSessionService;
 import com.kaizen.backend.common.dto.ErrorResponse;
 import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
@@ -21,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Tag(name = "User", description = "User account management.")
@@ -29,9 +35,16 @@ import jakarta.validation.Valid;
 public class UserAccountController {
 
     private final UserAccountService userAccountService;
+    private final PersistentSessionService persistentSessionService;
+    private final SessionProperties sessionProperties;
 
-    public UserAccountController(UserAccountService userAccountService) {
+    public UserAccountController(
+            UserAccountService userAccountService, 
+            PersistentSessionService persistentSessionService,
+            SessionProperties sessionProperties) {
         this.userAccountService = userAccountService;
+        this.persistentSessionService = persistentSessionService;
+        this.sessionProperties = sessionProperties;
     }
 
     @Operation(
@@ -61,13 +74,13 @@ public class UserAccountController {
 
     @Operation(
         summary = "Complete onboarding",
-        description = "Sets the initial balance and marks onboarding as completed for the current user.",
+        description = "Sets the initial balance and marks onboarding as completed for the current user. Also issues/refreshes the persistent session token.",
         operationId = "completeOnboarding"
     )
     @ApiResponses({
         @ApiResponse(
             responseCode = "200",
-            description = "Onboarding completed successfully.",
+            description = "Onboarding completed successfully and persistent session issued.",
             content = @Content(schema = @Schema(implementation = UserResponse.class))
         ),
         @ApiResponse(
@@ -77,13 +90,31 @@ public class UserAccountController {
         )
     })
     @PostMapping("/onboarding")
-    public UserResponse completeOnboarding(
+    public ResponseEntity<UserResponse> completeOnboarding(
         @AuthenticationPrincipal UserDetails userDetails,
-        @Valid @RequestBody OnboardingRequest request
+        @Valid @RequestBody OnboardingRequest request,
+        HttpServletRequest servletRequest
     ) {
         if (userDetails == null) {
             throw new ProfileNotFoundException();
         }
-        return userAccountService.completeOnboarding(userDetails.getUsername(), request);
+        
+        String email = userDetails.getUsername();
+        UserResponse userResponse = userAccountService.completeOnboarding(email, request);
+        
+        // Issue/Refresh persistent session token at onboarding completion
+        String persistentToken = persistentSessionService.createSession(email);
+        
+        ResponseCookie cookie = ResponseCookie.from(sessionProperties.cookieName(), persistentToken)
+            .httpOnly(true)
+            .secure(servletRequest.isSecure())
+            .path("/")
+            .maxAge(persistentSessionService.getSessionExpirySeconds())
+            .sameSite("Lax")
+            .build();
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+            .body(userResponse);
     }
 }

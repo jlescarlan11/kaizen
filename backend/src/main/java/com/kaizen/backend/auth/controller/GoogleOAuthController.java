@@ -56,17 +56,20 @@ public class GoogleOAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final CustomUserDetailsService userDetailsService;
     private final PersistentSessionService persistentSessionService;
+    private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
 
     public GoogleOAuthController(
         AuthFlowProperties authFlowProperties,
         GoogleOAuthService googleOAuthService,
         CustomUserDetailsService userDetailsService,
-        PersistentSessionService persistentSessionService
+        PersistentSessionService persistentSessionService,
+        com.kaizen.backend.auth.config.SessionProperties sessionProperties
     ) {
         this.authFlowProperties = authFlowProperties;
         this.googleOAuthService = googleOAuthService;
         this.userDetailsService = userDetailsService;
         this.persistentSessionService = persistentSessionService;
+        this.sessionProperties = sessionProperties;
     }
 
     @Operation(
@@ -207,11 +210,11 @@ public class GoogleOAuthController {
                 
             URI redirectUri = URI.create(postAuthUri);
 
-            ResponseCookie cookie = ResponseCookie.from("kzn_pst", persistentToken)
+            ResponseCookie cookie = ResponseCookie.from(sessionProperties.cookieName(), persistentToken)
                 .httpOnly(true)
                 .secure(request.isSecure()) // Dynamic based on request protocol
                 .path("/")
-                .maxAge(90 * 24 * 60 * 60) // 90 days in seconds
+                .maxAge(persistentSessionService.getSessionExpirySeconds())
                 .sameSite("Lax")
                 .build();
 

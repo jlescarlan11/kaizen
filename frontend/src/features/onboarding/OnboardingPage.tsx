@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
 import { useAuthState } from '../../shared/hooks/useAuthState'
-import { setCredentials } from '../../app/store/authSlice'
+import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { Button } from '../../shared/components/Button'
 import { Card } from '../../shared/components/Card'
 import { Input } from '../../shared/components/Input'
@@ -13,8 +12,8 @@ import type { Category } from '../categories/types'
 
 export function OnboardingPage(): ReactElement {
   const { user } = useAuthState()
-  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [completeOnboarding] = useCompleteOnboardingMutation()
 
   const [step, setStep] = useState(1)
   const [balance, setBalance] = useState('0.00')
@@ -37,22 +36,10 @@ export function OnboardingPage(): ReactElement {
     setIsSubmitting(true)
     setError(null)
     try {
-      const response = await fetch('/api/users/onboarding', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          openingBalance: parseFloat(balance) || 0,
-        }),
-      })
+      await completeOnboarding({
+        openingBalance: parseFloat(balance) || 0,
+      }).unwrap()
 
-      if (!response.ok) {
-        throw new Error('Failed to complete onboarding')
-      }
-
-      const updatedUser = await response.json()
-      dispatch(setCredentials({ user: updatedUser }))
       navigate('/')
     } catch {
       setError('Something went wrong. Please try again.')
