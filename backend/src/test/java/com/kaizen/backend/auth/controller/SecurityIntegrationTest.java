@@ -80,13 +80,13 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         Role adminRole = roleRepository.save(new Role("ADMIN"));
 
         // 2. Create Standard User
-        UserAccount user = new UserAccount("Standard User", "user@example.com", "google", "123", null, "at", "rt");
+        UserAccount user = new UserAccount("Standard User", "user@example.com", "google", "123", null, null, "at", "rt");
         user.addRole(userRole);
         userRepository.save(user);
         userToken = createSessionToken(user, 90);
 
         // 3. Create Admin User
-        UserAccount admin = new UserAccount("Admin User", "admin@example.com", "google", "456", null, "at", "rt");
+        UserAccount admin = new UserAccount("Admin User", "admin@example.com", "google", "456", null, null, "at", "rt");
         admin.addRole(adminRole);
         admin.addRole(userRole);
         userRepository.save(admin);
@@ -164,8 +164,11 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
     }
 
     private ResultActions performRequest(EndpointInfo endpoint, String token) throws Exception {
+        // Simple heuristic to expand common path variables for security testing
+        String path = endpoint.path().replace("{id}", "1");
+        
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-                .request(endpoint.method(), endpoint.path())
+                .request(endpoint.method(), path)
                 .contentType(MediaType.APPLICATION_JSON);
         
         if (token != null) {
@@ -176,7 +179,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
     }
 
     private List<EndpointInfo> getProtectedEndpoints() {
-        RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
         List<EndpointInfo> endpoints = new ArrayList<>();
 

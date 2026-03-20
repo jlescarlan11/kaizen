@@ -12,6 +12,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kaizen.backend.common.dto.ErrorResponse;
 import com.kaizen.backend.common.logging.SecurityAuditLogger;
@@ -60,7 +64,16 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
         
-        log.debug("Forbidden access attempt: {}", accessDeniedException.getMessage());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        // If the user is anonymous, treat it as an authentication failure (401)
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            log.debug("Anonymous access to protected resource - redirecting to 401");
+            commence(request, response, new AuthenticationException(accessDeniedException.getMessage(), accessDeniedException) {});
+            return;
+        }
+
+        log.debug("Forbidden access attempt for user {}: {}", authentication.getName(), accessDeniedException.getMessage());
         
         // Record structured log entry for authorization failure
         auditLogger.logAuthorizationFailure(request, "Insufficient permissions");

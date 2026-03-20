@@ -42,6 +42,7 @@ class UserAccountControllerTest {
             1L,
             "Test User",
             "test@example.com",
+            "http://example.com/pic.jpg",
             Instant.parse("2026-03-18T10:00:00Z")
         );
 

@@ -1,6 +1,6 @@
 import { Suspense, lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
-import { RootLayout } from './RootLayout'
+import { ShellLayout } from './ShellLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 // Critical/small pages are imported directly to avoid unnecessary network overhead
@@ -33,12 +33,12 @@ export const router = createBrowserRouter([
     element: (
       <Suspense
         fallback={
-          <div className="flex h-screen w-full items-center justify-center">
+          <div className="flex h-screen w-full items-center justify-center bg-background">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
         }
       >
-        <RootLayout />
+        <ShellLayout />
       </Suspense>
     ),
     children: [
@@ -66,22 +66,16 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           {
+            path: 'playground',
+            element: <PlaygroundPage />,
+          },
+          {
             path: 'your-account',
             element: <YourAccountPage />,
             handle: {
               backButton: {
                 label: 'Back',
                 fallbackPath: '/',
-              },
-            },
-          },
-          {
-            path: 'your-account/appearance',
-            element: <AppearancePage />,
-            handle: {
-              backButton: {
-                label: 'Account',
-                fallbackPath: '/your-account',
               },
             },
           },
@@ -105,10 +99,21 @@ export const router = createBrowserRouter([
               },
             },
           },
+          {
+            path: 'your-account/appearance',
+            element: <AppearancePage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
         ],
       },
     ],
   },
+
   {
     path: '*',
     element: <NotFoundPage />,

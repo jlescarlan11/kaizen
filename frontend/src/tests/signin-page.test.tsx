@@ -1,20 +1,29 @@
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { describe, expect, it, vi } from 'vitest'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { AppProviders } from '../app/providers/AppProviders'
 import { RootLayout } from '../app/router/RootLayout'
 import { SigninPage } from '../features/signin/SigninPage'
 
 const renderSigninPage = (initialEntry = '/signin') => {
+  const router = createMemoryRouter(
+    [
+      {
+        element: <RootLayout />,
+        children: [
+          {
+            path: '/signin',
+            element: <SigninPage />,
+          },
+        ],
+      },
+    ],
+    { initialEntries: [initialEntry] },
+  )
+
   return render(
     <AppProviders>
-      <MemoryRouter initialEntries={[initialEntry]}>
-        <Routes>
-          <Route element={<RootLayout />}>
-            <Route path="/signin" element={<SigninPage />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <RouterProvider router={router} />
     </AppProviders>,
   )
 }
@@ -48,12 +57,14 @@ describe('SigninPage', () => {
     // @ts-expect-error - mock window.location
     delete window.location
     // @ts-expect-error - mock window.location
-    window.location = { href: '' } as unknown as Location
+    window.location = { replace: vi.fn(), origin: 'http://localhost' } as unknown as Location
 
     renderSigninPage()
 
     fireEvent.click(screen.getByRole('button', { name: 'Continue with Google' }))
-    expect(window.location.href).toContain('/auth/google/authorize')
+    expect(window.location.replace).toHaveBeenCalledWith(
+      expect.stringContaining('/auth/google/authorize'),
+    )
 
     // @ts-expect-error - restore original
     window.location = originalLocation

@@ -5,13 +5,13 @@ import { KaizenLogo } from './KaizenLogo'
 import { Button } from './Button'
 import { useAuthState } from '../hooks/useAuthState'
 import { useLogoutMutation } from '../../app/store/api/authApi'
-import { cn } from '../lib/cn'
 import { LogoutConfirmationModal } from './LogoutConfirmationModal'
+import { cn } from '../lib/cn'
 
 /**
  * SiteHeader: The main navigation header.
- * Implements "natural" smart scroll behavior with a height-preserving wrapper
- * to prevent content overlap and layout shifts.
+ * Implements "reveal-on-scroll-up" behavior using a sticky header
+ * and translate transitions.
  */
 export function SiteHeader(): ReactElement {
   const { isAuthenticated } = useAuthState()
@@ -19,10 +19,43 @@ export function SiteHeader(): ReactElement {
   const navigate = useNavigate()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
-  const [isFixed, setIsFixed] = useState(false)
-  const [isVisible, setIsVisible] = useState(true)
+  const [headerOffset, setHeaderOffset] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
   const lastScrollY = useRef(0)
   const isDev = import.meta.env.DEV
+
+  useEffect(() => {
+    const handleScroll = (): void => {
+      const currentScrollY = Math.max(0, window.scrollY)
+      const isScrollingUp = currentScrollY < lastScrollY.current
+
+      if (currentScrollY <= 80) {
+        if (currentScrollY === 0) {
+          setHeaderOffset(0)
+          setIsAnimating(false)
+        } else if (isScrollingUp && headerOffset === 0) {
+          setHeaderOffset(0)
+          setIsAnimating(true)
+        } else {
+          setHeaderOffset(-currentScrollY)
+          setIsAnimating(false)
+        }
+      } else {
+        if (currentScrollY < lastScrollY.current - 5) {
+          setHeaderOffset(0)
+          setIsAnimating(true)
+        } else if (currentScrollY > lastScrollY.current + 5) {
+          setHeaderOffset(-80)
+          setIsAnimating(true)
+        }
+      }
+
+      lastScrollY.current = currentScrollY
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [headerOffset])
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -34,34 +67,6 @@ export function SiteHeader(): ReactElement {
       console.error('Logout failed', error)
     }
   }
-
-  useEffect(() => {
-    const handleScroll = (): void => {
-      const currentScrollY = window.scrollY
-
-      // 1. At the very top: Reset to normal positioning
-      if (currentScrollY <= 0) {
-        setIsFixed(false)
-        setIsVisible(true)
-      }
-      // 2. Beyond threshold (200px): Enable smart fixed behavior
-      else if (currentScrollY > 200) {
-        if (currentScrollY < lastScrollY.current) {
-          // Scrolling UP: Show fixed header
-          setIsFixed(true)
-          setIsVisible(true)
-        } else if (currentScrollY > lastScrollY.current + 5) {
-          // Scrolling DOWN: Hide header
-          setIsVisible(false)
-        }
-      }
-
-      lastScrollY.current = currentScrollY
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   const navItems = isAuthenticated
     ? [
@@ -75,8 +80,7 @@ export function SiteHeader(): ReactElement {
       ]
 
   return (
-    /* Wrapper preserves h-20 space in the document flow to prevent overlap */
-    <div className="h-20 w-full">
+    <>
       {/* ───────── MOBILE DRAWER ───────── */}
       <Transition show={isDrawerOpen}>
         <Dialog as="div" className="relative z-50" onClose={setIsDrawerOpen}>
@@ -166,26 +170,6 @@ export function SiteHeader(): ReactElement {
                               </span>
                             </Link>
                           ))}
-                          {isAuthenticated && (
-                            <button
-                              type="button"
-                              className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-black/5 transition-colors text-foreground text-left w-full"
-                              onClick={() => setIsLogoutModalOpen(true)}
-                            >
-                              Log out
-                              <span className="text-muted-foreground">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                  <path
-                                    d="M7 5l5 5-5 5"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                  />
-                                </svg>
-                              </span>
-                            </button>
-                          )}
                         </nav>
                       </div>
                       {!isAuthenticated && (
@@ -213,17 +197,17 @@ export function SiteHeader(): ReactElement {
         isLoading={isLoggingOut}
       />
 
+      <div className="h-20 w-full shrink-0" />
+
       {/* ───────── HEADER ───────── */}
       <header
         className={cn(
-          'left-0 right-0 z-50 h-20 bg-background',
-          isFixed
-            ? 'fixed top-0 transition-transform duration-300 ease-in-out shadow-sm'
-            : 'absolute top-0',
-          isVisible ? 'translate-y-0' : '-translate-y-full',
+          'fixed top-0 left-0 right-0 h-20 bg-background shrink-0 z-50 px-5 md:px-10',
+          isAnimating && 'transition-transform duration-200 ease-in-out',
         )}
+        style={{ transform: `translateY(${headerOffset}px)` }}
       >
-        <div className="mx-auto flex h-full w-full max-w-5xl items-center justify-between px-5 md:px-10">
+        <div className="mx-auto flex h-full w-full max-w-5xl items-center justify-between">
           <NavLink
             to="/"
             end
@@ -254,15 +238,6 @@ export function SiteHeader(): ReactElement {
                   {item.label}
                 </NavLink>
               ))}
-              {isAuthenticated && (
-                <button
-                  type="button"
-                  className="rounded-md px-3 py-1.5 text-sm font-medium transition-all text-muted-foreground hover:bg-black/5 hover:text-foreground"
-                  onClick={() => setIsLogoutModalOpen(true)}
-                >
-                  Log out
-                </button>
-              )}
             </div>
 
             {!isAuthenticated && (
@@ -313,6 +288,6 @@ export function SiteHeader(): ReactElement {
           </nav>
         </div>
       </header>
-    </div>
+    </>
   )
 }

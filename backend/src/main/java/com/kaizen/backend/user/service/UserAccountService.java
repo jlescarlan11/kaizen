@@ -23,7 +23,8 @@ public class UserAccountService {
             .map(account -> new UserResponse(
                 account.getId(),
                 account.getName(),
-                account.getEmail()
+                account.getEmail(),
+                account.getPictureUrl()
             ))
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
@@ -34,6 +35,7 @@ public class UserAccountService {
                 account.getId(),
                 account.getName(),
                 account.getEmail(),
+                account.getPictureUrl(),
                 account.getCreatedAt()
             ))
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));

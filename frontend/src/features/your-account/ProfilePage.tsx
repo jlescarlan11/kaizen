@@ -7,21 +7,17 @@ import { ProfileDisplay } from './ProfileDisplay'
  */
 export function ProfilePage(): ReactElement {
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Personal details</h1>
-        <p className="text-muted-foreground">
+    <section className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+          Personal details
+        </h1>
+        <p className="text-sm leading-6 text-muted-foreground">
           Review the account information associated with your profile.
         </p>
-      </header>
-
-      {/* 
-        Integration Point for Instruction 3:
-        Mount the ProfileDisplay component here to render user data.
-      */}
-      <div className="rounded-2xl border border-ui-border bg-ui-surface p-6 shadow-sm">
-        <ProfileDisplay />
       </div>
-    </div>
+
+      <ProfileDisplay />
+    </section>
   )
 }

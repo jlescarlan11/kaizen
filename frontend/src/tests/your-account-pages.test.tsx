@@ -1,10 +1,10 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, screen } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { ThemeProvider } from '../providers/theme'
+import { Route, Routes } from 'react-router-dom'
 import { AppearancePage } from '../features/your-account/AppearancePage'
 import { YourAccountPage } from '../features/your-account/YourAccountPage'
+import { render } from './test-utils'
 
 function installMatchMedia(matches: boolean): void {
   Object.defineProperty(window, 'matchMedia', {
@@ -23,11 +23,7 @@ function installMatchMedia(matches: boolean): void {
 }
 
 function renderWithThemeProvider(element: ReactElement): void {
-  render(
-    <MemoryRouter>
-      <ThemeProvider>{element}</ThemeProvider>
-    </MemoryRouter>,
-  )
+  render(element)
 }
 
 describe('Your account pages', () => {
@@ -39,19 +35,11 @@ describe('Your account pages', () => {
 
   it('navigates from the account page to appearance', () => {
     render(
-      <MemoryRouter initialEntries={['/your-account']}>
-        <Routes>
-          <Route path="/your-account" element={<YourAccountPage />} />
-          <Route
-            path="/your-account/appearance"
-            element={
-              <ThemeProvider>
-                <AppearancePage />
-              </ThemeProvider>
-            }
-          />
-        </Routes>
-      </MemoryRouter>,
+      <Routes>
+        <Route path="/your-account" element={<YourAccountPage />} />
+        <Route path="/your-account/appearance" element={<AppearancePage />} />
+      </Routes>,
+      { initialEntries: ['/your-account'] },
     )
 
     fireEvent.click(screen.getByRole('link', { name: /appearance/i }))
@@ -61,14 +49,11 @@ describe('Your account pages', () => {
   })
 
   it('renders non-functional rows without links', () => {
-    render(
-      <MemoryRouter>
-        <YourAccountPage />
-      </MemoryRouter>,
-    )
+    render(<YourAccountPage />)
 
     expect(screen.getByText(/notification/i).closest('a')).toBeNull()
-    expect(screen.getByText(/log out/i).closest('a')).toBeNull()
+    expect(screen.getByText(/close account/i).closest('a')).toBeNull()
+    expect(screen.getByText(/close account/i).closest('button')).toBeNull()
   })
 
   it('updates theme selection on the appearance page', () => {

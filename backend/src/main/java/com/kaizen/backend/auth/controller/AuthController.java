@@ -69,7 +69,7 @@ public class AuthController {
         // 5. Clear the cookie from the client
         ResponseCookie clearCookie = ResponseCookie.from(SESSION_COOKIE_NAME, "")
             .httpOnly(true)
-            .secure(true)
+            .secure(request.isSecure()) // Dynamic based on request protocol
             .path("/")
             .maxAge(0) // Expire immediately
             .sameSite("Lax")

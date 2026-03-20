@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.kaizen.backend.auth.config.AuthFlowProperties;
 import com.kaizen.backend.auth.service.CustomUserDetailsService;
 import com.kaizen.backend.auth.service.GoogleOAuthService;
+import com.kaizen.backend.auth.service.PersistentSessionService;
 
 @WebMvcTest(GoogleOAuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -39,6 +40,9 @@ class GoogleOAuthControllerTest {
 
     @MockitoBean
     private CustomUserDetailsService userDetailsService;
+
+    @MockitoBean
+    private PersistentSessionService persistentSessionService;
 
     @Test
     void authorizeRedirectsToGoogleConsentScreen() throws Exception {

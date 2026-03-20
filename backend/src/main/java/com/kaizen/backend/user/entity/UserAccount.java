@@ -50,12 +50,13 @@ public class UserAccount extends BaseEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
-    @Lob
-    @Column(name = "encrypted_access_token", nullable = false)
+    @Column(name = "picture_url", columnDefinition = "TEXT")
+    private String pictureUrl;
+
+    @Column(name = "encrypted_access_token", nullable = false, columnDefinition = "TEXT")
     private String encryptedAccessToken;
 
-    @Lob
-    @Column(name = "encrypted_refresh_token")
+    @Column(name = "encrypted_refresh_token", columnDefinition = "TEXT")
     private String encryptedRefreshToken;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -72,6 +73,7 @@ public class UserAccount extends BaseEntity {
         String providerName,
         String providerUserId,
         String passwordHash,
+        String pictureUrl,
         String encryptedAccessToken,
         String encryptedRefreshToken
     ) {
@@ -80,6 +82,7 @@ public class UserAccount extends BaseEntity {
         this.providerName = providerName;
         this.providerUserId = providerUserId;
         this.passwordHash = passwordHash;
+        this.pictureUrl = pictureUrl;
         this.encryptedAccessToken = encryptedAccessToken;
         this.encryptedRefreshToken = encryptedRefreshToken;
     }

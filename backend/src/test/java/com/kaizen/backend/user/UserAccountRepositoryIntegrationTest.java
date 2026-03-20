@@ -27,6 +27,7 @@ class UserAccountRepositoryIntegrationTest {
             "google",
             "google-user-123",
             null,
+            null,
             "enc:v1:access-token",
             "enc:v1:refresh-token"
         );

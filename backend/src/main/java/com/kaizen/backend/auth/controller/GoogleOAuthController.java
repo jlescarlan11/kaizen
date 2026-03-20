@@ -36,6 +36,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
@@ -145,6 +146,7 @@ public class GoogleOAuthController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "state", required = false) String state,
         @RequestParam(value = "error", required = false) String error,
+        HttpServletRequest request,
         HttpSession session
     ) {
         // Retrieve dynamic redirect URI from session or use fallback from properties
@@ -207,7 +209,7 @@ public class GoogleOAuthController {
 
             ResponseCookie cookie = ResponseCookie.from("kzn_pst", persistentToken)
                 .httpOnly(true)
-                .secure(true) // Assumes production is over HTTPS
+                .secure(request.isSecure()) // Dynamic based on request protocol
                 .path("/")
                 .maxAge(90 * 24 * 60 * 60) // 90 days in seconds
                 .sameSite("Lax")

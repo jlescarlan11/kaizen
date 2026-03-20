@@ -12,7 +12,7 @@ export function ProtectedRoute(): ReactElement | null {
   // 1. Loading Guard: Show nothing while auth state is resolving
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     )
@@ -23,6 +23,7 @@ export function ProtectedRoute(): ReactElement | null {
     return <Navigate to="/signin" replace />
   }
 
-  // 3. Authenticated: Render the matched child route
+  // 3. Authenticated: Render the matched child routes.
+  // The app layout (Sidebar vs. Top Header) is managed by ShellLayout.
   return <Outlet />
 }
