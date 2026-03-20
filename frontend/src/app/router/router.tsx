@@ -33,6 +33,11 @@ const OnboardingPage = lazy(() =>
     default: m.OnboardingPage,
   })),
 )
+const CategoryManagementPage = lazy(() =>
+  import('../../features/categories/CategoryManagementPage').then((m) => ({
+    default: m.CategoryManagementPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -53,6 +58,12 @@ export const router = createBrowserRouter([
         index: true,
         element: <HomeGuard />,
       },
+      // Placement stub for the post-onboarding balance editor; mount this route once
+      // PRD Open Question 9 confirms where the edit affordance should live.
+      // {
+      //   path: 'balance/edit',
+      //   element: <BalanceEditor />,
+      // },
       {
         path: 'playground',
         element: <PlaygroundPage />,
@@ -119,6 +130,16 @@ export const router = createBrowserRouter([
           {
             path: 'your-account/appearance',
             element: <AppearancePage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'your-account/categories',
+            element: <CategoryManagementPage />,
             handle: {
               backButton: {
                 label: 'Account',

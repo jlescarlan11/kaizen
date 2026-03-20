@@ -21,7 +21,13 @@ describe('ProfilePage Routing and Guard', () => {
         auth: {
           isAuthenticated: true,
           isLoading: false,
-          user: { id: '1', name: 'Test User', email: 'test@example.com' },
+          user: {
+            id: '1',
+            name: 'Test User',
+            email: 'test@example.com',
+            onboardingCompleted: true,
+            openingBalance: 1000,
+          },
         },
       },
     })

@@ -14,4 +14,6 @@ public interface CategoryRepository extends BaseRepository<Category> {
     List<Category> findAllVisibleToUser(@Param("userId") Long userId);
 
     List<Category> findByGlobalTrue();
+
+    boolean existsByUserIdAndNameIgnoreCase(Long userId, String name);
 }

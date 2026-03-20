@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
@@ -9,6 +9,7 @@ import { Input } from '../../shared/components/Input'
 import { CategoryList } from '../categories/CategoryList'
 import { getCategories } from '../categories/api'
 import type { Category } from '../categories/types'
+import { validateBalance } from '../../shared/lib/validation'
 
 export function OnboardingPage(): ReactElement {
   const { user } = useAuthState()
@@ -22,6 +23,9 @@ export function OnboardingPage(): ReactElement {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Memoize validation error to avoid redundant re-renders.
+  const balanceError = useMemo(() => validateBalance(balance), [balance])
+
   useEffect(() => {
     if (step === 2) {
       setIsCategoriesLoading(true)
@@ -33,13 +37,12 @@ export function OnboardingPage(): ReactElement {
   }, [step])
 
   const handleCompleteOnboarding = async () => {
+    if (balanceError) return
+
     setIsSubmitting(true)
     setError(null)
 
-    // PRD Open Question 4: Should an empty input block or default to 0.00?
-    // Current implementation: Defaults to 0.00 if input is empty or invalid.
-    // Confirm behavior: If blocking is required, add a check here to prevent submission.
-    const numericBalance = parseFloat(balance) || 0
+    const numericBalance = parseFloat(balance)
 
     try {
       await completeOnboarding({
@@ -78,16 +81,12 @@ export function OnboardingPage(): ReactElement {
               </p>
             </div>
 
-            {/* 
-                INTEGRATION POINT: Instruction 5 — Validation. 
-                Validation logic and error message rendering (e.g., via the 'error' prop) 
-                should be attached to this Input component.
-            */}
             <Input
               label="Opening Balance"
               type="number"
               value={balance}
               onChange={(e) => setBalance(e.target.value)}
+              error={balanceError ?? undefined}
               placeholder="0.00"
               startAdornment="₱"
               endAdornment="PHP"
@@ -96,7 +95,11 @@ export function OnboardingPage(): ReactElement {
               autoFocus
             />
 
-            <Button className="w-full h-11" onClick={() => setStep(2)}>
+            <Button
+              className="w-full h-11"
+              onClick={() => setStep(2)}
+              disabled={Boolean(balanceError)}
+            >
               Continue
             </Button>
           </div>

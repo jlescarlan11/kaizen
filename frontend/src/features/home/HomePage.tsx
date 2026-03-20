@@ -1,9 +1,13 @@
 import type { ReactElement } from 'react'
+import { useState } from 'react'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { Card } from '../../shared/components/Card'
+import { Button } from '../../shared/components/Button'
+import { BalanceEditor } from '../balance/BalanceEditor'
 
 export function HomePage(): ReactElement {
   const { user } = useAuthState()
+  const [isBalanceEditorOpen, setIsBalanceEditorOpen] = useState(false)
 
   const formattedBalance = new Intl.NumberFormat('en-PH', {
     style: 'currency',
@@ -11,6 +15,14 @@ export function HomePage(): ReactElement {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(user?.openingBalance ?? 0)
+
+  const handleOpenEditor = () => {
+    setIsBalanceEditorOpen(true)
+  }
+
+  const handleCloseEditor = () => {
+    setIsBalanceEditorOpen(false)
+  }
 
   return (
     <section className="space-y-6">
@@ -26,14 +38,23 @@ export function HomePage(): ReactElement {
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             Current Balance
           </p>
-          <div className="flex items-baseline gap-1">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
             <span className="text-4xl font-bold tracking-tight text-foreground">
               {formattedBalance}
             </span>
+            <Button variant="ghost" className="text-sm font-medium" onClick={handleOpenEditor}>
+              Edit balance
+            </Button>
           </div>
           <p className="text-xs text-muted-foreground">Opening balance from onboarding.</p>
         </Card>
       </div>
+
+      <BalanceEditor
+        currentBalance={user?.openingBalance ?? 0}
+        onClose={handleCloseEditor}
+        open={isBalanceEditorOpen}
+      />
     </section>
   )
 }

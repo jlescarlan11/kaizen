@@ -3,6 +3,7 @@ package com.kaizen.backend.user.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kaizen.backend.user.dto.BalanceUpdateRequest;
 import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
@@ -57,6 +58,25 @@ public class UserAccountService {
         
         UserAccount updated = userAccountRepository.save(account);
         
+        return new UserResponse(
+            updated.getId(),
+            updated.getName(),
+            updated.getEmail(),
+            updated.getPictureUrl(),
+            updated.isOnboardingCompleted(),
+            updated.getOpeningBalance()
+        );
+    }
+
+    @Transactional
+    public UserResponse updateBalance(String email, BalanceUpdateRequest request) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        account.setOpeningBalance(request.openingBalance());
+
+        UserAccount updated = userAccountRepository.save(account);
+
         return new UserResponse(
             updated.getId(),
             updated.getName(),

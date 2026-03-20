@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kaizen.backend.auth.config.SessionProperties;
 import com.kaizen.backend.auth.service.PersistentSessionService;
 import com.kaizen.backend.common.dto.ErrorResponse;
+import com.kaizen.backend.user.dto.BalanceUpdateRequest;
 import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
@@ -116,5 +117,39 @@ public class UserAccountController {
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(userResponse);
+    }
+
+    @Operation(
+        summary = "Update authenticated user's balance",
+        description = "Allows an authenticated user to update their stored balance after onboarding.",
+        operationId = "updateBalance"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Balance updated and profile refreshed.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid balance value.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "User profile not found or unauthenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PutMapping("/balance")
+    public UserResponse updateBalance(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody BalanceUpdateRequest request
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.updateBalance(userDetails.getUsername(), request);
     }
 }

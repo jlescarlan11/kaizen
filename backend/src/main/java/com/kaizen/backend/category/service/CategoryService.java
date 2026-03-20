@@ -1,8 +1,12 @@
 package com.kaizen.backend.category.service;
 
+import com.kaizen.backend.category.dto.CategoryCreateRequest;
 import com.kaizen.backend.category.entity.Category;
+import com.kaizen.backend.category.exception.DuplicateCategoryException;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.user.entity.UserAccount;
+import com.kaizen.backend.user.exception.ProfileNotFoundException;
+import com.kaizen.backend.user.repository.UserAccountRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final UserAccountRepository userAccountRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository, UserAccountRepository userAccountRepository) {
         this.categoryRepository = categoryRepository;
+        this.userAccountRepository = userAccountRepository;
     }
 
     public List<Category> getVisibleCategories(Long userId) {
@@ -34,5 +40,20 @@ public class CategoryService {
             categoryRepository.save(new Category("Health", true, null, "heartbeat", "#e74c3c"));
             categoryRepository.save(new Category("Entertainment", true, null, "film", "#2ecc71"));
         }
+    }
+
+    @Transactional
+    public Category createCategory(String email, CategoryCreateRequest request) {
+        UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+
+        String normalizedName = request.name().trim();
+        // Inferred (per PRD Section 5 Story 7): duplicate name rejection is case-insensitive and user scoped.
+        if (categoryRepository.existsByUserIdAndNameIgnoreCase(user.getId(), normalizedName)) {
+            throw new DuplicateCategoryException();
+        }
+
+        Category category = new Category(normalizedName, false, user, request.icon(), request.color());
+        return categoryRepository.save(category);
     }
 }

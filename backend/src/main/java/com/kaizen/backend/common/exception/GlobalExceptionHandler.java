@@ -1,8 +1,9 @@
 package com.kaizen.backend.common.exception;
 
-import com.kaizen.backend.common.dto.ErrorResponse;
-import com.kaizen.backend.common.logging.SecurityAuditLogger;
-
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.UUID;
@@ -27,6 +28,25 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
     private final SecurityAuditLogger auditLogger;
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(@NonNull MethodArgumentNotValidException exception) {
+        log.error("Validation Exception: {}", exception.getMessage());
+
+        Map<String, Object> details = new HashMap<>();
+        for (FieldError error : exception.getBindingResult().getFieldErrors()) {
+            details.put(error.getField(), error.getDefaultMessage());
+        }
+
+        ErrorResponse response = new ErrorResponse(
+            "VALIDATION_FAILURE",
+            "Input validation failed.",
+            details,
+            generateTraceId()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(@NonNull ApiException exception, HttpServletRequest request) {

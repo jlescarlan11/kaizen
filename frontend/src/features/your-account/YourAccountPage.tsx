@@ -157,6 +157,12 @@ export function YourAccountPage(): ReactElement {
           icon: <AppearanceIcon />,
           to: '/your-account/appearance',
         },
+        {
+          label: 'Categories',
+          description: 'Create and manage your custom categories',
+          icon: <CategoryIcon />,
+          to: '/your-account/categories',
+        },
       ],
     },
     {
@@ -393,6 +399,26 @@ function AppearanceIcon(): ReactElement {
       <path d="m21 11-8-8" />
       <path d="M14.5 9.5 4.8 19.2a2 2 0 0 0 0 2.8v0a2 2 0 0 0 2.8 0L17.3 12.3" />
       <circle cx="19" cy="5" r="2" />
+    </svg>
+  )
+}
+
+function CategoryIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="4" width="7" height="7" rx="1.5" />
+      <rect x="14" y="4" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
     </svg>
   )
 }
