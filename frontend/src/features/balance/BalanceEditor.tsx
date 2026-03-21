@@ -29,6 +29,7 @@ export function BalanceEditor({ currentBalance, onClose, open }: BalanceEditorPr
     }
   }, [open, resetEditorState])
 
+  // Instruction 5 requires us to reuse the shared validation rules defined in `validateBalance`.
   const validationError = useMemo(() => validateBalance(balanceField), [balanceField])
 
   const handleSave = async () => {
@@ -52,6 +53,7 @@ export function BalanceEditor({ currentBalance, onClose, open }: BalanceEditorPr
   const handleCancel = () => {
     setBalanceField(currentBalance.toFixed(2))
     setServerError(null)
+    // Cancel is intentionally a no-op on the backend.
     onClose()
   }
 

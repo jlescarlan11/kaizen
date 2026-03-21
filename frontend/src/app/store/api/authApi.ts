@@ -9,6 +9,11 @@ interface User {
   createdAt: string
   onboardingCompleted: boolean
   openingBalance: number
+  budgetSetupSkipped: boolean
+}
+
+export interface SkipBudgetSetupPayload {
+  skip: boolean
 }
 
 export const authApi = baseApi.injectEndpoints({
@@ -57,6 +62,21 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    skipBudgetSetup: builder.mutation<User, SkipBudgetSetupPayload>({
+      query: (body) => ({
+        url: '/users/skip',
+        method: 'PUT',
+        body,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to record skip preference:', error)
+        }
+      },
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
@@ -92,4 +112,5 @@ export const {
   useLogoutMutation,
   useCompleteOnboardingMutation,
   useUpdateBalanceMutation,
+  useSkipBudgetSetupMutation,
 } = authApi

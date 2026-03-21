@@ -1,13 +1,14 @@
 import type { ReactElement } from 'react'
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
+import { useGetBudgetCountQuery } from '../../app/store/api/budgetApi'
+import { DashboardBudgetEmptyState } from './DashboardBudgetEmptyState'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
-import { BalanceEditor } from '../balance/BalanceEditor'
 
 export function HomePage(): ReactElement {
   const { user } = useAuthState()
-  const [isBalanceEditorOpen, setIsBalanceEditorOpen] = useState(false)
+  const navigate = useNavigate()
 
   const formattedBalance = new Intl.NumberFormat('en-PH', {
     style: 'currency',
@@ -16,12 +17,19 @@ export function HomePage(): ReactElement {
     maximumFractionDigits: 2,
   }).format(user?.openingBalance ?? 0)
 
+  const hasSkippedBudgets = Boolean(user?.budgetSetupSkipped)
+  const { data: budgetCountData } = useGetBudgetCountQuery(undefined, {
+    skip: !hasSkippedBudgets,
+  })
+  const hasBudgets = (budgetCountData?.count ?? 0) > 0
+  const showSkipEmptyState = hasSkippedBudgets && !hasBudgets
+
   const handleOpenEditor = () => {
-    setIsBalanceEditorOpen(true)
+    navigate('/balance/edit')
   }
 
-  const handleCloseEditor = () => {
-    setIsBalanceEditorOpen(false)
+  const handleLaunchSetup = () => {
+    navigate('/budget')
   }
 
   return (
@@ -32,6 +40,8 @@ export function HomePage(): ReactElement {
           Welcome back, {user?.name}. Here is your account overview.
         </p>
       </header>
+
+      {showSkipEmptyState && <DashboardBudgetEmptyState onLaunchSetup={handleLaunchSetup} />}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="space-y-2">
@@ -49,12 +59,6 @@ export function HomePage(): ReactElement {
           <p className="text-xs text-muted-foreground">Opening balance from onboarding.</p>
         </Card>
       </div>
-
-      <BalanceEditor
-        currentBalance={user?.openingBalance ?? 0}
-        onClose={handleCloseEditor}
-        open={isBalanceEditorOpen}
-      />
     </section>
   )
 }

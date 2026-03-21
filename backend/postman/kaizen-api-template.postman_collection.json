@@ -140,7 +140,70 @@
     },
     {
       "name": "Core APIs",
-      "item": []
+      "item": [
+        {
+          "name": "Budgets",
+          "item": [
+            {
+              "name": "Save Smart Budgets",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"budgets\": [\n    {\n      \"categoryId\": 1,\n      \"amount\": 3000,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 2,\n      \"amount\": 1600,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 3,\n      \"amount\": 1000,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 4,\n      \"amount\": 1000,\n      \"period\": \"MONTHLY\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/batch",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    "batch"
+                  ]
+                },
+                "description": "Saves the four smart budget allocations atomically for the authenticated user."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Budget",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": 1,\n  \"amount\": 3000,\n  \"period\": \"MONTHLY\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets"
+                  ]
+                },
+                "description": "Creates a single budget for the authenticated user."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
     }
   ]
 }

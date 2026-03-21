@@ -8,6 +8,7 @@ public record UserResponse(
     String email,
     String picture,
     boolean onboardingCompleted,
-    BigDecimal openingBalance
+    BigDecimal openingBalance,
+    boolean budgetSetupSkipped
 ) {
 }

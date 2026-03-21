@@ -8,6 +8,7 @@ export interface User {
   createdAt?: string
   onboardingCompleted: boolean
   openingBalance: number
+  budgetSetupSkipped: boolean
 }
 
 export interface AuthState {

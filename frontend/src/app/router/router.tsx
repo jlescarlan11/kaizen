@@ -38,6 +38,21 @@ const CategoryManagementPage = lazy(() =>
     default: m.CategoryManagementPage,
   })),
 )
+const BalanceEditPage = lazy(() =>
+  import('../../features/balance/BalanceEditPage').then((m) => ({
+    default: m.BalanceEditPage,
+  })),
+)
+const SmartBudgetPage = lazy(() =>
+  import('../../features/budgets/SmartBudgetPage').then((m) => ({
+    default: m.SmartBudgetPage,
+  })),
+)
+const ManualBudgetSetupPage = lazy(() =>
+  import('../../features/budgets/ManualBudgetSetupPage').then((m) => ({
+    default: m.ManualBudgetSetupPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -58,12 +73,6 @@ export const router = createBrowserRouter([
         index: true,
         element: <HomeGuard />,
       },
-      // Placement stub for the post-onboarding balance editor; mount this route once
-      // PRD Open Question 9 confirms where the edit affordance should live.
-      // {
-      //   path: 'balance/edit',
-      //   element: <BalanceEditor />,
-      // },
       {
         path: 'playground',
         element: <PlaygroundPage />,
@@ -96,6 +105,38 @@ export const router = createBrowserRouter([
           {
             path: 'playground',
             element: <PlaygroundPage />,
+          },
+          {
+            path: 'budget',
+            element: <SmartBudgetPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'budget/manual',
+            element: <ManualBudgetSetupPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/budget',
+              },
+            },
+          },
+          {
+            path: 'balance/edit',
+            // Placement-agnostic stub: instructs future nav shells where to render the balance editor once
+            // PRD Open Question 9 (dashboard vs. settings) is answered.
+            element: <BalanceEditPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
           },
           {
             path: 'your-account',

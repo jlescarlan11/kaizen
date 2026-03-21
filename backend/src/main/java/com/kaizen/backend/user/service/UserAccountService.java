@@ -29,9 +29,10 @@ public class UserAccountService {
                 account.getEmail(),
                 account.getPictureUrl(),
                 account.isOnboardingCompleted(),
-                account.getOpeningBalance()
-            ))
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+            account.getOpeningBalance(),
+            account.isBudgetSetupSkipped()
+        ))
+        .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
     }
 
     public UserProfileResponse getProfileByEmail(String email) {
@@ -43,7 +44,8 @@ public class UserAccountService {
                 account.getPictureUrl(),
                 account.getCreatedAt(),
                 account.isOnboardingCompleted(),
-                account.getOpeningBalance()
+                account.getOpeningBalance(),
+                account.isBudgetSetupSkipped()
             ))
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
     }
@@ -64,7 +66,8 @@ public class UserAccountService {
             updated.getEmail(),
             updated.getPictureUrl(),
             updated.isOnboardingCompleted(),
-            updated.getOpeningBalance()
+            updated.getOpeningBalance(),
+            updated.isBudgetSetupSkipped()
         );
     }
 
@@ -83,7 +86,28 @@ public class UserAccountService {
             updated.getEmail(),
             updated.getPictureUrl(),
             updated.isOnboardingCompleted(),
-            updated.getOpeningBalance()
+            updated.getOpeningBalance(),
+            updated.isBudgetSetupSkipped()
+        );
+    }
+
+    @Transactional
+    public UserResponse updateBudgetSetupSkipPreference(String email, boolean skip) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        account.setBudgetSetupSkipped(skip);
+
+        UserAccount updated = userAccountRepository.save(account);
+
+        return new UserResponse(
+            updated.getId(),
+            updated.getName(),
+            updated.getEmail(),
+            updated.getPictureUrl(),
+            updated.isOnboardingCompleted(),
+            updated.getOpeningBalance(),
+            updated.isBudgetSetupSkipped()
         );
     }
 }

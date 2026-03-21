@@ -15,6 +15,7 @@ import com.kaizen.backend.auth.config.SessionProperties;
 import com.kaizen.backend.auth.service.PersistentSessionService;
 import com.kaizen.backend.common.dto.ErrorResponse;
 import com.kaizen.backend.user.dto.BalanceUpdateRequest;
+import com.kaizen.backend.user.dto.BudgetSetupSkipRequest;
 import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
@@ -151,5 +152,44 @@ public class UserAccountController {
         }
 
         return userAccountService.updateBalance(userDetails.getUsername(), request);
+    }
+
+    @Operation(
+        summary = "Record budget setup skip preference",
+        description = "Stores the skip preference on the authenticated user's account so the dashboard knows to show deferred setup messaging.",
+        operationId = "skipBudgetSetup"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Skip preference recorded successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid skip payload.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "User profile not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PutMapping("/skip")
+    public UserResponse skipBudgetSetup(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody BudgetSetupSkipRequest request
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.updateBudgetSetupSkipPreference(userDetails.getUsername(), request.skip());
     }
 }

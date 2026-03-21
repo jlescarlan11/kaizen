@@ -27,6 +27,7 @@ describe('ProfilePage Routing and Guard', () => {
             email: 'test@example.com',
             onboardingCompleted: true,
             openingBalance: 1000,
+            budgetSetupSkipped: false,
           },
         },
       },
