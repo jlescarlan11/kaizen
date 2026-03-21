@@ -1,8 +1,10 @@
 package com.kaizen.backend.category.service;
 
+import com.kaizen.backend.category.CategoryDesignSystem;
 import com.kaizen.backend.category.dto.CategoryCreateRequest;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.category.exception.DuplicateCategoryException;
+import com.kaizen.backend.category.exception.InvalidCategoryDesignException;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
@@ -30,15 +32,17 @@ public class CategoryService {
     @Transactional
     public void ensureDefaultCategoriesExist() {
         if (categoryRepository.findByGlobalTrue().isEmpty()) {
-            // Seed default categories
-            // [PLACEHOLDER] Confirmed list of default categories pending author confirmation.
-            // Using temporary placeholders for now as per Instruction 1 constraints.
-            categoryRepository.save(new Category("Housing", true, null, "home", "#3498db"));
-            categoryRepository.save(new Category("Food", true, null, "utensils", "#e67e22"));
-            categoryRepository.save(new Category("Transport", true, null, "car", "#f1c40f"));
-            categoryRepository.save(new Category("Utilities", true, null, "bolt", "#9b59b6"));
-            categoryRepository.save(new Category("Health", true, null, "heartbeat", "#e74c3c"));
-            categoryRepository.save(new Category("Entertainment", true, null, "film", "#2ecc71"));
+            for (CategoryDesignSystem.CategoryTemplate template : CategoryDesignSystem.DEFAULT_CATEGORIES) {
+                categoryRepository.save(
+                    new Category(
+                        template.name(),
+                        true,
+                        null,
+                        template.icon(),
+                        template.color()
+                    )
+                );
+            }
         }
     }
 
@@ -51,6 +55,14 @@ public class CategoryService {
         // Inferred (per PRD Section 5 Story 7): duplicate name rejection is case-insensitive and user scoped.
         if (categoryRepository.existsByUserIdAndNameIgnoreCase(user.getId(), normalizedName)) {
             throw new DuplicateCategoryException();
+        }
+
+        if (!CategoryDesignSystem.isValidIcon(request.icon())) {
+            throw new InvalidCategoryDesignException("icon", request.icon());
+        }
+
+        if (!CategoryDesignSystem.isValidColor(request.color())) {
+            throw new InvalidCategoryDesignException("color", request.color());
         }
 
         Category category = new Category(normalizedName, false, user, request.icon(), request.color());

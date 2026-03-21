@@ -2,11 +2,10 @@ import type { FormEvent, ReactElement } from 'react'
 import { useMemo, useState } from 'react'
 import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
+import { CategoryBadge } from './CategoryBadge'
 import { createCategory } from './api'
+import { getAutoAssignedCategoryDesign } from './designSystem'
 import type { Category } from './types'
-
-const DEFAULT_ICON = 'custom'
-const DEFAULT_COLOR = '#4a90e2'
 
 interface CategoryCreationFormProps {
   categories: Category[]
@@ -27,6 +26,11 @@ export function CategoryCreationForm({
   const userScopedCategories = useMemo(
     () => categories.filter((category) => !category.isGlobal),
     [categories],
+  )
+
+  const assignedDesign = useMemo(
+    () => getAutoAssignedCategoryDesign(userScopedCategories),
+    [userScopedCategories],
   )
 
   const duplicateNameError = useMemo(() => {
@@ -55,9 +59,10 @@ export function CategoryCreationForm({
     try {
       const created = await createCategory({
         name: trimmedName,
-        icon: DEFAULT_ICON,
-        color: DEFAULT_COLOR,
+        icon: assignedDesign.icon,
+        color: assignedDesign.color,
       })
+
       onCategoryCreated(created)
       setName('')
     } catch (error) {
@@ -88,25 +93,26 @@ export function CategoryCreationForm({
           <p className="text-xs font-semibold text-foreground uppercase tracking-tight">
             Icon & color
           </p>
-          <span className="text-xs font-medium text-muted-foreground">Future system</span>
+          <span className="text-xs font-medium text-muted-foreground">Automated</span>
         </div>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Colors and icons are assigned by Instruction 8's palette picker. The placeholder below
-          simply keeps the form valid until that picker ships.
+          Instruction 8 defines the icon and color palette applied to every category. The preview
+          below shows what will be stored for this new category.
         </p>
         <div className="mt-3 flex items-center gap-3">
-          <div
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-ui-border-subtle text-lg text-foreground"
-            style={{ backgroundColor: DEFAULT_COLOR }}
-          >
-            ★
-          </div>
-          <div className="flex flex-1 flex-col">
-            <span className="text-sm font-medium text-foreground">Icon: {DEFAULT_ICON}</span>
-            <span className="text-xs text-muted-foreground">Color: {DEFAULT_COLOR}</span>
+          <CategoryBadge
+            icon={assignedDesign.icon}
+            color={assignedDesign.color}
+            size={48}
+            label="Assigned category icon"
+          />
+          <div className="flex flex-1 flex-col text-xs uppercase tracking-tight">
+            <span className="text-sm font-medium text-foreground">Icon: {assignedDesign.icon}</span>
+            <span className="text-muted-foreground">Color: {assignedDesign.color}</span>
           </div>
         </div>
-        {/* Integration stub: wire Instruction 8's icon/color picker into this panel once the system is ready. */}
+        {/* Instruction 8 auto-assigns the values shown above. Replace this stub with the picker once
+            the author confirms custom icon/color selection (PRD Open Question 6). */}
       </div>
 
       {serverError && (
