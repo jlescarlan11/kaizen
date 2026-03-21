@@ -204,6 +204,93 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "Get Onboarding Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Retrieves the latest onboarding progress for the authenticated user. Returns 204 if no progress exists."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Onboarding Progress",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentStep\": \"BALANCE\",\n  \"balanceValue\": 4200,\n  \"budgetChoice\": \"default\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Persists the current onboarding step and optional values for the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Onboarding Progress",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Removes the persisted onboarding progress for the authenticated user. Returns 204 when no progress remains."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .requestMatchers(publicPatterns).permitAll() // Dynamically found @PublicEndpoints
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/users/me").hasRole("USER")
+                .requestMatchers("/api/users/onboarding/progress").hasRole("USER")
                 .anyRequest().authenticated() // Default Protected Posture
             )
             .exceptionHandling(exception -> exception

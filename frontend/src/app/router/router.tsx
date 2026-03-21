@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { ShellLayout } from './ShellLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -9,6 +9,10 @@ import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
 
 import { OnboardingGuard } from '../../features/onboarding/OnboardingGuard'
+import { OnboardingLayout } from '../../features/onboarding/OnboardingLayout'
+import { BalanceSetupStep } from '../../features/onboarding/BalanceSetupStep'
+import { BudgetPromptStep } from '../../features/onboarding/BudgetPromptStep'
+import { ONBOARDING_STEP_ROUTE_MAP } from '../../features/onboarding/onboardingStep'
 
 // Lazy load larger or secondary feature pages
 const PlaygroundPage = lazy(() =>
@@ -26,11 +30,6 @@ const ProfilePage = lazy(() =>
 const YourAccountPage = lazy(() =>
   import('../../features/your-account/YourAccountPage').then((m) => ({
     default: m.YourAccountPage,
-  })),
-)
-const OnboardingPage = lazy(() =>
-  import('../../features/onboarding/OnboardingPage').then((m) => ({
-    default: m.OnboardingPage,
   })),
 )
 const CategoryManagementPage = lazy(() =>
@@ -98,8 +97,25 @@ export const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <OnboardingPage />,
+                element: <Navigate to={ONBOARDING_STEP_ROUTE_MAP['BALANCE']} replace />,
               },
+              {
+                path: 'balance',
+                element: (
+                  <OnboardingLayout>
+                    <BalanceSetupStep />
+                  </OnboardingLayout>
+                ),
+              },
+              {
+                path: 'budget',
+                element: (
+                  <OnboardingLayout>
+                    <BudgetPromptStep />
+                  </OnboardingLayout>
+                ),
+              },
+              // Placeholder for future steps (PRD Open Question 3).
             ],
           },
           {

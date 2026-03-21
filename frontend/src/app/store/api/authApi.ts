@@ -16,6 +16,14 @@ export interface SkipBudgetSetupPayload {
   skip: boolean
 }
 
+export type OnboardingStep = 'BALANCE' | 'BUDGET' | 'COMPLETE'
+
+export interface OnboardingProgressResponse {
+  currentStep: OnboardingStep
+  balanceValue: number | null
+  budgetChoice: string | null
+  lastUpdatedAt: string
+}
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getMe: builder.query<User, void>({
@@ -77,6 +85,29 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    getOnboardingProgress: builder.query<OnboardingProgressResponse | null, void>({
+      query: () => '/users/onboarding/progress',
+    }),
+    updateOnboardingProgress: builder.mutation<
+      OnboardingProgressResponse,
+      {
+        currentStep: OnboardingStep
+        balanceValue?: number
+        budgetChoice?: string
+      }
+    >({
+      query: (body) => ({
+        url: '/users/onboarding/progress',
+        method: 'PUT',
+        body,
+      }),
+    }),
+    deleteOnboardingProgress: builder.mutation<void, void>({
+      query: () => ({
+        url: '/users/onboarding/progress',
+        method: 'DELETE',
+      }),
+    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
@@ -113,4 +144,7 @@ export const {
   useCompleteOnboardingMutation,
   useUpdateBalanceMutation,
   useSkipBudgetSetupMutation,
+  useGetOnboardingProgressQuery,
+  useUpdateOnboardingProgressMutation,
+  useDeleteOnboardingProgressMutation,
 } = authApi

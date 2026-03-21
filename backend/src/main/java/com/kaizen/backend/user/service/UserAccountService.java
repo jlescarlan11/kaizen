@@ -16,9 +16,14 @@ import com.kaizen.backend.user.repository.UserAccountRepository;
 public class UserAccountService {
 
     private final UserAccountRepository userAccountRepository;
+    private final OnboardingProgressService onboardingProgressService;
 
-    public UserAccountService(UserAccountRepository userAccountRepository) {
+    public UserAccountService(
+        UserAccountRepository userAccountRepository,
+        OnboardingProgressService onboardingProgressService
+    ) {
         this.userAccountRepository = userAccountRepository;
+        this.onboardingProgressService = onboardingProgressService;
     }
 
     public UserResponse getByEmail(String email) {
@@ -59,6 +64,7 @@ public class UserAccountService {
         account.setOnboardingCompleted(true);
         
         UserAccount updated = userAccountRepository.save(account);
+        onboardingProgressService.deleteForUser(updated);
         
         return new UserResponse(
             updated.getId(),
