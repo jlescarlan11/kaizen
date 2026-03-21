@@ -43,7 +43,12 @@ class UserAccountControllerTest {
             "Test User",
             "test@example.com",
             "http://example.com/pic.jpg",
-            Instant.parse("2026-03-18T10:00:00Z")
+            Instant.parse("2026-03-18T10:00:00Z"),
+            false,
+            null,
+            false,
+            false,
+            false
         );
 
         when(userAccountService.getProfileByEmail("test@example.com"))
@@ -54,7 +59,9 @@ class UserAccountControllerTest {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Test User"))
             .andExpect(jsonPath("$.email").value("test@example.com"))
-            .andExpect(jsonPath("$.createdAt").exists());
+            .andExpect(jsonPath("$.createdAt").exists())
+            .andExpect(jsonPath("$.tourCompleted").value(false))
+            .andExpect(jsonPath("$.firstTransactionAdded").value(false));
     }
 
     @Test

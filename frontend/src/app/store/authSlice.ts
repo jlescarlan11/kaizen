@@ -9,6 +9,8 @@ export interface User {
   onboardingCompleted: boolean
   openingBalance: number
   budgetSetupSkipped: boolean
+  tourCompleted: boolean
+  firstTransactionAdded: boolean
 }
 
 export interface AuthState {

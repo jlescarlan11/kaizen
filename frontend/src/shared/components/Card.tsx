@@ -1,4 +1,5 @@
-import type { HTMLAttributes, ReactElement } from 'react'
+import type { HTMLAttributes, ReactElement, ForwardedRef } from 'react'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
 type CardTone = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info'
@@ -16,10 +17,13 @@ const toneStyles: Record<CardTone, string> = {
   info: 'border-ui-border bg-ui-info-subtle text-foreground',
 }
 
-export function Card({ children, className, tone = 'neutral', ...props }: CardProps): ReactElement {
+export const Card = forwardRef(function Card(
+  { children, className, tone = 'neutral', ...props }: CardProps,
+  ref: ForwardedRef<HTMLDivElement>,
+): ReactElement {
   return (
-    <div className={cn('rounded-xl border p-6', toneStyles[tone], className)} {...props}>
+    <div ref={ref} className={cn('rounded-xl border p-6', toneStyles[tone], className)} {...props}>
       {children}
     </div>
   )
-}
+})

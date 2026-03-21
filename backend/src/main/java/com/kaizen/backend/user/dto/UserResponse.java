@@ -9,6 +9,8 @@ public record UserResponse(
     String picture,
     boolean onboardingCompleted,
     BigDecimal openingBalance,
-    boolean budgetSetupSkipped
+    boolean budgetSetupSkipped,
+    boolean tourCompleted,
+    boolean firstTransactionAdded
 ) {
 }

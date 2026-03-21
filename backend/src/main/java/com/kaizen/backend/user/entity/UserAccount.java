@@ -65,6 +65,12 @@ public class UserAccount extends BaseEntity {
     @Column(name = "budget_setup_skipped", nullable = false)
     private boolean budgetSetupSkipped = false;
 
+    @Column(name = "tour_completed", nullable = false)
+    private boolean tourCompleted = false;
+
+    @Column(name = "first_transaction_added", nullable = false)
+    private boolean firstTransactionAdded = false;
+
     @Column(name = "opening_balance", precision = 15, scale = 2)
     private java.math.BigDecimal openingBalance = java.math.BigDecimal.ZERO;
 

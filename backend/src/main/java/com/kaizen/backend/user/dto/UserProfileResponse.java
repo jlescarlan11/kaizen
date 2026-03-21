@@ -11,6 +11,8 @@ public record UserProfileResponse(
     Instant createdAt,
     boolean onboardingCompleted,
     BigDecimal openingBalance,
-    boolean budgetSetupSkipped
+    boolean budgetSetupSkipped,
+    boolean tourCompleted,
+    boolean firstTransactionAdded
 ) {
 }

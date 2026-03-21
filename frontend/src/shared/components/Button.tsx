@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactElement } from 'react'
+import type { ButtonHTMLAttributes, ReactElement, ForwardedRef } from 'react'
+import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
@@ -19,16 +20,20 @@ const variantStyles: Record<ButtonVariant, string> = {
     'border border-transparent bg-ui-danger text-ui-danger-text hover:bg-ui-danger-hover active:bg-ui-danger-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
 }
 
-export function Button({
-  className,
-  type = 'button',
-  variant = 'primary',
-  isLoading = false,
-  children,
-  ...props
-}: ButtonProps): ReactElement {
+export const Button = forwardRef(function Button(
+  {
+    className,
+    type = 'button',
+    variant = 'primary',
+    isLoading = false,
+    children,
+    ...props
+  }: ButtonProps,
+  ref: ForwardedRef<HTMLButtonElement>,
+): ReactElement {
   return (
     <button
+      ref={ref}
       type={type}
       disabled={isLoading || props.disabled}
       className={cn(
@@ -65,4 +70,4 @@ export function Button({
       {children}
     </button>
   )
-}
+})

@@ -1,8 +1,8 @@
-import { useState, type ReactElement } from 'react'
+import { useState, type ReactElement, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
-import { useLogoutMutation } from '../../app/store/api/authApi'
+import { useLogoutMutation, useResetTourFlagMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
 
@@ -110,6 +110,11 @@ export function YourAccountPage(): ReactElement {
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [tourReminder, setTourReminder] = useState(
+    'Replay the Dashboard tour the next time you open it.',
+  )
+  const [resetTourFlag, { isLoading: isResettingTour }] = useResetTourFlagMutation()
+  const guidanceDescription = isResettingTour ? 'Resetting tour state…' : tourReminder
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -120,6 +125,17 @@ export function YourAccountPage(): ReactElement {
       console.error('Logout failed', error)
     }
   }
+
+  const handleShowTourAgain = useCallback(async () => {
+    try {
+      await resetTourFlag().unwrap()
+      setTourReminder('The tour will launch the next time you open the Dashboard.')
+    } catch (error) {
+      console.error('Failed to reset tour flag:', error)
+    }
+    // PRD Open Question 5: if the author confirms the tour must launch immediately from Settings,
+    // this handler should also trigger the Dashboard navigation or global event.
+  }, [resetTourFlag])
 
   const userInitials = user?.name
     ? user.name
@@ -162,6 +178,17 @@ export function YourAccountPage(): ReactElement {
           description: 'Create and manage your custom categories',
           icon: <CategoryIcon />,
           to: '/your-account/categories',
+        },
+      ],
+    },
+    {
+      title: 'Guidance',
+      items: [
+        {
+          label: 'Show tour again',
+          description: guidanceDescription,
+          icon: <TourIcon />,
+          onClick: handleShowTourAgain,
         },
       ],
     },
@@ -459,6 +486,25 @@ function HelpIcon(): ReactElement {
       <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
       <path d="M12 17h.01" />
+    </svg>
+  )
+}
+
+function TourIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 5v14" />
+      <path d="M5 9h14" />
+      <path d="M8 17l4-4 4 4" />
     </svg>
   )
 }

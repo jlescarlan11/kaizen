@@ -192,4 +192,82 @@ public class UserAccountController {
 
         return userAccountService.updateBudgetSetupSkipPreference(userDetails.getUsername(), request.skip());
     }
+
+    @Operation(
+        summary = "Mark tour completed",
+        description = "Sets the tourCompleted flag to true for the current user.",
+        operationId = "markTourCompleted"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Flag updated successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/flags/tour/completed")
+    public UserResponse markTourCompleted(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.markTourCompleted(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Reset tour flag",
+        description = "Sets the tourCompleted flag to false for the current user (Show tour again).",
+        operationId = "resetTourFlag"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Flag reset successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/flags/tour/reset")
+    public UserResponse resetTourFlag(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.resetTourFlag(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Mark first transaction added",
+        description = "Records that the user has added their first transaction.",
+        operationId = "markFirstTransactionAdded"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Flag updated successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/flags/first-transaction")
+    public UserResponse markFirstTransactionAdded(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.markFirstTransactionAdded(userDetails.getUsername());
+    }
 }

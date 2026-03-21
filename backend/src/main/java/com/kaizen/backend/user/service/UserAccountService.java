@@ -27,32 +27,13 @@ public class UserAccountService {
     }
 
     public UserResponse getByEmail(String email) {
-        return userAccountRepository.findByEmailIgnoreCase(email)
-            .map(account -> new UserResponse(
-                account.getId(),
-                account.getName(),
-                account.getEmail(),
-                account.getPictureUrl(),
-                account.isOnboardingCompleted(),
-            account.getOpeningBalance(),
-            account.isBudgetSetupSkipped()
-        ))
-        .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+        UserAccount account = findAccountByEmail(email);
+        return toUserResponse(account);
     }
 
     public UserProfileResponse getProfileByEmail(String email) {
-        return userAccountRepository.findByEmailIgnoreCase(email)
-            .map(account -> new UserProfileResponse(
-                account.getId(),
-                account.getName(),
-                account.getEmail(),
-                account.getPictureUrl(),
-                account.getCreatedAt(),
-                account.isOnboardingCompleted(),
-                account.getOpeningBalance(),
-                account.isBudgetSetupSkipped()
-            ))
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+        UserAccount account = findAccountByEmail(email);
+        return toUserProfileResponse(account);
     }
 
     @Transactional
@@ -66,15 +47,7 @@ public class UserAccountService {
         UserAccount updated = userAccountRepository.save(account);
         onboardingProgressService.deleteForUser(updated);
         
-        return new UserResponse(
-            updated.getId(),
-            updated.getName(),
-            updated.getEmail(),
-            updated.getPictureUrl(),
-            updated.isOnboardingCompleted(),
-            updated.getOpeningBalance(),
-            updated.isBudgetSetupSkipped()
-        );
+        return toUserResponse(updated);
     }
 
     @Transactional
@@ -86,15 +59,7 @@ public class UserAccountService {
 
         UserAccount updated = userAccountRepository.save(account);
 
-        return new UserResponse(
-            updated.getId(),
-            updated.getName(),
-            updated.getEmail(),
-            updated.getPictureUrl(),
-            updated.isOnboardingCompleted(),
-            updated.getOpeningBalance(),
-            updated.isBudgetSetupSkipped()
-        );
+        return toUserResponse(updated);
     }
 
     @Transactional
@@ -106,14 +71,73 @@ public class UserAccountService {
 
         UserAccount updated = userAccountRepository.save(account);
 
+        return toUserResponse(updated);
+    }
+
+    @Transactional
+    public UserResponse markTourCompleted(String email) {
+        UserAccount account = findAccountByEmail(email);
+        if (!account.isTourCompleted()) {
+            account.setTourCompleted(true);
+            account = userAccountRepository.save(account);
+        }
+
+        return toUserResponse(account);
+    }
+
+    @Transactional
+    public UserResponse resetTourFlag(String email) {
+        UserAccount account = findAccountByEmail(email);
+        if (account.isTourCompleted()) {
+            account.setTourCompleted(false);
+            account = userAccountRepository.save(account);
+        }
+
+        return toUserResponse(account);
+    }
+
+    @Transactional
+    public UserResponse markFirstTransactionAdded(String email) {
+        UserAccount account = findAccountByEmail(email);
+        if (!account.isFirstTransactionAdded()) {
+            account.setFirstTransactionAdded(true);
+            account = userAccountRepository.save(account);
+        }
+
+        return toUserResponse(account);
+    }
+
+    private UserAccount findAccountByEmail(String email) {
+        return userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+    }
+
+    private UserResponse toUserResponse(UserAccount account) {
         return new UserResponse(
-            updated.getId(),
-            updated.getName(),
-            updated.getEmail(),
-            updated.getPictureUrl(),
-            updated.isOnboardingCompleted(),
-            updated.getOpeningBalance(),
-            updated.isBudgetSetupSkipped()
+            account.getId(),
+            account.getName(),
+            account.getEmail(),
+            account.getPictureUrl(),
+            account.isOnboardingCompleted(),
+            account.getOpeningBalance(),
+            account.isBudgetSetupSkipped(),
+            account.isTourCompleted(),
+            account.isFirstTransactionAdded()
+        );
+    }
+
+    private UserProfileResponse toUserProfileResponse(UserAccount account) {
+        return new UserProfileResponse(
+            account.getId(),
+            account.getName(),
+            account.getEmail(),
+            account.getPictureUrl(),
+            account.getCreatedAt(),
+            account.isOnboardingCompleted(),
+            account.getOpeningBalance(),
+            account.isBudgetSetupSkipped(),
+            account.isTourCompleted(),
+            account.isFirstTransactionAdded()
         );
     }
 }

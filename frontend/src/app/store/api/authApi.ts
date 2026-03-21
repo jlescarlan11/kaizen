@@ -10,6 +10,8 @@ interface User {
   onboardingCompleted: boolean
   openingBalance: number
   budgetSetupSkipped: boolean
+  tourCompleted: boolean
+  firstTransactionAdded: boolean
 }
 
 export interface SkipBudgetSetupPayload {
@@ -85,6 +87,48 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    markTourCompleted: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/tour/completed',
+        method: 'POST',
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to mark tour completed:', error)
+        }
+      },
+    }),
+    resetTourFlag: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/tour/reset',
+        method: 'POST',
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to reset tour flag:', error)
+        }
+      },
+    }),
+    markFirstTransactionAdded: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/first-transaction',
+        method: 'POST',
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to mark first transaction added:', error)
+        }
+      },
+    }),
     getOnboardingProgress: builder.query<OnboardingProgressResponse | null, void>({
       query: () => '/users/onboarding/progress',
     }),
@@ -147,4 +191,7 @@ export const {
   useGetOnboardingProgressQuery,
   useUpdateOnboardingProgressMutation,
   useDeleteOnboardingProgressMutation,
+  useMarkTourCompletedMutation,
+  useResetTourFlagMutation,
+  useMarkFirstTransactionAddedMutation,
 } = authApi

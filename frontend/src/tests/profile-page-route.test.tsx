@@ -28,6 +28,8 @@ describe('ProfilePage Routing and Guard', () => {
             onboardingCompleted: true,
             openingBalance: 1000,
             budgetSetupSkipped: false,
+            tourCompleted: true,
+            firstTransactionAdded: false,
           },
         },
       },
