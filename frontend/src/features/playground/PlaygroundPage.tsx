@@ -13,6 +13,14 @@ import { ProgressBar } from '../../shared/components/ProgressBar'
 import { Radio } from '../../shared/components/Radio'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { Select } from '../../shared/components/Select'
+import {
+  BanknoteIcon,
+  BoltIcon,
+  ReceiptIcon,
+  ShoppingBagIcon,
+  UtensilsIcon,
+  WalletIcon,
+} from '../categories/categoryIcons'
 
 const DAILY_TREND_DATA = Array.from({ length: 31 }, (_, i) => ({
   day: i + 1,
@@ -52,9 +60,9 @@ export function PlaygroundPage(): ReactElement {
   }
 
   const categoryOptions = [
-    { value: 'income', label: 'Income' },
-    { value: 'expense', label: 'Expense' },
-    { value: 'savings', label: 'Savings' },
+    { value: 'income', label: 'Income', icon: <BanknoteIcon size={18} /> },
+    { value: 'expense', label: 'Expense', icon: <ReceiptIcon size={18} /> },
+    { value: 'savings', label: 'Savings', icon: <WalletIcon size={18} /> },
   ]
 
   const accountTypeOptions = [
@@ -70,9 +78,10 @@ export function PlaygroundPage(): ReactElement {
   ]
 
   const modalCategoryOptions = [
-    { value: 'utilities', label: 'Utilities' },
-    { value: 'rent', label: 'Rent' },
-    { value: 'food', label: 'Food' },
+    { value: 'utilities', label: 'Utilities', icon: <BoltIcon size={18} /> },
+    { value: 'rent', label: 'Rent', icon: <BanknoteIcon size={18} /> },
+    { value: 'food', label: 'Food', icon: <UtensilsIcon size={18} /> },
+    { value: 'shopping', label: 'Shopping', icon: <ShoppingBagIcon size={18} /> },
   ]
 
   return (
@@ -382,7 +391,7 @@ export function PlaygroundPage(): ReactElement {
               </p>
               <span className="text-xs font-medium text-ui-text-muted">{progress}% complete</span>
             </div>
-            <ProgressBar value={progress} />
+            <ProgressBar value={progress} colorScheme="primary" />
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setProgress(Math.max(0, progress - 10))}>
                 -10%
@@ -402,6 +411,7 @@ export function PlaygroundPage(): ReactElement {
               activeIndex={activeTrendIndex}
               onPointSelect={setActiveTrendIndex}
               height={240}
+              colorScheme="primary"
             />
           </div>
 
@@ -414,6 +424,7 @@ export function PlaygroundPage(): ReactElement {
               activeIndex={activeDayIndex}
               onPointSelect={setActiveDayIndex}
               height={200}
+              colorScheme="primary"
             />
           </div>
         </div>

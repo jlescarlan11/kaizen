@@ -6,13 +6,15 @@ import {
   ListboxOptions,
   Transition,
 } from '@headlessui/react'
-import { Fragment, useId, useState, type ReactElement } from 'react'
+import { Fragment, useId, useState, type ReactElement, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 import { formFieldClasses } from '../styles/form'
 
 export interface SelectOption {
   value: string
   label: string
+  icon?: ReactNode
+  disabled?: boolean
 }
 
 export interface SelectProps {
@@ -77,12 +79,19 @@ export function Select({
             className={cn(
               formFieldClasses.input,
               'flex items-center justify-between text-left',
-              !selectedOption && 'text-ui-subtle',
+              !selectedOption && 'text-subtle-foreground',
               error && 'border-ui-danger focus-visible:ring-ui-danger/22',
               className,
             )}
           >
-            <span className="block truncate">{selectedOption?.label ?? placeholder}</span>
+            <span className="flex items-center gap-2 truncate">
+              {selectedOption?.icon && (
+                <span className="flex shrink-0 items-center text-foreground/70">
+                  {selectedOption.icon}
+                </span>
+              )}
+              <span className="block truncate">{selectedOption?.label ?? placeholder}</span>
+            </span>
             <span className="pointer-events-none flex items-center pr-2 text-foreground/50">
               <ChevronDownIcon />
             </span>
@@ -99,9 +108,11 @@ export function Select({
                 <ListboxOption
                   key={option.value}
                   value={option.value}
+                  disabled={option.disabled}
                   className={({ focus, selected }) =>
                     cn(
                       'relative cursor-pointer select-none rounded-lg py-3 pl-10 pr-4 transition-colors',
+                      option.disabled && 'cursor-not-allowed opacity-50',
                       focus ? 'bg-ui-surface-muted' : '',
                       selected ? 'bg-ui-surface-subtle font-semibold' : 'font-normal',
                       'text-foreground',
@@ -115,9 +126,9 @@ export function Select({
                       >
                         {option.label}
                       </span>
-                      {selected ? (
+                      {selected || option.icon ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-foreground">
-                          <CheckIcon />
+                          {selected ? <CheckIcon /> : option.icon}
                         </span>
                       ) : null}
                     </>

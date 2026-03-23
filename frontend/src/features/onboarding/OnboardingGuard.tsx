@@ -1,13 +1,13 @@
-import { type ReactElement, useEffect, useRef } from 'react'
+import { type ReactElement, useEffect, useRef, useState } from 'react'
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useGetOnboardingProgressQuery } from '../../app/store/api/authApi'
 import {
+  createInitialBudgetEditorDraft,
+  createInitialOnboardingState,
   goToPreviousStep,
-  setBalanceValue,
-  setBudgetChoice,
-  setCurrentStep,
+  hydrateOnboardingState,
   selectCurrentStep,
 } from './onboardingSlice'
 import {
@@ -17,6 +17,11 @@ import {
   ROUTE_TO_ONBOARDING_STEP,
   type OnboardingStep,
 } from './onboardingStep'
+import {
+  clearStoredOnboardingDraft,
+  getStoredOnboardingDraft,
+  persistOnboardingDraft,
+} from './onboardingDraftStorage'
 
 /**
  * Guard decision table:
@@ -30,6 +35,7 @@ export function OnboardingGuard(): ReactElement | null {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const currentStep = useAppSelector(selectCurrentStep)
+  const onboardingState = useAppSelector((state) => state.onboarding)
   const { data: progress, isLoading: isProgressLoading } = useGetOnboardingProgressQuery(
     undefined,
     {
@@ -37,6 +43,7 @@ export function OnboardingGuard(): ReactElement | null {
     },
   )
   const progressHydrated = useRef(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
     if (progressHydrated.current) {
@@ -47,11 +54,64 @@ export function OnboardingGuard(): ReactElement | null {
     }
     progressHydrated.current = true
 
-    const nextStep = (progress?.currentStep ?? 'BALANCE') as OnboardingStep
-    dispatch(setCurrentStep(nextStep))
-    dispatch(setBalanceValue(progress?.balanceValue ?? null))
-    dispatch(setBudgetChoice(progress?.budgetChoice ?? null))
-  }, [dispatch, isProgressLoading, progress])
+    const storedDraft = user ? getStoredOnboardingDraft(user.id) : null
+    const progressStep = (progress?.currentStep ?? 'BALANCE') as OnboardingStep
+    const initialOnboardingState = createInitialOnboardingState()
+
+    dispatch(
+      hydrateOnboardingState({
+        currentStep: storedDraft?.currentStep ?? progressStep,
+        startingFunds:
+          storedDraft?.startingFunds ??
+          progress?.startingFunds ??
+          initialOnboardingState.startingFunds,
+        startingFundsInput:
+          storedDraft?.startingFundsInput ??
+          (progress?.startingFunds != null
+            ? progress.startingFunds.toString()
+            : initialOnboardingState.startingFundsInput),
+        fundingSourceType:
+          storedDraft?.fundingSourceType ??
+          progress?.fundingSourceType ??
+          initialOnboardingState.fundingSourceType,
+        categoriesSeeded: storedDraft?.categoriesSeeded ?? initialOnboardingState.categoriesSeeded,
+        pendingBudgets: storedDraft?.pendingBudgets ?? initialOnboardingState.pendingBudgets,
+        budgetEditorDraft: storedDraft?.budgetEditorDraft ?? createInitialBudgetEditorDraft(),
+      }),
+    )
+    Promise.resolve().then(() => {
+      setIsHydrated(true)
+    })
+  }, [dispatch, isProgressLoading, progress, user])
+
+  useEffect(() => {
+    if (
+      !isHydrated ||
+      !user ||
+      user.onboardingCompleted ||
+      !location.pathname.startsWith('/onboarding')
+    ) {
+      return
+    }
+
+    persistOnboardingDraft(user.id, {
+      currentStep: onboardingState.currentStep,
+      startingFunds: onboardingState.startingFunds,
+      startingFundsInput: onboardingState.startingFundsInput,
+      fundingSourceType: onboardingState.fundingSourceType,
+      categoriesSeeded: onboardingState.categoriesSeeded,
+      pendingBudgets: onboardingState.pendingBudgets,
+      budgetEditorDraft: onboardingState.budgetEditorDraft,
+    })
+  }, [isHydrated, location.pathname, onboardingState, user])
+
+  useEffect(() => {
+    if (!user?.onboardingCompleted) {
+      return
+    }
+
+    clearStoredOnboardingDraft(user.id)
+  }, [user])
 
   const isProgressResolved = !isProgressLoading
 
@@ -86,7 +146,7 @@ export function OnboardingGuard(): ReactElement | null {
     return <Navigate to="/signin" replace />
   }
 
-  if (!isProgressResolved) {
+  if (!isProgressResolved || !isHydrated) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
