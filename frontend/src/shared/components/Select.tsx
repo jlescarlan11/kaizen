@@ -86,7 +86,7 @@ export function Select({
           >
             <span className="flex items-center gap-2 truncate">
               {selectedOption?.icon && (
-                <span className="flex shrink-0 items-center text-foreground/70">
+                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-foreground/70">
                   {selectedOption.icon}
                 </span>
               )}
@@ -111,7 +111,7 @@ export function Select({
                   disabled={option.disabled}
                   className={({ focus, selected }) =>
                     cn(
-                      'relative cursor-pointer select-none rounded-lg py-3 pl-10 pr-4 transition-colors',
+                      'relative cursor-pointer select-none rounded-lg py-3 pl-12 pr-4 transition-colors',
                       option.disabled && 'cursor-not-allowed opacity-50',
                       focus ? 'bg-ui-surface-muted' : '',
                       selected ? 'bg-ui-surface-subtle font-semibold' : 'font-normal',
@@ -127,8 +127,10 @@ export function Select({
                         {option.label}
                       </span>
                       {selected || option.icon ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-foreground">
-                          {selected ? <CheckIcon /> : option.icon}
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-foreground">
+                          <span className="flex h-[18px] w-[18px] items-center justify-center">
+                            {selected ? <CheckIcon /> : option.icon}
+                          </span>
                         </span>
                       ) : null}
                     </>
