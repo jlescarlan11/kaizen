@@ -23,7 +23,7 @@ export function ShellLayout(): ReactElement {
     )
   }
 
-  const isFullPage = location.pathname === '/signin' || location.pathname === '/onboarding'
+  const isFullPage = location.pathname === '/signin' || location.pathname.startsWith('/onboarding')
 
   // 2. Decision logic:
   // If the user is authenticated and NOT on a full-page route, use the Sidebar-based shell.

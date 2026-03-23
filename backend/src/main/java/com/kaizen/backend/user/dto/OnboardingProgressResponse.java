@@ -8,16 +8,16 @@ import com.kaizen.backend.user.entity.OnboardingStep;
 
 public record OnboardingProgressResponse(
     OnboardingStep currentStep,
-    BigDecimal balanceValue,
-    String budgetChoice,
+    BigDecimal startingFunds,
+    String fundingSourceType,
     Instant lastUpdatedAt
 ) {
 
     public static OnboardingProgressResponse from(OnboardingProgress progress) {
         return new OnboardingProgressResponse(
             progress.getCurrentStep(),
-            progress.getBalanceValue(),
-            progress.getBudgetChoice(),
+            progress.getStartingFunds(),
+            progress.getFundingSourceType() == null ? null : progress.getFundingSourceType().name(),
             progress.getUpdatedAt()
         );
     }

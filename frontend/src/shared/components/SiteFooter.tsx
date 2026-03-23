@@ -22,8 +22,8 @@ export function SiteFooter(): ReactElement {
   }
 
   return (
-    <footer className="border-t border-ui-border-subtle bg-background">
-      <div className="mx-auto w-full max-w-5xl px-5 md:px-10 py-10 flex flex-col gap-8">
+    <footer className="border-t border-ui-border-subtle bg-background px-5 md:px-10">
+      <div className="mx-auto w-full max-w-5xl py-10 flex flex-col gap-8">
         <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-6 text-center md:text-left">
           <div className="flex flex-col items-center md:items-start gap-2">
             <p className="text-xs leading-5 text-subtle-foreground">

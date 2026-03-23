@@ -7,6 +7,7 @@ import { useAuthState } from '../hooks/useAuthState'
 import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from './LogoutConfirmationModal'
 import { cn } from '../lib/cn'
+import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 
 /**
  * SiteHeader: The main navigation header.
@@ -14,7 +15,7 @@ import { cn } from '../lib/cn'
  * and translate transitions.
  */
 export function SiteHeader(): ReactElement {
-  const { isAuthenticated } = useAuthState()
+  const { isAuthenticated, user } = useAuthState()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const navigate = useNavigate()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -60,6 +61,9 @@ export function SiteHeader(): ReactElement {
   const handleLogout = async (): Promise<void> => {
     try {
       await logoutMutation().unwrap()
+      if (user) {
+        clearStoredOnboardingDraft(user.id)
+      }
       setIsLogoutModalOpen(false)
       setIsDrawerOpen(false)
       navigate('/')

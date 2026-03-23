@@ -4,9 +4,12 @@ import com.kaizen.backend.budget.dto.BudgetBatchRequest;
 import com.kaizen.backend.budget.dto.BudgetCountResponse;
 import com.kaizen.backend.budget.dto.BudgetCreateRequest;
 import com.kaizen.backend.budget.dto.BudgetResponse;
+import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
 import com.kaizen.backend.budget.entity.Budget;
 import com.kaizen.backend.budget.service.BudgetService;
+import com.kaizen.backend.budget.validation.BudgetValidationService;
 import com.kaizen.backend.common.dto.ErrorResponse;
+import com.kaizen.backend.common.dto.ValidationErrorResponse;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,9 +37,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class BudgetController {
 
     private final BudgetService budgetService;
+    private final BudgetValidationService budgetValidationService;
 
-    public BudgetController(BudgetService budgetService) {
+    public BudgetController(BudgetService budgetService,
+        BudgetValidationService budgetValidationService) {
         this.budgetService = budgetService;
+        this.budgetValidationService = budgetValidationService;
     }
 
     @Operation(
@@ -53,7 +60,7 @@ public class BudgetController {
         @ApiResponse(
             responseCode = "400",
             description = "Validation failed for one or more budgets.",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
         ),
         @ApiResponse(
             responseCode = "401",
@@ -75,10 +82,11 @@ public class BudgetController {
         if (userDetails == null) {
             throw new ProfileNotFoundException();
     }
+        budgetValidationService.validateSmartBudgets(userDetails.getUsername(), request);
 
-    return budgetService.saveSmartBudgets(userDetails.getUsername(), request).stream()
-        .map(this::map)
-        .collect(Collectors.toList());
+        return budgetService.saveSmartBudgets(userDetails.getUsername(), request).stream()
+            .map(this::map)
+            .collect(Collectors.toList());
   }
 
   @Operation(
@@ -95,7 +103,7 @@ public class BudgetController {
       @ApiResponse(
           responseCode = "400",
           description = "Validation failed for the budget.",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+          content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
       ),
       @ApiResponse(
           responseCode = "401",
@@ -118,7 +126,43 @@ public class BudgetController {
       throw new ProfileNotFoundException();
     }
 
+    budgetValidationService.validateSingleBudget(userDetails.getUsername(), request);
+
     return map(budgetService.saveBudget(userDetails.getUsername(), request));
+  }
+
+  @Operation(
+      summary = "Get user budgets",
+      description = "Returns all budgets saved by the authenticated user."
+  )
+  @ApiResponses({
+      @ApiResponse(
+          responseCode = "200",
+          description = "Budgets returned successfully.",
+          content = @Content(
+              array = @ArraySchema(schema = @Schema(implementation = BudgetResponse.class))
+          )
+      ),
+      @ApiResponse(
+          responseCode = "401",
+          description = "User must be authenticated.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "User profile not found.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      )
+  })
+  @GetMapping
+  public List<BudgetResponse> getBudgets(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      throw new ProfileNotFoundException();
+    }
+
+    return budgetService.getBudgetsForUser(userDetails.getUsername()).stream()
+        .map(this::map)
+        .collect(Collectors.toList());
   }
 
   @Operation(
@@ -148,6 +192,37 @@ public class BudgetController {
     }
 
     return new BudgetCountResponse(budgetService.countBudgetsForUser(userDetails.getUsername()));
+  }
+
+  @Operation(
+      summary = "Get budget allocation summary",
+      description = "Returns the authenticated user's actual balance, total allocated budgets, remaining allocatable amount, allocation percentage, and budget count.",
+      operationId = "getBudgetSummary"
+  )
+  @ApiResponses({
+      @ApiResponse(
+          responseCode = "200",
+          description = "Budget summary returned successfully.",
+          content = @Content(schema = @Schema(implementation = BudgetSummaryResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "401",
+          description = "User must be authenticated.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "User profile not found.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      )
+  })
+  @GetMapping("/summary")
+  public BudgetSummaryResponse getBudgetSummary(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      throw new ProfileNotFoundException();
+    }
+
+    return budgetService.getBudgetSummaryForUser(userDetails.getUsername());
   }
 
   private BudgetResponse map(Budget budget) {

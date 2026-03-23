@@ -1,22 +1,33 @@
 import type { FormEvent, ReactElement } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
 import { CategoryBadge } from './CategoryBadge'
-import { createCategory } from './api'
-import { getAutoAssignedCategoryDesign } from './designSystem'
+import { CategoryColorPicker } from './CategoryColorPicker'
+import { CategoryIconPicker } from './CategoryIconPicker'
+import { createCategory, updateCategory } from './api'
+import {
+  getAutoAssignedCategoryDesign,
+  isCategoryIconName,
+  type CategoryIconName,
+} from './designSystem'
 import type { Category } from './types'
 
 interface CategoryCreationFormProps {
   categories: Category[]
-  onCategoryCreated: (category: Category) => void
+  onCategorySaved: (category: Category) => void
+  initialCategory?: Category
+  onCancel?: () => void
 }
 
 export function CategoryCreationForm({
   categories,
-  onCategoryCreated,
+  onCategorySaved,
+  initialCategory,
+  onCancel,
 }: CategoryCreationFormProps): ReactElement {
-  const [name, setName] = useState('')
+  const isEditMode = Boolean(initialCategory)
+  const [name, setName] = useState(initialCategory?.name ?? '')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
@@ -32,19 +43,35 @@ export function CategoryCreationForm({
     () => getAutoAssignedCategoryDesign(userScopedCategories),
     [userScopedCategories],
   )
+  const [selectedIcon, setSelectedIcon] = useState<CategoryIconName>(
+    initialCategory?.icon && isCategoryIconName(initialCategory.icon)
+      ? initialCategory.icon
+      : assignedDesign.icon,
+  )
+  const [selectedColor, setSelectedColor] = useState(initialCategory?.color ?? assignedDesign.color)
+
+  useEffect(() => {
+    setName(initialCategory?.name ?? '')
+    if (initialCategory?.icon && isCategoryIconName(initialCategory.icon)) {
+      setSelectedIcon(initialCategory.icon)
+    } else {
+      setSelectedIcon(assignedDesign.icon)
+    }
+    setSelectedColor(initialCategory?.color ?? assignedDesign.color)
+  }, [assignedDesign.color, assignedDesign.icon, initialCategory])
 
   const duplicateNameError = useMemo(() => {
     if (!trimmedName) {
       return null
     }
 
-    // Inferred (PRD Story 7): duplicate checks should be case-insensitive and scoped to the user's own categories.
-    const exists = userScopedCategories.some(
-      (category) => category.name.toLowerCase() === normalizedName,
+    const exists = categories.some(
+      (category) =>
+        category.id !== initialCategory?.id && category.name.toLowerCase() === normalizedName,
     )
 
-    return exists ? 'You already created a category with that name.' : null
-  }, [normalizedName, trimmedName, userScopedCategories])
+    return exists ? 'That category name already exists. Choose a different name.' : null
+  }, [categories, initialCategory?.id, normalizedName, trimmedName])
 
   const requiredNameError = trimmedName === '' ? 'Category name is required.' : null
   const fieldError = requiredNameError ?? duplicateNameError
@@ -57,17 +84,29 @@ export function CategoryCreationForm({
     setServerError(null)
 
     try {
-      const created = await createCategory({
+      const payload = {
         name: trimmedName,
-        icon: assignedDesign.icon,
-        color: assignedDesign.color,
-      })
+        icon: selectedIcon,
+        color: selectedColor,
+      }
+      const saved =
+        isEditMode && initialCategory
+          ? await updateCategory(initialCategory.id, payload)
+          : await createCategory(payload)
 
-      onCategoryCreated(created)
-      setName('')
+      onCategorySaved(saved)
+      if (!isEditMode) {
+        setName('')
+        setSelectedIcon(assignedDesign.icon)
+        setSelectedColor(assignedDesign.color)
+      }
     } catch (error) {
-      console.error('Category creation failed:', error)
-      setServerError('Unable to save category. Please try again.')
+      console.error(`Category ${isEditMode ? 'update' : 'creation'} failed:`, error)
+      setServerError(
+        isEditMode
+          ? 'Unable to update category. Please try again.'
+          : 'Unable to save category. Please try again.',
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -83,7 +122,11 @@ export function CategoryCreationForm({
           value={name}
           onChange={(event) => setName(event.target.value)}
           error={fieldError ?? undefined}
-          helperText="This name will only be visible to you."
+          helperText={
+            isEditMode
+              ? 'Changes apply only to your custom category.'
+              : 'This name will only be visible to you.'
+          }
           autoFocus
         />
       </div>
@@ -93,26 +136,35 @@ export function CategoryCreationForm({
           <p className="text-xs font-semibold text-foreground uppercase tracking-tight">
             Icon & color
           </p>
-          <span className="text-xs font-medium text-muted-foreground">Automated</span>
+          <span className="text-xs font-medium text-muted-foreground">Choose icon</span>
         </div>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Instruction 8 defines the icon and color palette applied to every category. The preview
-          below shows what will be stored for this new category.
+          Pick an icon and color from the approved set.
         </p>
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3">
+          <CategoryIconPicker
+            value={selectedIcon}
+            color={selectedColor}
+            onChange={setSelectedIcon}
+          />
+        </div>
+        <div className="mt-3">
+          <CategoryColorPicker value={selectedColor} onChange={setSelectedColor} />
+        </div>
+        <div className="mt-4 flex items-center gap-3">
           <CategoryBadge
-            icon={assignedDesign.icon}
-            color={assignedDesign.color}
+            icon={selectedIcon}
+            color={selectedColor}
             size={48}
             label="Assigned category icon"
           />
-          <div className="flex flex-1 flex-col text-xs uppercase tracking-tight">
-            <span className="text-sm font-medium text-foreground">Icon: {assignedDesign.icon}</span>
-            <span className="text-muted-foreground">Color: {assignedDesign.color}</span>
+          <div className="flex flex-1 flex-col">
+            <span className="text-sm font-medium text-foreground">
+              {trimmedName || 'Custom category'}
+            </span>
+            <span className="text-xs text-muted-foreground">Color: {selectedColor}</span>
           </div>
         </div>
-        {/* Instruction 8 auto-assigns the values shown above. Replace this stub with the picker once
-            the author confirms custom icon/color selection (PRD Open Question 6). */}
       </div>
 
       {serverError && (
@@ -121,14 +173,19 @@ export function CategoryCreationForm({
         </p>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        {onCancel ? (
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+        ) : null}
         <Button
           type="submit"
           isLoading={isSubmitting}
           disabled={Boolean(fieldError)}
           className="px-6"
         >
-          Create category
+          {isEditMode ? 'Save changes' : 'Create category'}
         </Button>
       </div>
     </form>

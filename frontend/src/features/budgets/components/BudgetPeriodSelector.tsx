@@ -1,6 +1,7 @@
+import type { ReactElement } from 'react'
+import { typography } from '../../../shared/styles/typography'
 import { SMART_BUDGET_PERIOD, WEEKS_PER_MONTH_DIVISOR } from '../constants'
 import type { BudgetPeriod } from '../constants'
-import type { ReactElement } from 'react'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
@@ -11,7 +12,6 @@ const currencyFormatter = new Intl.NumberFormat('en-PH', {
 interface BudgetPeriodSelectorProps {
   value: BudgetPeriod
   onChange: (period: BudgetPeriod) => void
-  /** Host screens decide which amount is "current" (total allocation, session total, current input, etc.). */
   referenceAmount: number
 }
 
@@ -32,18 +32,19 @@ export function BudgetPeriodSelector({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold tracking-tight text-foreground">Budget period</p>
+        <p className="text-sm font-medium leading-none text-foreground">Budget period</p>
         <div className="flex gap-2">
           {periodOptions.map((option) => {
             const selected = option.value === value
+
             return (
               <button
                 key={option.value}
                 type="button"
-                className={`inline-flex items-center justify-center rounded-full border px-4 py-1 text-sm font-semibold transition ${
+                className={`inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm font-medium leading-none transition ${
                   selected
-                    ? 'border-ui-border text-foreground bg-ui-surface'
-                    : 'border-ui-border-subtle text-muted-foreground bg-ui-surface-subtle'
+                    ? 'border-ui-border bg-ui-surface text-foreground'
+                    : 'border-ui-border-subtle bg-ui-surface-subtle text-muted-foreground'
                 }`}
                 onClick={() => onChange(option.value)}
                 aria-pressed={selected}
@@ -54,12 +55,10 @@ export function BudgetPeriodSelector({
           })}
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Monthly resets on the 1st. Weekly resets on Monday.
-      </p>
+      <p className={typography.caption}>Monthly resets on the 1st. Weekly resets on Monday.</p>
       {showWeeklyEquivalent ? (
-        <p className="text-xs text-muted-foreground">
-          ≈ {currencyFormatter.format(weeklyEquivalent)}/week
+        <p className={typography.caption}>
+          Approx. {currencyFormatter.format(weeklyEquivalent)}/week
         </p>
       ) : null}
     </div>

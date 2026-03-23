@@ -6,6 +6,8 @@ import com.kaizen.backend.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -27,11 +29,16 @@ public class OnboardingProgress extends BaseEntity {
     @JoinColumn(name = "user_account_id", nullable = false, unique = true)
     private UserAccount userAccount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "current_step", nullable = false, length = 32)
     private OnboardingStep currentStep;
 
     @Column(name = "balance_value", precision = 15, scale = 2)
-    private BigDecimal balanceValue;
+    private BigDecimal startingFunds;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "funding_source_type", length = 32)
+    private FundingSourceType fundingSourceType;
 
     @Column(name = "budget_choice", length = 255)
     private String budgetChoice;

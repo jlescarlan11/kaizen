@@ -2,9 +2,16 @@ import { useState, type ReactElement, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
-import { useLogoutMutation, useResetTourFlagMutation } from '../../app/store/api/authApi'
+import {
+  useLogoutMutation,
+  useResetTourFlagMutation,
+  useResetOnboardingMutation,
+} from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
+import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
+
+const IS_DEV = import.meta.env.DEV
 
 type AccountItem = {
   label: string
@@ -114,17 +121,34 @@ export function YourAccountPage(): ReactElement {
     'Replay the Dashboard tour the next time you open it.',
   )
   const [resetTourFlag, { isLoading: isResettingTour }] = useResetTourFlagMutation()
+  const [resetOnboarding, { isLoading: isResettingOnboarding }] = useResetOnboardingMutation()
   const guidanceDescription = isResettingTour ? 'Resetting tour state…' : tourReminder
 
   const handleLogout = async (): Promise<void> => {
     try {
       await logoutMutation().unwrap()
+      if (user) {
+        clearStoredOnboardingDraft(user.id)
+      }
       setIsLogoutModalOpen(false)
       navigate('/')
     } catch (error) {
       console.error('Logout failed', error)
     }
   }
+
+  const handleResetOnboarding = useCallback(async () => {
+    if (!window.confirm('DEV ONLY: Reset all setup, budgets and progress?')) return
+    try {
+      await resetOnboarding().unwrap()
+      if (user) {
+        clearStoredOnboardingDraft(user.id)
+      }
+      navigate('/onboarding')
+    } catch (error) {
+      console.error('Failed to reset onboarding:', error)
+    }
+  }, [navigate, resetOnboarding, user])
 
   const handleShowTourAgain = useCallback(async () => {
     try {
@@ -210,6 +234,19 @@ export function YourAccountPage(): ReactElement {
     {
       title: 'Actions',
       items: [
+        ...(IS_DEV
+          ? [
+              {
+                label: 'Reset onboarding (DEV)',
+                description: isResettingOnboarding
+                  ? 'Resetting…'
+                  : 'Delete all setup and start over',
+                icon: <TourIcon />,
+                onClick: handleResetOnboarding,
+                destructive: true,
+              } satisfies AccountItem,
+            ]
+          : []),
         {
           label: 'Close account',
           description: 'Permanently delete your account and data',

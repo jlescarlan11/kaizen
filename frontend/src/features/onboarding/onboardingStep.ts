@@ -3,6 +3,26 @@ export type OnboardingStep = 'BALANCE' | 'BUDGET' | 'COMPLETE'
 // TODO: Additional steps (PRD Open Question 3) should be inserted into this array in order.
 export const ONBOARDING_STEP_ORDER: OnboardingStep[] = ['BALANCE', 'BUDGET', 'COMPLETE']
 
+export interface OnboardingStepMetadata {
+  title: string
+  description: string
+}
+
+export const ONBOARDING_STEP_METADATA: Record<
+  Exclude<OnboardingStep, 'COMPLETE'>,
+  OnboardingStepMetadata
+> = {
+  BALANCE: {
+    title: 'Set your starting funds',
+    description: 'Enter the money you currently have available and choose where it is held.',
+  },
+  BUDGET: {
+    title: 'Set your first budgets',
+    description:
+      'Start with suggested amounts, adjust what you need, and finish onboarding from one screen.',
+  },
+}
+
 export const ONBOARDING_STEP_ROUTE_MAP: Record<OnboardingStep, string> = {
   BALANCE: '/onboarding/balance',
   BUDGET: '/onboarding/budget',

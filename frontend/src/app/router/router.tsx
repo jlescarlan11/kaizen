@@ -7,11 +7,12 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { HomeGuard } from '../../features/home/HomeGuard'
 import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
+import { AppErrorPage } from '../../shared/components/AppErrorPage'
 
 import { OnboardingGuard } from '../../features/onboarding/OnboardingGuard'
 import { OnboardingLayout } from '../../features/onboarding/OnboardingLayout'
 import { BalanceSetupStep } from '../../features/onboarding/BalanceSetupStep'
-import { BudgetPromptStep } from '../../features/onboarding/BudgetPromptStep'
+import { OnboardingBudgetStep } from '../../features/onboarding/OnboardingBudgetStep'
 import { ONBOARDING_STEP_ROUTE_MAP } from '../../features/onboarding/onboardingStep'
 
 // Lazy load larger or secondary feature pages
@@ -37,25 +38,21 @@ const CategoryManagementPage = lazy(() =>
     default: m.CategoryManagementPage,
   })),
 )
-const BalanceEditPage = lazy(() =>
-  import('../../features/balance/BalanceEditPage').then((m) => ({
-    default: m.BalanceEditPage,
-  })),
-)
-const SmartBudgetPage = lazy(() =>
-  import('../../features/budgets/SmartBudgetPage').then((m) => ({
-    default: m.SmartBudgetPage,
-  })),
-)
 const ManualBudgetSetupPage = lazy(() =>
   import('../../features/budgets/ManualBudgetSetupPage').then((m) => ({
     default: m.ManualBudgetSetupPage,
+  })),
+)
+const BudgetsPage = lazy(() =>
+  import('../../features/budgets/BudgetsPage').then((m) => ({
+    default: m.BudgetsPage,
   })),
 )
 
 export const router = createBrowserRouter([
   {
     path: '/',
+    errorElement: <AppErrorPage />,
     element: (
       <Suspense
         fallback={
@@ -106,14 +103,26 @@ export const router = createBrowserRouter([
                     <BalanceSetupStep />
                   </OnboardingLayout>
                 ),
+                handle: {
+                  backButton: {
+                    label: 'Logout',
+                    fallbackPath: '/signin',
+                  },
+                },
               },
               {
                 path: 'budget',
                 element: (
                   <OnboardingLayout>
-                    <BudgetPromptStep />
+                    <OnboardingBudgetStep />
                   </OnboardingLayout>
                 ),
+                handle: {
+                  backButton: {
+                    label: 'Back',
+                    fallbackPath: '/onboarding/balance',
+                  },
+                },
               },
               // Placeholder for future steps (PRD Open Question 3).
             ],
@@ -124,7 +133,7 @@ export const router = createBrowserRouter([
           },
           {
             path: 'budget',
-            element: <SmartBudgetPage />,
+            element: <BudgetsPage />,
             handle: {
               backButton: {
                 label: 'Back',
@@ -139,18 +148,6 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Back',
                 fallbackPath: '/budget',
-              },
-            },
-          },
-          {
-            path: 'balance/edit',
-            // Placement-agnostic stub: instructs future nav shells where to render the balance editor once
-            // PRD Open Question 9 (dashboard vs. settings) is answered.
-            element: <BalanceEditPage />,
-            handle: {
-              backButton: {
-                label: 'Back',
-                fallbackPath: '/',
               },
             },
           },

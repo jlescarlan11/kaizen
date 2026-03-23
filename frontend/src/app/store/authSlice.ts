@@ -7,7 +7,7 @@ export interface User {
   picture?: string
   createdAt?: string
   onboardingCompleted: boolean
-  openingBalance: number
+  balance: number
   budgetSetupSkipped: boolean
   tourCompleted: boolean
   firstTransactionAdded: boolean

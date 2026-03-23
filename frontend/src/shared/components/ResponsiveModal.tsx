@@ -57,24 +57,26 @@ export function ResponsiveModal({
                 className={cn(
                   'relative w-full max-w-md transform overflow-hidden bg-ui-surface text-left align-middle shadow-xl transition-all',
                   'rounded-t-[2rem] md:rounded-xl border border-ui-border',
-                  'px-6 pb-8 pt-2 md:p-6',
+                  'flex flex-col max-h-[75vh] md:max-h-[90vh]',
                   className,
                 )}
               >
                 {/* Mobile Handle */}
-                <div className="flex justify-center md:hidden pt-2 pb-4">
-                  <div className="h-1 w-12 rounded-full bg-ui-border-strong opacity-40" />
+                <div className="flex justify-center md:hidden pt-3 pb-2 shrink-0">
+                  <div className="h-1.5 w-12 rounded-full bg-ui-border-strong opacity-20" />
                 </div>
 
-                {title ? (
-                  <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground mb-4">
-                    {title}
-                  </DialogTitle>
-                ) : null}
+                <div className="flex-1 overflow-y-auto px-6 pb-8 pt-2 md:p-6">
+                  {title ? (
+                    <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground mb-4">
+                      {title}
+                    </DialogTitle>
+                  ) : null}
 
-                <div className="space-y-4">{children}</div>
+                  <div className="space-y-4">{children}</div>
 
-                {footer ? <div className="mt-6">{footer}</div> : null}
+                  {footer ? <div className="mt-6">{footer}</div> : null}
+                </div>
               </DialogPanel>
             </TransitionChild>
           </div>

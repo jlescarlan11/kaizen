@@ -1,106 +1,30 @@
-import { type PropsWithChildren, type ReactElement, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Button } from '../../shared/components/Button'
-import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
-import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
-import { useDeleteOnboardingProgressMutation, useLogoutMutation } from '../../app/store/api/authApi'
-import { goToPreviousStep, resetOnboardingState, selectCurrentStep } from './onboardingSlice'
-import { getPreviousStep, ONBOARDING_STEP_ROUTE_MAP } from './onboardingStep'
+import { type PropsWithChildren, type ReactElement } from 'react'
+import { useAppSelector } from '../../app/store/hooks'
+import { pageLayout } from '../../shared/styles/layout'
+import { typography } from '../../shared/styles/typography'
+import { selectCurrentStep } from './onboardingSlice'
+import { ONBOARDING_STEP_METADATA } from './onboardingStep'
 
-const LOGOUT_CONFIRMATION_COPY = 'Progress will be lost. Log out?' // PRD Story 20 copy; confirm if wording must change.
+type ActiveStep = 'BALANCE' | 'BUDGET'
 
 export function OnboardingLayout({ children }: PropsWithChildren): ReactElement {
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
   const currentStep = useAppSelector(selectCurrentStep)
-  const previousStep = getPreviousStep(currentStep)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isProcessingLogout, setIsProcessingLogout] = useState(false)
-  const [deleteProgress] = useDeleteOnboardingProgressMutation()
-  const [logout] = useLogoutMutation()
 
-  const stepLabel = useMemo(() => {
-    return `Step ${currentStep === 'BUDGET' ? 2 : 1} of 2`
-  }, [currentStep])
+  const activeStep: ActiveStep =
+    currentStep === 'COMPLETE' ? 'BALANCE' : (currentStep as ActiveStep)
 
-  const handleBack = (): void => {
-    if (!previousStep) {
-      return
-    }
-    dispatch(goToPreviousStep())
-    navigate(ONBOARDING_STEP_ROUTE_MAP[previousStep])
-  }
-
-  const handleConfirmLogout = async (): Promise<void> => {
-    setIsProcessingLogout(true)
-    dispatch(resetOnboardingState())
-    // Delete progress before invalidating the session to avoid orphaned data (PRD Open Question 4).
-    try {
-      await deleteProgress().unwrap()
-    } catch (error) {
-      console.error('Failed to delete onboarding progress before logout:', error)
-    }
-    try {
-      await logout().unwrap()
-    } catch (error) {
-      console.error('Logout failed after deleting progress:', error)
-    } finally {
-      setIsProcessingLogout(false)
-      navigate('/signin', { replace: true })
-    }
-  }
+  const metadata = ONBOARDING_STEP_METADATA[activeStep]
 
   return (
-    <div className="min-h-[100vh] bg-background">
-      <header className="border-b border-ui-border bg-ui-surface px-6 py-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
-              Onboarding
-            </p>
-            <p className="text-lg font-semibold text-foreground">{stepLabel}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {previousStep && (
-              <Button variant="ghost" onClick={handleBack} className="text-foreground">
-                Back
-              </Button>
-            )}
-            <Button variant="ghost" onClick={() => setIsModalOpen(true)}>
-              Log out
-            </Button>
-          </div>
+    <div className="flex min-h-screen flex-col bg-background">
+      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col pb-8 pt-3 md:pb-10 md:pt-4">
+        <div className={pageLayout.sectionCompactGap}>
+          <h1 className={typography.h1}>{metadata.title}</h1>
+          <p className={typography['body-sm']}>{metadata.description}</p>
         </div>
-      </header>
 
-      <main className="container mx-auto px-6 py-10">{children}</main>
-
-      <ResponsiveModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={LOGOUT_CONFIRMATION_COPY}
-        className="max-w-sm"
-        footer={
-          <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-end">
-            <Button
-              variant="secondary"
-              onClick={() => setIsModalOpen(false)}
-              disabled={isProcessingLogout}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmLogout}
-              isLoading={isProcessingLogout}
-              className="border-none bg-[var(--ui-destructive-bg)]! hover:bg-[var(--ui-destructive-bg-hover)]! text-[var(--ui-destructive-text)]!"
-            >
-              Log out
-            </Button>
-          </div>
-        }
-      >
-        <p className="text-sm text-muted-foreground">Progress will be lost. Log out?</p>
-      </ResponsiveModal>
+        <div className="mt-6 flex-1 md:mt-7">{children}</div>
+      </main>
     </div>
   )
 }

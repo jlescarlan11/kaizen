@@ -2,11 +2,11 @@ package com.kaizen.backend.common.exception;
 
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.FieldError;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.servlet.http.HttpServletRequest;
+import com.kaizen.backend.common.dto.ErrorResponse;
+import com.kaizen.backend.common.dto.ValidationError;
+import com.kaizen.backend.common.dto.ValidationErrorResponse;
+import com.kaizen.backend.common.exception.ApiException;
+import com.kaizen.backend.common.exception.ValidationException;
+import com.kaizen.backend.common.logging.SecurityAuditLogger;
 
 /**
  * Global Exception Handler for the API.
@@ -30,18 +36,31 @@ public class GlobalExceptionHandler {
     private final SecurityAuditLogger auditLogger;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(@NonNull MethodArgumentNotValidException exception) {
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(@NonNull MethodArgumentNotValidException exception) {
         log.error("Validation Exception: {}", exception.getMessage());
 
-        Map<String, Object> details = new HashMap<>();
-        for (FieldError error : exception.getBindingResult().getFieldErrors()) {
-            details.put(error.getField(), error.getDefaultMessage());
-        }
+        List<ValidationError> errors = exception.getBindingResult().getFieldErrors().stream()
+            .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
+            .collect(Collectors.toList());
 
-        ErrorResponse response = new ErrorResponse(
+        ValidationErrorResponse response = new ValidationErrorResponse(
             "VALIDATION_FAILURE",
             "Input validation failed.",
-            details,
+            errors,
+            generateTraceId()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ValidationErrorResponse> handleValidationException(@NonNull ValidationException exception) {
+        log.error("Validation Exception: custom {}", exception.getMessage());
+
+        ValidationErrorResponse response = new ValidationErrorResponse(
+            "VALIDATION_FAILURE",
+            "Input validation failed.",
+            exception.getErrors(),
             generateTraceId()
         );
 

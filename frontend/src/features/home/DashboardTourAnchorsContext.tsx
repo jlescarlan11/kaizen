@@ -30,6 +30,10 @@ export function DashboardTourAnchorsProvider({ children }: { children: ReactNode
   const [anchors, setAnchors] = useState<DashboardTourAnchorsState>(initialAnchorState)
 
   const registerAnchor = useCallback((key: DashboardTourAnchorKey, node: HTMLElement | null) => {
+    if (!node) {
+      return
+    }
+
     setAnchors((prev) => {
       if (prev[key] === node) {
         return prev

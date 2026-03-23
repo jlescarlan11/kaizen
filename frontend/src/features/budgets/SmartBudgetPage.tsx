@@ -5,19 +5,37 @@ import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
 import { useAuthState } from '../../shared/hooks/useAuthState'
+import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
+import {
+  selectBalanceValue,
+  selectFundingSourceType,
+  setPendingBudgets,
+} from '../onboarding/onboardingSlice'
 import { getCategories } from '../categories/api'
+import { resolveCategoryDesign } from '../categories/designSystem'
 import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS } from './constants'
 import type { BudgetPeriod } from './constants'
+import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
 import { BudgetTooltip } from './BudgetTooltip'
 import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
+import { pageLayout } from '../../shared/styles/layout'
 
 export function SmartBudgetPage(): ReactElement | null {
   const { user } = useAuthState()
   const navigate = useNavigate()
-  const balance = user?.openingBalance ?? 0
+  const dispatch = useAppDispatch()
+  const [complete, { isLoading: isSavingOnboarding }] = useCompleteOnboardingMutation()
+  const [saveSmartBudgets, { isLoading: isSavingBudgets }] = useSaveSmartBudgetsMutation()
+
+  const reduxBalance = useAppSelector(selectBalanceValue)
+  const fundingSourceType = useAppSelector(selectFundingSourceType)
+  const balance = reduxBalance ?? user?.balance ?? 0
+
+  const isSaving = isSavingOnboarding || isSavingBudgets
+
   const formattedBalance = new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: 'PHP',
@@ -28,12 +46,14 @@ export function SmartBudgetPage(): ReactElement | null {
     SMART_BUDGET_SLOTS.map((slot) => (balance * slot.percentage).toFixed(2)),
   )
   const [categoryIds, setCategoryIds] = useState<number[]>([])
+  const [categoryNames, setCategoryNames] = useState<string[]>([])
+  const [categoryIcons, setCategoryIcons] = useState<string[]>([])
+  const [categoryColors, setCategoryColors] = useState<string[]>([])
   const [categoryLoading, setCategoryLoading] = useState(true)
   const [categoryError, setCategoryError] = useState<string | null>(null)
   const [serverError, setServerError] = useState<string | null>(null)
   const [isOverAllocated, setIsOverAllocated] = useState(false)
   const [selectedPeriod, setSelectedPeriod] = useState<BudgetPeriod>(SMART_BUDGET_PERIOD)
-  const [saveSmartBudgets, { isLoading: isSaving }] = useSaveSmartBudgetsMutation()
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -51,20 +71,48 @@ export function SmartBudgetPage(): ReactElement | null {
       .then((fetched) => {
         if (!mounted) return
         const defaultCategories = fetched.filter((category) => category.isGlobal)
-        if (defaultCategories.length < SMART_BUDGET_SLOTS.length) {
+
+        const selectedIds: number[] = []
+        const selectedNames: string[] = []
+        const selectedIcons: string[] = []
+        const selectedColors: string[] = []
+        let missingCategory = false
+
+        for (const slot of SMART_BUDGET_SLOTS) {
+          const matched = defaultCategories.find(
+            (c) => c.name.toLowerCase() === slot.categoryName.toLowerCase(),
+          )
+          if (matched) {
+            selectedIds.push(matched.id)
+            selectedNames.push(matched.name)
+            selectedIcons.push(matched.icon)
+            selectedColors.push(matched.color)
+          } else {
+            missingCategory = true
+            break
+          }
+        }
+
+        if (missingCategory) {
           setCategoryError('Insufficient global categories to suggest budgets.')
           setCategoryIds([])
+          setCategoryNames([])
+          setCategoryIcons([])
+          setCategoryColors([])
         } else {
-          const selectedIds = defaultCategories
-            .slice(0, SMART_BUDGET_SLOTS.length)
-            .map((category) => category.id)
           setCategoryIds(selectedIds)
+          setCategoryNames(selectedNames)
+          setCategoryIcons(selectedIcons)
+          setCategoryColors(selectedColors)
         }
       })
       .catch(() => {
         if (!mounted) return
         setCategoryError('Unable to load category guidance.')
         setCategoryIds([])
+        setCategoryNames([])
+        setCategoryIcons([])
+        setCategoryColors([])
       })
       .finally(() => {
         if (!mounted) return
@@ -100,7 +148,6 @@ export function SmartBudgetPage(): ReactElement | null {
     }
   }
 
-  const isOverAllocationBlocked = isOverAllocated
   // PRD Open Question 2: switch to a soft warning + confirmation step instead of disabling the submit button when this resolves differently.
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -115,17 +162,34 @@ export function SmartBudgetPage(): ReactElement | null {
 
     setServerError(null)
 
-    const payload = {
-      budgets: SMART_BUDGET_SLOTS.map((_, index) => ({
-        categoryId: categoryIds[index],
-        amount: parsedAmounts[index]!,
-        period: selectedPeriod,
-      })),
-    }
+    const budgetsToSave = SMART_BUDGET_SLOTS.map((_, index) => ({
+      categoryId: categoryIds[index],
+      categoryName: categoryNames[index],
+      categoryIcon: categoryIcons[index] ?? resolveCategoryDesign(categoryNames[index]).icon,
+      categoryColor: categoryColors[index] ?? resolveCategoryDesign(categoryNames[index]).color,
+      amount: parsedAmounts[index]!,
+      period: selectedPeriod,
+    }))
 
     try {
-      await saveSmartBudgets(payload).unwrap()
-      navigate('/', { replace: true })
+      if (user && !user.onboardingCompleted) {
+        // During onboarding, we just save everything at once when finishing
+        dispatch(setPendingBudgets(budgetsToSave))
+        if (!fundingSourceType) {
+          setServerError('Choose a funding source before finishing onboarding.')
+          return
+        }
+        await complete({
+          startingFunds: balance,
+          fundingSourceType,
+          budgets: budgetsToSave,
+        }).unwrap()
+        navigate('/', { replace: true })
+      } else {
+        // After onboarding, we save the batch directly
+        await saveSmartBudgets({ budgets: budgetsToSave }).unwrap()
+        navigate('/budget', { replace: true })
+      }
     } catch (error) {
       console.error('Smart budget save failed:', error)
       setServerError('Unable to save suggested budgets. Please try again.')
@@ -137,8 +201,8 @@ export function SmartBudgetPage(): ReactElement | null {
   }
 
   return (
-    <section className="space-y-6">
-      <header className="space-y-2">
+    <section className={pageLayout.sectionGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Smart Budget Allocation
         </h1>
@@ -161,7 +225,7 @@ export function SmartBudgetPage(): ReactElement | null {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{slot.placeholderLabel}</p>
+                    <p className="text-sm font-semibold text-foreground">{slot.categoryName}</p>
                     <p className="text-xs text-muted-foreground uppercase tracking-tight">
                       {Math.round(slot.percentage * 100)}% of balance
                     </p>
@@ -224,7 +288,7 @@ export function SmartBudgetPage(): ReactElement | null {
                 !hasValidAmounts ||
                 isSaving ||
                 categoryIds.length < SMART_BUDGET_SLOTS.length ||
-                isOverAllocationBlocked
+                isOverAllocated
               }
             >
               Save suggestions

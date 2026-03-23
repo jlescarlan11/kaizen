@@ -1,10 +1,12 @@
 import { type ReactNode, type ReactElement } from 'react'
 import { cn } from '../lib/cn'
+import { pageLayout } from '../styles/layout'
 
 interface MainContentProps {
   children: ReactNode
   className?: string
   containerClassName?: string
+  density?: 'standard' | 'compact'
 }
 
 /**
@@ -15,12 +17,18 @@ export function MainContent({
   children,
   className,
   containerClassName,
+  density = 'standard',
 }: MainContentProps): ReactElement {
   return (
-    <main className={cn('flex-1 py-12 md:py-24', className)}>
-      <div className={cn('mx-auto w-full max-w-5xl px-5 md:px-10', containerClassName)}>
-        {children}
-      </div>
+    <main
+      className={cn(
+        'flex-1',
+        pageLayout.shellX,
+        density === 'compact' ? pageLayout.pageCompactY : pageLayout.pageY,
+        className,
+      )}
+    >
+      <div className={cn('mx-auto w-full max-w-5xl', containerClassName)}>{children}</div>
     </main>
   )
 }

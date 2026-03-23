@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react'
+import { pageLayout } from '../../shared/styles/layout'
 import { ProfileDisplay } from './ProfileDisplay'
 
 /**
@@ -7,8 +8,8 @@ import { ProfileDisplay } from './ProfileDisplay'
  */
 export function ProfilePage(): ReactElement {
   return (
-    <section className="space-y-8">
-      <div className="space-y-2">
+    <section className={pageLayout.sectionGap}>
+      <div className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Personal details
         </h1>

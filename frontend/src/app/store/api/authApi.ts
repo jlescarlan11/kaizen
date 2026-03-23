@@ -1,5 +1,7 @@
 import { baseApi } from './baseApi'
 import { setCredentials, logout, setLoading } from '../authSlice'
+import { type OnboardingStep } from '../../../features/onboarding/onboardingStep'
+import { type FundingSourceType } from '../../../features/onboarding/fundingSource'
 
 interface User {
   id: string
@@ -8,82 +10,77 @@ interface User {
   picture?: string
   createdAt: string
   onboardingCompleted: boolean
-  openingBalance: number
+  balance: number
   budgetSetupSkipped: boolean
   tourCompleted: boolean
   firstTransactionAdded: boolean
 }
 
-export interface SkipBudgetSetupPayload {
-  skip: boolean
-}
-
-export type OnboardingStep = 'BALANCE' | 'BUDGET' | 'COMPLETE'
-
 export interface OnboardingProgressResponse {
-  currentStep: OnboardingStep
-  balanceValue: number | null
-  budgetChoice: string | null
+  currentStep: string
+  startingFunds: number | null
+  fundingSourceType: FundingSourceType | null
   lastUpdatedAt: string
 }
+
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getMe: builder.query<User, void>({
-      query: () => '/users/me',
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         dispatch(setLoading(true))
         try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
-        } catch {
+          await queryFulfilled
           dispatch(logout())
+        } catch (error) {
+          console.error('Logout failed', error)
         } finally {
           dispatch(setLoading(false))
         }
       },
     }),
-    completeOnboarding: builder.mutation<User, { openingBalance: number }>({
+    completeOnboarding: builder.mutation<
+      User,
+      {
+        startingFunds: number
+        fundingSourceType: FundingSourceType
+        budgets?: { categoryId: number; amount: number; period: string }[]
+      }
+    >({
       query: (body) => ({
         url: '/users/onboarding',
         method: 'POST',
         body,
       }),
+      invalidatesTags: ['User', 'Budgets'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        dispatch(setLoading(true))
         try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
         } catch (error) {
-          console.error('Failed to complete onboarding:', error)
+          console.error('Onboarding completion failed', error)
+        } finally {
+          dispatch(setLoading(false))
         }
       },
     }),
-    updateBalance: builder.mutation<User, { openingBalance: number }>({
-      query: (body) => ({
-        url: '/users/balance',
-        method: 'PUT',
-        body,
-      }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
-        } catch (error) {
-          console.error('Failed to update balance:', error)
-        }
-      },
-    }),
-    skipBudgetSetup: builder.mutation<User, SkipBudgetSetupPayload>({
+    skipBudgetSetup: builder.mutation<User, { skip: boolean }>({
       query: (body) => ({
         url: '/users/skip',
         method: 'PUT',
         body,
       }),
+      invalidatesTags: ['User'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
         } catch (error) {
-          console.error('Failed to record skip preference:', error)
+          console.error('Skip budget preference update failed', error)
         }
       },
     }),
@@ -92,6 +89,7 @@ export const authApi = baseApi.injectEndpoints({
         url: '/users/flags/tour/completed',
         method: 'POST',
       }),
+      invalidatesTags: ['User'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
@@ -106,6 +104,7 @@ export const authApi = baseApi.injectEndpoints({
         url: '/users/flags/tour/reset',
         method: 'POST',
       }),
+      invalidatesTags: ['User'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
@@ -120,24 +119,54 @@ export const authApi = baseApi.injectEndpoints({
         url: '/users/flags/first-transaction',
         method: 'POST',
       }),
+      invalidatesTags: ['User'],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
         } catch (error) {
-          console.error('Failed to mark first transaction added:', error)
+          console.error('Failed to mark first transaction added', error)
+        }
+      },
+    }),
+    resetOnboarding: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/onboarding/reset',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User', 'Budgets'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Failed to reset onboarding', error)
+        }
+      },
+    }),
+    getMe: builder.query<User, void>({
+      query: () => '/users/me',
+      providesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch {
+          // Silent catch for unauthenticated initial load
+          dispatch(setLoading(false))
         }
       },
     }),
     getOnboardingProgress: builder.query<OnboardingProgressResponse | null, void>({
       query: () => '/users/onboarding/progress',
+      providesTags: ['User'],
     }),
     updateOnboardingProgress: builder.mutation<
       OnboardingProgressResponse,
       {
         currentStep: OnboardingStep
-        balanceValue?: number
-        budgetChoice?: string
+        startingFunds?: number
+        fundingSourceType?: FundingSourceType
       }
     >({
       query: (body) => ({
@@ -145,48 +174,22 @@ export const authApi = baseApi.injectEndpoints({
         method: 'PUT',
         body,
       }),
+      invalidatesTags: ['User'],
     }),
     deleteOnboardingProgress: builder.mutation<void, void>({
       query: () => ({
         url: '/users/onboarding/progress',
         method: 'DELETE',
       }),
-    }),
-    logout: builder.mutation<void, void>({
-      query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
-      }),
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          // 1. Wait for server-side invalidation
-          await queryFulfilled
-        } catch (error) {
-          // 2. If server fails, we still must clear the client state
-          // to satisfy the requirement of not staying in a half-logged-out state.
-          console.error('Server-side logout failed, forcing client-side cleanup:', error)
-        } finally {
-          // 3. Clear Redux auth state
-          dispatch(logout())
-
-          // 4. Clear browser storage artifacts
-          try {
-            localStorage.clear()
-            sessionStorage.clear()
-          } catch (storageError) {
-            console.warn('Storage cleanup failed:', storageError)
-          }
-        }
-      },
+      invalidatesTags: ['User'],
     }),
   }),
 })
 
 export const {
-  useGetMeQuery,
   useLogoutMutation,
+  useGetMeQuery,
   useCompleteOnboardingMutation,
-  useUpdateBalanceMutation,
   useSkipBudgetSetupMutation,
   useGetOnboardingProgressQuery,
   useUpdateOnboardingProgressMutation,
@@ -194,4 +197,5 @@ export const {
   useMarkTourCompletedMutation,
   useResetTourFlagMutation,
   useMarkFirstTransactionAddedMutation,
+  useResetOnboardingMutation,
 } = authApi

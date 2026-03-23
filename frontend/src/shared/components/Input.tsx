@@ -8,6 +8,7 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   helperText?: string
   startAdornment?: ReactNode
   endAdornment?: ReactNode
+  startAdornmentPointerEvents?: 'none' | 'auto'
 }
 
 export function Input({
@@ -20,6 +21,7 @@ export function Input({
   value,
   startAdornment,
   endAdornment,
+  startAdornmentPointerEvents,
   ...props
 }: InputProps): ReactElement {
   const generatedId = useId()
@@ -38,7 +40,14 @@ export function Input({
       ) : null}
       <div className="relative flex items-center">
         {startAdornment ? (
-          <div className="pointer-events-none absolute left-3 flex items-center text-ui-subtle">
+          <div
+            className={cn(
+              'absolute left-3 flex items-center text-subtle-foreground',
+              startAdornmentPointerEvents === 'auto'
+                ? 'pointer-events-auto'
+                : 'pointer-events-none',
+            )}
+          >
             {startAdornment}
           </div>
         ) : null}
@@ -57,7 +66,7 @@ export function Input({
           )}
         />
         {endAdornment ? (
-          <div className="pointer-events-none absolute right-3 flex items-center text-sm font-medium text-ui-subtle uppercase">
+          <div className="pointer-events-none absolute right-3 flex items-center text-sm font-medium text-subtle-foreground uppercase">
             {endAdornment}
           </div>
         ) : null}

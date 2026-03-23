@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kaizen.backend.auth.config.SessionProperties;
 import com.kaizen.backend.auth.service.PersistentSessionService;
 import com.kaizen.backend.common.dto.ErrorResponse;
-import com.kaizen.backend.user.dto.BalanceUpdateRequest;
+import com.kaizen.backend.common.dto.ValidationErrorResponse;
 import com.kaizen.backend.user.dto.BudgetSetupSkipRequest;
 import com.kaizen.backend.user.dto.OnboardingRequest;
 import com.kaizen.backend.user.dto.UserProfileResponse;
 import com.kaizen.backend.user.dto.UserResponse;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.service.UserAccountService;
+import com.kaizen.backend.user.validation.OnboardingInputValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,14 +41,17 @@ public class UserAccountController {
     private final UserAccountService userAccountService;
     private final PersistentSessionService persistentSessionService;
     private final SessionProperties sessionProperties;
+    private final OnboardingInputValidator onboardingInputValidator;
 
     public UserAccountController(
             UserAccountService userAccountService, 
             PersistentSessionService persistentSessionService,
-            SessionProperties sessionProperties) {
+            SessionProperties sessionProperties,
+            OnboardingInputValidator onboardingInputValidator) {
         this.userAccountService = userAccountService;
         this.persistentSessionService = persistentSessionService;
         this.sessionProperties = sessionProperties;
+        this.onboardingInputValidator = onboardingInputValidator;
     }
 
     @Operation(
@@ -76,7 +81,7 @@ public class UserAccountController {
 
     @Operation(
         summary = "Complete onboarding",
-        description = "Sets the initial balance and marks onboarding as completed for the current user. Also issues/refreshes the persistent session token.",
+        description = "Stores the user's starting funds and initial funding source, marks onboarding as completed, and issues or refreshes the persistent session token.",
         operationId = "completeOnboarding"
     )
     @ApiResponses({
@@ -88,7 +93,7 @@ public class UserAccountController {
         @ApiResponse(
             responseCode = "400",
             description = "Invalid request data.",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))
         )
     })
     @PostMapping("/onboarding")
@@ -101,6 +106,7 @@ public class UserAccountController {
             throw new ProfileNotFoundException();
         }
         
+        onboardingInputValidator.validate(request);
         String email = userDetails.getUsername();
         UserResponse userResponse = userAccountService.completeOnboarding(email, request);
         
@@ -118,40 +124,6 @@ public class UserAccountController {
         return ResponseEntity.ok()
             .header(HttpHeaders.SET_COOKIE, cookie.toString())
             .body(userResponse);
-    }
-
-    @Operation(
-        summary = "Update authenticated user's balance",
-        description = "Allows an authenticated user to update their stored balance after onboarding.",
-        operationId = "updateBalance"
-    )
-    @ApiResponses({
-        @ApiResponse(
-            responseCode = "200",
-            description = "Balance updated and profile refreshed.",
-            content = @Content(schema = @Schema(implementation = UserResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "400",
-            description = "Invalid balance value.",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        ),
-        @ApiResponse(
-            responseCode = "404",
-            description = "User profile not found or unauthenticated.",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-        )
-    })
-    @PutMapping("/balance")
-    public UserResponse updateBalance(
-        @AuthenticationPrincipal UserDetails userDetails,
-        @Valid @RequestBody BalanceUpdateRequest request
-    ) {
-        if (userDetails == null) {
-            throw new ProfileNotFoundException();
-        }
-
-        return userAccountService.updateBalance(userDetails.getUsername(), request);
     }
 
     @Operation(
@@ -269,5 +241,31 @@ public class UserAccountController {
         }
 
         return userAccountService.markFirstTransactionAdded(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Reset onboarding (DEV ONLY)",
+        description = "Resets the user's onboarding state, deletes budgets and progress. For development/testing purposes.",
+        operationId = "resetOnboarding"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Onboarding reset successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/onboarding/reset")
+    public UserResponse resetOnboarding(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        return userAccountService.resetOnboarding(userDetails.getUsername());
     }
 }

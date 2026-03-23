@@ -1,19 +1,32 @@
 package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.DecimalMax;
-import com.kaizen.backend.common.constants.ValidationConstants;
+import java.util.List;
 
-/**
- * Request payload for completing onboarding.
- * 
- * Includes validation for the opening balance as per Instruction 5.
- */
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.kaizen.backend.budget.dto.BudgetCreateRequest;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+
 public record OnboardingRequest(
-    @NotNull(message = "Opening balance is required.")
-    @DecimalMin(value = "0.0", message = ValidationConstants.BALANCE_NEGATIVE_ERROR)
-    @DecimalMax(value = ValidationConstants.MAX_BALANCE_LIMIT_STR, message = ValidationConstants.BALANCE_MAX_LIMIT_ERROR)
-    BigDecimal openingBalance
-) {}
+    @JsonAlias("balance")
+    @Schema(
+        description = "The user's current available money at the start of onboarding.",
+        example = "1000.00",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    BigDecimal startingFunds,
+
+    @Schema(
+        description = "The funding source that holds the starting funds.",
+        example = "E_WALLET",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    String fundingSourceType,
+
+    @Valid
+    @Schema(description = "Optional list of initial budgets to create.")
+    List<BudgetCreateRequest> budgets
+) {
+}

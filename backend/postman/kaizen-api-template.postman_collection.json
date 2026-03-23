@@ -202,12 +202,127 @@
               "response": []
             }
           ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "Get Categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                },
+                "description": "Returns global categories plus the authenticated user's custom categories."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Weekend Trips\",\n  \"icon\": \"plane\",\n  \"color\": \"#0891b2\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                },
+                "description": "Creates a new user-scoped category."
+              },
+              "response": []
+            },
+            {
+              "name": "Update Category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Weekend Trips\",\n  \"icon\": \"plane\",\n  \"color\": \"#0891b2\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories",
+                    "1"
+                  ]
+                },
+                "description": "Updates a user-owned custom category."
+              },
+              "response": []
+            }
+          ]
         }
       ]
     },
     {
       "name": "Onboarding",
       "item": [
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startingFunds\": 4200,\n  \"fundingSourceType\": \"E_WALLET\",\n  \"budgets\": [\n    {\n      \"categoryId\": 1,\n      \"amount\": 1200,\n      \"period\": \"MONTHLY\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding"
+              ]
+            },
+            "description": "Completes onboarding with the user's starting funds, selected funding source, and optional initial budgets."
+          },
+          "response": []
+        },
         {
           "name": "Get Onboarding Progress",
           "request": {
@@ -246,7 +361,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"currentStep\": \"BALANCE\",\n  \"balanceValue\": 4200,\n  \"budgetChoice\": \"default\"\n}"
+              "raw": "{\n  \"currentStep\": \"BALANCE\",\n  \"startingFunds\": 4200,\n  \"fundingSourceType\": \"CASH_ON_HAND\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users/onboarding/progress",

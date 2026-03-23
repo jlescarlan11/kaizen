@@ -12,6 +12,7 @@ export interface DailyLineChartProps extends Omit<HTMLAttributes<HTMLDivElement>
   activeIndex?: number
   onPointSelect?: (index: number) => void
   height?: number
+  colorScheme?: 'foreground' | 'primary'
 }
 
 export function DailyLineChart({
@@ -19,12 +20,17 @@ export function DailyLineChart({
   activeIndex,
   onPointSelect,
   height = 220, // Increased from 200
+  colorScheme = 'foreground',
   className,
   ...props
 }: DailyLineChartProps): ReactElement {
   const width = 1200 // Wider internal system for more points
   const padding = useMemo(() => ({ top: 10, right: 10, bottom: 50, left: 10 }), []) // Increased bottom padding
   const selectorY = height - 40 // Moved up
+  const activeColor =
+    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-text-primary)'
+  const trendColor =
+    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-border-strong)'
 
   const points = useMemo(() => {
     if (data.length === 0) return []
@@ -81,7 +87,7 @@ export function DailyLineChart({
           {/* Trend Line */}
           <path
             d={linePath}
-            stroke="var(--color-border-strong)"
+            stroke={trendColor}
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -118,7 +124,7 @@ export function DailyLineChart({
                     width="8"
                     height={selectorY - point.y + 12}
                     rx="4"
-                    fill="var(--color-text-primary)"
+                    fill={activeColor}
                     className="transition-all duration-300"
                   />
                 ) : (
@@ -139,7 +145,7 @@ export function DailyLineChart({
                     x={point.x}
                     y={height - 5}
                     textAnchor="middle"
-                    fill={isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'}
+                    fill={isActive ? activeColor : 'var(--color-text-secondary)'}
                     fontSize="14"
                     fontWeight={isActive ? '700' : '500'}
                     className="transition-colors duration-200"

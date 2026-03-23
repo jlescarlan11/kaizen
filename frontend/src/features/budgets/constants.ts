@@ -1,16 +1,14 @@
 export interface SmartBudgetSlot {
   id: string
   percentage: number
-  placeholderLabel: string
+  categoryName: string
 }
 
-// These placeholder labels must be replaced with the confirmed category names once PRD Open Question 1
-// is resolved. Do not replace them with real names until the author supplies the approved labels.
 export const SMART_BUDGET_SLOTS: SmartBudgetSlot[] = [
-  { id: 'slot1', percentage: 0.3, placeholderLabel: 'CATEGORY_SLOT_1' },
-  { id: 'slot2', percentage: 0.16, placeholderLabel: 'CATEGORY_SLOT_2' },
-  { id: 'slot3', percentage: 0.1, placeholderLabel: 'CATEGORY_SLOT_3' },
-  { id: 'slot4', percentage: 0.1, placeholderLabel: 'CATEGORY_SLOT_4' },
+  { id: 'housing', percentage: 0.3, categoryName: 'Housing' },
+  { id: 'food', percentage: 0.2, categoryName: 'Food' },
+  { id: 'transport', percentage: 0.1, categoryName: 'Transport' },
+  { id: 'utilities', percentage: 0.1, categoryName: 'Utilities' },
 ]
 
 export const SMART_BUDGET_PERIOD = 'MONTHLY' as const

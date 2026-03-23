@@ -10,7 +10,7 @@ public record UserProfileResponse(
     String picture,
     Instant createdAt,
     boolean onboardingCompleted,
-    BigDecimal openingBalance,
+    BigDecimal balance,
     boolean budgetSetupSkipped,
     boolean tourCompleted,
     boolean firstTransactionAdded

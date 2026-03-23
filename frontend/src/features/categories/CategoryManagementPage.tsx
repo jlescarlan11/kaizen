@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
+import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { CategoryCreationForm } from './CategoryCreationForm'
 import { CategoryList } from './CategoryList'
 import { getCategories } from './api'
 import type { Category } from './types'
+import { pageLayout } from '../../shared/styles/layout'
 
 export function CategoryManagementPage(): ReactElement {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
 
   const loadCategories = useCallback(async () => {
     setIsLoading(true)
@@ -31,9 +34,16 @@ export function CategoryManagementPage(): ReactElement {
     setCategories((prev) => [category, ...prev])
   }
 
+  const handleCategoryUpdated = (updatedCategory: Category) => {
+    setCategories((prev) =>
+      prev.map((category) => (category.id === updatedCategory.id ? updatedCategory : category)),
+    )
+    setEditingCategory(null)
+  }
+
   return (
-    <section className="space-y-6">
-      <header className="space-y-2">
+    <section className={pageLayout.sectionGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Category management
         </h1>
@@ -54,7 +64,7 @@ export function CategoryManagementPage(): ReactElement {
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Add a custom category
           </h2>
-          <CategoryCreationForm categories={categories} onCategoryCreated={handleCategoryCreated} />
+          <CategoryCreationForm categories={categories} onCategorySaved={handleCategoryCreated} />
         </Card>
 
         <Card className="space-y-4">
@@ -64,9 +74,28 @@ export function CategoryManagementPage(): ReactElement {
             </h2>
             <p className="text-xs uppercase text-subtle-foreground">Automatic refresh</p>
           </div>
-          <CategoryList categories={categories} isLoading={isLoading} />
+          <CategoryList
+            categories={categories}
+            isLoading={isLoading}
+            onEdit={(category) => setEditingCategory(category)}
+          />
         </Card>
       </div>
+
+      <ResponsiveModal
+        open={editingCategory !== null}
+        title={editingCategory ? `Edit ${editingCategory.name}` : 'Edit category'}
+        onClose={() => setEditingCategory(null)}
+      >
+        {editingCategory ? (
+          <CategoryCreationForm
+            categories={categories}
+            initialCategory={editingCategory}
+            onCategorySaved={handleCategoryUpdated}
+            onCancel={() => setEditingCategory(null)}
+          />
+        ) : null}
+      </ResponsiveModal>
     </section>
   )
 }

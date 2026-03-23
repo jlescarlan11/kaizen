@@ -26,7 +26,7 @@ describe('ProfilePage Routing and Guard', () => {
             name: 'Test User',
             email: 'test@example.com',
             onboardingCompleted: true,
-            openingBalance: 1000,
+            balance: 1000,
             budgetSetupSkipped: false,
             tourCompleted: true,
             firstTransactionAdded: false,

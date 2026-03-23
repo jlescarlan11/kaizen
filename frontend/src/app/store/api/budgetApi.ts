@@ -26,6 +26,14 @@ export interface BudgetCountResponse {
   count: number
 }
 
+export interface BudgetSummaryResponse {
+  balance: number
+  totalAllocated: number
+  remainingToAllocate: number
+  allocationPercentage: number
+  budgetCount: number
+}
+
 export const budgetApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     saveSmartBudgets: builder.mutation<BudgetResponse[], SmartBudgetPayload>({
@@ -34,6 +42,7 @@ export const budgetApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
+      invalidatesTags: ['Budgets'],
     }),
     createBudget: builder.mutation<BudgetResponse, BudgetCreatePayload>({
       query: (payload) => ({
@@ -41,13 +50,29 @@ export const budgetApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
+      invalidatesTags: ['Budgets'],
     }),
     getBudgetCount: builder.query<BudgetCountResponse, void>({
       query: () => '/budgets/count',
       keepUnusedDataFor: 60,
+      providesTags: ['Budgets'],
+    }),
+    getBudgetSummary: builder.query<BudgetSummaryResponse, void>({
+      query: () => '/budgets/summary',
+      keepUnusedDataFor: 60,
+      providesTags: ['Budgets'],
+    }),
+    getBudgets: builder.query<BudgetResponse[], void>({
+      query: () => '/budgets',
+      providesTags: ['Budgets'],
     }),
   }),
 })
 
-export const { useSaveSmartBudgetsMutation, useCreateBudgetMutation, useGetBudgetCountQuery } =
-  budgetApi
+export const {
+  useSaveSmartBudgetsMutation,
+  useCreateBudgetMutation,
+  useGetBudgetCountQuery,
+  useGetBudgetSummaryQuery,
+  useGetBudgetsQuery,
+} = budgetApi

@@ -8,7 +8,7 @@ public record UserResponse(
     String email,
     String picture,
     boolean onboardingCompleted,
-    BigDecimal openingBalance,
+    BigDecimal balance,
     boolean budgetSetupSkipped,
     boolean tourCompleted,
     boolean firstTransactionAdded

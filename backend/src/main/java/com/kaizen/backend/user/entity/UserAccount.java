@@ -71,8 +71,8 @@ public class UserAccount extends BaseEntity {
     @Column(name = "first_transaction_added", nullable = false)
     private boolean firstTransactionAdded = false;
 
-    @Column(name = "opening_balance", precision = 15, scale = 2)
-    private java.math.BigDecimal openingBalance = java.math.BigDecimal.ZERO;
+    @Column(name = "balance", precision = 15, scale = 2)
+    private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

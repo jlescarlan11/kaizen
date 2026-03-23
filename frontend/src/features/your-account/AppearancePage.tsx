@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useTheme, type Theme } from '../../providers/theme'
 import { cn } from '../../shared/lib/cn'
+import { pageLayout } from '../../shared/styles/layout'
 
 const themeOptions: ReadonlyArray<{
   value: Theme
@@ -29,9 +30,9 @@ export function AppearancePage(): ReactElement {
   const { theme, setTheme, resolvedTheme } = useTheme()
 
   return (
-    <section className="space-y-8">
+    <section className={pageLayout.sectionGap}>
       {/* Page header */}
-      <div className="space-y-2">
+      <div className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Appearance
         </h1>

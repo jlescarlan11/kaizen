@@ -6,6 +6,8 @@ import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
 import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
+import { pageLayout } from '../../shared/styles/layout'
+import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
@@ -27,6 +29,14 @@ interface RouteHandle {
  * - Mobile: Top header, Bottom navigation.
  */
 export function AuthenticatedLayout(): ReactElement {
+  return (
+    <DashboardTourAnchorsProvider>
+      <AuthenticatedLayoutContent />
+    </DashboardTourAnchorsProvider>
+  )
+}
+
+function AuthenticatedLayoutContent(): ReactElement {
   const { user } = useAuthState()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const isMobile = useMediaQuery('(max-width: 768px)')
@@ -102,6 +112,9 @@ export function AuthenticatedLayout(): ReactElement {
   const handleLogout = async (): Promise<void> => {
     try {
       await logoutMutation().unwrap()
+      if (user) {
+        clearStoredOnboardingDraft(user.id)
+      }
       setIsLogoutModalOpen(false)
       navigate('/')
     } catch (error) {
@@ -151,165 +164,25 @@ export function AuthenticatedLayout(): ReactElement {
     : '??'
 
   return (
-    <DashboardTourAnchorsProvider>
-      <div className="flex min-h-screen bg-background text-foreground font-body">
-        <LogoutConfirmationModal
-          isOpen={isLogoutModalOpen}
-          onClose={() => setIsLogoutModalOpen(false)}
-          onConfirm={handleLogout}
-          isLoading={isLoggingOut}
-        />
+    <div className="flex min-h-screen bg-background text-foreground font-body">
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        isLoading={isLoggingOut}
+      />
 
-        {/* ───────── SIDEBAR (Desktop Only) ───────── */}
-        {!isMobile && (
-          <aside className="fixed inset-y-0 left-0 w-64 bg-background flex flex-col z-30">
-            <div className="h-20 flex items-center px-8">
-              <NavLink to="/" className="flex items-center gap-3">
-                <KaizenLogo className="h-7 w-7" />
-                <span className="text-lg font-bold tracking-tight text-foreground">Kaizen</span>
-              </NavLink>
-            </div>
+      {/* ───────── SIDEBAR (Desktop Only) ───────── */}
+      {!isMobile && (
+        <aside className="fixed inset-y-0 left-0 w-64 bg-background flex flex-col z-30">
+          <div className="h-20 flex items-center px-8">
+            <NavLink to="/" className="flex items-center gap-3">
+              <KaizenLogo className="h-7 w-7" />
+              <span className="text-lg font-bold tracking-tight text-foreground">Kaizen</span>
+            </NavLink>
+          </div>
 
-            <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-              {navItems.map((item) => {
-                const anchorRef = item.anchorKey
-                  ? item.anchorKey === 'budgetsTab'
-                    ? registerBudgetsTab
-                    : registerGoalsTab
-                  : undefined
-
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.to === '/'}
-                    className={({ isActive }) =>
-                      cn(
-                        'flex items-center gap-4 px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-200',
-                        isActive
-                          ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
-                          : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
-                      )
-                    }
-                    ref={anchorRef}
-                  >
-                    <span className="shrink-0">{item.icon}</span>
-                    {item.label}
-                  </NavLink>
-                )
-              })}
-            </nav>
-          </aside>
-        )}
-
-        {/* ───────── MAIN CONTENT AREA ───────── */}
-        <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'md:ml-64')}>
-          {/* ───────── HEADER SPACER (Preserves space in document flow) ───────── */}
-          {!hideHeader && <div className="h-20 w-full shrink-0" />}
-
-          {/* ───────── HEADER ───────── */}
-          {!hideHeader && (
-            <header
-              className={cn(
-                'fixed top-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-md z-20 px-5 md:px-10',
-                !isMobile && 'md:left-64',
-                isAnimating && 'transition-transform duration-200 ease-in-out',
-              )}
-              style={{ transform: `translateY(${headerOffset}px)` }}
-            >
-              <div className="mx-auto h-full w-full max-w-5xl flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  {isSecondDegree ? (
-                    <button
-                      type="button"
-                      className="group flex items-center gap-2.5 text-foreground transition-colors hover:opacity-70"
-                      onClick={handleBack}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="transition-transform group-hover:-translate-x-0.5"
-                      >
-                        <path d="m15 18-6-6 6-6" />
-                      </svg>
-                      <span className="text-[15px] font-medium leading-none">
-                        {backButtonConfig.label}
-                      </span>
-                    </button>
-                  ) : (
-                    isMobile && (
-                      <NavLink to="/" className="flex items-center gap-2">
-                        <KaizenLogo className="h-8 w-8" />
-                      </NavLink>
-                    )
-                  )}
-
-                  {!isMobile && !isSecondDegree && (
-                    <h2 className="text-sm font-medium text-muted-foreground">Dashboard</h2>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-3 md:gap-5">
-                  {!isSecondDegree && (
-                    <>
-                      <button
-                        className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
-                        aria-label="Notifications"
-                      >
-                        <NotificationIcon />
-                        <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
-                      </button>
-
-                      <NavLink
-                        to="/your-account"
-                        className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-black/5 transition-colors"
-                      >
-                        <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-[12px] font-bold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
-                          {user?.picture && !imageError ? (
-                            <img
-                              src={user.picture}
-                              alt=""
-                              className="h-full w-full object-cover"
-                              referrerPolicy="no-referrer"
-                              onError={() => setImageError(true)}
-                            />
-                          ) : (
-                            userInitials
-                          )}
-                        </div>
-                        {!isMobile && (
-                          <div className="flex items-center gap-1 hidden sm:flex">
-                            <span className="text-[13px] font-semibold text-foreground">
-                              {user?.name || 'User'}
-                            </span>
-                            <ChevronRightIcon />
-                          </div>
-                        )}
-                      </NavLink>
-                    </>
-                  )}
-                </div>
-              </div>
-            </header>
-          )}
-
-          {/* ───────── PAGE CONTENT ───────── */}
-          <main className={cn('flex-1 p-5 md:p-10', !hideHeader && 'pt-2', isMobile && 'pb-28')}>
-            <div className="mx-auto w-full max-w-5xl">
-              <Outlet />
-            </div>
-          </main>
-        </div>
-
-        {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
-        {isMobile && (
-          <nav className="fixed bottom-0 left-0 right-0 h-24 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-end justify-around px-4 pb-6 z-30">
+          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const anchorRef = item.anchorKey
                 ? item.anchorKey === 'budgetsTab'
@@ -324,46 +197,182 @@ export function AuthenticatedLayout(): ReactElement {
                   end={item.to === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex flex-col items-center gap-1.5 transition-all duration-200',
-                      item.isAction ? 'mb-4' : 'mb-0',
+                      'flex items-center gap-4 px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-200',
                       isActive
-                        ? 'text-foreground scale-110'
-                        : 'text-muted-foreground hover:text-foreground',
+                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
+                        : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
                     )
                   }
                   ref={anchorRef}
                 >
-                  {({ isActive }) => (
-                    <>
-                      <div
-                        className={cn(
-                          'transition-all duration-200 flex items-center justify-center',
-                          item.isAction
-                            ? 'h-16 w-16 rounded-full bg-black text-white shadow-xl border-4 border-background -translate-y-2 hover:scale-110 active:scale-95'
-                            : cn(
-                                'p-2 rounded-xl',
-                                isActive
-                                  ? 'bg-ui-accent-subtle border border-ui-border-strong'
-                                  : '',
-                              ),
-                        )}
-                      >
-                        {item.icon}
-                      </div>
-                      {!item.isAction && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider">
-                          {item.label}
-                        </span>
-                      )}
-                    </>
-                  )}
+                  <span className="shrink-0">{item.icon}</span>
+                  {item.label}
                 </NavLink>
               )
             })}
           </nav>
+        </aside>
+      )}
+
+      {/* ───────── MAIN CONTENT AREA ───────── */}
+      <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'md:ml-64')}>
+        {/* ───────── HEADER SPACER (Preserves space in document flow) ───────── */}
+        {!hideHeader && <div className="h-20 w-full shrink-0" />}
+
+        {/* ───────── HEADER ───────── */}
+        {!hideHeader && (
+          <header
+            className={cn(
+              'fixed top-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-md z-20 px-5 md:px-10',
+              !isMobile && 'md:left-64',
+              isAnimating && 'transition-transform duration-200 ease-in-out',
+            )}
+            style={{ transform: `translateY(${headerOffset}px)` }}
+          >
+            <div className="mx-auto h-full w-full max-w-5xl flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {isSecondDegree ? (
+                  <button
+                    type="button"
+                    className="group flex items-center gap-2.5 text-foreground transition-colors hover:opacity-70"
+                    onClick={handleBack}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:-translate-x-0.5"
+                    >
+                      <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    <span className="text-[15px] font-medium leading-none">
+                      {backButtonConfig.label}
+                    </span>
+                  </button>
+                ) : (
+                  isMobile && (
+                    <NavLink to="/" className="flex items-center gap-2">
+                      <KaizenLogo className="h-8 w-8" />
+                    </NavLink>
+                  )
+                )}
+
+                {!isMobile && !isSecondDegree && (
+                  <h2 className="text-sm font-medium text-muted-foreground">Dashboard</h2>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 md:gap-5">
+                {!isSecondDegree && (
+                  <>
+                    <button
+                      className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
+                      aria-label="Notifications"
+                    >
+                      <NotificationIcon />
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+                    </button>
+
+                    <NavLink
+                      to="/your-account"
+                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-black/5 transition-colors"
+                    >
+                      <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-[12px] font-bold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
+                        {user?.picture && !imageError ? (
+                          <img
+                            src={user.picture}
+                            alt=""
+                            className="h-full w-full object-cover"
+                            referrerPolicy="no-referrer"
+                            onError={() => setImageError(true)}
+                          />
+                        ) : (
+                          userInitials
+                        )}
+                      </div>
+                      {!isMobile && (
+                        <div className="flex items-center gap-1 hidden sm:flex">
+                          <span className="text-[13px] font-semibold text-foreground">
+                            {user?.name || 'User'}
+                          </span>
+                          <ChevronRightIcon />
+                        </div>
+                      )}
+                    </NavLink>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
         )}
+
+        {/* ───────── PAGE CONTENT ───────── */}
+        <main className={cn('flex-1 py-6 md:py-8', pageLayout.shellX, isMobile && 'pb-28')}>
+          <div className="mx-auto w-full max-w-5xl">
+            <Outlet />
+          </div>
+        </main>
       </div>
-    </DashboardTourAnchorsProvider>
+
+      {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
+      {isMobile && (
+        <nav className="fixed bottom-0 left-0 right-0 h-24 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-end justify-around px-4 pb-6 z-30">
+          {navItems.map((item) => {
+            const anchorRef = item.anchorKey
+              ? item.anchorKey === 'budgetsTab'
+                ? registerBudgetsTab
+                : registerGoalsTab
+              : undefined
+
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  cn(
+                    'flex flex-col items-center gap-1.5 transition-all duration-200',
+                    item.isAction ? 'mb-4' : 'mb-0',
+                    isActive
+                      ? 'text-foreground scale-110'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )
+                }
+                ref={anchorRef}
+              >
+                {({ isActive }) => (
+                  <>
+                    <div
+                      className={cn(
+                        'transition-all duration-200 flex items-center justify-center',
+                        item.isAction
+                          ? 'h-16 w-16 rounded-full bg-black text-white shadow-xl border-4 border-background -translate-y-2 hover:scale-110 active:scale-95'
+                          : cn(
+                              'p-2 rounded-xl',
+                              isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
+                            ),
+                      )}
+                    >
+                      {item.icon}
+                    </div>
+                    {!item.isAction && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider">
+                        {item.label}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )
+          })}
+        </nav>
+      )}
+    </div>
   )
 }
 

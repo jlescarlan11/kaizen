@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
 import { useGetSessionsQuery, useRevokeSessionMutation } from '../../app/store/api/sessionApi'
+import { pageLayout } from '../../shared/styles/layout'
 
 export function SessionsPage(): ReactElement {
   const { data: sessions, isLoading } = useGetSessionsQuery()
@@ -22,8 +23,8 @@ export function SessionsPage(): ReactElement {
   }
 
   return (
-    <section className="space-y-8">
-      <div className="space-y-2">
+    <section className={pageLayout.sectionGap}>
+      <div className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Active sessions
         </h1>

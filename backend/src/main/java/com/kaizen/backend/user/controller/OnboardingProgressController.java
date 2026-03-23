@@ -3,20 +3,31 @@ package com.kaizen.backend.user.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.common.dto.ErrorResponse;
+import com.kaizen.backend.user.entity.FundingSourceType;
 import com.kaizen.backend.user.dto.OnboardingProgressResponse;
 import com.kaizen.backend.user.dto.OnboardingProgressUpdateRequest;
+import com.kaizen.backend.user.entity.OnboardingProgress;
 import com.kaizen.backend.user.entity.OnboardingStep;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import com.kaizen.backend.user.service.OnboardingProgressService;
+import com.kaizen.backend.common.dto.ValidationError;
+import com.kaizen.backend.common.exception.ValidationException;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 /**
@@ -70,14 +81,17 @@ public class OnboardingProgressController {
         UserAccount userAccount = userAccountRepository.findByEmail(userDetails.getUsername())
             .orElseThrow(ProfileNotFoundException::new);
 
-        return OnboardingProgressResponse.from(
-            onboardingProgressService.upsert(
-                userAccount,
-                request.currentStep(),
-                request.balanceValue(),
-                request.budgetChoice()
-            )
+        OnboardingProgress progress = onboardingProgressService.upsert(
+            userAccount,
+            request.currentStep(),
+            request.startingFunds(),
+            resolveFundingSourceType(request.fundingSourceType())
         );
+
+        // Required to persist the UserAccount.balance set by the service
+        userAccountRepository.save(userAccount);
+
+        return OnboardingProgressResponse.from(progress);
     }
 
     @Operation(
@@ -108,5 +122,16 @@ public class OnboardingProgressController {
 
         onboardingProgressService.deleteForUser(userAccount);
         return ResponseEntity.noContent().build();
+    }
+
+    private FundingSourceType resolveFundingSourceType(String fundingSourceType) {
+        if (fundingSourceType == null || fundingSourceType.isBlank()) {
+            return null;
+        }
+
+        return FundingSourceType.fromValue(fundingSourceType)
+            .orElseThrow(() -> new ValidationException(
+                java.util.List.of(new ValidationError("fundingSourceType", "Funding source must be one of CASH_ON_HAND, BANK_ACCOUNT, or E_WALLET."))
+            ));
     }
 }

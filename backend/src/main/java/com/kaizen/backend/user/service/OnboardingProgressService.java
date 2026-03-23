@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kaizen.backend.user.entity.FundingSourceType;
 import com.kaizen.backend.user.entity.OnboardingProgress;
 import com.kaizen.backend.user.entity.OnboardingStep;
 import com.kaizen.backend.user.entity.UserAccount;
@@ -30,19 +31,22 @@ public class OnboardingProgressService {
     public OnboardingProgress upsert(
         UserAccount userAccount,
         OnboardingStep step,
-        BigDecimal balanceValue,
-        String budgetChoice
+        BigDecimal startingFunds,
+        FundingSourceType fundingSourceType
     ) {
         OnboardingProgress progress = onboardingProgressRepository
             .findByUserAccountId(userAccount.getId())
             .orElseGet(() -> new OnboardingProgress(userAccount));
 
         progress.setCurrentStep(step);
-        if (balanceValue != null) {
-            progress.setBalanceValue(balanceValue);
+        if (startingFunds != null) {
+            progress.setStartingFunds(startingFunds);
+            // PRD Open Question 2: Sync balance to UserAccount early so BudgetValidationService 
+            // has the required context for manual/smart allocation checks.
+            userAccount.setBalance(startingFunds);
         }
-        if (budgetChoice != null) {
-            progress.setBudgetChoice(budgetChoice);
+        if (fundingSourceType != null) {
+            progress.setFundingSourceType(fundingSourceType);
         }
 
         return onboardingProgressRepository.save(progress);
