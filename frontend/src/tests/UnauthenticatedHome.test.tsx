@@ -2,19 +2,28 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { UnauthenticatedHome } from '../features/home/UnauthenticatedHome'
 import { RootLayout } from '../app/router/RootLayout'
-import { MemoryRouter, Routes, Route } from 'react-router-dom'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { AppProviders } from '../app/providers/AppProviders'
 
 const renderFullExperience = () => {
+  const router = createMemoryRouter(
+    [
+      {
+        element: <RootLayout />,
+        children: [
+          {
+            index: true,
+            element: <UnauthenticatedHome />,
+          },
+        ],
+      },
+    ],
+    { initialEntries: ['/'] },
+  )
+
   return render(
     <AppProviders>
-      <MemoryRouter initialEntries={['/']}>
-        <Routes>
-          <Route element={<RootLayout />}>
-            <Route index element={<UnauthenticatedHome />} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
+      <RouterProvider router={router} />
     </AppProviders>,
   )
 }
@@ -24,7 +33,7 @@ describe('UnauthenticatedHome Experience', () => {
     renderFullExperience()
     expect(screen.getByRole('link', { name: /platform/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /help/i })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /log in/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /sign in/i })).toBeInTheDocument()
   })
 
   it('renders the main headline', () => {

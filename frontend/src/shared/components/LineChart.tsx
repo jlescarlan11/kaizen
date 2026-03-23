@@ -12,6 +12,7 @@ export interface LineChartProps extends Omit<HTMLAttributes<HTMLDivElement>, 'on
   activeIndex?: number
   onPointSelect?: (index: number) => void
   height?: number
+  colorScheme?: 'foreground' | 'primary'
 }
 
 export function LineChart({
@@ -19,6 +20,7 @@ export function LineChart({
   activeIndex,
   onPointSelect,
   height = 260, // Increased from 240
+  colorScheme = 'foreground',
   className,
   ...props
 }: LineChartProps): ReactElement {
@@ -26,6 +28,10 @@ export function LineChart({
   const width = 1000 // Fixed internal coordinate system
   const padding = useMemo(() => ({ top: 20, right: 20, bottom: 60, left: 20 }), []) // Increased bottom padding
   const selectorY = height - 45 // Moved up to create space below it
+  const activeColor =
+    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-text-primary)'
+  const trendColor =
+    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-border-strong)'
 
   // 1. Calculate Coordinates
   const points = useMemo(() => {
@@ -86,7 +92,7 @@ export function LineChart({
           {/* Wavy Connection Line (Trend) */}
           <path
             d={linePath}
-            stroke="var(--color-border-strong)"
+            stroke={trendColor}
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -116,7 +122,7 @@ export function LineChart({
                     width="20"
                     height={selectorY - point.y + 20} // Stretch down to selector row
                     rx="10"
-                    fill="var(--color-text-primary)"
+                    fill={activeColor}
                     className="transition-all duration-300"
                   />
                 ) : (
@@ -137,7 +143,7 @@ export function LineChart({
                   x={point.x}
                   y={height - 5}
                   textAnchor="middle"
-                  fill={isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'}
+                  fill={isActive ? activeColor : 'var(--color-text-secondary)'}
                   fontSize="18"
                   fontWeight={isActive ? '700' : '500'}
                   className="transition-colors duration-200"

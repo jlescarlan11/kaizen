@@ -1,57 +1,201 @@
 import { baseApi } from './baseApi'
 import { setCredentials, logout, setLoading } from '../authSlice'
+import { type OnboardingStep } from '../../../features/onboarding/onboardingStep'
+import { type FundingSourceType } from '../../../features/onboarding/fundingSource'
 
 interface User {
   id: string
   name: string
   email: string
+  picture?: string
   createdAt: string
+  onboardingCompleted: boolean
+  balance: number
+  budgetSetupSkipped: boolean
+  tourCompleted: boolean
+  firstTransactionAdded: boolean
+}
+
+export interface OnboardingProgressResponse {
+  currentStep: string
+  startingFunds: number | null
+  fundingSourceType: FundingSourceType | null
+  lastUpdatedAt: string
 }
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getMe: builder.query<User, void>({
-      query: () => '/users/me',
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        dispatch(setLoading(true))
-        try {
-          const { data } = await queryFulfilled
-          dispatch(setCredentials({ user: data }))
-        } catch {
-          dispatch(logout())
-        } finally {
-          dispatch(setLoading(false))
-        }
-      },
-    }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/auth/logout',
         method: 'POST',
       }),
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        dispatch(setLoading(true))
         try {
-          // 1. Wait for server-side invalidation
           await queryFulfilled
-        } catch (error) {
-          // 2. If server fails, we still must clear the client state
-          // to satisfy the requirement of not staying in a half-logged-out state.
-          console.error('Server-side logout failed, forcing client-side cleanup:', error)
-        } finally {
-          // 3. Clear Redux auth state
           dispatch(logout())
-
-          // 4. Clear browser storage artifacts
-          try {
-            localStorage.clear()
-            sessionStorage.clear()
-          } catch (storageError) {
-            console.warn('Storage cleanup failed:', storageError)
-          }
+        } catch (error) {
+          console.error('Logout failed', error)
+        } finally {
+          dispatch(setLoading(false))
         }
       },
+    }),
+    completeOnboarding: builder.mutation<
+      User,
+      {
+        startingFunds: number
+        fundingSourceType: FundingSourceType
+        budgets?: { categoryId: number; amount: number; period: string }[]
+      }
+    >({
+      query: (body) => ({
+        url: '/users/onboarding',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['User', 'Budgets'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        dispatch(setLoading(true))
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Onboarding completion failed', error)
+        } finally {
+          dispatch(setLoading(false))
+        }
+      },
+    }),
+    skipBudgetSetup: builder.mutation<User, { skip: boolean }>({
+      query: (body) => ({
+        url: '/users/skip',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Skip budget preference update failed', error)
+        }
+      },
+    }),
+    markTourCompleted: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/tour/completed',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to mark tour completed:', error)
+        }
+      },
+    }),
+    resetTourFlag: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/tour/reset',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ user: data }))
+        } catch (error) {
+          console.error('Failed to reset tour flag:', error)
+        }
+      },
+    }),
+    markFirstTransactionAdded: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/flags/first-transaction',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Failed to mark first transaction added', error)
+        }
+      },
+    }),
+    resetOnboarding: builder.mutation<User, void>({
+      query: () => ({
+        url: '/users/onboarding/reset',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User', 'Budgets'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Failed to reset onboarding', error)
+        }
+      },
+    }),
+    getMe: builder.query<User, void>({
+      query: () => '/users/me',
+      providesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch {
+          // Silent catch for unauthenticated initial load
+          dispatch(setLoading(false))
+        }
+      },
+    }),
+    getOnboardingProgress: builder.query<OnboardingProgressResponse | null, void>({
+      query: () => '/users/onboarding/progress',
+      providesTags: ['User'],
+    }),
+    updateOnboardingProgress: builder.mutation<
+      OnboardingProgressResponse,
+      {
+        currentStep: OnboardingStep
+        startingFunds?: number
+        fundingSourceType?: FundingSourceType
+      }
+    >({
+      query: (body) => ({
+        url: '/users/onboarding/progress',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['User'],
+    }),
+    deleteOnboardingProgress: builder.mutation<void, void>({
+      query: () => ({
+        url: '/users/onboarding/progress',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['User'],
     }),
   }),
 })
 
-export const { useGetMeQuery, useLogoutMutation } = authApi
+export const {
+  useLogoutMutation,
+  useGetMeQuery,
+  useCompleteOnboardingMutation,
+  useSkipBudgetSetupMutation,
+  useGetOnboardingProgressQuery,
+  useUpdateOnboardingProgressMutation,
+  useDeleteOnboardingProgressMutation,
+  useMarkTourCompletedMutation,
+  useResetTourFlagMutation,
+  useMarkFirstTransactionAddedMutation,
+  useResetOnboardingMutation,
+} = authApi

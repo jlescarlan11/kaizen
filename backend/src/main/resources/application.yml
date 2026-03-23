@@ -21,6 +21,10 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never
+    include-message: always
+    include-binding-errors: never
 
 management:
   health:
@@ -62,3 +66,11 @@ app:
       authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
       token-uri: https://oauth2.googleapis.com/token
       user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
+    session:
+      # PRD Open Question 3: The session expiry duration. 
+      # Substitute confirmed value here.
+      expiry-days: ${APP_AUTH_SESSION_EXPIRY_DAYS:90}
+      cookie-name: kzn_pst
+    validation:
+      max-balance-value: ${APP_VALIDATION_MAX_BALANCE_VALUE:999999999999.99}
+      budget-balance-constraint-enabled: ${APP_VALIDATION_BUDGET_BALANCE_CONSTRAINT_ENABLED:true}

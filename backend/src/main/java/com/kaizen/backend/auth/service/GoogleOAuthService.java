@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.springframework.http.MediaType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
@@ -14,7 +15,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.kaizen.backend.auth.config.GoogleOAuthProperties;
 import com.kaizen.backend.auth.dto.GoogleTokenResponse;
 import com.kaizen.backend.auth.dto.GoogleUserInfoResponse;
+import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
+import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,22 +28,26 @@ public class GoogleOAuthService {
     private static final String GOOGLE_PROVIDER_NAME = "google";
     private static final String GOOGLE_SCOPE = "openid profile email";
     private static final String GOOGLE_REVOCATION_URI = "https://oauth2.googleapis.com/revoke";
+    private static final String DEFAULT_ROLE_NAME = "USER";
 
     private final GoogleOAuthProperties googleOAuthProperties;
     private final OAuthTokenCipher oAuthTokenCipher;
     private final RestClient restClient;
     private final UserAccountRepository userAccountRepository;
+    private final RoleRepository roleRepository;
 
     public GoogleOAuthService(
         GoogleOAuthProperties googleOAuthProperties,
         OAuthTokenCipher oAuthTokenCipher,
         RestClient.Builder restClientBuilder,
-        UserAccountRepository userAccountRepository
+        UserAccountRepository userAccountRepository,
+        RoleRepository roleRepository
     ) {
         this.googleOAuthProperties = googleOAuthProperties;
         this.oAuthTokenCipher = oAuthTokenCipher;
         this.restClient = restClientBuilder.build();
         this.userAccountRepository = userAccountRepository;
+        this.roleRepository = roleRepository;
     }
 
     /**
@@ -48,6 +55,7 @@ public class GoogleOAuthService {
      * 
      * @param email The user's email.
      */
+    @Transactional
     public void revokeTokens(String email) {
         userAccountRepository.findByEmailIgnoreCase(email).ifPresent(user -> {
             try {
@@ -102,36 +110,54 @@ public class GoogleOAuthService {
     }
 
     @NonNull
+    @Transactional
     public String handleGoogleCallback(@NonNull String authorizationCode) {
         GoogleTokenResponse tokenResponse = exchangeAuthorizationCode(authorizationCode);
         GoogleUserInfoResponse userInfoResponse = fetchUserInfo(
             Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
         );
 
+        log.info("Google User Info: email={}, name={}, picture={}", 
+            userInfoResponse.email(), userInfoResponse.name(), userInfoResponse.picture());
+
         String email = Objects.requireNonNull(userInfoResponse.email(), "email must not be null");
+        Role userRole = roleRepository.findByName(DEFAULT_ROLE_NAME)
+            .orElseGet(() -> roleRepository.save(new Role(DEFAULT_ROLE_NAME)));
 
         UserAccount userAccount = userAccountRepository.findByEmailIgnoreCase(email)
             .map(existing -> {
                 // Update existing user with latest social info
                 existing.setProviderName(GOOGLE_PROVIDER_NAME);
                 existing.setProviderUserId(userInfoResponse.subject());
+                existing.setPictureUrl(userInfoResponse.picture());
                 existing.setEncryptedAccessToken(oAuthTokenCipher.encrypt(
                     Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
                 ));
                 existing.setEncryptedRefreshToken(oAuthTokenCipher.encryptNullable(tokenResponse.refreshToken()));
+                
+                // Ensure the user has the default role
+                if (existing.getRoles().stream().noneMatch(r -> r.getName().equals(DEFAULT_ROLE_NAME))) {
+                    existing.addRole(userRole);
+                }
+                
                 return existing;
             })
-            .orElseGet(() -> new UserAccount(
-                userInfoResponse.name(),
-                email,
-                GOOGLE_PROVIDER_NAME,
-                userInfoResponse.subject(),
-                null,
-                oAuthTokenCipher.encrypt(
-                    Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
-                ),
-                oAuthTokenCipher.encryptNullable(tokenResponse.refreshToken())
-            ));
+            .orElseGet(() -> {
+                UserAccount newUser = new UserAccount(
+                    userInfoResponse.name(),
+                    email,
+                    GOOGLE_PROVIDER_NAME,
+                    userInfoResponse.subject(),
+                    null,
+                    userInfoResponse.picture(),
+                    oAuthTokenCipher.encrypt(
+                        Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
+                    ),
+                    oAuthTokenCipher.encryptNullable(tokenResponse.refreshToken())
+                );
+                newUser.addRole(userRole);
+                return newUser;
+            });
 
         userAccountRepository.save(Objects.requireNonNull(userAccount, "userAccount must not be null"));
 

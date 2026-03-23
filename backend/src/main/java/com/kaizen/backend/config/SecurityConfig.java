@@ -1,55 +1,123 @@
 package com.kaizen.backend.config;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.kaizen.backend.auth.config.PersistentSessionFilter;
-import lombok.RequiredArgsConstructor;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.kaizen.backend.auth.config.PersistentSessionFilter;
+import com.kaizen.backend.auth.config.PublicEndpoint;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final PersistentSessionFilter persistentSessionFilter;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
+    private final ApplicationContext applicationContext;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String[] publicPatterns = getPublicPatterns();
+        log.info("Registering {} public patterns in Security Allowlist", publicPatterns.length);
+
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers
-                .cacheControl(cache -> cache.disable()) // We'll set custom headers for protected routes
+                .cacheControl(cache -> cache.disable())
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .addFilterBefore(persistentSessionFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                 .requestMatchers(
-                    "/api/users/me",
-                    "/api/auth/google/**",
                     "/actuator/health/**",
                     "/swagger-ui.html",
                     "/swagger-ui/**",
                     "/v3/api-docs/**"
                 ).permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers(publicPatterns).permitAll() // Dynamically found @PublicEndpoints
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/users/me").hasRole("USER")
+                .requestMatchers("/api/users/onboarding/progress").hasRole("USER")
+                .anyRequest().authenticated() // Default Protected Posture
             )
             .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
             );
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Allow common frontend development origins
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:5173",
+            "http://localhost:4173"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setExposedHeaders(List.of("Set-Cookie"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    private String[] getPublicPatterns() {
+        List<String> patterns = new ArrayList<>();
+        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
+
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethods.entrySet()) {
+            RequestMappingInfo info = entry.getKey();
+            HandlerMethod method = entry.getValue();
+
+            // Check if class or method is annotated with @PublicEndpoint
+            if (method.getBeanType().isAnnotationPresent(PublicEndpoint.class) || 
+                method.hasMethodAnnotation(PublicEndpoint.class)) {
+                
+                if (info.getPathPatternsCondition() != null) {
+                    patterns.addAll(info.getPathPatternsCondition().getPatternValues());
+                }
+            }
+        }
+        return patterns.toArray(new String[0]);
     }
 
     @Bean

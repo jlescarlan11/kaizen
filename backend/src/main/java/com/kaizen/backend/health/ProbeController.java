@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import com.kaizen.backend.auth.config.PublicEndpoint;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Health", description = "Service health and probe endpoints.")
+@PublicEndpoint(rationale = "Public probe endpoint for basic availability checks.")
 @RestController
 @RequestMapping("/api")
 public class ProbeController {

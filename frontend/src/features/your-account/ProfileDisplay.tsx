@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react'
 import { useGetMeQuery } from '../../app/store/api/authApi'
-import { Button } from '../../shared/components'
 
 /**
  * ProfileDisplay: Component that fetches and renders user profile fields.
@@ -9,36 +8,30 @@ import { Button } from '../../shared/components'
 export function ProfileDisplay(): ReactElement | null {
   const { data: user, isLoading, isError, refetch } = useGetMeQuery()
 
-  // 1. Loading State: Uses a simple pulse animation
   if (isLoading) {
     return (
       <div className="space-y-4 animate-pulse">
-        <div className="h-4 w-1/4 bg-ui-border rounded" />
-        <div className="h-4 w-3/4 bg-ui-border rounded" />
-        <div className="h-4 w-1/2 bg-ui-border rounded" />
+        <div className="h-3 w-1/4 bg-ui-border-subtle rounded" />
+        <div className="h-3 w-3/4 bg-ui-border-subtle rounded" />
+        <div className="h-3 w-1/2 bg-ui-border-subtle rounded" />
       </div>
     )
   }
 
-  // 2. Integration Point for Instruction 4: Error State
-  // Displays a non-technical error message and a retry trigger.
   if (isError) {
     return (
-      <div
-        className="rounded-lg bg-ui-danger-subtle p-4 text-sm text-ui-danger-text ring-1 ring-ui-danger-subtle"
-        role="alert"
-      >
+      <div className="rounded-lg bg-ui-danger-subtle p-4" role="alert">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <p className="font-medium">
+          <p className="text-sm font-medium leading-6 text-ui-danger-text-soft">
             Unable to retrieve profile information. Please try again later.
           </p>
-          <Button
-            variant="secondary"
+          <button
+            type="button"
             onClick={() => void refetch()}
-            className="w-full sm:w-auto text-xs py-1.5 h-auto shrink-0"
+            className="shrink-0 w-full sm:w-auto text-xs leading-5 font-medium px-3 py-1.5 rounded-lg border border-ui-border-subtle text-ui-danger-text-soft hover:bg-ui-danger-subtle transition-colors"
           >
             Retry
-          </Button>
+          </button>
         </div>
       </div>
     )
@@ -48,23 +41,33 @@ export function ProfileDisplay(): ReactElement | null {
     return null
   }
 
-  // 3. Success State: Render confirmed profile fields (read-only)
-  // Fields: Full Name, Email, Account Created
   const profileFields = [
-    { label: 'Full name', value: user.name || 'Not provided' },
-    { label: 'Email address', value: user.email || 'Not provided' },
+    {
+      label: 'Full name',
+      value: user.name || 'Not provided',
+    },
+    {
+      label: 'Email address',
+      value: user.email || 'Not provided',
+    },
     {
       label: 'Account created',
-      value: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Not provided',
+      value: user.createdAt
+        ? new Date(user.createdAt).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          })
+        : 'Not provided',
     },
   ]
 
   return (
-    <dl className="divide-y divide-ui-border">
+    <dl className="divide-y divide-ui-border-subtle">
       {profileFields.map((field) => (
-        <div key={field.label} className="py-4 first:pt-0 last:pb-0">
-          <dt className="text-sm font-medium text-muted-foreground">{field.label}</dt>
-          <dd className="mt-1 text-base text-foreground font-medium">{field.value}</dd>
+        <div key={field.label} className="py-3.5 first:pt-0 last:pb-0">
+          <dt className="text-xs leading-5 text-subtle-foreground">{field.label}</dt>
+          <dd className="mt-0.5 text-sm font-medium leading-6 text-foreground">{field.value}</dd>
         </div>
       ))}
     </dl>

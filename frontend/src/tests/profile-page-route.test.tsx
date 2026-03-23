@@ -8,11 +8,11 @@ import { ProtectedRoute } from '../app/router/ProtectedRoute'
 import { Routes, Route } from 'react-router-dom'
 
 describe('ProfilePage Routing and Guard', () => {
-  it('renders a link to the profile page on the YourAccountPage', () => {
+  it('does not render a link to the profile page on the YourAccountPage', () => {
     render(<YourAccountPage />)
 
-    const profileLink = screen.getByRole('link', { name: /personal details/i })
-    expect(profileLink).toHaveAttribute('href', '/your-account/profile')
+    const profileLink = screen.queryByRole('link', { name: /personal details/i })
+    expect(profileLink).not.toBeInTheDocument()
   })
 
   it('renders the ProfilePage shell when authenticated', () => {
@@ -21,7 +21,16 @@ describe('ProfilePage Routing and Guard', () => {
         auth: {
           isAuthenticated: true,
           isLoading: false,
-          user: { id: '1', name: 'Test User', email: 'test@example.com' },
+          user: {
+            id: '1',
+            name: 'Test User',
+            email: 'test@example.com',
+            onboardingCompleted: true,
+            balance: 1000,
+            budgetSetupSkipped: false,
+            tourCompleted: true,
+            firstTransactionAdded: false,
+          },
         },
       },
     })

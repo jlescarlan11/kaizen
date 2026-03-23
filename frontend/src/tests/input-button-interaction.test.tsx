@@ -22,8 +22,8 @@ describe('Input and Button interactions', () => {
 
     expect(input).toHaveValue('1200')
     // Check for core utility patterns from formFieldClasses
-    expect(input).toHaveClass('bg-ui-surface', 'text-ui', 'rounded-xl')
-    expect(label).toHaveClass('text-sm', 'font-medium', 'text-ui')
+    expect(input).toHaveClass('bg-ui-surface', 'text-foreground', 'rounded-xl')
+    expect(label).toHaveClass('text-sm', 'font-medium', 'text-foreground')
   })
 
   it('renders the select with a separate label and placeholder option', () => {
@@ -33,7 +33,7 @@ describe('Input and Button interactions', () => {
     const label = screen.getByText('Category')
     const button = screen.getByRole('button')
 
-    expect(label).toHaveClass('text-sm', 'font-medium', 'text-ui')
+    expect(label).toHaveClass('text-sm', 'font-medium', 'text-foreground')
     expect(button).toHaveClass('bg-ui-surface', 'rounded-xl')
     expect(screen.getByText('Select an option')).toBeInTheDocument()
   })
@@ -78,7 +78,7 @@ describe('Input and Button interactions', () => {
       expect.stringContaining('password-helper'),
     )
     expect(input).toHaveClass('aria-invalid:border-ui-danger')
-    expect(label).toHaveClass('text-sm', 'font-medium', 'text-ui')
+    expect(label).toHaveClass('text-sm', 'font-medium', 'text-foreground')
     expect(message).toHaveAttribute('id', 'password-error')
     expect(message).toHaveClass('text-ui-danger-text-soft')
     expect(helper).not.toBeInTheDocument()

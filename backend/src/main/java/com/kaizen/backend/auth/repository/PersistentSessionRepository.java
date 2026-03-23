@@ -15,6 +15,7 @@ import com.kaizen.backend.user.entity.UserAccount;
 
 @Repository
 public interface PersistentSessionRepository extends JpaRepository<PersistentSession, Long> {
+    @Query("SELECT ps FROM PersistentSession ps JOIN FETCH ps.userAccount WHERE ps.tokenHash = :tokenHash")
     Optional<PersistentSession> findByTokenHash(String tokenHash);
     List<PersistentSession> findAllByUserAccount(UserAccount userAccount);
     

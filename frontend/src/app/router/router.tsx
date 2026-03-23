@@ -1,12 +1,19 @@
 import { Suspense, lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
-import { RootLayout } from './RootLayout'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { ShellLayout } from './ShellLayout'
 import { ProtectedRoute } from './ProtectedRoute'
 
 // Critical/small pages are imported directly to avoid unnecessary network overhead
 import { HomeGuard } from '../../features/home/HomeGuard'
 import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
+import { AppErrorPage } from '../../shared/components/AppErrorPage'
+
+import { OnboardingGuard } from '../../features/onboarding/OnboardingGuard'
+import { OnboardingLayout } from '../../features/onboarding/OnboardingLayout'
+import { BalanceSetupStep } from '../../features/onboarding/BalanceSetupStep'
+import { OnboardingBudgetStep } from '../../features/onboarding/OnboardingBudgetStep'
+import { ONBOARDING_STEP_ROUTE_MAP } from '../../features/onboarding/onboardingStep'
 
 // Lazy load larger or secondary feature pages
 const PlaygroundPage = lazy(() =>
@@ -26,19 +33,35 @@ const YourAccountPage = lazy(() =>
     default: m.YourAccountPage,
   })),
 )
+const CategoryManagementPage = lazy(() =>
+  import('../../features/categories/CategoryManagementPage').then((m) => ({
+    default: m.CategoryManagementPage,
+  })),
+)
+const ManualBudgetSetupPage = lazy(() =>
+  import('../../features/budgets/ManualBudgetSetupPage').then((m) => ({
+    default: m.ManualBudgetSetupPage,
+  })),
+)
+const BudgetsPage = lazy(() =>
+  import('../../features/budgets/BudgetsPage').then((m) => ({
+    default: m.BudgetsPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
     path: '/',
+    errorElement: <AppErrorPage />,
     element: (
       <Suspense
         fallback={
-          <div className="flex h-screen w-full items-center justify-center">
+          <div className="flex h-screen w-full items-center justify-center bg-background">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
         }
       >
-        <RootLayout />
+        <ShellLayout />
       </Suspense>
     ),
     children: [
@@ -66,8 +89,51 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
           {
-            path: 'your-account',
-            element: <YourAccountPage />,
+            path: 'onboarding',
+            element: <OnboardingGuard />,
+            children: [
+              {
+                index: true,
+                element: <Navigate to={ONBOARDING_STEP_ROUTE_MAP['BALANCE']} replace />,
+              },
+              {
+                path: 'balance',
+                element: (
+                  <OnboardingLayout>
+                    <BalanceSetupStep />
+                  </OnboardingLayout>
+                ),
+                handle: {
+                  backButton: {
+                    label: 'Logout',
+                    fallbackPath: '/signin',
+                  },
+                },
+              },
+              {
+                path: 'budget',
+                element: (
+                  <OnboardingLayout>
+                    <OnboardingBudgetStep />
+                  </OnboardingLayout>
+                ),
+                handle: {
+                  backButton: {
+                    label: 'Back',
+                    fallbackPath: '/onboarding/balance',
+                  },
+                },
+              },
+              // Placeholder for future steps (PRD Open Question 3).
+            ],
+          },
+          {
+            path: 'playground',
+            element: <PlaygroundPage />,
+          },
+          {
+            path: 'budget',
+            element: <BudgetsPage />,
             handle: {
               backButton: {
                 label: 'Back',
@@ -76,12 +142,22 @@ export const router = createBrowserRouter([
             },
           },
           {
-            path: 'your-account/appearance',
-            element: <AppearancePage />,
+            path: 'budget/manual',
+            element: <ManualBudgetSetupPage />,
             handle: {
               backButton: {
-                label: 'Account',
-                fallbackPath: '/your-account',
+                label: 'Back',
+                fallbackPath: '/budget',
+              },
+            },
+          },
+          {
+            path: 'your-account',
+            element: <YourAccountPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
               },
             },
           },
@@ -105,10 +181,31 @@ export const router = createBrowserRouter([
               },
             },
           },
+          {
+            path: 'your-account/appearance',
+            element: <AppearancePage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'your-account/categories',
+            element: <CategoryManagementPage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
         ],
       },
     ],
   },
+
   {
     path: '*',
     element: <NotFoundPage />,

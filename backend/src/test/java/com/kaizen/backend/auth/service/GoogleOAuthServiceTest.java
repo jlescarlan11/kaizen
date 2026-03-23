@@ -24,7 +24,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import org.springframework.web.client.RestClient;
 
 import com.kaizen.backend.auth.config.GoogleOAuthProperties;
+import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
+import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +43,9 @@ class GoogleOAuthServiceTest {
     @Mock
     private UserAccountRepository userAccountRepository;
 
+    @Mock
+    private RoleRepository roleRepository;
+
     private MockRestServiceServer mockServer;
 
     @BeforeEach
@@ -52,7 +57,8 @@ class GoogleOAuthServiceTest {
             googleOAuthProperties,
             oAuthTokenCipher,
             builder,
-            userAccountRepository
+            userAccountRepository,
+            roleRepository
         );
     }
 
@@ -90,6 +96,7 @@ class GoogleOAuthServiceTest {
         when(oAuthTokenCipher.encrypt(accessToken)).thenReturn("encrypted-access-token");
         when(oAuthTokenCipher.encryptNullable(refreshToken)).thenReturn("encrypted-refresh-token");
         when(userAccountRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
+        when(roleRepository.findByName("USER")).thenReturn(Optional.of(new Role("USER")));
 
         // Mock Token Exchange
         mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))

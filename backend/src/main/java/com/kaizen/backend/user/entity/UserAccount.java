@@ -1,9 +1,17 @@
 package com.kaizen.backend.user.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.kaizen.backend.common.entity.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -42,13 +50,37 @@ public class UserAccount extends BaseEntity {
     @Column(name = "password_hash")
     private String passwordHash;
 
-    @Lob
-    @Column(name = "encrypted_access_token", nullable = false)
+    @Column(name = "picture_url", columnDefinition = "TEXT")
+    private String pictureUrl;
+
+    @Column(name = "encrypted_access_token", nullable = false, columnDefinition = "TEXT")
     private String encryptedAccessToken;
 
-    @Lob
-    @Column(name = "encrypted_refresh_token")
+    @Column(name = "encrypted_refresh_token", columnDefinition = "TEXT")
     private String encryptedRefreshToken;
+
+    @Column(name = "onboarding_completed", nullable = false)
+    private boolean onboardingCompleted = false;
+
+    @Column(name = "budget_setup_skipped", nullable = false)
+    private boolean budgetSetupSkipped = false;
+
+    @Column(name = "tour_completed", nullable = false)
+    private boolean tourCompleted = false;
+
+    @Column(name = "first_transaction_added", nullable = false)
+    private boolean firstTransactionAdded = false;
+
+    @Column(name = "balance", precision = 15, scale = 2)
+    private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_role",
+        joinColumns = @JoinColumn(name = "user_account_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 
     public UserAccount(
         String name,
@@ -56,6 +88,7 @@ public class UserAccount extends BaseEntity {
         String providerName,
         String providerUserId,
         String passwordHash,
+        String pictureUrl,
         String encryptedAccessToken,
         String encryptedRefreshToken
     ) {
@@ -64,7 +97,16 @@ public class UserAccount extends BaseEntity {
         this.providerName = providerName;
         this.providerUserId = providerUserId;
         this.passwordHash = passwordHash;
+        this.pictureUrl = pictureUrl;
         this.encryptedAccessToken = encryptedAccessToken;
         this.encryptedRefreshToken = encryptedRefreshToken;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
     }
 }

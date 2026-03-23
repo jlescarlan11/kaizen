@@ -1,0 +1,714 @@
+import { type ReactElement, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
+import {
+  useCompleteOnboardingMutation,
+  useUpdateOnboardingProgressMutation,
+} from '../../app/store/api/authApi'
+import { Button } from '../../shared/components/Button'
+import { Input } from '../../shared/components/Input'
+import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
+import { typography } from '../../shared/styles/typography'
+import { useAuthState } from '../../shared/hooks/useAuthState'
+import { createCategory, getCategories } from '../categories/api'
+import { CategoryBadge } from '../categories/CategoryBadge'
+import { InlineCustomCategoryFields } from '../categories/InlineCustomCategoryFields'
+import {
+  getAutoAssignedCategoryDesign,
+  type CategoryIconName,
+  resolveCategoryDesign,
+} from '../categories/designSystem'
+import type { Category } from '../categories/types'
+import {
+  CUSTOM_CATEGORY_OPTION_VALUE,
+  ManualBudgetCategoryPicker,
+} from '../budgets/ManualBudgetCategoryPicker'
+import { AllocationTotalDisplay } from '../budgets/components/AllocationTotalDisplay'
+import { BudgetPeriodSelector } from '../budgets/components/BudgetPeriodSelector'
+import { SkipBudgetTrigger } from '../budgets/components/SkipBudgetTrigger'
+import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS, type BudgetPeriod } from '../budgets/constants'
+import { OnboardingErrorBlock } from './OnboardingErrorBlock'
+import { clearStoredOnboardingDraft } from './onboardingDraftStorage'
+import {
+  markCategoriesSeeded,
+  selectBalanceValue,
+  selectBudgetEditorDraft,
+  selectCategoriesSeeded,
+  selectFundingSourceType,
+  selectPendingBudgets,
+  resetBudgetEditorDraft,
+  setBudgetEditorDraft,
+  setPendingBudgets,
+  type PendingBudget,
+} from './onboardingSlice'
+import { type OnboardingStep } from './onboardingStep'
+import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
+
+function roundCurrency(value: number): number {
+  return Number(value.toFixed(2))
+}
+
+function buildSuggestedBudgets(categories: Category[], balance: number): PendingBudget[] {
+  const globalCategories = categories.filter((category) => category.isGlobal)
+  const matchedIds = new Set<number>()
+  const suggested: PendingBudget[] = []
+
+  for (const slot of SMART_BUDGET_SLOTS) {
+    const exactMatch = globalCategories.find(
+      (category) => category.name.toLowerCase() === slot.categoryName.toLowerCase(),
+    )
+    const fallbackMatch = globalCategories.find((category) => !matchedIds.has(category.id))
+    const selectedCategory = exactMatch ?? fallbackMatch
+
+    if (!selectedCategory) {
+      continue
+    }
+
+    matchedIds.add(selectedCategory.id)
+    suggested.push({
+      categoryId: selectedCategory.id,
+      categoryName: selectedCategory.name,
+      categoryIcon: selectedCategory.icon,
+      categoryColor: selectedCategory.color,
+      amount: roundCurrency(balance * slot.percentage),
+      period: SMART_BUDGET_PERIOD,
+    })
+  }
+
+  return suggested
+}
+
+interface AllocationBarProps {
+  allocated: number
+  balance: number
+  onOver: (isOver: boolean) => void
+}
+
+function AllocationBar({ allocated, balance, onOver }: AllocationBarProps): ReactElement {
+  return (
+    <AllocationTotalDisplay
+      totalAllocated={allocated}
+      balance={balance}
+      onStatusChange={(status) => onOver(status === 'over')}
+    />
+  )
+}
+
+interface BudgetCardProps {
+  budget: PendingBudget
+  isInvalid: boolean
+  onEdit: () => void
+  onRemove: () => void
+}
+
+const periodLabel: Record<BudgetPeriod, string> = {
+  MONTHLY: 'Monthly',
+  WEEKLY: 'Weekly',
+}
+
+function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): ReactElement {
+  const formatter = useMemo(
+    () =>
+      new Intl.NumberFormat('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+        minimumFractionDigits: 2,
+      }),
+    [],
+  )
+  const categoryDesign = resolveCategoryDesign(
+    budget.categoryName,
+    budget.categoryIcon,
+    budget.categoryColor,
+  )
+
+  return (
+    <div
+      className={`flex items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors ${
+        isInvalid
+          ? 'border-ui-danger-bg bg-ui-danger-subtle'
+          : 'border-ui-border-subtle bg-ui-surface'
+      }`}
+    >
+      <CategoryBadge
+        icon={categoryDesign.icon}
+        color={categoryDesign.color}
+        size={36}
+        label={`Icon for ${budget.categoryName}`}
+      />
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium leading-none text-foreground">
+          {budget.categoryName}
+        </p>
+        <p className="text-xs leading-5 text-muted-foreground tabular-nums">
+          {formatter.format(budget.amount)} / {periodLabel[budget.period]}
+        </p>
+      </div>
+
+      <div className="flex shrink-0 gap-1">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground"
+          aria-label={`Edit ${budget.categoryName} budget`}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={onRemove}
+          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-foreground"
+          aria-label={`Remove ${budget.categoryName} budget`}
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export function OnboardingBudgetStep(): ReactElement | null {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const { user } = useAuthState()
+  const reduxBalance = useAppSelector(selectBalanceValue)
+  const fundingSourceType = useAppSelector(selectFundingSourceType)
+  const pendingBudgets = useAppSelector(selectPendingBudgets)
+  const categoriesSeeded = useAppSelector(selectCategoriesSeeded)
+  const budgetEditorDraft = useAppSelector(selectBudgetEditorDraft)
+
+  const balance = reduxBalance ?? user?.balance ?? 0
+
+  const [updateProgress] = useUpdateOnboardingProgressMutation()
+  const [complete, { isLoading: isCompleting }] = useCompleteOnboardingMutation()
+  const {
+    handleRequest,
+    retry,
+    error: onboardingError,
+    isRetryDisabled,
+  } = useOnboardingErrorHandler('BUDGET' as OnboardingStep)
+
+  const [categories, setCategories] = useState<Category[]>([])
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true)
+  const [categoryError, setCategoryError] = useState<string | null>(null)
+  const [submissionError, setSubmissionError] = useState<string | null>(null)
+  const [isOverAllocated, setIsOverAllocated] = useState(false)
+  const [categorySelectionError, setCategorySelectionError] = useState<string | null>(null)
+  const [amountValidationError, setAmountValidationError] = useState<string | null>(null)
+  const [customCategoryName, setCustomCategoryName] = useState('')
+  const [customCategoryIcon, setCustomCategoryIcon] = useState<CategoryIconName>('home')
+  const [customCategoryColor, setCustomCategoryColor] = useState('#1d4ed8')
+  const [customCategoryError, setCustomCategoryError] = useState<string | null>(null)
+  const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false)
+
+  const {
+    isOpen: isCategoryModalOpen,
+    editingCategoryId,
+    selectedCategoryId,
+    amountInput,
+    selectedPeriod,
+  } = budgetEditorDraft
+
+  useEffect(() => {
+    if (balance <= 0 || fundingSourceType == null) {
+      navigate('/onboarding/balance', { replace: true })
+    }
+  }, [balance, fundingSourceType, navigate])
+
+  useEffect(() => {
+    if (balance <= 0 || fundingSourceType == null) {
+      return
+    }
+
+    updateProgress({
+      currentStep: 'BUDGET' as OnboardingStep,
+      startingFunds: balance,
+      fundingSourceType,
+    }).catch((error) => console.error('Failed to persist onboarding budget step:', error))
+  }, [balance, fundingSourceType, updateProgress])
+
+  useEffect(() => {
+    let mounted = true
+
+    getCategories()
+      .then((fetchedCategories) => {
+        if (!mounted) {
+          return
+        }
+
+        setCategories(fetchedCategories)
+        setCategoryError(null)
+
+        if (!categoriesSeeded && pendingBudgets.length === 0) {
+          const suggestedBudgets = buildSuggestedBudgets(fetchedCategories, balance)
+
+          if (suggestedBudgets.length === 0) {
+            setCategoryError('Unable to prepare budget suggestions. You can add them manually.')
+            return
+          }
+
+          dispatch(setPendingBudgets(suggestedBudgets))
+          dispatch(markCategoriesSeeded())
+        }
+      })
+      .catch(() => {
+        if (!mounted) {
+          return
+        }
+
+        setCategoryError('Unable to load categories right now.')
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoadingCategories(false)
+        }
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [balance, categoriesSeeded, dispatch, pendingBudgets.length])
+
+  const totalAllocated = useMemo(() => {
+    return pendingBudgets.reduce((sum, budget) => sum + budget.amount, 0)
+  }, [pendingBudgets])
+
+  const invalidBudgetIds = useMemo(() => {
+    return new Set(
+      pendingBudgets.filter((budget) => budget.amount <= 0).map((budget) => budget.categoryId),
+    )
+  }, [pendingBudgets])
+
+  const disabledCategoryIds = useMemo(() => {
+    if (editingCategoryId == null) {
+      return pendingBudgets.map((budget) => budget.categoryId)
+    }
+
+    return pendingBudgets
+      .filter((budget) => budget.categoryId !== editingCategoryId)
+      .map((budget) => budget.categoryId)
+  }, [editingCategoryId, pendingBudgets])
+
+  const availableForCurrent = useMemo(() => {
+    const otherTotal = pendingBudgets
+      .filter((budget) => budget.categoryId !== editingCategoryId)
+      .reduce((sum, budget) => sum + budget.amount, 0)
+
+    return Math.max(balance - otherTotal, 0)
+  }, [balance, editingCategoryId, pendingBudgets])
+
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat('en-PH', {
+        style: 'currency',
+        currency: 'PHP',
+        minimumFractionDigits: 2,
+      }),
+    [],
+  )
+
+  const nextCustomCategoryDesign = useMemo(
+    () => getAutoAssignedCategoryDesign(categories.filter((category) => !category.isGlobal)),
+    [categories],
+  )
+
+  const isCreatingCustomSelection = selectedCategoryId === CUSTOM_CATEGORY_OPTION_VALUE
+
+  const openAddModal = (): void => {
+    dispatch(
+      setBudgetEditorDraft({
+        isOpen: true,
+        editingCategoryId: null,
+        selectedCategoryId: null,
+        amountInput: '',
+        selectedPeriod: SMART_BUDGET_PERIOD,
+      }),
+    )
+    setCategorySelectionError(null)
+    setAmountValidationError(null)
+    setCustomCategoryName('')
+    setCustomCategoryIcon(nextCustomCategoryDesign.icon)
+    setCustomCategoryColor(nextCustomCategoryDesign.color)
+    setCustomCategoryError(null)
+  }
+
+  const openEditModal = (categoryId: number): void => {
+    const budget = pendingBudgets.find((candidate) => candidate.categoryId === categoryId)
+    if (!budget) {
+      return
+    }
+
+    dispatch(
+      setBudgetEditorDraft({
+        isOpen: true,
+        editingCategoryId: categoryId,
+        selectedCategoryId: categoryId,
+        amountInput: budget.amount.toString(),
+        selectedPeriod: budget.period,
+      }),
+    )
+    setCategorySelectionError(null)
+    setAmountValidationError(null)
+    setCustomCategoryName('')
+    setCustomCategoryIcon(nextCustomCategoryDesign.icon)
+    setCustomCategoryColor(nextCustomCategoryDesign.color)
+    setCustomCategoryError(null)
+  }
+
+  const closeModal = (): void => {
+    dispatch(resetBudgetEditorDraft())
+    setCategorySelectionError(null)
+    setAmountValidationError(null)
+    setCustomCategoryName('')
+    setCustomCategoryIcon(nextCustomCategoryDesign.icon)
+    setCustomCategoryColor(nextCustomCategoryDesign.color)
+    setCustomCategoryError(null)
+    setIsCreatingCustomCategory(false)
+  }
+
+  const handleRemoveBudget = (categoryId: number): void => {
+    dispatch(setPendingBudgets(pendingBudgets.filter((budget) => budget.categoryId !== categoryId)))
+    setSubmissionError(null)
+  }
+
+  const handleConfirmCategory = async (): Promise<void> => {
+    setCategorySelectionError(null)
+    setAmountValidationError(null)
+    setCustomCategoryError(null)
+
+    if (selectedCategoryId == null) {
+      setCategorySelectionError('Please select a category.')
+      return
+    }
+
+    const parsedAmount = Number(amountInput)
+    if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
+      setAmountValidationError('Enter an amount of at least PHP 1.00.')
+      return
+    }
+
+    let selectedCategory = categories.find((category) => category.id === selectedCategoryId)
+    if (selectedCategoryId === CUSTOM_CATEGORY_OPTION_VALUE) {
+      const trimmedCustomCategoryName = customCategoryName.trim()
+      if (!trimmedCustomCategoryName) {
+        setCustomCategoryError('Custom category name is required.')
+        return
+      }
+
+      const duplicateCategory = categories.some(
+        (category) => category.name.toLowerCase() === trimmedCustomCategoryName.toLowerCase(),
+      )
+      if (duplicateCategory) {
+        setCustomCategoryError('That category name already exists. Choose a different name.')
+        return
+      }
+
+      setIsCreatingCustomCategory(true)
+      try {
+        selectedCategory = await createCategory({
+          name: trimmedCustomCategoryName,
+          icon: customCategoryIcon,
+          color: customCategoryColor,
+        })
+        setCategories((currentCategories) => [...currentCategories, selectedCategory!])
+      } catch (error) {
+        console.error('Custom category creation failed:', error)
+        setCustomCategoryError('Unable to create the custom category right now.')
+        setIsCreatingCustomCategory(false)
+        return
+      }
+      setIsCreatingCustomCategory(false)
+    }
+
+    if (!selectedCategory) {
+      setCategorySelectionError('Selected category is no longer available.')
+      return
+    }
+
+    const otherTotal = pendingBudgets
+      .filter((budget) => budget.categoryId !== editingCategoryId)
+      .reduce((sum, budget) => sum + budget.amount, 0)
+    const available = balance - otherTotal
+
+    if (parsedAmount > available) {
+      setAmountValidationError(
+        `Amount cannot exceed your remaining balance of ${currencyFormatter.format(Math.max(available, 0))}.`,
+      )
+      return
+    }
+
+    const budgetData: PendingBudget = {
+      categoryId: selectedCategory.id,
+      categoryName: selectedCategory.name,
+      categoryIcon: selectedCategory.icon,
+      categoryColor: selectedCategory.color,
+      amount: roundCurrency(parsedAmount),
+      period: selectedPeriod,
+    }
+
+    if (editingCategoryId == null) {
+      dispatch(setPendingBudgets([...pendingBudgets, budgetData]))
+    } else {
+      dispatch(
+        setPendingBudgets(
+          pendingBudgets.map((budget) =>
+            budget.categoryId === editingCategoryId ? budgetData : budget,
+          ),
+        ),
+      )
+    }
+
+    setSubmissionError(null)
+    closeModal()
+  }
+
+  const canFinish =
+    pendingBudgets.length > 0 &&
+    invalidBudgetIds.size === 0 &&
+    !isOverAllocated &&
+    !isLoadingCategories
+
+  const handleFinishSetup = async (): Promise<void> => {
+    if (!canFinish) {
+      setSubmissionError('Add at least one valid budget before finishing setup.')
+      return
+    }
+
+    if (fundingSourceType == null) {
+      setSubmissionError('Choose a funding source before finishing setup.')
+      navigate('/onboarding/balance', { replace: true })
+      return
+    }
+
+    setSubmissionError(null)
+
+    try {
+      await handleRequest(() =>
+        complete({
+          startingFunds: balance,
+          fundingSourceType,
+          budgets: pendingBudgets.map((budget) => ({
+            categoryId: budget.categoryId,
+            amount: budget.amount,
+            period: budget.period,
+          })),
+        }).unwrap(),
+      )
+
+      if (user) {
+        clearStoredOnboardingDraft(user.id)
+      }
+
+      navigate('/', { replace: true })
+    } catch (error) {
+      console.error('Onboarding budget completion failed:', error)
+      setSubmissionError('Unable to finish setup right now. Please try again.')
+    }
+  }
+
+  if (!user) {
+    return null
+  }
+
+  return (
+    <>
+      <div className="flex flex-col gap-6 pb-28 sm:pb-10">
+        <div className="rounded-xl border border-ui-border-subtle bg-ui-surface px-4 py-4">
+          <p className="mb-3 text-xs leading-5 text-subtle-foreground">Balance overview</p>
+          <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
+        </div>
+
+        <section aria-label="Your budgets">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-medium leading-none text-foreground">
+              Your budgets
+              {pendingBudgets.length > 0 && (
+                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs leading-5 text-muted-foreground">
+                  {pendingBudgets.length}
+                </span>
+              )}
+            </h2>
+            <Button
+              variant="secondary"
+              className="h-8 px-3 text-xs"
+              onClick={openAddModal}
+              disabled={isLoadingCategories}
+            >
+              + Add budget
+            </Button>
+          </div>
+
+          {categoryError ? (
+            <p
+              className="mb-3 rounded-lg bg-ui-warning-subtle px-3 py-2.5 text-xs leading-5 text-muted-foreground"
+              role="alert"
+            >
+              {categoryError}
+            </p>
+          ) : null}
+
+          {isLoadingCategories ? (
+            <div className="space-y-2.5">
+              {[1, 2, 3].map((index) => (
+                <div
+                  key={index}
+                  className="h-[60px] animate-pulse rounded-xl border border-ui-border-subtle bg-ui-surface-muted"
+                />
+              ))}
+            </div>
+          ) : pendingBudgets.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-ui-border py-10 text-center">
+              <span
+                className="text-2xl font-medium leading-none text-foreground"
+                aria-hidden="true"
+              >
+                PHP
+              </span>
+              <p className="text-sm font-medium leading-none text-foreground">No budgets yet</p>
+              <p className="text-xs leading-5 text-subtle-foreground">
+                Add at least one to finish setup, or skip for now.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {pendingBudgets.map((budget) => (
+                <BudgetCard
+                  key={budget.categoryId}
+                  budget={budget}
+                  isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                  onEdit={() => openEditModal(budget.categoryId)}
+                  onRemove={() => handleRemoveBudget(budget.categoryId)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {onboardingError ? (
+          <OnboardingErrorBlock
+            error={onboardingError}
+            onRetry={retry}
+            isRetryDisabled={isRetryDisabled}
+          />
+        ) : null}
+
+        {submissionError ? (
+          <p className={typography['body-sm']} role="alert">
+            {submissionError}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Button
+            className="h-12 w-full rounded-xl text-base font-semibold sm:h-10 sm:w-auto sm:flex-none sm:rounded-md sm:px-5 sm:text-sm"
+            onClick={handleFinishSetup}
+            isLoading={isCompleting}
+            disabled={!canFinish}
+          >
+            Finish setup
+          </Button>
+          <SkipBudgetTrigger className="text-center sm:text-left" />
+        </div>
+      </div>
+
+      <ResponsiveModal
+        title={editingCategoryId == null ? 'Add a budget' : 'Edit budget'}
+        open={isCategoryModalOpen}
+        onClose={closeModal}
+        footer={
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={closeModal}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void handleConfirmCategory()}
+              isLoading={isCreatingCustomCategory}
+            >
+              {editingCategoryId == null ? 'Add budget' : 'Save changes'}
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-5">
+          <ManualBudgetCategoryPicker
+            categories={categories}
+            value={selectedCategoryId ?? ''}
+            disabledIds={disabledCategoryIds}
+            loading={isLoadingCategories}
+            onChange={(value) => {
+              dispatch(
+                setBudgetEditorDraft({
+                  selectedCategoryId: value === '' ? null : value,
+                }),
+              )
+              setCategorySelectionError(null)
+              setCustomCategoryError(null)
+              setSubmissionError(null)
+              if (value !== CUSTOM_CATEGORY_OPTION_VALUE) {
+                setCustomCategoryName('')
+                setCustomCategoryIcon(nextCustomCategoryDesign.icon)
+                setCustomCategoryColor(nextCustomCategoryDesign.color)
+              }
+            }}
+            error={categorySelectionError}
+          />
+          {isCreatingCustomSelection ? (
+            <InlineCustomCategoryFields
+              name={customCategoryName}
+              icon={customCategoryIcon}
+              color={customCategoryColor}
+              nameError={customCategoryError ?? undefined}
+              onNameChange={(value) => {
+                setCustomCategoryName(value)
+                setCustomCategoryError(null)
+                setSubmissionError(null)
+              }}
+              onIconChange={(icon) => {
+                setCustomCategoryIcon(icon)
+                setCustomCategoryError(null)
+                setSubmissionError(null)
+              }}
+              onColorChange={(color) => {
+                setCustomCategoryColor(color)
+                setCustomCategoryError(null)
+                setSubmissionError(null)
+              }}
+            />
+          ) : null}
+          <Input
+            label="Amount"
+            type="number"
+            inputMode="decimal"
+            min="1"
+            step="0.01"
+            endAdornment="PHP"
+            value={amountInput}
+            onChange={(event) => {
+              dispatch(
+                setBudgetEditorDraft({
+                  amountInput: event.target.value,
+                }),
+              )
+              setAmountValidationError(null)
+              setSubmissionError(null)
+            }}
+            error={amountValidationError ?? undefined}
+            helperText={
+              !amountValidationError
+                ? `Unallocated: ${currencyFormatter.format(availableForCurrent)}`
+                : undefined
+            }
+          />
+          <BudgetPeriodSelector
+            value={selectedPeriod}
+            onChange={(period) => dispatch(setBudgetEditorDraft({ selectedPeriod: period }))}
+            referenceAmount={Number(amountInput) || 0}
+          />
+        </div>
+      </ResponsiveModal>
+    </>
+  )
+}

@@ -2,7 +2,7 @@
 import type { PropsWithChildren, ReactElement } from 'react'
 import { render as rtlRender, type RenderOptions } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { MemoryRouter } from 'react-router-dom'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { ThemeProvider } from '../providers/theme'
 import { setupStore, type AppStore, type RootState } from '../app/store/store'
 
@@ -22,10 +22,11 @@ function customRender(
   }: ExtendedRenderOptions = {},
 ) {
   function Wrapper({ children }: PropsWithChildren): ReactElement {
+    const router = createMemoryRouter([{ path: '*', element: children }], { initialEntries })
     return (
       <Provider store={store}>
         <ThemeProvider>
-          <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
+          <RouterProvider router={router} />
         </ThemeProvider>
       </Provider>
     )

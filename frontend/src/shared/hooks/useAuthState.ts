@@ -1,13 +1,10 @@
 import { useAppSelector } from '../../app/store/hooks'
+import type { User } from '../../app/store/authSlice'
 
-type AuthState = {
+interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
-  user: {
-    id: string
-    name: string
-    email: string
-  } | null
+  user: User | null
 }
 
 /**

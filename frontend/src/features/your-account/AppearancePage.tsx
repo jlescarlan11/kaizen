@@ -1,81 +1,144 @@
 import type { ReactElement } from 'react'
-import { Link } from 'react-router-dom'
 import { useTheme, type Theme } from '../../providers/theme'
-import { Card } from '../../shared/components'
 import { cn } from '../../shared/lib/cn'
+import { pageLayout } from '../../shared/styles/layout'
 
 const themeOptions: ReadonlyArray<{
   value: Theme
   label: string
-  icon: string
+  description?: string
+  icon: ReactElement
 }> = [
-  { value: 'light', label: 'Light', icon: 'Sun' },
-  { value: 'dark', label: 'Dark', icon: 'Moon' },
-  { value: 'system', label: 'System', icon: 'Auto' },
+  {
+    value: 'light',
+    label: 'Light',
+    icon: <SunIcon />,
+  },
+  {
+    value: 'dark',
+    label: 'Dark',
+    icon: <MoonIcon />,
+  },
+  {
+    value: 'system',
+    label: 'System',
+    icon: <SystemIcon />,
+  },
 ]
 
 export function AppearancePage(): ReactElement {
   const { theme, setTheme, resolvedTheme } = useTheme()
 
   return (
-    <section className="mx-auto max-w-3xl space-y-6">
-      <div className="space-y-3">
-        <Link
-          to="/your-account"
-          className="inline-flex rounded-md px-1 py-1 text-sm font-medium leading-none text-foreground transition-colors hover:bg-ui-accent-subtle hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-focus"
-        >
-          Back to account
-        </Link>
-        <header className="space-y-2">
-          <p className="text-xs leading-5 text-subtle-foreground">Preferences</p>
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
-            Appearance
-          </h1>
-          <p className="text-lg leading-7 text-muted-foreground">
-            Choose how Kaizen looks across your account.
-          </p>
-        </header>
+    <section className={pageLayout.sectionGap}>
+      {/* Page header */}
+      <div className={pageLayout.headerGap}>
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+          Appearance
+        </h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Choose how Kaizen looks on this device.
+        </p>
       </div>
 
-      <Card className="rounded-2xl">
-        <h2 className="mb-4 text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
-          Theme
-        </h2>
+      {/* Theme options */}
+      <div className="divide-y divide-ui-border-subtle">
+        {themeOptions.map((option) => {
+          const isSelected = theme === option.value
+          const description =
+            option.value === 'system'
+              ? `Follows your device setting (currently ${resolvedTheme})`
+              : undefined
 
-        <div className="grid grid-cols-3 gap-2">
-          {themeOptions.map((option) => {
-            const isSelected = theme === option.value
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setTheme(option.value)}
+              aria-pressed={isSelected}
+              className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-ui-surface-muted active:bg-ui-surface-subtle -mx-4 w-[calc(100%+2rem)]"
+            >
+              {/* Icon */}
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted text-foreground">
+                {option.icon}
+              </div>
 
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setTheme(option.value)}
-                className={cn(
-                  'rounded-lg border p-3 text-foreground transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ui-focus',
-                  isSelected
-                    ? 'border-ui-accent bg-ui-accent-subtle'
-                    : 'border-ui-border bg-ui-surface hover:bg-ui-accent-subtle hover:border-ui-border-strong',
+              {/* Label + description */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium leading-6 text-foreground">{option.label}</p>
+                {description && (
+                  <p className="text-xs leading-5 text-subtle-foreground mt-0.5">{description}</p>
                 )}
-                aria-pressed={isSelected}
-              >
-                <div className="text-center">
-                  <div className="mb-1 text-sm font-medium leading-none text-foreground">
-                    {option.icon}
-                  </div>
-                  <p className="text-sm leading-6 text-muted-foreground">{option.label}</p>
-                </div>
-              </button>
-            )
-          })}
-        </div>
+              </div>
 
-        <p className="mt-3 text-xs leading-5 text-subtle-foreground">
-          {theme === 'system'
-            ? `Following system preference (${resolvedTheme})`
-            : `Theme set to ${theme} mode`}
-        </p>
-      </Card>
+              {/* Radio indicator */}
+              <div
+                className={cn(
+                  'h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors',
+                  isSelected ? 'border-foreground bg-foreground' : 'border-ui-border-strong',
+                )}
+              >
+                {isSelected && <div className="h-2 w-2 rounded-full bg-ui-bg" />}
+              </div>
+            </button>
+          )
+        })}
+      </div>
     </section>
+  )
+}
+
+/* ───────── ICONS ───────── */
+
+function SunIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  )
+}
+
+function MoonIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  )
+}
+
+function SystemIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="14" x="2" y="3" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
   )
 }

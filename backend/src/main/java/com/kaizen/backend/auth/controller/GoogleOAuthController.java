@@ -22,6 +22,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.kaizen.backend.auth.config.AuthFlowProperties;
+import com.kaizen.backend.auth.config.PublicEndpoint;
 import com.kaizen.backend.auth.dto.GoogleOAuthRedirectResponse;
 import com.kaizen.backend.auth.service.CustomUserDetailsService;
 import com.kaizen.backend.auth.service.GoogleOAuthService;
@@ -35,12 +36,14 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
 @Tag(name = "Auth", description = "Authentication entry points and OAuth callbacks.")
+@PublicEndpoint(rationale = "OAuth entry points must be publicly accessible to initiate authentication flow.")
 @RestController
 @RequestMapping("/api/auth/google")
 public class GoogleOAuthController {
@@ -53,17 +56,20 @@ public class GoogleOAuthController {
     private final GoogleOAuthService googleOAuthService;
     private final CustomUserDetailsService userDetailsService;
     private final PersistentSessionService persistentSessionService;
+    private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
 
     public GoogleOAuthController(
         AuthFlowProperties authFlowProperties,
         GoogleOAuthService googleOAuthService,
         CustomUserDetailsService userDetailsService,
-        PersistentSessionService persistentSessionService
+        PersistentSessionService persistentSessionService,
+        com.kaizen.backend.auth.config.SessionProperties sessionProperties
     ) {
         this.authFlowProperties = authFlowProperties;
         this.googleOAuthService = googleOAuthService;
         this.userDetailsService = userDetailsService;
         this.persistentSessionService = persistentSessionService;
+        this.sessionProperties = sessionProperties;
     }
 
     @Operation(
@@ -143,6 +149,7 @@ public class GoogleOAuthController {
         @RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "state", required = false) String state,
         @RequestParam(value = "error", required = false) String error,
+        HttpServletRequest request,
         HttpSession session
     ) {
         // Retrieve dynamic redirect URI from session or use fallback from properties
@@ -203,11 +210,11 @@ public class GoogleOAuthController {
                 
             URI redirectUri = URI.create(postAuthUri);
 
-            ResponseCookie cookie = ResponseCookie.from("kzn_pst", persistentToken)
+            ResponseCookie cookie = ResponseCookie.from(sessionProperties.cookieName(), persistentToken)
                 .httpOnly(true)
-                .secure(true) // Assumes production is over HTTPS
+                .secure(request.isSecure()) // Dynamic based on request protocol
                 .path("/")
-                .maxAge(90 * 24 * 60 * 60) // 90 days in seconds
+                .maxAge(persistentSessionService.getSessionExpirySeconds())
                 .sameSite("Lax")
                 .build();
 

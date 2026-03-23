@@ -1,10 +1,12 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { baseApi } from './api/baseApi'
 import authReducer from './authSlice'
+import onboardingReducer from '../../features/onboarding/onboardingSlice'
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   auth: authReducer,
+  onboarding: onboardingReducer,
 })
 
 export const store = configureStore({

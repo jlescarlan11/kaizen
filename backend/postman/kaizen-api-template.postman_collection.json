@@ -140,7 +140,272 @@
     },
     {
       "name": "Core APIs",
-      "item": []
+      "item": [
+        {
+          "name": "Budgets",
+          "item": [
+            {
+              "name": "Save Smart Budgets",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"budgets\": [\n    {\n      \"categoryId\": 1,\n      \"amount\": 3000,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 2,\n      \"amount\": 1600,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 3,\n      \"amount\": 1000,\n      \"period\": \"MONTHLY\"\n    },\n    {\n      \"categoryId\": 4,\n      \"amount\": 1000,\n      \"period\": \"MONTHLY\"\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets/batch",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets",
+                    "batch"
+                  ]
+                },
+                "description": "Saves the four smart budget allocations atomically for the authenticated user."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Budget",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categoryId\": 1,\n  \"amount\": 3000,\n  \"period\": \"MONTHLY\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/budgets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "budgets"
+                  ]
+                },
+                "description": "Creates a single budget for the authenticated user."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "Get Categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                },
+                "description": "Returns global categories plus the authenticated user's custom categories."
+              },
+              "response": []
+            },
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Weekend Trips\",\n  \"icon\": \"plane\",\n  \"color\": \"#0891b2\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories"
+                  ]
+                },
+                "description": "Creates a new user-scoped category."
+              },
+              "response": []
+            },
+            {
+              "name": "Update Category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Weekend Trips\",\n  \"icon\": \"plane\",\n  \"color\": \"#0891b2\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/categories/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "categories",
+                    "1"
+                  ]
+                },
+                "description": "Updates a user-owned custom category."
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "Complete Onboarding",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startingFunds\": 4200,\n  \"fundingSourceType\": \"E_WALLET\",\n  \"budgets\": [\n    {\n      \"categoryId\": 1,\n      \"amount\": 1200,\n      \"period\": \"MONTHLY\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding"
+              ]
+            },
+            "description": "Completes onboarding with the user's starting funds, selected funding source, and optional initial budgets."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Onboarding Progress",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Retrieves the latest onboarding progress for the authenticated user. Returns 204 if no progress exists."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Onboarding Progress",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentStep\": \"BALANCE\",\n  \"startingFunds\": 4200,\n  \"fundingSourceType\": \"CASH_ON_HAND\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Persists the current onboarding step and optional values for the authenticated user."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Onboarding Progress",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/onboarding/progress",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "onboarding",
+                "progress"
+              ]
+            },
+            "description": "Removes the persisted onboarding progress for the authenticated user. Returns 204 when no progress remains."
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }

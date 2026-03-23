@@ -33,17 +33,17 @@ export function Modal({ children, footer, onClose, open, title }: ModalProps): R
           <DialogBackdrop className="fixed inset-0 bg-ui-bg/80" />
         </TransitionChild>
 
-        <div className="fixed inset-0 flex items-center justify-center p-4">
+        <div className="fixed inset-0 flex items-end justify-center px-4 pb-6 sm:items-center sm:p-4">
           <TransitionChild
             as={Fragment}
             enter="ease-out duration-200"
-            enterFrom="opacity-0 scale-95"
-            enterTo="opacity-100 scale-100"
+            enterFrom="opacity-0 translate-y-6 sm:scale-95 sm:translate-y-0"
+            enterTo="opacity-100 translate-y-0 sm:scale-100"
             leave="ease-in duration-150"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
+            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+            leaveTo="opacity-0 translate-y-6 sm:scale-95 sm:translate-y-0"
           >
-            <DialogPanel className="w-full max-w-md space-y-4 rounded-xl border border-ui-border bg-ui-surface p-6 text-foreground shadow-xl">
+            <DialogPanel className="w-full max-w-md space-y-4 rounded-t-3xl border border-ui-border bg-ui-surface p-6 text-foreground shadow-xl transition sm:rounded-xl sm:p-6">
               <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
                 {title}
               </DialogTitle>
