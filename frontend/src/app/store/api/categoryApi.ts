@@ -14,7 +14,22 @@ export const categoryApi = baseApi.injectEndpoints({
       query: () => '/categories',
       providesTags: ['Categories'],
     }),
+    getCategoryTransactionCount: builder.query<number, number>({
+      query: (categoryId) => `/categories/${categoryId}/transactions/count`,
+    }),
+    mergeCategories: builder.mutation<void, { sourceId: number; targetId: number }>({
+      query: (payload) => ({
+        url: '/categories/merge',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['Categories', 'Transactions'],
+    }),
   }),
 })
 
-export const { useGetCategoriesQuery } = categoryApi
+export const {
+  useGetCategoriesQuery,
+  useGetCategoryTransactionCountQuery,
+  useMergeCategoriesMutation,
+} = categoryApi

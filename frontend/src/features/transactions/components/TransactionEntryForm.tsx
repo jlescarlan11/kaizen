@@ -1,8 +1,7 @@
-import { useState, useEffect, type ReactElement } from 'react'
+import { useState, useEffect, useRef, type ReactElement } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Input } from '../../../shared/components/Input'
 import { Button } from '../../../shared/components/Button'
-import { Select } from '../../../shared/components/Select'
 import { Card } from '../../../shared/components/Card'
 import { TransactionTypeToggle } from './TransactionTypeToggle'
 import {
@@ -11,7 +10,7 @@ import {
   useGetTransactionQuery,
   type TransactionType,
 } from '../../../app/store/api/transactionApi'
-import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
+import { CategorySelector } from '../../categories'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 
 interface TransactionEntryFormProps {
@@ -24,7 +23,6 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const { user } = useAuthState()
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation()
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation()
-  const { data: categories = [] } = useGetCategoriesQuery()
 
   // Fetch data if editing
   const { data: editData, isLoading: isFetching } = useGetTransactionQuery(editId!, {
@@ -38,7 +36,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const [type, setType] = useState<TransactionType>('EXPENSE')
   const [transactionDate, setTransactionDate] = useState('')
   const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState('')
+  const [categoryId, setCategoryId] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const isInitialized = useRef(false)
 
@@ -54,7 +52,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setType(editData.type)
       setTransactionDate(editData.transactionDate.split('T')[0])
       setDescription(editData.description || '')
-      setCategoryId(editData.category?.id.toString() || '')
+      setCategoryId(editData.category?.id.toString() || null)
       isInitialized.current = true
     } else if (duplicateFrom) {
       setAmount(duplicateFrom.amount.toString())
@@ -62,7 +60,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       // Story 13: Date defaults to current date for duplicate
       setTransactionDate('')
       setDescription(duplicateFrom.description || '')
-      setCategoryId(duplicateFrom.categoryId?.toString() || '')
+      setCategoryId(duplicateFrom.categoryId?.toString() || null)
       isInitialized.current = true
     } else if (user?.quickAddPreferences) {
       // Instruction 8: Quick Add Pre-fill
@@ -70,7 +68,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
         const prefs = JSON.parse(user.quickAddPreferences)
         setAmount(prefs.amount?.toString() ?? '')
         setType(prefs.type ?? 'EXPENSE')
-        setCategoryId(prefs.categoryId?.toString() ?? '')
+        setCategoryId(prefs.categoryId?.toString() ?? null)
         isInitialized.current = true
       } catch (err) {
         console.error('Failed to parse Quick Add preferences:', err)
@@ -126,11 +124,6 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
     )
   }
 
-  const categoryOptions = categories.map((cat) => ({
-    value: cat.id.toString(),
-    label: cat.name,
-  }))
-
   return (
     <Card className="border border-ui-border-subtle p-6 shadow-sm">
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -159,13 +152,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           helperText={editId ? undefined : 'Captured at submission if not set.'}
         />
 
-        <Select
-          label="Category (Optional)"
-          options={categoryOptions}
-          value={categoryId}
-          onChange={setCategoryId}
-          placeholder="Select a category"
-        />
+        <CategorySelector value={categoryId} onChange={setCategoryId} />
 
         <Input
           label="Description (Optional)"

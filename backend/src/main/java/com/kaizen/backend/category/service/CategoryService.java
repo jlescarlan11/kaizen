@@ -23,14 +23,66 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final UserAccountRepository userAccountRepository;
+    private final com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, UserAccountRepository userAccountRepository) {
+    public CategoryService(
+        CategoryRepository categoryRepository,
+        UserAccountRepository userAccountRepository,
+        com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository
+    ) {
         this.categoryRepository = categoryRepository;
         this.userAccountRepository = userAccountRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public List<Category> getVisibleCategories(Long userId) {
         return categoryRepository.findAllVisibleToUser(userId);
+    }
+
+    public long getTransactionCountForCategory(String email, Long categoryId) {
+        UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+
+        // Verify category is accessible to user
+        categoryRepository.findAccessibleByIds(List.of(categoryId), user.getId())
+            .stream()
+            .findFirst()
+            .orElseThrow(CategoryNotFoundException::new);
+
+        return transactionRepository.countByCategoryId(categoryId);
+    }
+
+    @Transactional
+    public void mergeCategories(String email, Long sourceId, Long targetId) {
+        if (sourceId.equals(targetId)) {
+            throw new IllegalArgumentException("Source and target category must be different.");
+        }
+
+        UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+
+        // Verify both categories are accessible to user
+        List<Category> categories = categoryRepository.findAccessibleByIds(List.of(sourceId, targetId), user.getId());
+        if (categories.size() < 2) {
+            throw new CategoryNotFoundException();
+        }
+
+        Category sourceCategory = categories.stream()
+            .filter(c -> c.getId().equals(sourceId))
+            .findFirst()
+            .orElseThrow();
+
+        // Perform merge
+        transactionRepository.updateCategoryId(sourceId, targetId);
+
+        // Delete source category
+        categoryRepository.delete(sourceCategory);
+
+        // Instruction 9: Post-Merge Referential Integrity Enforcement
+        // Verify no transactions still reference the source category
+        if (transactionRepository.existsByCategoryId(sourceId)) {
+            throw new IllegalStateException("Referential integrity violation: transactions still reference the merged source category.");
+        }
     }
 
     @Transactional

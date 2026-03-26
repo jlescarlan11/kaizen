@@ -183,6 +183,10 @@ export function TransactionList({
                     'flex-1 flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
                     selectedIds.includes(tx.id) &&
                       'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
+                    // Instruction 7: Uncategorized Transaction Highlighting
+                    !tx.category &&
+                      !selectedIds.includes(tx.id) &&
+                      'border-amber-200 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10',
                   )}
                 >
                   <div className="flex items-center gap-4">
@@ -202,20 +206,34 @@ export function TransactionList({
                           'flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110',
                           tx.type === 'INCOME'
                             ? 'bg-ui-success/10 text-ui-success'
-                            : 'bg-ui-surface-muted text-muted-foreground',
+                            : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
                         )}
                       >
-                        {tx.type === 'INCOME' ? <IncomeIcon /> : <ExpenseIcon />}
+                        {tx.type === 'INCOME' ? (
+                          <IncomeIcon />
+                        ) : (
+                          <span className="text-lg font-bold">?</span>
+                        )}
                       </div>
                     )}
                     <div>
                       <SearchHighlight
-                        text={tx.description || tx.category?.name || 'Transaction'}
+                        text={tx.description || tx.category?.name || 'Uncategorized'}
                         query={searchQuery}
-                        className="font-semibold text-foreground group-hover:text-primary transition-colors block"
+                        className={cn(
+                          'font-semibold transition-colors block',
+                          tx.category
+                            ? 'text-foreground group-hover:text-primary'
+                            : 'text-amber-700 dark:text-amber-500',
+                        )}
                       />
                       <p className="text-xs text-muted-foreground">
                         {timeFormatter.format(new Date(tx.transactionDate))}
+                        {!tx.category && (
+                          <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
+                            • Needs category
+                          </span>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -293,25 +311,6 @@ function IncomeIcon() {
     >
       <path d="M7 10l5-5 5 5" />
       <path d="M12 5v14" />
-    </svg>
-  )
-}
-
-function ExpenseIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 14l5 5 5-5" />
-      <path d="M12 19V5" />
     </svg>
   )
 }

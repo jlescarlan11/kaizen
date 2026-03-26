@@ -1,13 +1,16 @@
-import type { ReactElement } from 'react'
-import { useState } from 'react'
+import { useState, useEffect, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { TransactionResponse } from '../../../app/store/api/transactionApi'
+import {
+  useUpdateTransactionMutation,
+  type TransactionResponse,
+} from '../../../app/store/api/transactionApi'
 import { ResponsiveModal } from '../../../shared/components/ResponsiveModal'
 import { Badge } from '../../../shared/components/Badge'
 import { Button } from '../../../shared/components/Button'
 import { cn } from '../../../shared/lib/cn'
 import { useAppDispatch } from '../../../app/store/hooks'
 import { triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
+import { CategorySelector } from '../../categories'
 
 interface TransactionDetailModalProps {
   transaction: TransactionResponse | null
@@ -32,7 +35,19 @@ export function TransactionDetailModal({
 }: TransactionDetailModalProps): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation()
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isRecategorizing, setIsRecategorizing] = useState(false)
+  const [newCategoryId, setNewCategoryId] = useState<string | null>(null)
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (transaction) {
+      setNewCategoryId(transaction.category?.id.toString() || null)
+    }
+  }, [transaction])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!transaction) return <></>
 
@@ -70,6 +85,24 @@ export function TransactionDetailModal({
         timeoutMs: 5000,
       }),
     )
+  }
+
+  const handleRecategorize = async () => {
+    try {
+      await updateTransaction({
+        id: transaction.id,
+        payload: {
+          amount: transaction.amount,
+          type: transaction.type,
+          transactionDate: transaction.transactionDate,
+          description: transaction.description,
+          categoryId: newCategoryId ? parseInt(newCategoryId) : undefined,
+        },
+      }).unwrap()
+      setIsRecategorizing(false)
+    } catch (err) {
+      console.error('Failed to recategorize transaction:', err)
+    }
   }
 
   const footer = (
@@ -128,22 +161,34 @@ export function TransactionDetailModal({
             <DetailRow
               label="Category"
               content={
-                transaction.category ? (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-base"
-                      style={{
-                        backgroundColor: transaction.category.color + '22',
-                        color: transaction.category.color,
-                      }}
-                    >
-                      {transaction.category.icon}
+                <div className="flex items-center justify-between">
+                  {transaction.category ? (
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-base"
+                        style={{
+                          backgroundColor: transaction.category.color + '22',
+                          color: transaction.category.color,
+                        }}
+                      >
+                        {transaction.category.icon}
+                      </div>
+                      <span className="font-medium text-foreground">
+                        {transaction.category.name}
+                      </span>
                     </div>
-                    <span className="font-medium text-foreground">{transaction.category.name}</span>
-                  </div>
-                ) : (
-                  <span className="italic text-muted-foreground">—</span>
-                )
+                  ) : (
+                    <span className="italic text-muted-foreground">—</span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-1 text-primary hover:bg-primary/10 text-xs font-semibold"
+                    onClick={() => setIsRecategorizing(true)}
+                  >
+                    Change
+                  </Button>
+                </div>
               }
             />
 
@@ -158,6 +203,25 @@ export function TransactionDetailModal({
                 </Badge>
               }
             />
+          </div>
+        </div>
+      </ResponsiveModal>
+
+      {/* Recategorize Modal */}
+      <ResponsiveModal
+        open={isRecategorizing}
+        onClose={() => setIsRecategorizing(false)}
+        title="Change Category"
+      >
+        <div className="space-y-6">
+          <CategorySelector value={newCategoryId} onChange={setNewCategoryId} />
+          <div className="flex gap-3">
+            <Button variant="ghost" className="flex-1" onClick={() => setIsRecategorizing(false)}>
+              Cancel
+            </Button>
+            <Button className="flex-1" onClick={handleRecategorize} isLoading={isUpdating}>
+              Confirm
+            </Button>
           </div>
         </div>
       </ResponsiveModal>

@@ -33,6 +33,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.web.bind.annotation.RequestParam;
+import com.kaizen.backend.category.dto.CategoryMergeRequest;
+
 @Tag(name = "Category", description = "Category management.")
 @RestController
 @RequestMapping("/api/categories")
@@ -44,6 +47,55 @@ public class CategoryController {
     public CategoryController(CategoryService categoryService, UserAccountService userAccountService) {
         this.categoryService = categoryService;
         this.userAccountService = userAccountService;
+    }
+
+    @Operation(
+        summary = "Get transaction count for a category",
+        description = "Returns the number of transactions currently assigned to a specific category.",
+        operationId = "getCategoryTransactionCount"
+    )
+    @GetMapping("/{categoryId}/transactions/count")
+    public long getCategoryTransactionCount(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long categoryId
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+        return categoryService.getTransactionCountForCategory(userDetails.getUsername(), categoryId);
+    }
+
+    @Operation(
+        summary = "Merge categories",
+        description = "Atomic merge that reassigns all transactions from source to target and deletes the source category.",
+        operationId = "mergeCategories"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "204",
+            description = "Categories merged successfully."
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid source or target, or they are identical.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Category not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/merge")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void mergeCategories(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody CategoryMergeRequest request
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+        categoryService.mergeCategories(userDetails.getUsername(), request.sourceId(), request.targetId());
     }
 
     @Operation(
