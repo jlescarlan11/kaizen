@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
 import { useGetTransactionsQuery } from '../../app/store/api/transactionApi'
 import { pageLayout } from '../../shared/styles/layout'
@@ -7,20 +7,57 @@ import { calculateRunningBalance } from './utils/transactionUtils'
 import { cn } from '../../shared/lib/cn'
 import { useAppSelector } from '../../app/store/hooks'
 import { selectPendingDeletes } from '../../app/store/notificationSlice'
+import { TransactionSearch } from './components/TransactionSearch'
+import { TransactionFilter } from './components/TransactionFilter'
+import { TransactionSort } from './components/TransactionSort'
+import { TransactionEmptyState } from './components/TransactionEmptyState'
+import { useTransactionPipeline } from './hooks/useTransactionPipeline'
+import { useSortPersistence } from './hooks/useSortPersistence'
+import type { FilterState } from './types'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
   currency: 'PHP',
 })
 
+const INITIAL_FILTER: FilterState = {
+  categories: [],
+  types: [],
+}
+
 export function TransactionListPage(): ReactElement {
   // NOTE: Full load implemented with no pagination per PRD Instruction 1 constraints.
   const { data: transactions = [], isLoading } = useGetTransactionsQuery()
   const pendingDeletes = useAppSelector(selectPendingDeletes)
 
-  // Filter out pending deletes for accurate balance and display
+  // 1. Pipeline Inputs (State Management)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [filterState, setFilterState] = useState<FilterState>(INITIAL_FILTER)
+  const [sortState, setSortState] = useSortPersistence()
+
+  // 2. The Shared Result Pipeline
+  // Composable data pipeline: filter → search → sort
   const visibleTransactions = transactions.filter((tx) => !pendingDeletes.includes(tx.id))
+  const processedTransactions = useTransactionPipeline({
+    transactions: visibleTransactions,
+    searchQuery,
+    filterState,
+    sortState,
+  })
+
+  // Calculate balance based on ALL visible transactions (unfiltered by search/filter)
+  // to maintain consistent "Total Balance" context.
   const balance = calculateRunningBalance(visibleTransactions)
+
+  const isSearchActive = searchQuery.trim().length > 0
+  const isFilterActive = filterState.categories.length > 0 || filterState.types.length > 0
+
+  const handleClearSearch = () => setSearchQuery('')
+  const handleClearFilter = () => setFilterState(INITIAL_FILTER)
+  const handleClearAll = () => {
+    handleClearSearch()
+    handleClearFilter()
+  }
 
   return (
     <div className={pageLayout.sectionGap}>
@@ -50,6 +87,64 @@ export function TransactionListPage(): ReactElement {
             </Card>
           )}
         </div>
+
+        {/* Search, Filter, and Sort Controls */}
+        {!isLoading && transactions.length > 0 && (
+          <div className="mt-8 flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
+              <div className="flex items-center gap-3">
+                <TransactionFilter
+                  filter={filterState}
+                  onChange={setFilterState}
+                  onClear={handleClearFilter}
+                />
+                <TransactionSort sort={sortState} onChange={setSortState} />
+              </div>
+            </div>
+
+            {/* Active Filter Indicators (Optional, but good for UX) */}
+            {isFilterActive && (
+              <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mr-1">
+                  Active Filters:
+                </p>
+                {filterState.types.map((type) => (
+                  <span
+                    key={type}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase"
+                  >
+                    {type}
+                    <button
+                      onClick={() =>
+                        setFilterState((prev) => ({
+                          ...prev,
+                          types: prev.types.filter((t) => t !== type),
+                        }))
+                      }
+                      className="hover:text-primary-hover"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                ))}
+                {/* Note: Showing category names would require mapping IDs to categories, 
+                    leaving as simple indicator for now to keep focus on pipeline */}
+                {filterState.categories.length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                    {filterState.categories.length} Categories
+                    <button
+                      onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
+                      className="hover:text-primary-hover"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       <div className="mx-auto max-w-3xl w-full">
@@ -57,14 +152,36 @@ export function TransactionListPage(): ReactElement {
           <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </Card>
-        ) : transactions.length === 0 ? (
-          <Card className="p-12 text-center border border-ui-border-subtle shadow-sm">
-            <p className="text-muted-foreground">No transactions recorded yet.</p>
-          </Card>
+        ) : processedTransactions.length === 0 ? (
+          <TransactionEmptyState
+            isSearchActive={isSearchActive}
+            isFilterActive={isFilterActive}
+            onClearSearch={handleClearSearch}
+            onClearFilter={handleClearFilter}
+            onClearAll={handleClearAll}
+          />
         ) : (
-          <TransactionList transactions={transactions} />
+          <TransactionList transactions={processedTransactions} searchQuery={searchQuery} />
         )}
       </div>
     </div>
+  )
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
   )
 }

@@ -7,12 +7,14 @@ import { Checkbox } from '../../../shared/components/Checkbox'
 import { Button } from '../../../shared/components/Button'
 import { groupTransactionsByDate, formatGroupDate } from '../utils/transactionUtils'
 import { TransactionDetailModal } from './TransactionDetailModal'
+import { SearchHighlight } from './SearchHighlight'
 import { cn } from '../../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../../app/store/hooks'
 import { selectPendingDeletes, triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
+  searchQuery?: string
 }
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
@@ -24,7 +26,10 @@ const timeFormatter = new Intl.DateTimeFormat('en-PH', {
   timeStyle: 'short',
 })
 
-export function TransactionList({ transactions }: TransactionListProps): ReactElement {
+export function TransactionList({
+  transactions,
+  searchQuery = '',
+}: TransactionListProps): ReactElement {
   const dispatch = useAppDispatch()
   const [selectedTx, setSelectedTx] = useState<TransactionResponse | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -204,9 +209,11 @@ export function TransactionList({ transactions }: TransactionListProps): ReactEl
                       </div>
                     )}
                     <div>
-                      <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {tx.description || tx.category?.name || 'Transaction'}
-                      </p>
+                      <SearchHighlight
+                        text={tx.description || tx.category?.name || 'Transaction'}
+                        query={searchQuery}
+                        className="font-semibold text-foreground group-hover:text-primary transition-colors block"
+                      />
                       <p className="text-xs text-muted-foreground">
                         {timeFormatter.format(new Date(tx.transactionDate))}
                       </p>
@@ -214,13 +221,19 @@ export function TransactionList({ transactions }: TransactionListProps): ReactEl
                   </div>
                   <div className="text-right">
                     <p
-                      className={
-                        tx.type === 'INCOME'
-                          ? 'font-bold text-ui-success'
-                          : 'font-bold text-foreground'
-                      }
+                      className={cn(
+                        'font-bold',
+                        tx.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
+                      )}
                     >
-                      {tx.type === 'INCOME' ? '+' : '-'} {currencyFormatter.format(tx.amount)}
+                      {tx.type === 'INCOME' ? '+' : '-'}
+                      <SearchHighlight
+                        text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
+                        query={searchQuery}
+                      />
+                      <span className="ml-1 text-[10px] text-muted-foreground font-normal">
+                        PHP
+                      </span>
                     </p>
                     <Badge
                       tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
