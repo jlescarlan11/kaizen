@@ -74,6 +74,9 @@ public class UserAccount extends BaseEntity {
     @Column(name = "balance", precision = 15, scale = 2)
     private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
 
+    @Column(name = "quick_add_preferences", columnDefinition = "TEXT")
+    private String quickAddPreferences;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_role",

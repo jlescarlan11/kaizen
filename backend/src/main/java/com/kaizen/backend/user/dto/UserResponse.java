@@ -11,6 +11,7 @@ public record UserResponse(
     BigDecimal balance,
     boolean budgetSetupSkipped,
     boolean tourCompleted,
-    boolean firstTransactionAdded
+    boolean firstTransactionAdded,
+    String quickAddPreferences
 ) {
 }

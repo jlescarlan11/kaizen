@@ -151,7 +151,8 @@ public class UserAccountService {
             account.getBalance(),
             account.isBudgetSetupSkipped(),
             account.isTourCompleted(),
-            account.isFirstTransactionAdded()
+            account.isFirstTransactionAdded(),
+            account.getQuickAddPreferences()
         );
     }
 
@@ -166,7 +167,8 @@ public class UserAccountService {
             account.getBalance(),
             account.isBudgetSetupSkipped(),
             account.isTourCompleted(),
-            account.isFirstTransactionAdded()
+            account.isFirstTransactionAdded(),
+            account.getQuickAddPreferences()
         );
     }
 }

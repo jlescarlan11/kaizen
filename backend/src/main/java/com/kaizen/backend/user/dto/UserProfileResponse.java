@@ -13,6 +13,7 @@ public record UserProfileResponse(
     BigDecimal balance,
     boolean budgetSetupSkipped,
     boolean tourCompleted,
-    boolean firstTransactionAdded
+    boolean firstTransactionAdded,
+    String quickAddPreferences
 ) {
 }

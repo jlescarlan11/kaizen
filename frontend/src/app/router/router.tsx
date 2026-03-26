@@ -43,6 +43,16 @@ const ManualBudgetSetupPage = lazy(() =>
     default: m.ManualBudgetSetupPage,
   })),
 )
+const TransactionEntryPage = lazy(() =>
+  import('../../features/transactions/TransactionEntryPage').then((m) => ({
+    default: m.TransactionEntryPage,
+  })),
+)
+const TransactionListPage = lazy(() =>
+  import('../../features/transactions/TransactionListPage').then((m) => ({
+    default: m.TransactionListPage,
+  })),
+)
 const BudgetsPage = lazy(() =>
   import('../../features/budgets/BudgetsPage').then((m) => ({
     default: m.BudgetsPage,
@@ -130,6 +140,26 @@ export const router = createBrowserRouter([
           {
             path: 'playground',
             element: <PlaygroundPage />,
+          },
+          {
+            path: 'transactions/add',
+            element: <TransactionEntryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'transactions',
+            element: <TransactionListPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
           },
           {
             path: 'budget',

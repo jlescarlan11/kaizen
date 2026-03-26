@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import { useGetTransactionsQuery } from '../../app/store/api/transactionApi'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { BudgetsEmptyState } from './BudgetsEmptyState'
 import { TransactionsEmptyState } from './TransactionsEmptyState'
+import { TransactionList } from '../transactions/components/TransactionList'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { DashboardTour } from './DashboardTour'
@@ -12,14 +14,6 @@ import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
 import { pageLayout } from '../../shared/styles/layout'
 
-interface HomePageProps {
-  /**
-   * Placeholder count until a transaction history endpoint exists (PRD Section 6b).
-   * Connect this to the same data used to render transaction rows so no extra requests are required.
-   */
-  transactionsCount?: number
-}
-
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
   currency: 'PHP',
@@ -27,7 +21,7 @@ const currencyFormatter = new Intl.NumberFormat('en-PH', {
   maximumFractionDigits: 2,
 })
 
-export function HomePage({ transactionsCount }: HomePageProps = {}): ReactElement {
+export function HomePage(): ReactElement {
   const { user } = useAuthState()
   const navigate = useNavigate()
 
@@ -37,12 +31,13 @@ export function HomePage({ transactionsCount }: HomePageProps = {}): ReactElemen
   const { data: budgetSummary, isFetching: isBudgetSummaryLoading } = useGetBudgetSummaryQuery()
   const budgetCount = budgetSummary?.budgetCount ?? 0
   const hasBudgets = budgetCount > 0
-  const hasTransactions = (transactionsCount ?? 0) > 0
+
+  const { data: transactions = [], isLoading: isTransactionsLoading } = useGetTransactionsQuery()
+  const hasTransactions = transactions.length > 0
 
   const formattedBalance = currencyFormatter.format(user?.balance ?? 0)
 
   const handleStartTransactions = () => {
-    // TODO: update ADD_TRANSACTION_ROUTE once the real add-transaction flow is available.
     navigate(ADD_TRANSACTION_ROUTE)
   }
 
@@ -61,31 +56,47 @@ export function HomePage({ transactionsCount }: HomePageProps = {}): ReactElemen
         </header>
 
         <div className={pageLayout.sectionCompactGap}>
-          <h2 className="text-xl font-semibold text-foreground">Transactions</h2>
-          {!hasTransactions ? (
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-foreground">Transactions</h2>
+            {hasTransactions && (
+              <Button
+                variant="ghost"
+                onClick={handleStartTransactions}
+                ref={addTransactionButtonRef}
+                className="text-sm font-medium"
+              >
+                Add entry
+              </Button>
+            )}
+          </div>
+
+          {isTransactionsLoading ? (
+            <Card className="border border-ui-border-subtle p-6">
+              <p className="text-sm text-muted-foreground">Loading transaction history...</p>
+            </Card>
+          ) : !hasTransactions ? (
             <>
               <TransactionsEmptyState
                 onAddTransaction={handleStartTransactions}
                 buttonRef={addTransactionButtonRef}
               />
               <p className="text-xs leading-snug text-subtle-foreground">
-                {/*
-                  The prompt shows until we have a transaction history endpoint.
-                  Replace this guard with a real `hasTransactions` flag once transaction data exists.
-                */}
                 No transaction history yet? Tap the button above to record your first entry.
               </p>
             </>
           ) : (
-            <Card className="space-y-2 border border-ui-border-subtle p-6">
-              <p className="text-base font-semibold text-foreground">
-                Transactions will appear here
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Once you record entries, this list will refresh automatically and the tour can
-                highlight the most recent item.
-              </p>
-            </Card>
+            <div className="space-y-4">
+              <TransactionList transactions={transactions.slice(0, 5)} />
+              {transactions.length > 5 && (
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/transactions')}
+                  className="w-full text-sm font-medium text-subtle-foreground"
+                >
+                  View all transactions
+                </Button>
+              )}
+            </div>
           )}
         </div>
 
