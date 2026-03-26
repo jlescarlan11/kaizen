@@ -7,6 +7,7 @@ import {
 import { ResponsiveModal } from '../../../shared/components/ResponsiveModal'
 import { Badge } from '../../../shared/components/Badge'
 import { Button } from '../../../shared/components/Button'
+import { Image as ImageIcon, FileText } from 'lucide-react'
 import { cn } from '../../../shared/lib/cn'
 import { useAppDispatch } from '../../../app/store/hooks'
 import { triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
@@ -103,6 +104,7 @@ export function TransactionDetailModal({
           description: transaction.description,
           categoryId: newCategoryId ? parseInt(newCategoryId) : undefined,
           paymentMethodId: transaction.paymentMethod?.id,
+          notes: transaction.notes,
         },
       }).unwrap()
       setIsRecategorizing(false)
@@ -122,6 +124,7 @@ export function TransactionDetailModal({
           description: transaction.description,
           categoryId: transaction.category?.id,
           paymentMethodId: newPaymentMethodId ? parseInt(newPaymentMethodId) : undefined,
+          notes: transaction.notes,
         },
       }).unwrap()
       setIsChangingPaymentMethod(false)
@@ -181,6 +184,66 @@ export function TransactionDetailModal({
               label="Description"
               value={transaction.description || '—'}
               italic={!transaction.description}
+            />
+
+            <DetailRow label="Notes" value={transaction.notes || '—'} italic={!transaction.notes} />
+
+            <DetailRow
+              label="Receipt"
+              content={
+                <div className="space-y-2">
+                  {transaction.attachments && transaction.attachments.length > 0 ? (
+                    transaction.attachments.map((att) => (
+                      <div key={att.id} className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between p-3 rounded-xl border border-ui-border-subtle bg-ui-surface-muted group transition-colors hover:border-primary/30">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
+                              {att.mimeType.startsWith('image/') ? (
+                                <ImageIcon size={20} />
+                              ) : (
+                                <FileText size={20} />
+                              )}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-foreground truncate max-w-[150px]">
+                                {att.filename}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
+                                {(att.fileSize / 1024).toFixed(1)} KB • {att.mimeType.split('/')[1]}
+                              </span>
+                            </div>
+                          </div>
+                          <a
+                            href={`/api/transactions/attachments/${att.id}/content`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-bold text-primary hover:underline uppercase tracking-wider"
+                          >
+                            Open
+                          </a>
+                        </div>
+                        {att.mimeType.startsWith('image/') && (
+                          <div className="rounded-xl overflow-hidden border border-ui-border-subtle bg-black/5 aspect-video flex items-center justify-center">
+                            <img
+                              src={`/api/transactions/attachments/${att.id}/content`}
+                              alt="Receipt Preview"
+                              className="max-h-full max-w-full object-contain"
+                              onError={(e) => {
+                                // Instruction 7: Offline Fallback
+                                e.currentTarget.style.display = 'none'
+                                e.currentTarget.parentElement!.innerHTML =
+                                  '<div class="flex flex-col items-center gap-2 p-6 text-muted-foreground"><div class="h-10 w-10 opacity-20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg></div><span class="text-xs font-bold uppercase tracking-wider">Receipt Unavailable</span><span class="text-[10px] opacity-60">File could not be loaded</span></div>'
+                              }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <span className="italic text-muted-foreground">—</span>
+                  )}
+                </div>
+              }
             />
 
             <DetailRow

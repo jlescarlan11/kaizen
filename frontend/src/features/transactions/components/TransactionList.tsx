@@ -217,16 +217,23 @@ export function TransactionList({
                       </div>
                     )}
                     <div>
-                      <SearchHighlight
-                        text={tx.description || tx.category?.name || 'Uncategorized'}
-                        query={searchQuery}
-                        className={cn(
-                          'font-semibold transition-colors block',
-                          tx.category
-                            ? 'text-foreground group-hover:text-primary'
-                            : 'text-amber-700 dark:text-amber-500',
+                      <div className="flex items-center gap-1.5">
+                        <SearchHighlight
+                          text={tx.description || tx.category?.name || 'Uncategorized'}
+                          query={searchQuery}
+                          className={cn(
+                            'font-semibold transition-colors block',
+                            tx.category
+                              ? 'text-foreground group-hover:text-primary'
+                              : 'text-amber-700 dark:text-amber-500',
+                          )}
+                        />
+                        {tx.notes && (
+                          <div title="Contains notes" className="text-muted-foreground/60 shrink-0">
+                            <NoteIcon />
+                          </div>
                         )}
-                      />
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {timeFormatter.format(new Date(tx.transactionDate))}
                         {tx.paymentMethod && (
@@ -316,6 +323,27 @@ function IncomeIcon() {
     >
       <path d="M7 10l5-5 5 5" />
       <path d="M12 5v14" />
+    </svg>
+  )
+}
+
+function NoteIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
+      <path d="M15 3v6h6" />
+      <path d="M9 13h6" />
+      <path d="M9 17h3" />
     </svg>
   )
 }

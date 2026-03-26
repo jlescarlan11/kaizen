@@ -14,6 +14,7 @@ import com.kaizen.backend.common.entity.TransactionType;
 import com.kaizen.backend.payment.dto.PaymentMethodResponse;
 import com.kaizen.backend.payment.entity.PaymentMethod;
 import com.kaizen.backend.payment.repository.PaymentMethodRepository;
+import com.kaizen.backend.transaction.dto.AttachmentResponse;
 import com.kaizen.backend.transaction.dto.BalanceHistoryResponse;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
@@ -36,17 +37,20 @@ public class TransactionService {
     private final UserAccountRepository userAccountRepository;
     private final CategoryRepository categoryRepository;
     private final PaymentMethodRepository paymentMethodRepository;
+    private final ReceiptAttachmentService attachmentService;
 
     public TransactionService(
         TransactionRepository transactionRepository,
         UserAccountRepository userAccountRepository,
         CategoryRepository categoryRepository,
-        PaymentMethodRepository paymentMethodRepository
+        PaymentMethodRepository paymentMethodRepository,
+        ReceiptAttachmentService attachmentService
     ) {
         this.transactionRepository = transactionRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
         this.paymentMethodRepository = paymentMethodRepository;
+        this.attachmentService = attachmentService;
     }
 
     @Transactional
@@ -67,6 +71,7 @@ public class TransactionService {
         }
 
         LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
+        String notes = (request.notes() == null || request.notes().isBlank()) ? null : request.notes();
 
         Transaction transaction = new Transaction(
             account,
@@ -75,7 +80,9 @@ public class TransactionService {
             request.amount(),
             request.type(),
             request.description(),
-            date
+            date,
+            null,
+            notes
         );
 
         Transaction saved = transactionRepository.save(transaction);
@@ -152,6 +159,7 @@ public class TransactionService {
         transaction.setType(request.type());
         transaction.setDescription(request.description());
         transaction.setCategory(category);
+        transaction.setNotes((request.notes() == null || request.notes().isBlank()) ? null : request.notes());
 
         PaymentMethod paymentMethod = null;
         if (request.paymentMethodId() != null) {
@@ -186,6 +194,9 @@ public class TransactionService {
             throw new IllegalArgumentException("You do not have permission to delete this transaction.");
         }
 
+        // Cascade storage deletion
+        attachmentService.deleteAttachmentsForTransaction(id);
+
         transactionRepository.delete(transaction);
 
         // Instruction 2: Balance Auto-Calculation Trigger
@@ -205,6 +216,8 @@ public class TransactionService {
             if (!transaction.getUserAccount().getId().equals(account.getId())) {
                 throw new IllegalArgumentException("You do not have permission to delete transaction with id: " + transaction.getId());
             }
+            // Cascade storage deletion
+            attachmentService.deleteAttachmentsForTransaction(transaction.getId());
         }
 
         transactionRepository.deleteAll(transactions);
@@ -333,7 +346,17 @@ public class TransactionService {
             transaction.getDescription(),
             categoryResponse,
             paymentMethodResponse,
-            transaction.getReconciliationIncrease()
+            transaction.getReconciliationIncrease(),
+            transaction.getNotes(),
+            attachmentService.getAttachmentsForTransaction(transaction.getId()).stream()
+                .map(a -> new AttachmentResponse(
+                    a.getId(),
+                    a.getFilename(),
+                    a.getFileSize(),
+                    a.getMimeType(),
+                    a.getStorageReference()
+                ))
+                .collect(Collectors.toList())
         );
     }
 }

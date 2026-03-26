@@ -22,5 +22,7 @@ public record TransactionRequest(
 
     Long categoryId,
 
-    Long paymentMethodId
+    Long paymentMethodId,
+
+    String notes
 ) {}

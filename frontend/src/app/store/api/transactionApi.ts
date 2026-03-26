@@ -11,6 +11,7 @@ export interface TransactionRequest {
   description?: string
   categoryId?: number
   paymentMethodId?: number
+  notes?: string
 }
 
 export interface TransactionResponse {
@@ -22,6 +23,16 @@ export interface TransactionResponse {
   category?: CategoryResponse
   paymentMethod?: PaymentMethod
   reconciliationIncrease?: boolean
+  notes?: string
+  attachments?: AttachmentResponse[]
+}
+
+export interface AttachmentResponse {
+  id: number
+  filename: string
+  fileSize: number
+  mimeType: string
+  storageReference: string
 }
 
 export interface ReconciliationRequest {
@@ -97,6 +108,31 @@ export const transactionApi = baseApi.injectEndpoints({
       query: () => '/transactions/history',
       providesTags: ['Transactions'],
     }),
+    uploadAttachment: builder.mutation<AttachmentResponse, { transactionId: number; file: File }>({
+      query: ({ transactionId, file }) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        return {
+          url: `/transactions/${transactionId}/attachments`,
+          method: 'POST',
+          body: formData,
+        }
+      },
+      invalidatesTags: (_result, _error, { transactionId }) => [
+        { type: 'Transactions', id: transactionId },
+        'Transactions',
+      ],
+    }),
+    deleteAttachment: builder.mutation<void, { transactionId: number; attachmentId: number }>({
+      query: ({ attachmentId }) => ({
+        url: `/transactions/attachments/${attachmentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (_result, _error, { transactionId }) => [
+        { type: 'Transactions', id: transactionId },
+        'Transactions',
+      ],
+    }),
   }),
 })
 
@@ -109,4 +145,6 @@ export const {
   useBulkDeleteTransactionsMutation,
   useReconcileBalanceMutation,
   useGetBalanceHistoryQuery,
+  useUploadAttachmentMutation,
+  useDeleteAttachmentMutation,
 } = transactionApi

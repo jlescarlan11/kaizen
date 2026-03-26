@@ -15,5 +15,7 @@ public record TransactionResponse(
     String description,
     CategoryResponse category,
     PaymentMethodResponse paymentMethod,
-    Boolean reconciliationIncrease
+    Boolean reconciliationIncrease,
+    String notes,
+    java.util.List<AttachmentResponse> attachments
 ) {}

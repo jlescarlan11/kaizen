@@ -57,6 +57,9 @@ public class Transaction extends BaseEntity {
     @Column(name = "reconciliation_increase")
     private Boolean reconciliationIncrease;
 
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
     public Transaction(
         UserAccount userAccount,
         Category category,
@@ -66,7 +69,7 @@ public class Transaction extends BaseEntity {
         String description,
         LocalDateTime transactionDate
     ) {
-        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null);
+        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null, null);
     }
 
     public Transaction(
@@ -79,6 +82,20 @@ public class Transaction extends BaseEntity {
         LocalDateTime transactionDate,
         Boolean reconciliationIncrease
     ) {
+        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, reconciliationIncrease, null);
+    }
+
+    public Transaction(
+        UserAccount userAccount,
+        Category category,
+        PaymentMethod paymentMethod,
+        BigDecimal amount,
+        TransactionType type,
+        String description,
+        LocalDateTime transactionDate,
+        Boolean reconciliationIncrease,
+        String notes
+    ) {
         this.userAccount = userAccount;
         this.category = category;
         this.paymentMethod = paymentMethod;
@@ -87,5 +104,6 @@ public class Transaction extends BaseEntity {
         this.description = description;
         this.transactionDate = transactionDate;
         this.reconciliationIncrease = reconciliationIncrease;
+        this.notes = notes;
     }
 }

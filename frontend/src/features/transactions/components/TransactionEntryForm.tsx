@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Input } from '../../../shared/components/Input'
-import { Button } from '../../../shared/components/Button'
-import { Card } from '../../../shared/components/Card'
+import { Input, TextArea, Button, Card } from '../../../shared/components'
 import { TransactionTypeToggle } from './TransactionTypeToggle'
 import {
   useCreateTransactionMutation,
   useUpdateTransactionMutation,
+  useUploadAttachmentMutation,
+  useDeleteAttachmentMutation,
   useGetTransactionQuery,
   type TransactionType,
 } from '../../../app/store/api/transactionApi'
 import { CategorySelector } from '../../categories'
 import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
+import { ReceiptPicker } from './ReceiptPicker'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 
 interface TransactionEntryFormProps {
@@ -24,6 +25,8 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const { user } = useAuthState()
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation()
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation()
+  const [uploadAttachment] = useUploadAttachmentMutation()
+  const [deleteAttachment] = useDeleteAttachmentMutation()
 
   // Fetch data if editing
   const { data: editData, isLoading: isFetching } = useGetTransactionQuery(editId!, {
@@ -37,6 +40,8 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const [type, setType] = useState<TransactionType>('EXPENSE')
   const [transactionDate, setTransactionDate] = useState('')
   const [description, setDescription] = useState('')
+  const [notes, setNotes] = useState('')
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -54,6 +59,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setType(editData.type)
       setTransactionDate(editData.transactionDate.split('T')[0])
       setDescription(editData.description || '')
+      setNotes(editData.notes || '')
       setCategoryId(editData.category?.id.toString() || null)
       setPaymentMethodId(editData.paymentMethod?.id.toString() || null)
       isInitialized.current = true
@@ -63,6 +69,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       // Story 13: Date defaults to current date for duplicate
       setTransactionDate('')
       setDescription(duplicateFrom.description || '')
+      setNotes(duplicateFrom.notes || '')
       setCategoryId(duplicateFrom.categoryId?.toString() || null)
       setPaymentMethodId(duplicateFrom.paymentMethodId?.toString() || null)
       isInitialized.current = true
@@ -107,14 +114,36 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       description: description || undefined,
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
+      notes: notes || undefined,
     }
 
     try {
+      let savedId: number
       if (editId) {
         await updateTransaction({ id: editId, payload }).unwrap()
+        savedId = editId
       } else {
-        await createTransaction(payload).unwrap()
+        const result = await createTransaction(payload).unwrap()
+        savedId = result.id
       }
+
+      // Handle receipt attachment
+      if (receiptFile) {
+        // If editing and already has an attachment, delete it first (Replace behavior)
+        if (editId && editData?.attachments && editData.attachments.length > 0) {
+          for (const att of editData.attachments) {
+            await deleteAttachment({ transactionId: editId, attachmentId: att.id }).unwrap()
+          }
+        }
+
+        try {
+          await uploadAttachment({ transactionId: savedId, file: receiptFile }).unwrap()
+        } catch (uploadErr) {
+          // Attachment failure must not block transaction save (Story 31)
+          console.error('Failed to upload receipt:', uploadErr)
+        }
+      }
+
       navigate('/')
     } catch (err) {
       console.error('Failed to save transaction:', err)
@@ -167,6 +196,19 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           placeholder="What was this for?"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <TextArea
+          label="Notes (Optional)"
+          placeholder="Add extra details..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+
+        <ReceiptPicker
+          file={receiptFile}
+          onFileChange={setReceiptFile}
+          existingAttachments={editData?.attachments}
         />
 
         {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
