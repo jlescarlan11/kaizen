@@ -104,8 +104,8 @@ export function BalanceSetupStep(): ReactElement {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="space-y-5">
+    <>
+      <div className="flex flex-col gap-6 pb-28 sm:pb-10">
         <div className="space-y-2">
           <Input
             label="Starting funds"
@@ -173,23 +173,23 @@ export function BalanceSetupStep(): ReactElement {
             refine how your money is organized later.
           </p>
         </div>
+
+        {onboardingError ? (
+          <OnboardingErrorBlock
+            error={onboardingError}
+            onRetry={retry}
+            isRetryDisabled={isRetryDisabled}
+          />
+        ) : null}
+
+        {error ? (
+          <p className={typography['body-sm']} role="alert">
+            {error}
+          </p>
+        ) : null}
       </div>
 
-      {onboardingError ? (
-        <OnboardingErrorBlock
-          error={onboardingError}
-          onRetry={retry}
-          isRetryDisabled={isRetryDisabled}
-        />
-      ) : null}
-
-      {error ? (
-        <p className={typography['body-sm']} role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="fixed inset-x-0 bottom-0 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <Button
           className="h-12 w-full rounded-xl text-base font-semibold sm:h-10 sm:rounded-md sm:text-sm"
           onClick={handleContinue}
@@ -199,8 +199,6 @@ export function BalanceSetupStep(): ReactElement {
           Continue to budgets
         </Button>
       </div>
-
-      <div className="h-20 sm:hidden" aria-hidden="true" />
-    </div>
+    </>
   )
 }
