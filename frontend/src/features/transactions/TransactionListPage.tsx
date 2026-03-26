@@ -11,8 +11,13 @@ import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionSort } from './components/TransactionSort'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
+import { ReconciliationModal } from './components/ReconciliationModal'
+import { History } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
+import { Button } from '../../shared/components/Button'
+import { RefreshCw } from 'lucide-react'
 import type { FilterState } from './types'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
@@ -29,6 +34,8 @@ export function TransactionListPage(): ReactElement {
   // NOTE: Full load implemented with no pagination per PRD Instruction 1 constraints.
   const { data: transactions = [], isLoading } = useGetTransactionsQuery()
   const pendingDeletes = useAppSelector(selectPendingDeletes)
+
+  const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
 
   // 1. Pipeline Inputs (State Management)
   const [searchQuery, setSearchQuery] = useState('')
@@ -72,21 +79,51 @@ export function TransactionListPage(): ReactElement {
 
           {/* Running Balance Card */}
           {!isLoading && transactions.length > 0 && (
-            <Card className="flex flex-col items-center md:items-end justify-center px-6 py-3 border-ui-border-subtle bg-ui-surface shadow-sm">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
-                Total Balance
-              </p>
-              <p
-                className={cn(
-                  'text-2xl font-bold tracking-tight',
-                  balance >= 0 ? 'text-ui-success' : 'text-ui-error',
-                )}
-              >
-                {currencyFormatter.format(balance)}
-              </p>
-            </Card>
+            <div className="flex flex-col items-center md:items-end gap-2">
+              <Card className="flex flex-col items-center md:items-end justify-center px-6 py-3 border-ui-border-subtle bg-ui-surface shadow-sm">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
+                  Total Balance
+                </p>
+                <p
+                  className={cn(
+                    'text-2xl font-bold tracking-tight',
+                    balance >= 0 ? 'text-ui-success' : 'text-ui-error',
+                  )}
+                >
+                  {currencyFormatter.format(balance)}
+                </p>
+              </Card>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+                  onClick={() => setIsReconcileModalOpen(true)}
+                >
+                  <RefreshCw className="h-3 w-3" />
+                  Reconcile
+                </Button>
+                <Link to="/transactions/history">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    View History
+                  </Button>
+                </Link>
+              </div>
+            </div>
           )}
         </div>
+
+        {/* Reconciliation Modal */}
+        <ReconciliationModal
+          isOpen={isReconcileModalOpen}
+          onClose={() => setIsReconcileModalOpen(false)}
+          currentBalance={balance}
+        />
 
         {/* Search, Filter, and Sort Controls */}
         {!isLoading && transactions.length > 0 && (

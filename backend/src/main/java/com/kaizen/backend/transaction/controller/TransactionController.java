@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.transaction.dto.BalanceHistoryResponse;
 import com.kaizen.backend.transaction.dto.BulkDeleteRequest;
+import com.kaizen.backend.transaction.dto.ReconciliationRequest;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.service.TransactionService;
@@ -106,5 +108,26 @@ public class TransactionController {
         @Valid @RequestBody BulkDeleteRequest request
     ) {
         transactionService.bulkDeleteTransactions(userDetails.getUsername(), request.ids());
+    }
+
+    @Operation(
+        summary = "Reconcile balance",
+        description = "Creates a reconciliation adjustment transaction to match the app balance with the real-world balance."
+    )
+    @PostMapping("/reconcile")
+    public TransactionResponse reconcileBalance(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody ReconciliationRequest request
+    ) {
+        return transactionService.reconcileBalance(userDetails.getUsername(), request.realWorldBalance(), request.description());
+    }
+
+    @Operation(
+        summary = "Get balance history",
+        description = "Returns a chronological history of the user's balance."
+    )
+    @GetMapping("/history")
+    public BalanceHistoryResponse getBalanceHistory(@AuthenticationPrincipal UserDetails userDetails) {
+        return transactionService.getBalanceHistory(userDetails.getUsername());
     }
 }

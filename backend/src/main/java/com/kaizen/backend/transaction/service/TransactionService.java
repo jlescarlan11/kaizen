@@ -14,12 +14,19 @@ import com.kaizen.backend.common.entity.TransactionType;
 import com.kaizen.backend.payment.dto.PaymentMethodResponse;
 import com.kaizen.backend.payment.entity.PaymentMethod;
 import com.kaizen.backend.payment.repository.PaymentMethodRepository;
+import com.kaizen.backend.transaction.dto.BalanceHistoryResponse;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.entity.Transaction;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -73,12 +80,8 @@ public class TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        // Instruction 3: Balance Recalculation on Save
-        if (saved.getType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance().add(saved.getAmount()));
-        } else {
-            account.setBalance(account.getBalance().subtract(saved.getAmount()));
-        }
+        // Instruction 2: Balance Auto-Calculation Trigger
+        recalculateUserBalance(account);
 
         // Side effect: Mark first transaction added
         if (!account.isFirstTransactionAdded()) {
@@ -138,13 +141,6 @@ public class TransactionService {
             throw new IllegalArgumentException("You do not have permission to update this transaction.");
         }
 
-        // Revert old transaction impact on balance
-        if (transaction.getType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-        } else {
-            account.setBalance(account.getBalance().add(transaction.getAmount()));
-        }
-
         // Update fields
         Category category = null;
         if (request.categoryId() != null) {
@@ -170,12 +166,8 @@ public class TransactionService {
 
         Transaction saved = transactionRepository.save(transaction);
 
-        // Apply new transaction impact on balance
-        if (saved.getType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance().add(saved.getAmount()));
-        } else {
-            account.setBalance(account.getBalance().subtract(saved.getAmount()));
-        }
+        // Instruction 2: Balance Auto-Calculation Trigger
+        recalculateUserBalance(account);
 
         userAccountRepository.save(account);
 
@@ -194,14 +186,11 @@ public class TransactionService {
             throw new IllegalArgumentException("You do not have permission to delete this transaction.");
         }
 
-        // Revert transaction impact on balance
-        if (transaction.getType() == TransactionType.INCOME) {
-            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-        } else {
-            account.setBalance(account.getBalance().add(transaction.getAmount()));
-        }
-
         transactionRepository.delete(transaction);
+
+        // Instruction 2: Balance Auto-Calculation Trigger
+        recalculateUserBalance(account);
+
         userAccountRepository.save(account);
     }
 
@@ -216,17 +205,101 @@ public class TransactionService {
             if (!transaction.getUserAccount().getId().equals(account.getId())) {
                 throw new IllegalArgumentException("You do not have permission to delete transaction with id: " + transaction.getId());
             }
-
-            // Revert transaction impact on balance
-            if (transaction.getType() == TransactionType.INCOME) {
-                account.setBalance(account.getBalance().subtract(transaction.getAmount()));
-            } else {
-                account.setBalance(account.getBalance().add(transaction.getAmount()));
-            }
         }
 
         transactionRepository.deleteAll(transactions);
+
+        // Instruction 2: Balance Auto-Calculation Trigger
+        recalculateUserBalance(account);
+
         userAccountRepository.save(account);
+    }
+
+    public BalanceHistoryResponse getBalanceHistory(String email) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        List<Transaction> transactions = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId());
+        
+        // Sort chronologically for running balance computation
+        List<Transaction> chronological = new ArrayList<>(transactions);
+        chronological.sort(Comparator.comparing(Transaction::getTransactionDate).thenComparing(Transaction::getId));
+
+        List<BalanceHistoryResponse.BalanceHistoryEntry> history = new ArrayList<>();
+        java.math.BigDecimal runningBalance = java.math.BigDecimal.ZERO;
+
+        for (Transaction t : chronological) {
+            if (t.getType() == TransactionType.INCOME) {
+                runningBalance = runningBalance.add(t.getAmount());
+            } else if (t.getType() == TransactionType.EXPENSE) {
+                runningBalance = runningBalance.subtract(t.getAmount());
+            } else if (t.getType() == TransactionType.RECONCILIATION) {
+                if (Boolean.TRUE.equals(t.getReconciliationIncrease())) {
+                    runningBalance = runningBalance.add(t.getAmount());
+                } else {
+                    runningBalance = runningBalance.subtract(t.getAmount());
+                }
+            }
+
+            history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
+                t.getTransactionDate(),
+                runningBalance,
+                t.getDescription(),
+                t.getId(),
+                t.getType().name()
+            ));
+        }
+
+        // Return in reverse chronological order as per Instruction 7
+        Collections.reverse(history);
+        return new BalanceHistoryResponse(history);
+    }
+
+    @Transactional
+    public TransactionResponse reconcileBalance(String email, java.math.BigDecimal realWorldBalance, String description) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        java.math.BigDecimal currentBalance = account.getBalance();
+        java.math.BigDecimal difference = realWorldBalance.subtract(currentBalance);
+
+        if (difference.compareTo(java.math.BigDecimal.ZERO) == 0) {
+            return null; // Or throw an exception if preferred, but PRD says "no adjustment created when balances match"
+        }
+
+        Boolean increase = difference.compareTo(java.math.BigDecimal.ZERO) > 0;
+        java.math.BigDecimal absoluteDifference = difference.abs();
+
+        Transaction reconciliation = new Transaction(
+            account,
+            null, // No category
+            null, // No specific payment method (could be improved if we have per-method balance)
+            absoluteDifference,
+            TransactionType.RECONCILIATION,
+            description != null ? description : "Balance Reconciliation Adjustment",
+            LocalDateTime.now(),
+            increase
+        );
+
+        Transaction saved = transactionRepository.save(reconciliation);
+        
+        recalculateUserBalance(account);
+        userAccountRepository.save(account);
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public void recalculateUserBalance(UserAccount account) {
+        java.math.BigDecimal netAmount = transactionRepository.calculateNetTransactionAmount(account.getId())
+            .orElse(java.math.BigDecimal.ZERO);
+        
+        // Instruction 1 & 8: Include opening balance if confirmed. 
+        // For now, we assume account.getBalance() might contain an opening balance seed 
+        // if it was set during onboarding but we don't have a separate field yet.
+        // However, Section 6a says derived EXCLUSIVELY from transaction store.
+        // So we just use netAmount for now.
+        account.setBalance(netAmount);
     }
 
     private TransactionResponse mapToResponse(Transaction transaction) {
@@ -259,7 +332,8 @@ public class TransactionService {
             transaction.getTransactionDate(),
             transaction.getDescription(),
             categoryResponse,
-            paymentMethodResponse
+            paymentMethodResponse,
+            transaction.getReconciliationIncrease()
         );
     }
 }

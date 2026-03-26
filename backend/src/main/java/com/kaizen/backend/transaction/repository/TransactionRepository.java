@@ -16,7 +16,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
 
-    @Query("SELECT SUM(CASE WHEN t.type = 'INCOME' THEN t.amount ELSE -t.amount END) FROM Transaction t WHERE t.userAccount.id = :userId")
+    @Query("SELECT SUM(CASE " +
+           "  WHEN t.type = 'INCOME' THEN t.amount " +
+           "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
+           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
+           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
+           "  ELSE 0 END) " +
+           "FROM Transaction t WHERE t.userAccount.id = :userId")
     Optional<java.math.BigDecimal> calculateNetTransactionAmount(@Param("userId") Long userId);
 
     long countByCategoryId(Long categoryId);

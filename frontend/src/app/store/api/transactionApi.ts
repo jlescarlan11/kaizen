@@ -2,7 +2,7 @@ import { baseApi } from './baseApi'
 import type { CategoryResponse } from './categoryApi'
 import type { PaymentMethod } from '../../../features/payment-methods/types'
 
-export type TransactionType = 'INCOME' | 'EXPENSE'
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
 
 export interface TransactionRequest {
   amount: number
@@ -21,6 +21,24 @@ export interface TransactionResponse {
   description: string
   category?: CategoryResponse
   paymentMethod?: PaymentMethod
+  reconciliationIncrease?: boolean
+}
+
+export interface ReconciliationRequest {
+  realWorldBalance: number
+  description?: string
+}
+
+export interface BalanceHistoryEntry {
+  date: string
+  balance: number
+  eventDescription: string
+  transactionId: number
+  transactionType: TransactionType
+}
+
+export interface BalanceHistoryResponse {
+  history: BalanceHistoryEntry[]
 }
 
 export const transactionApi = baseApi.injectEndpoints({
@@ -67,6 +85,18 @@ export const transactionApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
+    reconcileBalance: builder.mutation<TransactionResponse, ReconciliationRequest>({
+      query: (payload) => ({
+        url: '/transactions/reconcile',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+    }),
+    getBalanceHistory: builder.query<BalanceHistoryResponse, void>({
+      query: () => '/transactions/history',
+      providesTags: ['Transactions'],
+    }),
   }),
 })
 
@@ -77,4 +107,6 @@ export const {
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
   useBulkDeleteTransactionsMutation,
+  useReconcileBalanceMutation,
+  useGetBalanceHistoryQuery,
 } = transactionApi

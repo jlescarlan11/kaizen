@@ -65,10 +65,15 @@ export function formatGroupDate(dateStr: string): string {
 /**
  * Calculates the total running balance from a set of transactions.
  * @param transactions Array of TransactionResponse objects.
- * @returns Total balance (Income - Expense).
+ * @returns Total balance (Income - Expense + Reconciliation).
  */
 export function calculateRunningBalance(transactions: TransactionResponse[]): number {
   return transactions.reduce((acc, tx) => {
-    return tx.type === 'INCOME' ? acc + tx.amount : acc - tx.amount
+    if (tx.type === 'INCOME') return acc + tx.amount
+    if (tx.type === 'EXPENSE') return acc - tx.amount
+    if (tx.type === 'RECONCILIATION') {
+      return tx.reconciliationIncrease ? acc + tx.amount : acc - tx.amount
+    }
+    return acc
   }, 0)
 }

@@ -14,5 +14,6 @@ public record TransactionResponse(
     LocalDateTime transactionDate,
     String description,
     CategoryResponse category,
-    PaymentMethodResponse paymentMethod
+    PaymentMethodResponse paymentMethod,
+    Boolean reconciliationIncrease
 ) {}

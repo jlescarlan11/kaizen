@@ -45,7 +45,7 @@ public class Transaction extends BaseEntity {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private TransactionType type;
 
     @Column(length = 255)
@@ -53,6 +53,9 @@ public class Transaction extends BaseEntity {
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDateTime transactionDate;
+
+    @Column(name = "reconciliation_increase")
+    private Boolean reconciliationIncrease;
 
     public Transaction(
         UserAccount userAccount,
@@ -63,6 +66,19 @@ public class Transaction extends BaseEntity {
         String description,
         LocalDateTime transactionDate
     ) {
+        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null);
+    }
+
+    public Transaction(
+        UserAccount userAccount,
+        Category category,
+        PaymentMethod paymentMethod,
+        BigDecimal amount,
+        TransactionType type,
+        String description,
+        LocalDateTime transactionDate,
+        Boolean reconciliationIncrease
+    ) {
         this.userAccount = userAccount;
         this.category = category;
         this.paymentMethod = paymentMethod;
@@ -70,5 +86,6 @@ public class Transaction extends BaseEntity {
         this.type = type;
         this.description = description;
         this.transactionDate = transactionDate;
+        this.reconciliationIncrease = reconciliationIncrease;
     }
 }

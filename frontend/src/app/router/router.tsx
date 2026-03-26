@@ -63,6 +63,11 @@ const TransactionListPage = lazy(() =>
     default: m.TransactionListPage,
   })),
 )
+const BalanceHistoryPage = lazy(() =>
+  import('../../features/transactions/BalanceHistoryPage').then((m) => ({
+    default: m.BalanceHistoryPage,
+  })),
+)
 const BudgetsPage = lazy(() =>
   import('../../features/budgets/BudgetsPage').then((m) => ({
     default: m.BudgetsPage,
@@ -164,6 +169,16 @@ export const router = createBrowserRouter([
           {
             path: 'transactions/edit/:id',
             element: <TransactionEntryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+            },
+          },
+          {
+            path: 'transactions/history',
+            element: <BalanceHistoryPage />,
             handle: {
               backButton: {
                 label: 'Back',
