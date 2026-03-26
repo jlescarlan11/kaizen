@@ -34,7 +34,44 @@ export const transactionApi = baseApi.injectEndpoints({
       query: () => '/transactions',
       providesTags: ['Transactions'],
     }),
+    getTransaction: builder.query<TransactionResponse, number>({
+      query: (id) => `/transactions/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Transactions', id }],
+    }),
+    updateTransaction: builder.mutation<
+      TransactionResponse,
+      { id: number; payload: TransactionRequest }
+    >({
+      query: ({ id, payload }) => ({
+        url: `/transactions/${id}`,
+        method: 'PUT',
+        body: payload,
+      }),
+      invalidatesTags: ['Transactions', 'User'],
+    }),
+    deleteTransaction: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/transactions/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Transactions', 'User'],
+    }),
+    bulkDeleteTransactions: builder.mutation<void, number[]>({
+      query: (ids) => ({
+        url: '/transactions/bulk-delete',
+        method: 'POST',
+        body: { ids },
+      }),
+      invalidatesTags: ['Transactions', 'User'],
+    }),
   }),
 })
 
-export const { useCreateTransactionMutation, useGetTransactionsQuery } = transactionApi
+export const {
+  useCreateTransactionMutation,
+  useGetTransactionsQuery,
+  useGetTransactionQuery,
+  useUpdateTransactionMutation,
+  useDeleteTransactionMutation,
+  useBulkDeleteTransactionsMutation,
+} = transactionApi

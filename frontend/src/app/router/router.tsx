@@ -152,6 +152,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'transactions/edit/:id',
+            element: <TransactionEntryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+            },
+          },
+          {
             path: 'transactions',
             element: <TransactionListPage />,
             handle: {

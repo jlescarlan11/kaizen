@@ -1,5 +1,5 @@
-import { useState, type ReactElement } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, type ReactElement } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Input } from '../../../shared/components/Input'
 import { Button } from '../../../shared/components/Button'
 import { Select } from '../../../shared/components/Select'
@@ -7,36 +7,77 @@ import { Card } from '../../../shared/components/Card'
 import { TransactionTypeToggle } from './TransactionTypeToggle'
 import {
   useCreateTransactionMutation,
+  useUpdateTransactionMutation,
+  useGetTransactionQuery,
   type TransactionType,
 } from '../../../app/store/api/transactionApi'
 import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 
-export function TransactionEntryForm(): ReactElement {
+interface TransactionEntryFormProps {
+  editId?: number
+}
+
+export function TransactionEntryForm({ editId }: TransactionEntryFormProps): ReactElement {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuthState()
-  const [createTransaction, { isLoading }] = useCreateTransactionMutation()
+  const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation()
+  const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation()
   const { data: categories = [] } = useGetCategoriesQuery()
 
-  // Instruction 8: Quick Add Pre-fill on Open
-  const initialPrefs = (() => {
-    if (!user?.quickAddPreferences) return null
-    try {
-      return JSON.parse(user.quickAddPreferences)
-    } catch (err) {
-      console.error('Failed to parse Quick Add preferences:', err)
-      return null
-    }
-  })()
+  // Fetch data if editing
+  const { data: editData, isLoading: isFetching } = useGetTransactionQuery(editId!, {
+    skip: !editId,
+  })
 
-  const [amount, setAmount] = useState(initialPrefs?.amount?.toString() ?? '')
-  const [type, setType] = useState<TransactionType>(initialPrefs?.type ?? 'EXPENSE')
+  // Story 13: Duplicate pre-population
+  const duplicateFrom = location.state?.duplicateFrom
+
+  const [amount, setAmount] = useState('')
+  const [type, setType] = useState<TransactionType>('EXPENSE')
   const [transactionDate, setTransactionDate] = useState('')
   const [description, setDescription] = useState('')
-  const [categoryId, setCategoryId] = useState(initialPrefs?.categoryId?.toString() ?? '')
+  const [categoryId, setCategoryId] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const isInitialized = useRef(false)
 
   const today = new Date().toISOString().split('T')[0]
+
+  // Initialize form
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (isInitialized.current) return
+
+    if (editId && editData) {
+      setAmount(editData.amount.toString())
+      setType(editData.type)
+      setTransactionDate(editData.transactionDate.split('T')[0])
+      setDescription(editData.description || '')
+      setCategoryId(editData.category?.id.toString() || '')
+      isInitialized.current = true
+    } else if (duplicateFrom) {
+      setAmount(duplicateFrom.amount.toString())
+      setType(duplicateFrom.type)
+      // Story 13: Date defaults to current date for duplicate
+      setTransactionDate('')
+      setDescription(duplicateFrom.description || '')
+      setCategoryId(duplicateFrom.categoryId?.toString() || '')
+      isInitialized.current = true
+    } else if (user?.quickAddPreferences) {
+      // Instruction 8: Quick Add Pre-fill
+      try {
+        const prefs = JSON.parse(user.quickAddPreferences)
+        setAmount(prefs.amount?.toString() ?? '')
+        setType(prefs.type ?? 'EXPENSE')
+        setCategoryId(prefs.categoryId?.toString() ?? '')
+        isInitialized.current = true
+      } catch (err) {
+        console.error('Failed to parse Quick Add preferences:', err)
+      }
+    }
+  }, [editId, editData, duplicateFrom, user])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -56,20 +97,33 @@ export function TransactionEntryForm(): ReactElement {
       return
     }
 
+    const payload = {
+      amount: parseFloat(amount),
+      type,
+      transactionDate: transactionDate ? `${transactionDate}T00:00:00` : undefined,
+      description: description || undefined,
+      categoryId: categoryId ? parseInt(categoryId) : undefined,
+    }
+
     try {
-      await createTransaction({
-        amount: parseFloat(amount),
-        type,
-        transactionDate: transactionDate ? `${transactionDate}T00:00:00` : undefined,
-        description: description || undefined,
-        categoryId: categoryId ? parseInt(categoryId) : undefined,
-      }).unwrap()
+      if (editId) {
+        await updateTransaction({ id: editId, payload }).unwrap()
+      } else {
+        await createTransaction(payload).unwrap()
+      }
       navigate('/')
     } catch (err) {
       console.error('Failed to save transaction:', err)
-      // Basic error handling
       setErrors({ form: 'An error occurred while saving. Please try again.' })
     }
+  }
+
+  if (isFetching) {
+    return (
+      <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </Card>
+    )
   }
 
   const categoryOptions = categories.map((cat) => ({
@@ -102,7 +156,7 @@ export function TransactionEntryForm(): ReactElement {
           value={transactionDate}
           onChange={(e) => setTransactionDate(e.target.value)}
           error={errors.transactionDate}
-          helperText="Captured at submission if not set."
+          helperText={editId ? undefined : 'Captured at submission if not set.'}
         />
 
         <Select
@@ -126,8 +180,8 @@ export function TransactionEntryForm(): ReactElement {
           <Button type="button" variant="ghost" className="flex-1" onClick={() => navigate(-1)}>
             Cancel
           </Button>
-          <Button type="submit" className="flex-1" isLoading={isLoading}>
-            Save Transaction
+          <Button type="submit" className="flex-1" isLoading={isCreating || isUpdating}>
+            {editId ? 'Save Changes' : 'Save Transaction'}
           </Button>
         </div>
       </form>

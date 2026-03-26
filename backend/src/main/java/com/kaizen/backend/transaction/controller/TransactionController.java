@@ -5,13 +5,17 @@ import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.transaction.dto.BulkDeleteRequest;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.service.TransactionService;
@@ -51,5 +55,56 @@ public class TransactionController {
     @GetMapping
     public List<TransactionResponse> getTransactions(@AuthenticationPrincipal UserDetails userDetails) {
         return transactionService.getTransactions(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Get a single transaction",
+        description = "Returns details of a specific transaction by ID."
+    )
+    @GetMapping("/{id}")
+    public TransactionResponse getTransaction(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        return transactionService.getTransaction(userDetails.getUsername(), id);
+    }
+
+    @Operation(
+        summary = "Update an existing transaction",
+        description = "Updates an existing transaction and recalculates the user's running balance."
+    )
+    @PutMapping("/{id}")
+    public TransactionResponse updateTransaction(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id,
+        @Valid @RequestBody TransactionRequest request
+    ) {
+        return transactionService.updateTransaction(userDetails.getUsername(), id, request);
+    }
+
+    @Operation(
+        summary = "Delete a transaction",
+        description = "Permanently removes a transaction and recalculates the user's running balance."
+    )
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTransaction(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long id
+    ) {
+        transactionService.deleteTransaction(userDetails.getUsername(), id);
+    }
+
+    @Operation(
+        summary = "Bulk delete transactions",
+        description = "Permanently removes multiple transactions and recalculates the user's running balance."
+    )
+    @PostMapping("/bulk-delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDeleteTransactions(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody BulkDeleteRequest request
+    ) {
+        transactionService.bulkDeleteTransactions(userDetails.getUsername(), request.ids());
     }
 }

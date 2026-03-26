@@ -98,6 +98,115 @@ public class TransactionService {
             .collect(Collectors.toList());
     }
 
+    public TransactionResponse getTransaction(String email, Long id) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        Transaction transaction = transactionRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
+
+        if (!transaction.getUserAccount().getId().equals(account.getId())) {
+            throw new IllegalArgumentException("You do not have permission to view this transaction.");
+        }
+
+        return mapToResponse(transaction);
+    }
+
+    @Transactional
+    public TransactionResponse updateTransaction(String email, Long id, TransactionRequest request) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        Transaction transaction = transactionRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
+
+        if (!transaction.getUserAccount().getId().equals(account.getId())) {
+            throw new IllegalArgumentException("You do not have permission to update this transaction.");
+        }
+
+        // Revert old transaction impact on balance
+        if (transaction.getType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+        } else {
+            account.setBalance(account.getBalance().add(transaction.getAmount()));
+        }
+
+        // Update fields
+        Category category = null;
+        if (request.categoryId() != null) {
+            category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
+        }
+
+        transaction.setAmount(request.amount());
+        transaction.setType(request.type());
+        transaction.setDescription(request.description());
+        transaction.setCategory(category);
+        if (request.transactionDate() != null) {
+            transaction.setTransactionDate(request.transactionDate());
+        }
+
+        Transaction saved = transactionRepository.save(transaction);
+
+        // Apply new transaction impact on balance
+        if (saved.getType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance().add(saved.getAmount()));
+        } else {
+            account.setBalance(account.getBalance().subtract(saved.getAmount()));
+        }
+
+        userAccountRepository.save(account);
+
+        return mapToResponse(saved);
+    }
+
+    @Transactional
+    public void deleteTransaction(String email, Long id) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        Transaction transaction = transactionRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
+
+        if (!transaction.getUserAccount().getId().equals(account.getId())) {
+            throw new IllegalArgumentException("You do not have permission to delete this transaction.");
+        }
+
+        // Revert transaction impact on balance
+        if (transaction.getType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+        } else {
+            account.setBalance(account.getBalance().add(transaction.getAmount()));
+        }
+
+        transactionRepository.delete(transaction);
+        userAccountRepository.save(account);
+    }
+
+    @Transactional
+    public void bulkDeleteTransactions(String email, List<Long> ids) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        List<Transaction> transactions = transactionRepository.findAllById(ids);
+
+        for (Transaction transaction : transactions) {
+            if (!transaction.getUserAccount().getId().equals(account.getId())) {
+                throw new IllegalArgumentException("You do not have permission to delete transaction with id: " + transaction.getId());
+            }
+
+            // Revert transaction impact on balance
+            if (transaction.getType() == TransactionType.INCOME) {
+                account.setBalance(account.getBalance().subtract(transaction.getAmount()));
+            } else {
+                account.setBalance(account.getBalance().add(transaction.getAmount()));
+            }
+        }
+
+        transactionRepository.deleteAll(transactions);
+        userAccountRepository.save(account);
+    }
+
     private TransactionResponse mapToResponse(Transaction transaction) {
         CategoryResponse categoryResponse = null;
         if (transaction.getCategory() != null) {

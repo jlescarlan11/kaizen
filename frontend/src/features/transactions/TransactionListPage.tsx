@@ -5,6 +5,8 @@ import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { calculateRunningBalance } from './utils/transactionUtils'
 import { cn } from '../../shared/lib/cn'
+import { useAppSelector } from '../../app/store/hooks'
+import { selectPendingDeletes } from '../../app/store/notificationSlice'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
@@ -13,10 +15,12 @@ const currencyFormatter = new Intl.NumberFormat('en-PH', {
 
 export function TransactionListPage(): ReactElement {
   // NOTE: Full load implemented with no pagination per PRD Instruction 1 constraints.
-  // This decision avoids complexity for small-to-medium datasets but may need
-  // virtualization or pagination if the history grows significantly.
   const { data: transactions = [], isLoading } = useGetTransactionsQuery()
-  const balance = calculateRunningBalance(transactions)
+  const pendingDeletes = useAppSelector(selectPendingDeletes)
+
+  // Filter out pending deletes for accurate balance and display
+  const visibleTransactions = transactions.filter((tx) => !pendingDeletes.includes(tx.id))
+  const balance = calculateRunningBalance(visibleTransactions)
 
   return (
     <div className={pageLayout.sectionGap}>

@@ -1,8 +1,13 @@
 import type { ReactElement } from 'react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { ResponsiveModal } from '../../../shared/components/ResponsiveModal'
 import { Badge } from '../../../shared/components/Badge'
+import { Button } from '../../../shared/components/Button'
 import { cn } from '../../../shared/lib/cn'
+import { useAppDispatch } from '../../../app/store/hooks'
+import { triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
 
 interface TransactionDetailModalProps {
   transaction: TransactionResponse | null
@@ -25,76 +30,162 @@ export function TransactionDetailModal({
   open,
   onClose,
 }: TransactionDetailModalProps): ReactElement {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
   if (!transaction) return <></>
 
-  return (
-    <ResponsiveModal open={open} onClose={onClose} title="Transaction Details">
-      <div className="space-y-6">
-        {/* Header/Summary */}
-        <div className="flex flex-col items-center justify-center py-4 bg-ui-surface-muted rounded-2xl border border-ui-border-subtle">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
-            {transaction.type === 'INCOME' ? 'Income' : 'Expense'}
-          </p>
-          <p
-            className={cn(
-              'text-4xl font-bold tracking-tight',
-              transaction.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
-            )}
-          >
-            {transaction.type === 'INCOME' ? '+' : '-'}{' '}
-            {currencyFormatter.format(transaction.amount)}
-          </p>
-        </div>
+  const handleEdit = () => {
+    onClose()
+    navigate(`/transactions/edit/${transaction.id}`)
+  }
 
-        {/* Details Grid */}
-        <div className="grid grid-cols-1 gap-y-5">
-          <DetailRow
-            label="Date & Time"
-            value={dateFormatter.format(new Date(transaction.transactionDate))}
-          />
+  const handleDuplicate = () => {
+    onClose()
+    // Pass transaction data as state to pre-populate the entry form
+    navigate('/transactions/add', {
+      state: {
+        duplicateFrom: {
+          amount: transaction.amount,
+          type: transaction.type,
+          description: transaction.description,
+          categoryId: transaction.category?.id,
+        },
+      },
+    })
+  }
 
-          <DetailRow
-            label="Description"
-            value={transaction.description || '—'}
-            italic={!transaction.description}
-          />
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true)
+  }
 
-          <DetailRow
-            label="Category"
-            content={
-              transaction.category ? (
-                <div className="flex items-center gap-2">
-                  <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full text-base"
-                    style={{
-                      backgroundColor: transaction.category.color + '22',
-                      color: transaction.category.color,
-                    }}
-                  >
-                    {transaction.category.icon}
-                  </div>
-                  <span className="font-medium text-foreground">{transaction.category.name}</span>
-                </div>
-              ) : (
-                <span className="italic text-muted-foreground">—</span>
-              )
-            }
-          />
+  const handleConfirmDelete = () => {
+    setShowDeleteConfirm(false)
+    onClose()
+    dispatch(
+      triggerDeleteWithUndo({
+        message: 'Transaction deleted',
+        transactionIds: [transaction.id],
+        timeoutMs: 5000,
+      }),
+    )
+  }
 
-          <DetailRow
-            label="Type"
-            content={
-              <Badge
-                tone={transaction.type === 'INCOME' ? 'success' : 'neutral'}
-                className="uppercase font-bold"
-              >
-                {transaction.type}
-              </Badge>
-            }
-          />
-        </div>
+  const footer = (
+    <div className="flex flex-col gap-3">
+      <div className="flex gap-3">
+        <Button variant="outline" className="flex-1" onClick={handleEdit}>
+          Edit
+        </Button>
+        <Button variant="outline" className="flex-1" onClick={handleDuplicate}>
+          Duplicate
+        </Button>
       </div>
-    </ResponsiveModal>
+      <Button
+        variant="ghost"
+        className="text-ui-error hover:bg-ui-error/10"
+        onClick={handleDeleteClick}
+      >
+        Delete Transaction
+      </Button>
+    </div>
+  )
+
+  return (
+    <>
+      <ResponsiveModal open={open} onClose={onClose} title="Transaction Details" footer={footer}>
+        <div className="space-y-6">
+          {/* Header/Summary */}
+          <div className="flex flex-col items-center justify-center py-4 bg-ui-surface-muted rounded-2xl border border-ui-border-subtle">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
+              {transaction.type === 'INCOME' ? 'Income' : 'Expense'}
+            </p>
+            <p
+              className={cn(
+                'text-4xl font-bold tracking-tight',
+                transaction.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
+              )}
+            >
+              {transaction.type === 'INCOME' ? '+' : '-'}{' '}
+              {currencyFormatter.format(transaction.amount)}
+            </p>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 gap-y-5">
+            <DetailRow
+              label="Date & Time"
+              value={dateFormatter.format(new Date(transaction.transactionDate))}
+            />
+
+            <DetailRow
+              label="Description"
+              value={transaction.description || '—'}
+              italic={!transaction.description}
+            />
+
+            <DetailRow
+              label="Category"
+              content={
+                transaction.category ? (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-base"
+                      style={{
+                        backgroundColor: transaction.category.color + '22',
+                        color: transaction.category.color,
+                      }}
+                    >
+                      {transaction.category.icon}
+                    </div>
+                    <span className="font-medium text-foreground">{transaction.category.name}</span>
+                  </div>
+                ) : (
+                  <span className="italic text-muted-foreground">—</span>
+                )
+              }
+            />
+
+            <DetailRow
+              label="Type"
+              content={
+                <Badge
+                  tone={transaction.type === 'INCOME' ? 'success' : 'neutral'}
+                  className="uppercase font-bold"
+                >
+                  {transaction.type}
+                </Badge>
+              }
+            />
+          </div>
+        </div>
+      </ResponsiveModal>
+
+      {/* Delete Confirmation Dialog */}
+      <ResponsiveModal
+        open={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Delete Transaction?"
+      >
+        <div className="space-y-4">
+          <p className="text-muted-foreground">
+            Are you sure you want to delete this transaction? This action will update your balance.
+          </p>
+          <div className="flex gap-3 pt-2">
+            <Button variant="ghost" className="flex-1" onClick={() => setShowDeleteConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 bg-ui-error hover:bg-ui-error-hover text-white border-0"
+              onClick={handleConfirmDelete}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </ResponsiveModal>
+    </>
   )
 }
 

@@ -8,6 +8,7 @@ import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmat
 import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
+import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
 import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
@@ -372,6 +373,8 @@ function AuthenticatedLayoutContent(): ReactElement {
           })}
         </nav>
       )}
+
+      <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
     </div>
   )
 }

@@ -48,7 +48,8 @@ class UserAccountControllerTest {
             null,
             false,
             false,
-            false
+            false,
+            null
         );
 
         when(userAccountService.getProfileByEmail("test@example.com"))
