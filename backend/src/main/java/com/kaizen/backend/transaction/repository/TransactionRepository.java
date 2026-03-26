@@ -26,4 +26,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     int updateCategoryId(@Param("sourceId") Long sourceId, @Param("targetId") Long targetId);
 
     boolean existsByCategoryId(Long categoryId);
+
+    long countByPaymentMethodId(Long paymentMethodId);
+
+    @Modifying
+    @Query("UPDATE Transaction t SET t.paymentMethod = null WHERE t.paymentMethod.id = :paymentMethodId")
+    void setPaymentMethodToNull(@Param("paymentMethodId") Long paymentMethodId);
+
+    @Query("SELECT t.paymentMethod.id, SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.paymentMethod IS NOT NULL GROUP BY t.paymentMethod.id")
+    List<Object[]> getExpenseSummaryGroupedByPaymentMethod(@Param("userId") Long userId);
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.paymentMethod IS NULL")
+    java.math.BigDecimal getUnspecifiedExpenseSummary(@Param("userId") Long userId);
 }

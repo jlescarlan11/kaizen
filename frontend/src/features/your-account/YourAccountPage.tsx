@@ -203,6 +203,12 @@ export function YourAccountPage(): ReactElement {
           icon: <CategoryIcon />,
           to: '/your-account/categories',
         },
+        {
+          label: 'Payment methods',
+          description: 'Manage your cards, cash, and accounts',
+          icon: <PaymentMethodIcon />,
+          to: '/your-account/payment-methods',
+        },
       ],
     },
     {
@@ -483,6 +489,24 @@ function CategoryIcon(): ReactElement {
       <rect x="14" y="4" width="7" height="7" rx="1.5" />
       <rect x="3" y="14" width="7" height="7" rx="1.5" />
       <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </svg>
+  )
+}
+
+function PaymentMethodIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
     </svg>
   )
 }

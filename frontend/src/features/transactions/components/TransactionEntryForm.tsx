@@ -11,6 +11,7 @@ import {
   type TransactionType,
 } from '../../../app/store/api/transactionApi'
 import { CategorySelector } from '../../categories'
+import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 
 interface TransactionEntryFormProps {
@@ -37,6 +38,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const [transactionDate, setTransactionDate] = useState('')
   const [description, setDescription] = useState('')
   const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const isInitialized = useRef(false)
 
@@ -53,6 +55,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setTransactionDate(editData.transactionDate.split('T')[0])
       setDescription(editData.description || '')
       setCategoryId(editData.category?.id.toString() || null)
+      setPaymentMethodId(editData.paymentMethod?.id.toString() || null)
       isInitialized.current = true
     } else if (duplicateFrom) {
       setAmount(duplicateFrom.amount.toString())
@@ -61,6 +64,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setTransactionDate('')
       setDescription(duplicateFrom.description || '')
       setCategoryId(duplicateFrom.categoryId?.toString() || null)
+      setPaymentMethodId(duplicateFrom.paymentMethodId?.toString() || null)
       isInitialized.current = true
     } else if (user?.quickAddPreferences) {
       // Instruction 8: Quick Add Pre-fill
@@ -69,6 +73,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
         setAmount(prefs.amount?.toString() ?? '')
         setType(prefs.type ?? 'EXPENSE')
         setCategoryId(prefs.categoryId?.toString() ?? null)
+        setPaymentMethodId(prefs.paymentMethodId?.toString() ?? null)
         isInitialized.current = true
       } catch (err) {
         console.error('Failed to parse Quick Add preferences:', err)
@@ -101,6 +106,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       transactionDate: transactionDate ? `${transactionDate}T00:00:00` : undefined,
       description: description || undefined,
       categoryId: categoryId ? parseInt(categoryId) : undefined,
+      paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
     }
 
     try {
@@ -153,6 +159,8 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
         />
 
         <CategorySelector value={categoryId} onChange={setCategoryId} />
+
+        <PaymentMethodSelector value={paymentMethodId} onChange={setPaymentMethodId} />
 
         <Input
           label="Description (Optional)"

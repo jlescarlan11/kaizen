@@ -154,6 +154,11 @@ function AuthenticatedLayoutContent(): ReactElement {
       icon: <VaultIcon />,
       // Additional tab per spec; currently maps to playground until the real vault exists.
     },
+    {
+      label: 'Payments',
+      to: '/payment-summary',
+      icon: <PaymentIcon />,
+    },
   ]
 
   const userInitials = user?.name
@@ -471,6 +476,24 @@ function VaultIcon() {
     >
       <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  )
+}
+
+function PaymentIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
     </svg>
   )
 }

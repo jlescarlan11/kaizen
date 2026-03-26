@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.payment.dto.PaymentMethodResponse;
 
 public record TransactionResponse(
     Long id,
@@ -12,5 +13,6 @@ public record TransactionResponse(
     TransactionType type,
     LocalDateTime transactionDate,
     String description,
-    CategoryResponse category
+    CategoryResponse category,
+    PaymentMethodResponse paymentMethod
 ) {}

@@ -11,6 +11,7 @@ import { cn } from '../../../shared/lib/cn'
 import { useAppDispatch } from '../../../app/store/hooks'
 import { triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
 import { CategorySelector } from '../../categories'
+import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
 
 interface TransactionDetailModalProps {
   transaction: TransactionResponse | null
@@ -40,11 +41,14 @@ export function TransactionDetailModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isRecategorizing, setIsRecategorizing] = useState(false)
   const [newCategoryId, setNewCategoryId] = useState<string | null>(null)
+  const [isChangingPaymentMethod, setIsChangingPaymentMethod] = useState(false)
+  const [newPaymentMethodId, setNewPaymentMethodId] = useState<string | null>(null)
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (transaction) {
       setNewCategoryId(transaction.category?.id.toString() || null)
+      setNewPaymentMethodId(transaction.paymentMethod?.id.toString() || null)
     }
   }, [transaction])
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -66,6 +70,7 @@ export function TransactionDetailModal({
           type: transaction.type,
           description: transaction.description,
           categoryId: transaction.category?.id,
+          paymentMethodId: transaction.paymentMethod?.id,
         },
       },
     })
@@ -97,11 +102,31 @@ export function TransactionDetailModal({
           transactionDate: transaction.transactionDate,
           description: transaction.description,
           categoryId: newCategoryId ? parseInt(newCategoryId) : undefined,
+          paymentMethodId: transaction.paymentMethod?.id,
         },
       }).unwrap()
       setIsRecategorizing(false)
     } catch (err) {
       console.error('Failed to recategorize transaction:', err)
+    }
+  }
+
+  const handleChangePaymentMethod = async () => {
+    try {
+      await updateTransaction({
+        id: transaction.id,
+        payload: {
+          amount: transaction.amount,
+          type: transaction.type,
+          transactionDate: transaction.transactionDate,
+          description: transaction.description,
+          categoryId: transaction.category?.id,
+          paymentMethodId: newPaymentMethodId ? parseInt(newPaymentMethodId) : undefined,
+        },
+      }).unwrap()
+      setIsChangingPaymentMethod(false)
+    } catch (err) {
+      console.error('Failed to change payment method:', err)
     }
   }
 
@@ -156,6 +181,34 @@ export function TransactionDetailModal({
               label="Description"
               value={transaction.description || '—'}
               italic={!transaction.description}
+            />
+
+            <DetailRow
+              label="Payment Method"
+              content={
+                <div className="flex items-center justify-between">
+                  {transaction.paymentMethod ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ui-surface-muted text-foreground text-[10px] font-bold">
+                        {transaction.paymentMethod.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="font-medium text-foreground">
+                        {transaction.paymentMethod.name}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="italic text-muted-foreground">—</span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-1 text-primary hover:bg-primary/10 text-xs font-semibold"
+                    onClick={() => setIsChangingPaymentMethod(true)}
+                  >
+                    Change
+                  </Button>
+                </div>
+              }
             />
 
             <DetailRow
@@ -220,6 +273,29 @@ export function TransactionDetailModal({
               Cancel
             </Button>
             <Button className="flex-1" onClick={handleRecategorize} isLoading={isUpdating}>
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </ResponsiveModal>
+
+      {/* Change Payment Method Modal */}
+      <ResponsiveModal
+        open={isChangingPaymentMethod}
+        onClose={() => setIsChangingPaymentMethod(false)}
+        title="Change Payment Method"
+      >
+        <div className="space-y-6">
+          <PaymentMethodSelector value={newPaymentMethodId} onChange={setNewPaymentMethodId} />
+          <div className="flex gap-3">
+            <Button
+              variant="ghost"
+              className="flex-1"
+              onClick={() => setIsChangingPaymentMethod(false)}
+            >
+              Cancel
+            </Button>
+            <Button className="flex-1" onClick={handleChangePaymentMethod} isLoading={isUpdating}>
               Confirm
             </Button>
           </div>

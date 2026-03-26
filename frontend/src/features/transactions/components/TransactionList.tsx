@@ -229,6 +229,11 @@ export function TransactionList({
                       />
                       <p className="text-xs text-muted-foreground">
                         {timeFormatter.format(new Date(tx.transactionDate))}
+                        {tx.paymentMethod && (
+                          <span className="ml-2 font-medium text-foreground/70">
+                            • {tx.paymentMethod.name}
+                          </span>
+                        )}
                         {!tx.category && (
                           <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
                             • Needs category

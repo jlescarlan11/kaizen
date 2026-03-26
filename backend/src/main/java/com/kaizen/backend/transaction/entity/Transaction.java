@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.common.entity.BaseEntity;
 import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.payment.entity.PaymentMethod;
 import com.kaizen.backend.user.entity.UserAccount;
 
 import jakarta.persistence.Column;
@@ -36,6 +37,10 @@ public class Transaction extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_method_id")
+    private PaymentMethod paymentMethod;
+
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
 
@@ -52,6 +57,7 @@ public class Transaction extends BaseEntity {
     public Transaction(
         UserAccount userAccount,
         Category category,
+        PaymentMethod paymentMethod,
         BigDecimal amount,
         TransactionType type,
         String description,
@@ -59,6 +65,7 @@ public class Transaction extends BaseEntity {
     ) {
         this.userAccount = userAccount;
         this.category = category;
+        this.paymentMethod = paymentMethod;
         this.amount = amount;
         this.type = type;
         this.description = description;

@@ -11,6 +11,9 @@ import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.payment.dto.PaymentMethodResponse;
+import com.kaizen.backend.payment.entity.PaymentMethod;
+import com.kaizen.backend.payment.repository.PaymentMethodRepository;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.entity.Transaction;
@@ -25,15 +28,18 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserAccountRepository userAccountRepository;
     private final CategoryRepository categoryRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
 
     public TransactionService(
         TransactionRepository transactionRepository,
         UserAccountRepository userAccountRepository,
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        PaymentMethodRepository paymentMethodRepository
     ) {
         this.transactionRepository = transactionRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
+        this.paymentMethodRepository = paymentMethodRepository;
     }
 
     @Transactional
@@ -47,11 +53,18 @@ public class TransactionService {
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
         }
 
+        PaymentMethod paymentMethod = null;
+        if (request.paymentMethodId() != null) {
+            paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
+        }
+
         LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
 
         Transaction transaction = new Transaction(
             account,
             category,
+            paymentMethod,
             request.amount(),
             request.type(),
             request.description(),
@@ -77,10 +90,11 @@ public class TransactionService {
         // Instruction 7: Quick Add Preference Storage
         // Store basic transaction details for pre-filling the next entry.
         String prefs = String.format(
-            "{\"amount\":%.2f,\"type\":\"%s\"%s}",
+            "{\"amount\":%.2f,\"type\":\"%s\"%s%s}",
             saved.getAmount(),
             saved.getType().name(),
-            saved.getCategory() != null ? ",\"categoryId\":" + saved.getCategory().getId() : ""
+            saved.getCategory() != null ? ",\"categoryId\":" + saved.getCategory().getId() : "",
+            saved.getPaymentMethod() != null ? ",\"paymentMethodId\":" + saved.getPaymentMethod().getId() : ""
         );
         account.setQuickAddPreferences(prefs);
         userAccountRepository.save(account);
@@ -142,6 +156,14 @@ public class TransactionService {
         transaction.setType(request.type());
         transaction.setDescription(request.description());
         transaction.setCategory(category);
+
+        PaymentMethod paymentMethod = null;
+        if (request.paymentMethodId() != null) {
+            paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
+        }
+        transaction.setPaymentMethod(paymentMethod);
+
         if (request.transactionDate() != null) {
             transaction.setTransactionDate(request.transactionDate());
         }
@@ -220,13 +242,24 @@ public class TransactionService {
             );
         }
 
+        PaymentMethodResponse paymentMethodResponse = null;
+        if (transaction.getPaymentMethod() != null) {
+            PaymentMethod pm = transaction.getPaymentMethod();
+            paymentMethodResponse = new PaymentMethodResponse(
+                pm.getId(),
+                pm.getName(),
+                pm.isGlobal()
+            );
+        }
+
         return new TransactionResponse(
             transaction.getId(),
             transaction.getAmount(),
             transaction.getType(),
             transaction.getTransactionDate(),
             transaction.getDescription(),
-            categoryResponse
+            categoryResponse,
+            paymentMethodResponse
         );
     }
 }

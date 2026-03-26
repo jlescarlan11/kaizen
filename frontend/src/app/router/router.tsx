@@ -38,6 +38,16 @@ const CategoryManagementPage = lazy(() =>
     default: m.CategoryManagementPage,
   })),
 )
+const PaymentMethodManagementPage = lazy(() =>
+  import('../../features/payment-methods/PaymentMethodManagementPage').then((m) => ({
+    default: m.PaymentMethodManagementPage,
+  })),
+)
+const PaymentMethodSummaryPage = lazy(() =>
+  import('../../features/payment-methods/PaymentMethodSummaryPage').then((m) => ({
+    default: m.PaymentMethodSummaryPage,
+  })),
+)
 const ManualBudgetSetupPage = lazy(() =>
   import('../../features/budgets/ManualBudgetSetupPage').then((m) => ({
     default: m.ManualBudgetSetupPage,
@@ -172,6 +182,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'payment-summary',
+            element: <PaymentMethodSummaryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
             path: 'budget',
             element: <BudgetsPage />,
             handle: {
@@ -234,6 +254,16 @@ export const router = createBrowserRouter([
           {
             path: 'your-account/categories',
             element: <CategoryManagementPage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'your-account/payment-methods',
+            element: <PaymentMethodManagementPage />,
             handle: {
               backButton: {
                 label: 'Account',

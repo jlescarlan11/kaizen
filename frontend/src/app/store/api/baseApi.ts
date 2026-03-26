@@ -12,7 +12,7 @@ if (!/^https?:\/\//.test(apiBaseUrl)) {
 
 export const baseApi = createApi({
   reducerPath: 'baseApi',
-  tagTypes: ['Sessions', 'Budgets', 'User', 'Transactions', 'Categories'],
+  tagTypes: ['Sessions', 'Budgets', 'User', 'Transactions', 'Categories', 'PaymentMethods'],
   baseQuery: fetchBaseQuery({
     baseUrl: apiBaseUrl,
     prepareHeaders: (headers) => {

@@ -1,435 +1,440 @@
-1. Category Data Model & Schema — Define and implement the category entity schema and the nullable category field on the transaction record, establishing the data foundation for all other instructions.
-2. Default System Categories Seed — Implement the seed dataset of default system categories, distinguishing them from user-created categories in the data model.
-3. Category Selector Component — Implement the shared category selector UI component used by both transaction entry and recategorization flows, sourced from the single category list.
-4. Category Assignment on Transaction Entry — Implement the category field in the transaction entry and edit forms, wiring it to the shared category selector and storing a null value when no category is selected.
-5. Category Display in List and Detail Views — Implement the category field display on the transaction list row and detail view, reading from the stored category reference.
-6. Change Transaction Category — Implement the recategorization action on an existing transaction, presenting the category selector and updating the stored category reference on confirm.
-7. Uncategorized Transaction Highlighting — Implement the visual indicator on transaction list rows with a null category, and the tap-to-categorize shortcut if confirmed.
-8. Merge Categories — Implement the merge operation that reassigns all transactions from a source category to a target category and removes the source, atomically and with a pre-confirmation count.
-9. Post-Merge Referential Integrity Enforcement — Implement the data-layer constraint that ensures no transaction record retains a reference to a deleted or merged source category after the merge completes.
+1. Payment Method Data Model & Schema — Define and implement the payment method entity schema and the nullable payment method field on the transaction record.
+2. Default System Payment Methods Seed — Implement the seed dataset of system-provided default payment methods, distinguishing them from user-created methods in the data model.
+3. Payment Method Selector Component — Implement the shared payment method selector UI component used by both transaction entry and recategorization flows, sourced from the single payment method list.
+4. Payment Method Assignment on Transaction Entry — Implement the payment method field in the transaction entry and edit forms, wiring it to the shared selector and storing null when no method is selected.
+5. Payment Method Display in List and Detail Views — Implement the payment method field display on the transaction list row and detail view, resolving the method name from the stored reference.
+6. Custom Payment Method Creation — Implement the custom payment method creation flow with name uniqueness validation, blank-name rejection, and immediate availability in the selector after creation.
+7. Payment Method Deletion — Implement the deletion flow for payment methods, including the transaction-count warning and the orphan-resolution strategy for transactions referencing the deleted method.
+8. Payment Method Summary View — Implement the summary screen that aggregates total spending per payment method from live transaction data, with correct handling of unassigned transactions and zero-total methods.
+9. Payment Method Summary Recalculation Trigger — Implement the trigger that causes the summary totals to update when a transaction is saved, edited, or deleted.
 
 ---
 
-## Instruction 1: Category Data Model & Schema
+## Instruction 1: Payment Method Data Model & Schema
 
 **Goal**
-Define and implement the category entity schema and the nullable category reference field on the transaction record, establishing the authoritative data model that all other category-related instructions depend on.
+Define and implement the payment method entity schema and the nullable payment method reference field on the transaction record, establishing the authoritative data model that all other instructions in this set depend on.
 
 **Scope**
-In scope: the category entity (at minimum: unique identifier, display name, and a flag distinguishing system categories from user-created ones), the nullable category field on the transaction record, and a flat reference table documenting all field names and types. Out of scope: the default seed dataset (Instruction 2), the category selector UI (Instruction 3), all transaction form changes (Instruction 4), display logic (Instruction 5), recategorization (Instruction 6), highlighting (Instruction 7), and merge logic (Instructions 8 and 9).
+In scope: the payment method entity (at minimum: unique identifier, display name, and a flag distinguishing system-provided from user-created methods), the nullable payment method field on the transaction record, and a flat reference table documenting all field names and types. Out of scope: the seed dataset (Instruction 2), the selector UI (Instruction 3), all transaction form changes (Instruction 4), display logic (Instruction 5), custom method creation (Instruction 6), deletion (Instruction 7), and the summary view (Instructions 8 and 9).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6b (each transaction must have a nullable category field; null is the canonical uncategorized state — not a blank string or reserved entry; category list stored as its own entity with at minimum a unique identifier and display name; system categories distinguishable from user-created ones in the data model), Section 6a (transaction category must reference a valid category list entry)
+- PRD Section 6b (each transaction must support a nullable payment method field referencing a valid entry in the method list; payment method entity stores at minimum a unique identifier and display name; system methods distinguishable from user-created at the data layer; schema approach — foreign key reference vs. embedded string — must be confirmed), Section 6a (missing method must never be silently defaulted)
 
 **Constraints**
 
-- The category field on the transaction record must be nullable. A null value is the canonical representation of an uncategorized transaction. Do not use a blank string, a zero-value integer, or a reserved "None" category entry as a substitute.
-- The category entity must have at minimum: a unique identifier and a display name. Include a boolean or enum field distinguishing system categories from user-created categories — even if both appear identical to the user.
+- The payment method field on the transaction record must be nullable. A null value is the canonical representation of an unassigned method — do not use a blank string, a zero-value identifier, or a reserved "Unspecified" method record as a substitute.
+- The payment method entity must have at minimum: a unique identifier and a display name. Include a boolean or enum field distinguishing system-provided from user-created methods.
 - Do not fabricate field names, table names, or column types — use naming conventions verifiably present in the codebase.
-- Amount precision rules from the Transaction Entry PRD apply to the transaction record; do not regress them when adding the category field.
+- PRD Open Question 7 (single method per transaction vs. split payment) must be confirmed before the schema is written. A single nullable foreign key and a split-payment join table are structurally incompatible. If unconfirmed, implement a single nullable foreign key and flag the assumption.
 - Do not implement any UI, seed data, or business logic here — this instruction produces the schema and a reference document only.
-- All other instructions that read or write category fields must treat this instruction's output as the authoritative field name reference.
-- Recommended execution order: run before all other instructions in this set.
+- All other instructions that read or write payment method fields must treat this instruction's output as the authoritative field name reference.
+- Recommended execution order: run before all other instructions in this set. Cross-reference Transaction Categories PRD Instruction 1 for the established schema convention in this codebase.
 
 **Expected Output**
 
-- The category entity schema: field names, data types, nullability, and constraints (e.g., display name must be unique, identifier must be unique).
-- The updated transaction record schema showing the nullable category reference field added.
+- The payment method entity schema: field names, data types, nullability, and constraints (e.g., display name must be unique per user, identifier must be globally unique).
+- The updated transaction record schema showing the nullable payment method reference field added.
 - A flat reference table: entity name, field name, type, required/optional, and a one-line description.
 - If modifying an existing schema, a before/after comparison and a migration plan.
 
 **Deliverables**
 
-- New or updated category entity schema file (ORM model, migration, type definition, or equivalent)
-- Updated transaction record schema showing the nullable category field
+- New or updated payment method entity schema file (ORM model, migration, type definition, or equivalent)
+- Updated transaction record schema showing the nullable payment method field
 - Migration file or script if the codebase uses a migration system
 - Flat reference table
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 3 (single category per transaction vs. multi-category) must be confirmed before the schema is written. A single nullable foreign key and a many-to-many join table are fundamentally different structures. If unconfirmed, implement a single nullable foreign key per PRD Section 6a ("at most one category") and flag the assumption.
-- Confirm whether a category entity or table already exists in the codebase before creating a new one.
+- PRD Open Question 7 (single method vs. split payment) must be confirmed or defaulted before the transaction field is defined.
+- Confirm the schema approach (foreign key reference vs. embedded string) with the author — PRD Section 6b flags this as unconfirmed.
+- Confirm whether a payment method entity or table already exists in the codebase before creating a new one.
 - Confirm the codebase's ORM, database type, or data modeling convention before writing schema syntax.
 
 **Open Questions**
 
-- PRD Open Question 1: Are default system categories provided? If yes, the schema must include the system/user-created distinction flag. If no, that field may be omitted — but the PRD Section 6b implies it is required regardless. Confirm before omitting.
-- PRD Open Question 3: Single category per transaction or multi-category? This is the most consequential schema decision in this instruction.
+- PRD Open Question 7: Can a transaction reference more than one payment method? This is the most consequential schema decision in this instruction.
+- PRD Section 6b: Is the payment method stored as a foreign key reference to a method entity, or as an embedded string on the transaction record? These have different integrity and migration implications.
 
 ---
 
-## Instruction 2: Default System Categories Seed
+## Instruction 2: Default System Payment Methods Seed
 
 **Goal**
-Implement the seed dataset that populates the category list with a default set of system-provided categories, ensuring they are marked as system categories in the data model and are available without user action on first use.
+Implement the seed dataset that populates the payment method list with a default set of system-provided methods, marking each as system-provided in the data model and ensuring the seed is idempotent.
 
 **Scope**
-In scope: the seed script or migration that inserts the default category records, the system category flag applied to each seeded record, and the idempotency guarantee (re-running the seed does not duplicate records). Out of scope: the category schema definition (Instruction 1), the category selector UI (Instruction 3), user-created category management (out of scope per PRD Section 8), and merge logic (Instruction 8).
+In scope: the seed script or migration that inserts the default payment method records, the system-provided flag applied to each seeded record, and the idempotency guarantee. Out of scope: the payment method schema definition (Instruction 1), the selector UI (Instruction 3), and user-created method management (Instruction 6).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 19, third acceptance criterion: a default set of categories is available without requiring the user to create them), Section 6b (system categories must be distinguishable from user-created ones in the data model), Instruction 1 output (category schema field names)
+- PRD Section 5 (Story 23: method available from the available list; Story 24: custom method appears alongside system-provided methods), Section 6b (system methods distinguishable from user-created at the data layer), Instruction 1 output (payment method schema field names)
 
 **Constraints**
 
-- Use the category schema defined in Instruction 1. Do not fabricate field names or add fields not defined there.
-- Each seeded category must have the system/user-created flag set to system.
-- The seed must be idempotent — running it more than once must not create duplicate category records.
-- Do not hardcode category names as magic strings in application logic — they belong only in the seed dataset.
-- The specific category names to seed must come from the author (PRD Open Question 1). If unconfirmed, use a placeholder list (e.g., Food, Transport, Utilities, Income, Other) marked explicitly as provisional in a code comment.
-- Recommended execution order: run after Instruction 1 defines the category schema.
+- Use the payment method schema defined in Instruction 1. Do not fabricate field names or add fields not defined there.
+- Each seeded method must have the system-provided flag set.
+- The seed must be idempotent — running it more than once must not create duplicate records.
+- Do not hardcode method names as magic strings in application logic — they belong only in the seed dataset.
+- The specific method names to seed must be confirmed with the author (PRD Open Question 2). If unconfirmed, use a placeholder list (e.g., Cash, Credit Card, Debit Card, Bank Transfer) marked explicitly as provisional in a code comment.
+- Recommended execution order: run after Instruction 1 defines the payment method schema.
 
 **Expected Output**
 
-- A seed script or migration that inserts the default system category records with the system flag set.
+- A seed script or migration inserting the confirmed (or provisional) default payment method records with the system-provided flag set.
 - Idempotency logic (e.g., insert-if-not-exists keyed on display name or a stable identifier).
-- The provisional or confirmed category name list used, with a flag if provisional.
+- The provisional or confirmed method name list, with a flag if provisional.
 
 **Deliverables**
 
 - Seed script or migration file
-- List of seeded category records with field values
+- List of seeded payment method records with field values
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must define the category schema before this instruction writes seed records against it.
-- PRD Open Question 1 (are default categories provided, and what are they) must be confirmed or provisionally assumed. If the author confirms no default categories, this entire instruction is void.
-- Confirm the codebase's seeding mechanism (migration, fixture file, setup script, or equivalent) before writing the seed.
+- Instruction 1 must define the payment method schema before this instruction writes seed records against it.
+- PRD Open Question 2 (are system defaults provided, and what are they) must be confirmed or provisionally assumed. If the author confirms no system defaults, this entire instruction is void.
+- Confirm the codebase's seeding mechanism before writing the seed.
 
 **Open Questions**
 
-- PRD Open Question 1: Are default system categories provided? If yes, what are the category names in the default set? Without the confirmed list, the seed content is provisional.
+- PRD Open Question 2: Are system-provided default methods included, and what are their names? Without the confirmed list, the seed content is provisional.
 
 ---
 
-## Instruction 3: Category Selector Component
+## Instruction 3: Payment Method Selector Component
 
 **Goal**
-Implement the shared category selector UI component that presents the full category list as selectable options, used by both transaction entry and recategorization flows, sourced from the single category list data store.
+Implement the shared payment method selector UI component that presents the full method list as selectable options, supports a null/unset state, and is sourced from the single payment method data store for use by both transaction entry and custom method management flows.
 
 **Scope**
-In scope: the category selector component, the data fetch that retrieves the current category list, the single-select behavior (one category at a time), and the no-selection/null state (user can leave the selector unset). Out of scope: the transaction entry form integration (Instruction 4), the recategorization flow integration (Instruction 6), the category schema (Instruction 1), and any create/rename/delete operations on categories (out of scope per PRD Section 8).
+In scope: the selector component, the data fetch retrieving the current method list, single-select behavior, and the null/unset state. Out of scope: the transaction entry form integration (Instruction 4), custom method creation UI (Instruction 6), the payment method schema (Instruction 1), and method deletion (Instruction 7).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 19 first criterion: one category selectable from an available list; Story 20 first criterion: category selector shows all available categories), Section 6a (one category per transaction), Section 6c (Stories 19 and 20 must reference the same category list data source)
+- PRD Section 5 (Story 23 first criterion: one method selectable from the available list; Story 24 fourth criterion: custom methods appear alongside system methods without visual distinction suggesting secondary status), Section 6a (missing method never silently defaulted), Section 6c (Stories 23 and 24 must reference the same data source)
 
 **Constraints**
 
-- The selector must present the category list from the single authoritative data source — do not maintain a local copy or hardcode category names.
-- The selector must support a null/unset state — the user must be able to open the selector and close it without selecting a category, leaving the transaction uncategorized.
-- Single-select only, per PRD Section 6a. Do not implement multi-select unless PRD Open Question 3 is resolved in favor of multi-category.
-- Do not implement category creation, renaming, or deletion within this component — it is a read-only selector.
-- Use the selection UI pattern (dropdown, bottom sheet, modal list, or equivalent) already established in the codebase. Do not introduce a new overlay pattern.
-- This component is shared — do not embed form-specific logic (e.g., validation error display) inside it. Keep it generic so both Instruction 4 and Instruction 6 can use it without modification.
-- Recommended execution order: run after Instruction 1 confirms field names and after Instruction 2 confirms that the category list will be populated. Run before Instructions 4 and 6.
+- The selector must present the method list from the single authoritative data source — do not maintain a local copy or hardcode method names.
+- Support a null/unset state — the user must be able to open and dismiss the selector without selecting a method, leaving the transaction's method field null.
+- Single-select only, unless PRD Open Question 7 resolves to split payment — if so, halt and wait for schema confirmation from Instruction 1.
+- System-provided and user-created methods must appear in the same list without visual distinction that suggests the user-created methods are secondary, per Story 24 fourth criterion.
+- Do not implement method creation, renaming, or deletion within this component — it is a read-only selector.
+- Keep the component generic — do not embed form-specific validation error display inside it. Both Instruction 4 and Instruction 6's flows must be able to consume it without modification.
+- Use the selection UI pattern already established in the codebase. Cross-reference Transaction Categories PRD Instruction 3 for the established selector pattern.
+- Recommended execution order: run after Instructions 1 and 2; run before Instructions 4 and 6.
 
 **Expected Output**
 
-- A category selector component that fetches and displays the current category list.
-- Single-select behavior: selecting a category emits the selected category's identifier to the parent via a callback or controlled prop.
+- A selector component that fetches and renders the current payment method list.
+- Single-select behavior: selecting a method emits the selected method's identifier to the parent via callback or controlled prop.
 - Null/unset state: the selector can be dismissed without a selection, emitting null.
-- Consistent display across both transaction entry and recategorization contexts without context-specific logic inside the component.
+- System and user-created methods rendered in the same list without secondary visual treatment on either.
 
 **Deliverables**
 
-- Category selector component file
-- Data fetch call and its location in the component lifecycle
+- Payment method selector component file
+- Data fetch call and its lifecycle location
 - Callback/prop interface documented for use by Instructions 4 and 6
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must define the category entity's identifier and display name fields before the selector can render category records.
-- Confirm whether a selector or picker component for similar use cases already exists in the codebase before building a new one.
-- PRD Open Question 3 (single vs. multi-category) must be confirmed or defaulted to single before implementing the selection behavior.
+- Instruction 1 must confirm the payment method entity's identifier and display name fields before the selector renders method records.
+- Confirm whether a selector component for a similar use case already exists in the codebase before building a new one.
+- Instruction 2 must be complete or the method list must be confirmed as populated before integration testing of the selector.
 
 ---
 
-## Instruction 4: Category Assignment on Transaction Entry
+## Instruction 4: Payment Method Assignment on Transaction Entry
 
 **Goal**
-Implement the category field in the transaction entry and edit forms, wiring it to the shared category selector component, storing null when no category is selected, and ensuring the selected category is persisted with the transaction record on save.
+Implement the payment method field in the transaction entry and edit forms, wiring it to the shared selector component, storing null when no method is selected, and persisting the selected method identifier with the transaction record on save.
 
 **Scope**
-In scope: the category field in the transaction entry form and the edit form, the integration of the category selector component (Instruction 3) into both forms, the null-on-no-selection behavior, and the category value written to the transaction record on save. Out of scope: the category selector component itself (Instruction 3), the category schema (Instruction 1), display in the list and detail views (Instruction 5), and recategorization as a standalone action (Instruction 6).
+In scope: the payment method field in the transaction entry form and the edit form, the selector integration, the null-on-no-selection behavior, and the method identifier written to the transaction record on save. Out of scope: the selector component itself (Instruction 3), display in list and detail views (Instruction 5), and standalone recategorization-style method change (not a named feature in this PRD — method change is handled via the edit form).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 19 first and second criteria: category assignable during entry; stored and displayed after save; fourth criterion: null stored when no category selected — not auto-assigned), Section 6a (category assignment must not auto-assign silently), Instruction 1 output (category field name on transaction record), Instruction 3 output (selector component interface)
+- PRD Section 5 (Story 23 first, second, and third criteria: method assignable during entry; stored after save; null saved if no selection — not silently defaulted), Section 6a (assignment optional unless product owner designates required), Instruction 1 output (payment method field name on transaction record), Instruction 3 output (selector component interface)
 
 **Constraints**
 
-- Wire the category selector component from Instruction 3 into the entry and edit forms without duplicating selector logic.
-- When the user saves without selecting a category, write null to the category field — do not assign a default category silently.
-- When the user selects a category and saves, write the selected category's identifier to the transaction record.
-- Do not modify the transaction schema here — the nullable category field must already exist from Instruction 1.
-- Do not modify the category selector component — consume its callback interface as defined in Instruction 3.
-- The edit form must pre-populate the category field with the transaction's currently stored category value (including null if uncategorized) when opened.
-- Recommended execution order: run after Instructions 1 and 3. Cross-reference Transaction Entry PRD Instruction 1 for the base form patterns.
+- Wire the selector component from Instruction 3 into the entry and edit forms without duplicating selector logic.
+- When the user saves without selecting a method, write null to the payment method field — do not assign a default method silently.
+- When the user selects a method and saves, write the selected method's identifier to the transaction record.
+- Do not modify the transaction schema — the nullable payment method field must already exist from Instruction 1.
+- The edit form must pre-populate the payment method field with the transaction's currently stored method value (including null) when opened.
+- PRD Open Question 1 (required vs. optional) must be confirmed before deciding whether to enforce selection. If unconfirmed, treat as optional and flag.
+- Recommended execution order: run after Instructions 1 and 3. Cross-reference Transaction Entry PRD Instruction 1 and Transaction Categories PRD Instruction 4 for established form patterns.
 
 **Expected Output**
 
-- The transaction entry form includes a category field that opens the shared category selector.
-- On save with a category selected: the selected category identifier is written to the transaction record.
-- On save without a category selected: null is written to the category field — not a default value.
-- The transaction edit form pre-populates the category field with the existing stored value.
+- The transaction entry form includes a payment method field that opens the shared selector.
+- On save with a method selected: the method identifier is written to the transaction record.
+- On save without a method selected: null is written — not a default value.
+- The transaction edit form pre-populates the payment method field with the currently stored value.
 - Before/after comparison of the entry and edit form components.
 
 **Deliverables**
 
 - Updated transaction entry form component file
 - Updated transaction edit form component file
-- Category field integration points documented
+- Payment method field integration points documented
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category field name on the transaction record before this instruction writes to it.
-- Instruction 3 must define the selector component's callback interface before this instruction wires it in.
-- Confirm that the transaction entry and edit forms are identifiable in the codebase (cross-reference Transaction Entry PRD and Transaction Management PRD).
+- Instruction 1 must confirm the payment method field name on the transaction record.
+- Instruction 3 must define the selector's callback interface before this instruction wires it in.
+- PRD Open Question 1 (required or optional) must be confirmed or defaulted to optional with a flag.
+
+**Open Questions**
+
+- PRD Open Question 1: Is payment method a required field? If required, the entry form must enforce selection and the null path becomes an error state.
 
 ---
 
-## Instruction 5: Category Display in List and Detail Views
+## Instruction 5: Payment Method Display in List and Detail Views
 
 **Goal**
-Implement the display of a transaction's assigned category in the transaction list row and the transaction detail view, reading from the stored category reference and rendering nothing (or a neutral placeholder) when the category is null.
+Implement the display of a transaction's assigned payment method on the transaction list row and the transaction detail view, resolving the method name from the stored reference and rendering a neutral placeholder when the method is null.
 
 **Scope**
-In scope: the category field rendered on the transaction list row and the transaction detail view, the null/uncategorized display state (neutral placeholder, not a highlight — that belongs to Instruction 7), and the category name resolved from the stored identifier. Out of scope: uncategorized highlighting (Instruction 7), the category selector (Instruction 3), and category assignment logic (Instructions 4 and 6).
+In scope: the payment method field rendered on the transaction list row and the transaction detail view, the null/unspecified display state, and the method name resolved from the stored identifier at the query level. Out of scope: the selector (Instruction 3), assignment logic (Instruction 4), custom method creation (Instruction 6), and the summary view (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 19 second criterion: category stored and displayed in list and detail views), Section 6c (category state must be included in the list query result without a secondary fetch per transaction), Instruction 1 output (category field names)
+- PRD Section 5 (Story 23 second criterion: method stored and displayed in list and detail views; fourth criterion: method visible on list row without opening detail view), Section 6c (category state must be included in the list query result without secondary fetch), Instruction 1 output (payment method field names)
 
 **Constraints**
 
-- Resolve the category name from the stored identifier at the data fetch level — do not issue a per-row secondary fetch to look up the category name. Confirm that the list query joins or includes category data.
-- When the category field is null, display a neutral placeholder (e.g., a dash or "—") rather than leaving the field blank or triggering an error. Do not apply the uncategorized highlight here — that belongs to Instruction 7.
-- Do not modify the category selector or assignment logic — this instruction is read-only display.
-- Use the field display pattern already established in the detail view (cross-reference Transaction History PRD Instruction 5) for consistency.
+- Resolve the method name from the stored identifier at the data fetch level — do not issue a per-row secondary fetch. Confirm that the list query joins or includes payment method data.
+- When the payment method field is null, display a neutral placeholder (e.g., "—" or "Unspecified") rather than leaving the field blank or triggering an error.
+- The method must be visible on the list row without requiring the user to open the detail view, per Story 23 fourth criterion.
+- Do not modify the selector or assignment logic — this instruction is read-only display.
+- Use the field display pattern established in the detail view for category (Transaction Categories PRD Instruction 5) for consistency.
 - Recommended execution order: run after Instruction 1 confirms field names and after the list and detail view components are identifiable.
 
 **Expected Output**
 
-- The transaction list row renders the category name (or a neutral placeholder if null) for each transaction.
-- The transaction detail view renders the category name (or a neutral placeholder if null) as a labeled field.
-- The category name is resolved from the join or include in the list query, not from a secondary fetch.
+- The transaction list row renders the payment method name (or neutral placeholder if null) for each transaction.
+- The transaction detail view renders the payment method as a labeled field (or neutral placeholder if null).
+- The method name is resolved from the query join or include, not from a secondary fetch.
 - Before/after comparison of the list row and detail view components.
 
 **Deliverables**
 
 - Updated transaction list row component file
 - Updated transaction detail view component file
-- Documentation of where in the query the category join or include is added
+- Documentation of where in the query the payment method join or include is added
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category identifier and display name fields before this instruction resolves category names in the view.
-- Confirm that the transaction list query can be extended to include category data without a per-row secondary fetch (e.g., via a join, include, or denormalized field).
+- Instruction 1 must confirm the payment method identifier and display name fields before this instruction resolves method names in the view.
+- Confirm that the transaction list query supports including payment method data without per-row secondary fetches.
 
 ---
 
-## Instruction 6: Change Transaction Category
+## Instruction 6: Custom Payment Method Creation
 
 **Goal**
-Implement the recategorization action on an existing transaction that presents the shared category selector, updates the stored category reference on confirm, and leaves the transaction unchanged on dismiss or no-change selection.
+Implement the custom payment method creation flow in the payment method management interface, enforcing name uniqueness and non-blank validation, and making the new method immediately available in the payment method selector after creation.
 
 **Scope**
-In scope: the recategorization action trigger (from the transaction list row or detail view), the category selector presentation pre-populated with the current category value, the category update on confirm, and the no-op paths (dismiss without selection, same category reselected). Out of scope: the category selector component itself (Instruction 3), category display in views (Instruction 5), uncategorized highlighting (Instruction 7), and derived value recalculation (no balance impact from category change).
+In scope: the creation form within the payment method management interface, name uniqueness validation (case-insensitive), blank-name rejection, the write that adds the new method to the payment method list with the user-created flag, and the immediate availability of the new method in the selector. Out of scope: the selector component (Instruction 3), the payment method schema (Instruction 1), method deletion (Instruction 7), and the summary view (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 20 acceptance criteria), Section 6a (category list is the single source of truth; no orphaned references), Instruction 1 output (category field name), Instruction 3 output (selector component interface)
+- PRD Section 5 (Story 24 acceptance criteria), Section 6a (custom method names must be unique within a user's method list; case-insensitive duplicate detection recommended), Section 6c (management interface is separate from the transaction entry form)
 
 **Constraints**
 
-- Use the shared category selector component from Instruction 3 — do not build a parallel selector.
-- Pre-populate the selector with the transaction's currently stored category value (including null if uncategorized) when it opens.
-- On confirm with a different category: update the transaction's category field to the new identifier.
-- On confirm with the same category already assigned: no write operation; transaction unchanged.
-- On dismiss without selection: no write operation; transaction unchanged.
-- The update must use the existing transaction record's identifier — do not delete and recreate.
-- After the category update, any view displaying the transaction's category (list row, detail view) must reflect the new value.
-- Recommended execution order: run after Instructions 1 and 3. Cross-reference Transaction Management PRD Instruction 1 for in-place update patterns.
+- Name uniqueness must be validated case-insensitively — "Cash" and "cash" must be treated as duplicates. If the codebase convention differs, confirm before implementing.
+- A blank or whitespace-only name must be rejected with a field-level validation error before any write occurs.
+- A duplicate name must be rejected with an error stating the name is already in use — do not silently alter the submitted name.
+- The new method must be written with the user-created flag (not the system-provided flag).
+- After a successful creation, the payment method selector (Instruction 3) must reflect the new method without requiring the user to reload the app — confirm whether the selector's data fetch is reactive or requires a manual refresh trigger.
+- Do not implement renaming or deletion within this instruction — those are out of scope (renaming) or belong to Instruction 7 (deletion).
+- Recommended execution order: run after Instructions 1 and 3 establish the schema and selector.
 
 **Expected Output**
 
-- A recategorization action trigger on the transaction list row or detail view (button, menu item, or equivalent).
-- The shared category selector opens pre-populated with the current category.
-- On confirm with a new category: the transaction record's category field is updated in place.
-- On confirm with the same category: no write.
-- On dismiss: no write.
-- The list and detail views reflect the updated category after confirmation.
+- A creation form in the payment method management interface with a name input field.
+- Blank/whitespace validation: blocks submission and displays a field-level error.
+- Duplicate name validation (case-insensitive): blocks submission and displays a "name already in use" error.
+- On valid submission: a new payment method record written with the user-created flag and a unique identifier.
+- The new method appears in the selector immediately after creation.
 
 **Deliverables**
 
-- Recategorization action trigger in the list row or detail view
-- Category update call showing in-place write by transaction identifier
+- Payment method creation form component (within the management interface)
+- Name uniqueness validation logic (case-insensitive)
+- Blank-name validation
+- Write call adding the new method to the payment method list
+- Selector refresh or reactivity trigger after creation
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category field name on the transaction record.
-- Instruction 3 must define the selector component's interface, including how the current value is passed in as a pre-selected option.
-- Confirm where the recategorization action is accessible — list row only, detail view only, or both.
+- Instruction 1 must define the payment method entity's schema and the user-created flag field before the write call is implemented.
+- Instruction 3 must expose a mechanism for the selector to reflect new methods after creation (reactive subscription, re-fetch trigger, or equivalent).
+- Confirm the navigation path to the payment method management interface before building the creation form's location (PRD Section 6c flags this as unconfirmed).
 
 ---
 
-## Instruction 7: Uncategorized Transaction Highlighting
+## Instruction 7: Payment Method Deletion
 
 **Goal**
-Implement the visual indicator on transaction list rows with a null category value, making them immediately distinguishable from categorized transactions, and implement the tap-to-categorize shortcut if confirmed by the author.
+Implement the deletion flow for payment methods, including a pre-deletion warning showing the count of transactions referencing the method, and the orphan-resolution strategy that ensures no transaction retains a reference to the deleted method after deletion completes.
 
 **Scope**
-In scope: the visual highlight applied to list rows where the category field is null, the removal of the highlight when a category is assigned, the behavior when a filtered or searched result set contains no uncategorized transactions, and the tap-to-categorize shortcut (if confirmed). Out of scope: the category assignment logic itself (Instruction 4 and 6), the category selector (Instruction 3), category display for categorized transactions (Instruction 5), and any modification to the transaction record triggered by the highlight (the highlight is purely a view concern).
+In scope: the delete action trigger on a payment method, the pre-deletion warning with the affected transaction count, the orphan-resolution write (reassign to null or block deletion — see Preconditions), and the removal of the method from the list. Out of scope: method creation (Instruction 6), the selector component (Instruction 3), and the summary recalculation trigger (Instruction 9).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 21 acceptance criteria), Section 6a (uncategorized highlighting must not alter the transaction record or auto-assign a category), Section 6c (category state included in list query result without secondary fetch)
+- PRD Section 5 (Story 24 fifth criterion: deletion warning showing transaction count before confirmation), Section 6a (deleting a method must not leave orphaned references; resolution strategy must be defined), Section 6b (referential integrity must be maintained after deletion)
 
 **Constraints**
 
-- The highlight is a read-only view concern — it must not write to the transaction record or assign any category value.
-- Apply the highlight only when the transaction's category field is null. Do not apply it to transactions with any assigned category, including the case where the category was just assigned in the current session.
-- When a category is assigned to a previously uncategorized transaction, the highlight must be removed from that row without requiring a full list reload if the codebase supports optimistic or reactive updates.
-- In a filtered or searched result set that contains only categorized transactions, no highlights are displayed — this follows naturally if the highlight is driven purely by the category null check.
-- Use the codebase's existing visual emphasis pattern (border, background tint, icon badge, or equivalent) for the highlight treatment. Do not introduce a new design token.
-- Do not implement the category assignment action here — if the tap-to-categorize shortcut is confirmed, it must open the shared category selector from Instruction 3 without duplicating its logic.
-- Recommended execution order: run after Instructions 1 (confirms null field name), 3 (confirms selector interface for shortcut), and 5 (confirms list row component structure).
+- This entire instruction is conditional on PRD Open Question 3 confirming deletion is in scope. If unconfirmed, do not implement — halt and flag.
+- The deletion warning must state the number of transactions currently referencing the method before the user confirms. Do not proceed to deletion without surfacing this count.
+- The orphan-resolution strategy must be confirmed with the author before implementation: options are (a) reassign affected transactions' method field to null, (b) block deletion if any transactions reference the method, or (c) require the user to bulk-reassign before deletion. Implement only the confirmed strategy.
+- The deletion must not complete while any transaction still holds a reference to the method's identifier — enforce this at the write layer.
+- Do not implement method renaming in this instruction — it is out of scope per PRD Section 8.
+- Recommended execution order: run after Instructions 1 and 6 establish the schema and creation flow.
 
 **Expected Output**
 
-- Transaction list rows with a null category value are visually distinguished from categorized rows in a way immediately noticeable without tapping.
-- The highlight is removed when the transaction's category is updated to a non-null value.
-- When all visible transactions are categorized, no highlight indicators are shown.
-- If the tap-to-categorize shortcut is confirmed: tapping an uncategorized row's highlight opens the shared category selector for that transaction.
-- If the shortcut is not confirmed: the highlight is a non-interactive visual indicator only.
+- A delete action trigger on each method in the payment method management interface.
+- A pre-deletion query that counts transactions referencing the method.
+- A warning step displaying the affected transaction count before confirmation.
+- On confirm: orphan-resolution write executed (per confirmed strategy), followed by method record deletion.
+- On cancel: no writes; method remains.
+- After deletion: no transaction record references the deleted method's identifier.
 
 **Deliverables**
 
-- Updated transaction list row component with null-category highlight logic
-- Tap-to-categorize shortcut wiring (if confirmed), delegating to the Instruction 3 selector
+- Delete action trigger in the payment method management interface
+- Pre-deletion transaction count query
+- Warning/confirmation UI component
+- Orphan-resolution write and method deletion (in the confirmed strategy)
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category field name and its null representation before the highlight condition is written.
-- PRD Open Question 4 (does the highlight act as a tap target or only a visual indicator) must be confirmed before the shortcut is implemented. If unconfirmed, implement the visual indicator only and flag the shortcut as pending.
-- Confirm the codebase's visual emphasis pattern before choosing a highlight treatment.
+- PRD Open Question 3 (is deletion in scope, and what is the orphan-resolution strategy) must be confirmed before this instruction runs.
+- Instruction 1 must define the payment method identifier and the transaction's method reference field before the orphan-resolution write is implemented.
+- Confirm the codebase's transaction/atomic write mechanism for executing the orphan resolution and deletion together.
 
 **Open Questions**
 
-- PRD Open Question 4: Does tapping the highlight open category assignment directly, or is it only a visual indicator? Without this, the interactive behavior cannot be implemented.
+- PRD Open Question 3: Is deletion in scope? If yes, what is the orphan-resolution strategy — null reassignment, deletion block, or forced bulk reassignment?
 
 ---
 
-## Instruction 8: Merge Categories
+## Instruction 8: Payment Method Summary View
 
 **Goal**
-Implement the merge operation that reassigns all transactions from a source category to a target category, removes the source category from the category list, and presents a pre-confirmation count of affected transactions — executed atomically with no partial state persisted.
+Implement the summary screen that displays total spending per payment method, derived from live transaction data, with correct handling of income vs. expense, zero-total methods, and unassigned transactions.
 
 **Scope**
-In scope: the merge UI (source and target selection), the pre-confirmation step with the affected transaction count, the atomic reassignment of all source-category transactions to the target, the removal of the source category from the category list, the self-merge block, and the cancel path. Out of scope: referential integrity enforcement at the data layer (Instruction 9), undo for merge (see Open Questions), and individual recategorization (Instruction 6).
+In scope: the summary screen component, the aggregation query grouped by payment method, the expense-only vs. income-breakdown logic (per confirmed behavior), the zero-total method display decision, and the unassigned transaction grouping. Out of scope: the recalculation trigger on transaction save/edit/delete (Instruction 9), filtering the summary by date range or other criteria (see Open Questions), and per-method budgets (out of scope per PRD Section 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 22 acceptance criteria), Section 6a (merge must be atomic; partial merge state must not be persisted; category list is the single source of truth), Section 6c (merge interface is a distinct screen or modal separate from the transaction entry form)
+- PRD Section 5 (Story 25 acceptance criteria), Section 6a (summary must derive totals from live transaction data — no cached running total), Section 6b (data layer must support aggregation queries grouped by payment method), Section 6c (summary is a distinct screen or section — navigation path unspecified)
 
 **Constraints**
 
-- The merge must be atomic: all transaction reassignments and the source category deletion must succeed or fail together. Do not commit partial state.
-- The confirmation step must state the number of transactions that will be reassigned from the source to the target before any write occurs.
-- Block self-merge (source equals target) before the confirmation step — display an error or informational message and do not proceed.
-- On confirm: reassign all transactions referencing the source category to the target category identifier, then delete the source category record.
-- On cancel: no writes; both source and target categories remain unchanged.
-- The target category's name and its existing transactions must be unchanged after the merge — only its transaction count grows.
-- Do not implement referential integrity cleanup here — that surface belongs to Instruction 9. This instruction's responsibility ends when the atomic write completes; Instruction 9 verifies and enforces that no orphaned references remain.
-- PRD Open Question 5 (merge more than two categories at once): if unconfirmed, implement one source to one target only and flag the assumption.
-- Recommended execution order: run after Instructions 1 and 9's interface is defined, since the merge write must complete before Instruction 9's integrity check fires.
+- Compute totals from live transaction data on each load — do not read a stored or cached total field.
+- Expense and income handling must follow the confirmed behavior from PRD Open Question 4. If unconfirmed, sum only expense transactions per method and flag income as excluded by assumption.
+- Unassigned transactions (null method field) must be grouped under a distinct "Unspecified" entry or explicitly excluded — they must not silently affect any named method's total.
+- Zero-total methods: display behavior must follow PRD Open Question 5. If unconfirmed, omit methods with no transactions and flag.
+- Each displayed method total must be a sum of transaction amounts — do not display a blank or null where a zero or omitted row belongs.
+- Do not implement the recalculation trigger for post-save/edit/delete updates — that surface belongs to Instruction 9.
+- Recommended execution order: run after Instruction 1 confirms the payment method and transaction field names and after the data layer's aggregation capability is confirmed.
 
 **Expected Output**
 
-- A merge interface (screen or modal) where the user selects a source category and a target category.
-- Self-merge blocked with an informational message before confirmation.
-- A confirmation step displaying: source category name, target category name, and the count of transactions to be reassigned.
-- On confirm: atomic write — all source transactions reassigned to target, source category deleted.
-- On cancel: no writes; both categories intact.
-- Post-merge: derived views (filter lists, category selectors) no longer show the source category.
+- A summary screen or section that loads and displays a list of payment methods with their computed spending totals.
+- The aggregation query: groups transactions by payment method identifier, sums amounts for the confirmed transaction type (expense only, or both), and returns one row per method.
+- Unassigned transactions surfaced as a distinct "Unspecified" entry or explicitly excluded — documented either way.
+- Zero-total methods shown with a zero or omitted per the confirmed behavior.
+- Each total correctly excludes transaction types not in scope (e.g., income, if expense-only is confirmed).
 
 **Deliverables**
 
-- Merge interface component file (screen or modal)
-- Source and target selection UI
-- Pre-confirmation transaction count query
-- Atomic reassignment and deletion write
-- Self-merge guard
+- Summary screen or section component file
+- Aggregation query grouped by payment method
+- Unassigned transaction handling logic (group or exclude)
+- Zero-total method display logic
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category identifier field and the transaction category reference field before the reassignment write is implemented.
-- Confirm the codebase's transaction mechanism (database transaction, batch write, or equivalent) for atomic operations before writing the merge write.
-- PRD Open Question 5 (one-to-one merge vs. many-to-one) must be confirmed or defaulted to one-to-one.
-- PRD Open Question 7 (undo for merge) must be confirmed before implementing — if undo is required, a pre-merge snapshot mechanism must be designed. If unconfirmed, implement without undo and flag.
+- Instruction 1 must confirm the payment method identifier field and the transaction amount and type fields before the aggregation query is written.
+- Confirm that the codebase's data layer supports grouping aggregation queries — PRD Section 6b flags this as a requirement to verify.
+- PRD Open Question 4 (expense only vs. income breakdown) must be confirmed or defaulted to expense-only with a flag.
+- PRD Open Question 5 (zero-total methods shown or hidden) must be confirmed or defaulted to hidden with a flag.
+- PRD Open Question 6 (all-time vs. date-range scoped summary) must be confirmed before building the query. If date-range scoping is required, the query must accept a date range parameter — this significantly affects the query and UI complexity.
 
 **Open Questions**
 
-- PRD Open Question 5: Can more than two categories be merged at once? If yes, the source selector must support multi-select and the reassignment loop must handle a set of sources.
-- PRD Open Question 7: Is there an undo mechanism for merge? If yes, this instruction must capture a pre-merge snapshot before the atomic write, and a separate undo instruction is required.
+- PRD Open Question 4: Does the summary show only expense totals, or also income per method? This changes the aggregation filter.
+- PRD Open Question 5: Are zero-total methods shown with a zero or omitted entirely?
+- PRD Open Question 6: Is the summary scoped to all time, or can the user apply a date range? A date-range-capable summary is substantially more complex than an all-time aggregate.
 
 ---
 
-## Instruction 9: Post-Merge Referential Integrity Enforcement
+## Instruction 9: Payment Method Summary Recalculation Trigger
 
 **Goal**
-Implement the data-layer constraint or post-merge verification that ensures no transaction record retains a reference to a deleted source category after a merge completes.
+Implement the trigger that causes the payment method summary totals to update when a transaction is saved, edited, or deleted, so the displayed totals remain accurate without requiring a manual refresh.
 
 **Scope**
-In scope: the referential integrity check or constraint applied after the merge write, the detection of any orphaned category references on transaction records, and the remediation path if orphaned references are found. Out of scope: the merge logic itself (Instruction 8), the category schema definition (Instruction 1), and UI changes.
+In scope: the lifecycle hook, focus event, or reactive subscription that causes the summary view to re-fetch or recompute its aggregation when the user returns to it after a transaction change. Out of scope: the summary aggregation query itself (Instruction 8), the transaction save/edit/delete logic (Transaction Entry and Transaction Management PRDs), and any real-time push update not implied by the PRD.
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6a (orphaned category references must not persist after merge or deletion), Section 6b (after a merge, no transaction record may reference the source category's identifier; referential integrity must be enforced at the data layer)
+- PRD Section 5 (Story 25 third criterion: affected method total updates when a new transaction is saved or an existing one is edited), Section 6a (summary must derive totals from live data — not a cached running total)
 
 **Constraints**
 
-- Enforcement must occur at the data layer — do not rely solely on application-level logic that could be bypassed.
-- If the database supports foreign key constraints with cascade or restrict behavior, confirm whether they are applicable here. If they are, document the constraint; if not (e.g., the source category is deleted after reassignment), implement a post-write verification query.
-- The post-merge verification must confirm that zero transaction records reference the deleted source category identifier. If any are found, treat this as an error state and surface it — do not silently pass.
-- Do not re-implement the merge write — this instruction runs after Instruction 8's atomic write and verifies its outcome.
-- Recommended execution order: run after Instruction 8 defines the merge write and the point at which the source category is deleted.
+- The trigger must fire when the user returns to the summary screen after a transaction save, edit, or delete — at minimum, on screen focus or mount after a relevant change event.
+- Do not re-implement the aggregation query — invoke the existing fetch defined in Instruction 8.
+- Do not modify the transaction save, edit, or delete handlers — those surfaces belong to other PRDs.
+- Use the screen lifecycle or focus event pattern already established in the codebase. Cross-reference Transaction History PRD Instruction 8 for the established recalculation trigger pattern.
+- The trigger must not cause a redundant fetch on the initial mount of the summary screen — only on return after a change.
+- Recommended execution order: run after Instruction 8 establishes the summary fetch pattern.
 
 **Expected Output**
 
-- A post-merge verification query or constraint that checks for transaction records still referencing the deleted source category identifier.
-- If zero orphaned references: merge is confirmed complete.
-- If orphaned references are found: an error is raised, logged, or surfaced — define the error handling path consistent with the codebase's error patterns.
-- If database-level foreign key constraints are used: documentation of the constraint definition and how it prevents orphaned references at the schema level.
+- A lifecycle hook, focus listener, or reactive subscription that re-fetches the summary aggregation when the summary screen becomes active after a transaction change.
+- Confirmation that the trigger fires after save, edit, and delete operations when the user navigates to the summary screen.
+- No duplicate fetch on initial entry to the screen.
 
 **Deliverables**
 
-- Post-merge verification query or database constraint definition
-- Error handling path for orphaned references if found
-- Documentation of where in the merge flow the verification runs
+- Updated summary screen component showing the re-fetch trigger
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the category reference field on the transaction record and the category entity's identifier field before the verification query is written.
-- Instruction 8 must define the merge write completion point before this instruction's verification is wired to fire after it.
-- Confirm whether the codebase's database supports and enforces foreign key constraints — this determines whether the enforcement is schema-level or application-level.
+- Instruction 8 must define the summary data fetch before this instruction wraps or re-invokes it.
+- Confirm the screen lifecycle or navigation event model in the codebase before selecting the trigger mechanism.

@@ -1,5 +1,6 @@
 import { baseApi } from './baseApi'
 import type { CategoryResponse } from './categoryApi'
+import type { PaymentMethod } from '../../../features/payment-methods/types'
 
 export type TransactionType = 'INCOME' | 'EXPENSE'
 
@@ -9,6 +10,7 @@ export interface TransactionRequest {
   transactionDate?: string
   description?: string
   categoryId?: number
+  paymentMethodId?: number
 }
 
 export interface TransactionResponse {
@@ -18,6 +20,7 @@ export interface TransactionResponse {
   transactionDate: string
   description: string
   category?: CategoryResponse
+  paymentMethod?: PaymentMethod
 }
 
 export const transactionApi = baseApi.injectEndpoints({
@@ -28,7 +31,7 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Transactions', 'User'],
+      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
     getTransactions: builder.query<TransactionResponse[], void>({
       query: () => '/transactions',
@@ -47,14 +50,14 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: payload,
       }),
-      invalidatesTags: ['Transactions', 'User'],
+      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
     deleteTransaction: builder.mutation<void, number>({
       query: (id) => ({
         url: `/transactions/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Transactions', 'User'],
+      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
     bulkDeleteTransactions: builder.mutation<void, number[]>({
       query: (ids) => ({
@@ -62,7 +65,7 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { ids },
       }),
-      invalidatesTags: ['Transactions', 'User'],
+      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
   }),
 })
