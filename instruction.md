@@ -1,402 +1,389 @@
-1. Balance Computation Function — Implement the canonical balance formula that derives the current balance from the full transaction store, including reconciliation adjustments, with consistent decimal precision.
-2. Balance Auto-Calculation Trigger — Implement the data-layer hooks that fire the balance recomputation on every transaction mutation: create, edit, delete, and bulk delete.
-3. Balance Display Update — Implement the UI-layer update that reflects the recomputed balance in the displayed balance figure after each mutation trigger fires.
-4. Reconciliation Adjustment Record — Define and implement the data schema for reconciliation adjustment records, distinguishing them from regular transactions in the store.
-5. Balance Reconciliation Workflow — Implement the reconciliation interface where the user enters a real-world balance, reviews the computed difference, and confirms or dismisses the adjustment.
-6. Balance History Derivation — Implement the computation that produces a chronological sequence of balance values from the ordered transaction store, including reconciliation entries, with retroactive correction when past transactions are edited or deleted.
-7. Balance History View — Implement the balance history screen that presents the derived chronological balance sequence, with each entry showing date, balance value, and the causative event.
-8. Opening Balance — Implement the optional starting balance value that seeds the balance formula and appears as the first entry in the balance history.
+1. Export Data Assembly — Implement the function that queries the transaction store and assembles the export dataset as an ordered, human-readable row collection, applying the confirmed field list and excluding raw system identifiers.
+2. Export Format Serializer — Implement the serializer that converts the assembled row collection into the confirmed file format (CSV, XLSX, or both), with labeled column headers and correct value formatting.
+3. Export File Delivery — Implement the platform-appropriate file delivery mechanism (download, share sheet, or email attachment) that hands the serialized file to the user.
+4. Full Export Action — Implement the full export trigger that invokes the assembly, serialization, and delivery pipeline for the user's complete transaction history, including the empty-history edge case.
+5. Pre-Export Filter Interface — Implement the filter UI presented before a filtered export is generated, reusing existing filter logic to define the export scope.
+6. Pre-Export Transaction Count Preview — Implement the count preview step that displays the number of matching transactions to the user before the filtered export file is generated.
+7. Filtered Export Action — Implement the filtered export trigger that passes the active filter criteria to the assembly function and produces a scoped export file identical in structure to the full export.
+8. Export Filter Metadata — Implement the recording of applied filter criteria in the exported file (filename suffix, header row, or metadata section) so the export is self-documenting.
 
 ---
 
-## Instruction 1: Balance Computation Function
+## Instruction 1: Export Data Assembly
 
 **Goal**
-Implement the canonical function that computes the current balance from the full transaction store — summing income, subtracting expenses, and applying reconciliation adjustments — at consistent decimal precision, to serve as the single authoritative balance calculation used everywhere in the codebase.
+Implement the function that queries the transaction store at the moment of export, assembles an ordered collection of human-readable export rows from the confirmed field list, and returns it as the single dataset consumed by all downstream export instructions.
 
 **Scope**
-In scope: the balance computation function, the formula (income sum minus expense sum plus or minus reconciliation adjustments), the decimal precision rule, and the opening balance addend if confirmed. Out of scope: the mutation trigger that invokes this function (Instruction 2), the UI update that displays the result (Instruction 3), the reconciliation adjustment schema (Instruction 4), and the balance history sequence (Instruction 6).
+In scope: the query that reads the transaction store at export time, the field mapping from stored values to human-readable export values (resolving foreign keys to display names, formatting dates and amounts), the handling of reconciliation adjustment entries (include with label or exclude per confirmed behavior), and the row ordering. Out of scope: file format serialization (Instruction 2), file delivery (Instruction 3), filter application (Instruction 7), and filter metadata (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6b (balance formula: sum of income minus sum of expenses plus or minus reconciliation adjustments; minimum two decimal places; balance history reconstructable from transaction store alone), Section 6a (balance derived exclusively from transaction store; no mutable cached field)
+- PRD Section 5 (Story 29 third criterion: each row contains at minimum date, type, amount, category, payment method), Section 6a (no internal system identifiers or raw database values in export; all values human-readable; reconciliation entries labeled or excluded), Section 6b (date values in ISO 8601 format; amounts as plain numeric values without currency symbols; running balance per row if confirmed)
 
 **Constraints**
 
-- The function must read all transactions and reconciliation adjustments from the store — do not read from any cached or stored balance field.
-- Apply consistent decimal precision throughout the computation — do not allow intermediate values to be truncated or rounded inconsistently. Use the precision standard already established in the codebase (cross-reference Transaction Entry PRD Instruction 9 for the amount field type).
-- The function must handle the case where the transaction store is empty — return zero, not null or undefined.
-- Do not store the result of this function as a persistent field — the function is called whenever the balance is needed and returns a fresh computed value each time.
-- If an opening balance is confirmed in scope (PRD Open Question 1), the function must accept it as an addend at the start of the computation. If unconfirmed, implement without it and flag the omission.
-- PRD Open Question 7 (global balance vs. per-method balance) must be confirmed before writing the function signature. If per-method balances are required, the function must accept a method identifier as a parameter and filter accordingly. If unconfirmed, implement a global balance and flag.
-- Recommended execution order: run before all other instructions — Instructions 2, 3, 5, 6, and 7 all depend on this function.
+- Query the transaction store at the moment the export is initiated. Records added or modified after the export is triggered must not appear in the current export — read a point-in-time snapshot if the data layer supports it, or note the limitation if not.
+- Resolve all foreign key references to human-readable values at assembly time: category name from category identifier, payment method name from method identifier, transaction type label from type enum. Do not export raw identifiers.
+- Format date values as ISO 8601 (YYYY-MM-DD) unless the author confirms a different format.
+- Export amount as a plain numeric value with consistent decimal precision — do not embed currency symbols in the amount field.
+- Reconciliation adjustment entries: include with a distinct type label or exclude entirely, per PRD Open Question 5. If unconfirmed, exclude and flag.
+- PRD Open Question 3 (exact field list and whether running balance per row is included) must be confirmed before the field mapping is finalized. If unconfirmed, assemble the five minimum fields (date, type, amount, category, payment method) and flag additional fields as pending.
+- The function must accept an optional filter parameter (a set of criteria) so that Instruction 7 can pass filter state into it without requiring a separate assembly function.
+- When called with no filter, the function returns all transactions. When called with a filter, it returns only matching transactions. The filter application logic belongs to Instruction 7 — this function only receives and applies a pre-built predicate or filtered ID set.
+- Recommended execution order: run before Instructions 2, 3, 4, and 7, which all depend on the assembled row collection.
 
 **Expected Output**
 
-- A pure function (or equivalent) that accepts the full transaction dataset (and optionally an opening balance value) and returns the computed balance as a decimal value at consistent precision.
-- The function correctly handles: income transactions (add), expense transactions (subtract), reconciliation adjustments (add or subtract per direction), and an empty dataset (return zero or opening balance if set).
-- A named constant or configuration value for the decimal precision used.
+- An assembly function that accepts the full transaction store (and an optional filter predicate) and returns an ordered array of export row objects with human-readable field values.
+- Each row contains: at minimum, the five confirmed fields with correctly formatted values.
+- Date fields formatted as ISO 8601.
+- Amount fields as plain decimals.
+- Foreign keys resolved to display names.
+- Reconciliation entries handled per confirmed behavior.
+- An empty array returned when no transactions match (not null or an error).
 
 **Deliverables**
 
-- Balance computation function file
-- Decimal precision constant or configuration
-- Unit-level examples or test cases showing the formula applied to known inputs and expected outputs
+- Export data assembly function file
+- Field mapping documentation (stored field → export column name and format)
 - List of all files added or modified
 
 **Preconditions**
 
-- Cross-reference Transaction Entry PRD Instruction 9 output to confirm the amount field type and precision convention before writing the computation.
-- PRD Open Question 7 (global vs. per-method) must be confirmed or defaulted to global with a flag.
-- PRD Open Question 1 (opening balance) must be confirmed or defaulted to not included with a flag.
-- Instruction 4 must define the reconciliation adjustment record's schema (amount and direction fields) before this function reads from it — or the reconciliation adjustment fields must be identifiable in the existing codebase.
+- PRD Open Question 3 (field list and running balance) must be confirmed or defaulted to the five minimum fields with a flag.
+- PRD Open Question 5 (reconciliation entries included or excluded) must be confirmed or defaulted to excluded with a flag.
+- Confirm that category and payment method display names are resolvable from the transaction store query without per-row secondary fetches (cross-reference Transaction Categories PRD Instruction 5 and Payment Method PRD Instruction 5 for the established join patterns).
+- Cross-reference Balance Management PRD Instruction 1 if running balance per row is confirmed — the balance computation function must be available before it can be applied row-by-row.
 
 **Open Questions**
 
-- PRD Open Question 1: Is there an opening/starting balance? If yes, the function must include it as the base value before any transaction is summed.
-- PRD Open Question 7: Is the balance global or per payment method? A per-method balance requires the function to be parameterized by method identifier.
-- PRD Section 6b flags whether full recomputation or delta application is the preferred approach for edits. A pure recomputation function is simpler and always correct; a delta approach is more performant. Confirm the preferred approach with the author.
+- PRD Open Question 3: What is the exact field list? Is running balance per row included? Without this, the field mapping is provisional.
+- PRD Open Question 5: Are reconciliation adjustment entries included in the export, and if so, what label do they carry?
 
 ---
 
-## Instruction 2: Balance Auto-Calculation Trigger
+## Instruction 2: Export Format Serializer
 
 **Goal**
-Implement the data-layer hooks that invoke the balance computation function after every transaction mutation — create, edit, delete, and bulk delete — ensuring no mutation path bypasses recalculation.
+Implement the serializer that converts the assembled row collection from Instruction 1 into the confirmed export file format, producing a file with labeled column headers and correctly formatted values ready for delivery.
 
 **Scope**
-In scope: the trigger or subscription wired to each transaction mutation event (create, edit, delete, bulk delete) that calls the balance computation function from Instruction 1 and makes the result available to the UI layer. Out of scope: the balance computation itself (Instruction 1), the UI update that renders the result (Instruction 3), and the reconciliation workflow (Instruction 5).
+In scope: the serialization of the row array into the confirmed format (CSV, XLSX, or both), the column header row, and any format-specific encoding requirements. Out of scope: the data assembly (Instruction 1), file delivery (Instruction 3), filter logic (Instruction 7), and filter metadata in the file (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 26 acceptance criteria: balance updates on income save, expense save, edit, type change, delete, and bulk delete), Section 6a (auto-calculation must trigger on every transaction mutation; no mutation path may bypass recalculation), Section 6c (data layer must expose hooks or events the balance computation can subscribe to)
+- PRD Section 5 (Story 29 second criterion: every transaction as a separate row with field values in labeled columns; file openable in standard tools without transformation), Section 6a (file must not require transformation, decoding, or proprietary software), Section 6b (date and amount formatting already applied by Instruction 1 — serializer must not reformat)
 
 **Constraints**
 
-- Every mutation path — create, edit, delete, and bulk delete — must invoke the trigger. Audit the codebase for all transaction write paths and confirm each is covered before completing this instruction.
-- The trigger must fire after the mutation is confirmed persisted — do not recompute on optimistic writes that may be rolled back.
-- Bulk delete must trigger a single recomputation after all deletions complete, not one recomputation per deleted transaction.
-- The trigger must not require the UI layer to initiate it — it must fire from the data layer regardless of which UI path caused the mutation.
-- Do not re-implement the balance computation — call the function defined in Instruction 1.
-- Do not implement the UI update — the trigger's responsibility ends when the recomputed balance value is available for consumption. Instruction 3 handles the display update.
-- Reconciliation adjustments (Instruction 4) are also transaction store mutations — confirm that the trigger covers reconciliation writes as well.
-- Recommended execution order: run after Instruction 1 defines the computation function. Run before Instruction 3, which consumes the trigger's output.
+- Implement only the confirmed format(s) from PRD Open Question 1. Do not build XLSX support if only CSV is confirmed, or vice versa. If multiple formats are confirmed, implement a format selector parameter.
+- The first row of the output file must be a header row with human-readable column names matching the field mapping from Instruction 1.
+- Do not re-format date or amount values — they arrive pre-formatted from Instruction 1. The serializer's job is structure, not transformation.
+- For CSV: values containing commas, quotes, or newlines must be correctly escaped per RFC 4180.
+- For XLSX: confirm whether a third-party library is already present in the codebase before introducing one. If none is present, document the library choice as an assumption and flag for author confirmation.
+- The serializer must accept the row array from Instruction 1 and return a file blob, buffer, or equivalent in-memory representation — do not write directly to disk or trigger delivery from this function.
+- Recommended execution order: run after Instruction 1 confirms the row structure and field names. Run before Instructions 3, 4, and 7.
 
 **Expected Output**
 
-- A trigger, event listener, or reactive subscription wired to each transaction mutation event.
-- After each mutation, the balance computation function is called with the updated transaction dataset and the result is made available to the UI layer.
-- Bulk delete triggers one recomputation, not N.
-- A list of all transaction write paths in the codebase and confirmation that each is covered by the trigger.
+- A serializer function that accepts a row array and a format identifier and returns a file blob or buffer.
+- A header row derived from the field mapping in Instruction 1.
+- For CSV: RFC 4180-compliant output.
+- For XLSX: a valid workbook with one sheet containing the header and data rows.
+- An empty input (zero-row array) produces a file with only the header row — not an error.
 
 **Deliverables**
 
-- Trigger or subscription implementation wired to each mutation path
-- Audit list of all transaction write paths and their trigger coverage
+- Export format serializer function file
+- Header row definition (column names in order)
+- Library choice documented if XLSX is confirmed (existing or newly introduced)
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must define the balance computation function before this instruction calls it.
-- Confirm the data layer's mutation event model (callback hooks, reactive store, pub/sub, ORM lifecycle events, or equivalent) before choosing the trigger mechanism.
-- Cross-reference Transaction Management PRD (delete and bulk delete handlers) and Transaction Entry PRD (create and edit handlers) to identify all mutation paths.
-
----
-
-## Instruction 3: Balance Display Update
-
-**Goal**
-Implement the UI-layer update that reflects the recomputed balance in the displayed balance figure after each trigger fires from Instruction 2, with no intermediate inconsistent state visible to the user.
-
-**Scope**
-In scope: the UI component or state binding that reads the recomputed balance from the trigger output and updates the displayed figure, the update ordering guarantee (balance updates before the user can initiate another action), and the display location for the balance figure. Out of scope: the computation itself (Instruction 1), the mutation trigger (Instruction 2), and the balance history view (Instruction 7).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 5 (Story 26 acceptance criteria: balance updates without manual user action; update completes before user can initiate another transaction action; bulk delete produces a single update, not sequential intermediate states), Section 6c (balance display implied by the transaction history screen — cross-reference Transaction History PRD)
-
-**Constraints**
-
-- The displayed balance must update atomically from the user's perspective — do not show an intermediate value between the old and new balance.
-- For bulk delete, the display must update once after all deletions are reflected in the recomputed balance — not once per deleted transaction.
-- The balance update must complete before the UI re-enables transaction actions — confirm the UI blocking or sequencing mechanism in the codebase before implementing.
-- Do not re-implement the balance computation or the mutation trigger — bind the UI to the output already produced by Instruction 2.
-- Cross-reference Transaction History PRD Instruction 7 for the existing balance display component — update it to bind to the trigger output rather than a static or separately fetched value, if applicable.
-- Recommended execution order: run after Instructions 1 and 2.
-
-**Expected Output**
-
-- The balance display component reads from the trigger output (reactive state, store subscription, or equivalent) and re-renders when a new computed value is available.
-- The update is atomic from the user's perspective — no intermediate inconsistent state is displayed.
-- For bulk delete: the display updates once, after the full bulk deletion's recomputed balance is available.
-- Before/after comparison of the balance display component showing the binding change.
-
-**Deliverables**
-
-- Updated balance display component file
-- State binding or subscription showing how the trigger output flows to the display
-- List of all files added or modified
-
-**Preconditions**
-
-- Instruction 2 must define the trigger output interface (how the recomputed balance is surfaced to the UI layer) before this instruction binds to it.
-- Confirm the UI state management pattern in the codebase (reactive store, context, local state, or equivalent) before implementing the binding.
-- Cross-reference Transaction History PRD Instruction 7 to avoid duplicating balance display logic.
-
----
-
-## Instruction 4: Reconciliation Adjustment Record
-
-**Goal**
-Define and implement the data schema for reconciliation adjustment records, ensuring they are stored as distinct, identifiable entries separate from regular transactions, with the required fields to support balance computation and history display.
-
-**Scope**
-In scope: the reconciliation adjustment entity schema (amount, direction, timestamp, type identifier, and optional note field if confirmed), the storage location (within the existing transaction store with a type discriminator, or a separate entity — per confirmed approach), and the reference table documenting all field names and types. Out of scope: the reconciliation workflow UI (Instruction 5), balance computation (Instruction 1), and balance history rendering (Instruction 7).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 6a (reconciliation adjustments must be recorded as distinct, identifiable entries; must not overwrite existing transactions; must appear as labeled, distinguishable events in both transaction and balance history), Section 6b (reconciliation adjustment records must store: adjustment amount, direction, timestamp, and a type identifier)
-
-**Constraints**
-
-- Reconciliation adjustments must be distinguishable from regular income and expense transactions at the data layer — do not store them as anonymous income or expense entries.
-- The type identifier field must uniquely mark the record as a reconciliation adjustment — confirm the naming convention with the codebase before choosing a value.
-- The direction field must indicate whether the adjustment is positive (increases balance) or negative (decreases balance).
-- If PRD Open Question 2 confirms adjustments are stored within the existing transaction store (with a type discriminator), the schema addition must not break existing transaction queries that filter for regular income/expense records.
-- If PRD Open Question 2 confirms a separate entity, define it as its own schema and document the join or union required for balance computation and history derivation.
-- PRD Open Question 6 (note/reason field): if confirmed, add a nullable text field to the schema. If unconfirmed, omit and flag.
-- Do not implement any UI or business logic here — this instruction produces the schema and reference document only.
-- Recommended execution order: run before Instructions 5, 6, and 7, which all read from this schema. Coordinate with Instruction 1, which must read reconciliation adjustment fields for balance computation.
-
-**Expected Output**
-
-- The reconciliation adjustment schema: field names, data types, nullability, and constraints.
-- Storage approach documented: within transaction store with type discriminator, or separate entity.
-- A flat reference table: field name, type, required/optional, description.
-- If modifying an existing schema, a before/after comparison and migration plan.
-
-**Deliverables**
-
-- New or updated schema file for reconciliation adjustment records
-- Migration file or script if the codebase uses a migration system
-- Flat reference table
-- List of all files added or modified
-
-**Preconditions**
-
-- PRD Open Question 2 (special transaction type in existing store vs. separate adjustment entity) must be confirmed before the storage location is chosen. If unconfirmed, implement as a type-discriminated record within the existing transaction store and flag.
-- PRD Open Question 6 (note/reason field) must be confirmed or defaulted to omitted with a flag.
-- Confirm the transaction store's existing type field (if any) before adding a reconciliation discriminator value to avoid conflicts.
+- PRD Open Question 1 (export format: CSV, XLSX, or both) must be confirmed before this instruction is implemented.
+- Instruction 1 must define the row structure and column names before the header row is written.
+- If XLSX is confirmed, confirm whether a spreadsheet generation library is already present in the codebase.
 
 **Open Questions**
 
-- PRD Open Question 2: Are reconciliation adjustments stored within the existing transaction store (with a type discriminator) or in a separate entity? This is the primary structural decision for this instruction.
-- PRD Open Question 6: Does the reconciliation schema include a note or reason field?
+- PRD Open Question 1: What export format(s) are supported? This is the primary decision for this instruction — CSV requires no library; XLSX requires one.
 
 ---
 
-## Instruction 5: Balance Reconciliation Workflow
+## Instruction 3: Export File Delivery
 
 **Goal**
-Implement the reconciliation interface where the user enters a known real-world balance, reviews the computed difference, confirms to create a reconciliation adjustment record, or dismisses without any change.
+Implement the platform-appropriate mechanism that delivers the serialized export file to the user — download (web), share sheet (mobile), or email attachment — after the file blob or buffer is produced by Instruction 2.
 
 **Scope**
-In scope: the reconciliation screen or modal, the display of the current app-computed balance alongside the user's input field, the difference computation and pre-confirmation display, the write that creates a reconciliation adjustment record on confirm, the no-discrepancy path (no adjustment created when balances match), and the dismiss path (no writes). Out of scope: the reconciliation adjustment schema (Instruction 4), the balance computation function (Instruction 1), and the balance history rendering of the adjustment (Instruction 7).
+In scope: the delivery trigger that receives the file blob or buffer from Instruction 2 and initiates the platform-native delivery flow, and any filename construction logic (including format suffix and optional filter metadata suffix per Instruction 8). Out of scope: file serialization (Instruction 2), data assembly (Instruction 1), and filter metadata content (Instruction 8 — this instruction only appends what Instruction 8 provides to the filename).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 27 acceptance criteria), Section 6a (reconciliation adjustments recorded as distinct entries; must not overwrite existing transactions), Section 6c (reconciliation interface distinct from standard transaction entry form)
+- PRD Section 5 (Story 29 fifth criterion: file immediately openable without transformation; delivery mechanism — download, share sheet, or email), Section 6c (platform-native share sheet, direct download, or email attachment depending on target platform)
 
 **Constraints**
 
-- Display the current app-computed balance from Instruction 1 — do not hardcode or independently compute it here.
-- Compute the difference as: user-entered real-world balance minus app-computed balance. Display this difference (with sign) before the user confirms.
-- If the difference is zero (balances match), inform the user that no discrepancy exists and do not create an adjustment record.
-- On confirm with a non-zero difference: write a reconciliation adjustment record using the schema from Instruction 4. The adjustment amount is the absolute value of the difference; the direction is positive if the real-world balance is higher, negative if lower.
-- On dismiss without confirming: no writes; balance and transaction history unchanged.
-- The adjustment write must trigger the balance auto-calculation trigger from Instruction 2 — confirm the write path fires the trigger.
-- Do not use the standard transaction entry form for reconciliation — the reconciliation interface is distinct, per PRD Section 6c.
-- PRD Open Question 6 (note/reason field): if confirmed, include a note input in the reconciliation form. If unconfirmed, omit and flag.
-- Recommended execution order: run after Instructions 1 and 4.
+- Use the platform's native delivery mechanism — do not implement a custom file transfer layer.
+- The filename must include the export format extension and a timestamp indicating when the export was generated (e.g., `transactions_2026-03-26.csv`). Confirm the filename convention with the author or use this pattern as a default and flag.
+- Do not embed the file blob construction or data assembly in this function — receive the blob from Instruction 2 and deliver it.
+- If the platform is mobile and a share sheet is used, confirm the share sheet API available in the codebase before implementing.
+- If email delivery is confirmed, confirm whether the codebase has an existing email or mailto integration before building one.
+- PRD Open Question 2 (delivery mechanism per platform) must be confirmed before implementing — the mechanism differs significantly between web download and mobile share sheet.
+- Recommended execution order: run after Instruction 2 defines the file blob interface. Run before Instructions 4 and 7 which invoke the full pipeline.
 
 **Expected Output**
 
-- A reconciliation interface (screen or modal) showing the current app balance and an input for the real-world balance.
-- Difference computation displayed before confirmation, with direction (positive or negative).
-- On confirm with difference: reconciliation adjustment record created; balance auto-calculation triggered; displayed balance updated to match the entered real-world figure.
-- On confirm with no difference: informational message; no record created.
-- On dismiss: no changes.
+- A delivery function that accepts a file blob or buffer and a filename, and initiates the platform-native delivery flow.
+- On web: triggers a browser download.
+- On mobile: opens the platform share sheet with the file attached.
+- On email (if confirmed): composes an email with the file as an attachment.
+- The filename includes the format extension and a generation timestamp.
 
 **Deliverables**
 
-- Reconciliation interface component file
-- Difference computation logic
-- Reconciliation adjustment write call (using schema from Instruction 4)
+- Export file delivery function file
+- Filename construction logic
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must define the balance computation function before this instruction reads the current balance from it.
-- Instruction 4 must define the reconciliation adjustment schema before this instruction writes to it.
-- Instruction 2's trigger must be confirmed to fire on reconciliation adjustment writes before this instruction is finalized.
-- Confirm the navigation path to the reconciliation interface (PRD Section 6c flags this as unspecified).
-
----
-
-## Instruction 6: Balance History Derivation
-
-**Goal**
-Implement the computation that produces a chronological sequence of balance values from the ordered transaction store, with each entry paired to its causative transaction or reconciliation event, and with retroactive correction when past transactions are edited or deleted.
-
-**Scope**
-In scope: the balance history derivation function that walks the ordered transaction list and computes the running balance at each step, including reconciliation adjustments as labeled entries; the retroactive recomputation logic that updates all entries from a modified transaction's date forward when a past transaction is edited or deleted. Out of scope: the balance history view rendering (Instruction 7), the balance computation function for the current balance (Instruction 1), and the reconciliation workflow (Instruction 5).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 5 (Story 28 acceptance criteria: each history entry shows date, balance value, and causative event; retroactive correction on edit or delete; reconciliation appears as distinct labeled entry; reverse chronological default order), Section 6a (balance history entries must be recomputed from the transaction store when past transactions change), Section 6b (balance history reconstructable from transaction store alone; if a history table is maintained, it must never be the source of truth)
-
-**Constraints**
-
-- Derive history by walking the transaction store in chronological order and computing a running balance at each step — do not store a balance value per transaction record as a persistent field.
-- Each history entry must include: date, balance value at that point, and a reference to the causative transaction or reconciliation record.
-- Reconciliation adjustment entries must be labeled as reconciliation events — not shown as anonymous income or expense steps.
-- PRD Open Question 3 (retroactive correction vs. audit trail preservation) must be confirmed before implementing. PRD Section 6a states retroactive correction is required — treat this as the working assumption and flag. If the author reverses this to audit trail preservation, the derivation logic changes fundamentally.
-- If an opening balance is in scope (PRD Open Question 1), it must appear as the first entry in the sequence before any transaction is applied.
-- PRD Open Question 5 (all-time vs. default time window): if a default window is required, the derivation function must accept a date range parameter. If unconfirmed, derive the full history and flag.
-- Do not maintain a separate balance history table as the source of truth. If a history table is used for performance, document the sync mechanism and ensure it is invalidated and rebuilt when past transactions change.
-- Recommended execution order: run after Instructions 1 and 4 confirm the computation formula and the reconciliation adjustment schema.
-
-**Expected Output**
-
-- A balance history derivation function that accepts the ordered transaction store (including reconciliation adjustments) and returns an array of `{ date, balance, event }` entries in chronological order.
-- Each entry's balance value equals the running total at that point, computed from the balance formula in Instruction 1.
-- Retroactive recomputation: when a past transaction is edited or deleted, all entries at or after that transaction's date are recomputed; entries before remain unchanged.
-- Reconciliation entries labeled distinctly in the returned array.
-- If an opening balance is confirmed, it appears as the first entry.
-
-**Deliverables**
-
-- Balance history derivation function file
-- Retroactive recomputation logic and where it is triggered
-- List of all files added or modified
-
-**Preconditions**
-
-- Instruction 1 must define the balance formula before the derivation function applies it per step.
-- Instruction 4 must define the reconciliation adjustment schema fields before the derivation function reads from them.
-- PRD Open Question 3 (retroactive correction vs. audit trail) must be confirmed or defaulted to retroactive correction with a flag.
-- PRD Open Question 1 (opening balance) must be confirmed or defaulted to absent with a flag.
+- PRD Open Question 2 (delivery mechanism per platform) must be confirmed before this instruction is implemented.
+- Confirm the platform(s) targeted by the codebase before choosing the delivery API.
 
 **Open Questions**
 
-- PRD Open Question 3: Is balance history retroactively corrected when past transactions change, or does it preserve original values as an audit trail? These are mutually exclusive designs.
-- PRD Open Question 1: Is there an opening balance? If yes, the history sequence starts with it as a base entry.
+- PRD Open Question 2: What is the delivery mechanism per platform? Web download, mobile share sheet, and email attachment each require a different implementation.
 
 ---
 
-## Instruction 7: Balance History View
+## Instruction 4: Full Export Action
 
 **Goal**
-Implement the balance history screen that renders the derived chronological balance sequence, displaying each entry with its date, balance value, and causative event label, in reverse chronological order by default.
+Implement the full export trigger that invokes the assembly, serialization, and delivery pipeline for the user's complete transaction history, handles the empty-history edge case, and presents no filter interface.
 
 **Scope**
-In scope: the balance history screen component, the data fetch invoking the derivation function from Instruction 6, the per-entry display (date, balance, causative event), the reverse-chronological default order, and the labeled reconciliation event entries. Out of scope: the history derivation logic (Instruction 6), the balance computation function (Instruction 1), the reconciliation workflow (Instruction 5), and any charting or visualization beyond what is confirmed in PRD Open Question 4.
+In scope: the export action trigger (button or menu item), the pipeline invocation (assembly with no filter → serializer → delivery), the empty-history edge case (empty file with headers or informational message), and the loading state during generation. Out of scope: filter interface (Instruction 5), count preview (Instruction 6), filter metadata (Instruction 8), and the assembly/serialization/delivery functions themselves (Instructions 1, 2, 3).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 28 acceptance criteria), Section 6c (balance history is a computed view or maintained log — choice affects query performance)
+- PRD Section 5 (Story 29 acceptance criteria: full export produces every transaction; empty history produces empty file with headers or informs user; file immediately openable)
 
 **Constraints**
 
-- Display the history in reverse chronological order by default — most recent entry at the top.
-- Each row must show at minimum: date, balance value at that point, and the transaction or event that caused the change. Do not omit any of these three fields.
-- Reconciliation entries must be visually or textually distinguishable from regular income/expense entries — use a label consistent with the type identifier defined in Instruction 4.
-- Do not re-implement the derivation logic — call the function from Instruction 6 and render its output.
-- PRD Open Question 4 (list vs. line chart vs. both) must be confirmed before the rendering component is built. If unconfirmed, implement a list view and flag the chart as pending.
-- PRD Open Question 5 (all-time vs. default time window): if a default window is confirmed, the view must pass the date range parameter to the derivation function. If unconfirmed, render all-time and flag.
-- Do not implement editing or deletion of history entries from this view — it is read-only.
-- Recommended execution order: run after Instruction 6 defines the derivation function's output structure.
+- Pass no filter to the assembly function — the full export includes every transaction.
+- On empty history: produce a file with only the header row, or display an informational message to the user before generating. Do not fail silently. Confirm the preferred empty-history behavior with the author; if unconfirmed, produce the header-only file and flag.
+- Display a loading indicator while the pipeline runs — export generation may take time for large histories.
+- Do not re-implement assembly, serialization, or delivery — call the functions from Instructions 1, 2, and 3 in sequence.
+- Recommended execution order: run after Instructions 1, 2, and 3 define the pipeline functions.
 
 **Expected Output**
 
-- A balance history screen that calls the derivation function and renders each entry as a row (or chart point if confirmed).
-- Reverse-chronological default order.
-- Each row displays: date, balance value, and causative event label.
-- Reconciliation entries display a label distinguishing them from regular transactions.
-- An empty state for when no transactions exist (balance history is empty).
+- An export action trigger accessible from the transaction history screen or a settings/export screen.
+- Pipeline invocation: assembly (no filter) → serializer → delivery.
+- Loading state displayed during generation.
+- Empty history: header-only file produced or user informed — not a silent failure.
 
 **Deliverables**
 
-- Balance history screen component file
-- Per-entry row component
-- Empty state markup
+- Export action trigger component or handler
+- Pipeline invocation sequence
+- Empty-history edge case handling
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 6 must define the derivation function's output structure (`{ date, balance, event }` array) before this instruction renders it.
-- PRD Open Question 4 (presentation format) must be confirmed before the rendering component is built. If a line chart is required, confirm whether a charting library is already present in the codebase.
-- PRD Open Question 5 (default time window) must be confirmed or defaulted to all-time with a flag.
-
-**Open Questions**
-
-- PRD Open Question 4: Is the history displayed as a list, a line chart, or both? If a chart is required, a charting library may be needed — confirm its presence in the codebase.
-- PRD Open Question 5: Does the history open with a default time window, or all-time?
+- Instructions 1, 2, and 3 must define their respective function interfaces before this instruction wires them together.
+- Confirm where the full export action is accessible in the UI (transaction history screen, settings screen, or a dedicated export screen).
 
 ---
 
-## Instruction 8: Opening Balance
+## Instruction 5: Pre-Export Filter Interface
 
 **Goal**
-Implement the optional starting balance value that the user can set to seed the balance formula with a non-zero base, ensuring it is included in auto-calculation and appears as the first entry in the balance history.
+Implement the filter UI presented before a filtered export is generated, allowing the user to define the export scope by selecting at least one filter criterion, reusing the existing filter logic from the transaction list view.
 
 **Scope**
-In scope: the UI input where the user sets the opening balance, the storage of the opening balance value, the integration of the opening balance into the computation function from Instruction 1, and its appearance as the first entry in the balance history derivation from Instruction 6. Out of scope: the balance computation function logic beyond the addend (Instruction 1), the history derivation logic beyond the first entry (Instruction 6), and the reconciliation workflow (Instruction 5).
+In scope: the pre-export filter interface (screen, modal, or inline controls), the filter dimensions available for export scope definition, and the mechanism that passes the resulting filter criteria to the filtered export action (Instruction 7). Out of scope: the filter logic implementation itself (reuse from Search, Filter & Sort PRD), the export pipeline (Instructions 1–4), the count preview (Instruction 6), and filter metadata recording (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6b (balance formula may include an opening/starting balance — confirmed subject to Open Question 1), PRD Section 8 (opening balance out of scope unless confirmed by product owner)
+- PRD Section 5 (Story 30 first criterion: user can define at least one filter criterion before export; fifth criterion: filtered export uses same format and column structure as full export), Section 6a (filtered export must apply filter logic consistently with the transaction list view), Section 6c (export filter interface either reuses existing filter controls or provides a dedicated pre-export filter step — reuse preferred)
 
 **Constraints**
 
-- This entire instruction is conditional on PRD Open Question 1 confirming an opening balance is in scope. If unconfirmed or confirmed out of scope, do not implement — halt and flag.
-- The opening balance must be stored as a distinct value separate from the transaction store — do not create a synthetic transaction record to represent it.
-- The opening balance is a one-time set value; it is not a transaction and must not appear in the transaction list. It must appear only as the first entry in the balance history.
-- The computation function in Instruction 1 must accept the opening balance as an addend at the start of the formula — do not modify the function's core logic, only extend its input interface.
-- The balance history derivation in Instruction 6 must prepend the opening balance as a labeled first entry with its set date before any transaction entries.
-- Decimal precision must be consistent with the standard established in Instruction 1.
-- Recommended execution order: run after Instructions 1 and 6 are complete, since this instruction extends both of their interfaces.
+- Reuse the filter logic from the Search, Filter & Sort PRD — do not reimplement filter criteria matching. The pre-export filter interface is a presentation layer over existing filter functionality.
+- Implement only the filter dimensions confirmed for export by PRD Open Question 4. Do not add export-specific filter dimensions not present in the transaction list filter.
+- Clearing all filter criteria in this interface must revert to full-export behavior — all transactions included.
+- The filter state produced by this interface is passed to Instruction 7's export action — define the handoff interface clearly.
+- Do not trigger the export from within this interface — it presents filter options and passes criteria out; Instruction 7 triggers the export.
+- Recommended execution order: run after confirming the filter dimensions (PRD Open Question 4) and after the Search, Filter & Sort PRD filter controls are available for reuse. Run before Instruction 7.
 
 **Expected Output**
 
-- A UI input (settings screen, onboarding step, or equivalent — confirm location with the author) where the user can set an opening balance value.
-- The opening balance stored persistently per user, separate from the transaction store.
-- The computation function from Instruction 1 updated to include the opening balance as the base addend.
-- The history derivation from Instruction 6 updated to prepend the opening balance as the first labeled history entry.
+- A pre-export filter interface presenting the confirmed filter dimensions.
+- The user can select one or more filter criteria.
+- Clearing all criteria produces an empty filter state equivalent to no filter.
+- The active filter state is passed to the export action trigger (Instruction 7) when the user proceeds to generate the export.
 
 **Deliverables**
 
-- Opening balance storage (field in user settings or equivalent)
-- Opening balance input UI
-- Updated computation function signature showing the opening balance addend integration
-- Updated history derivation showing the first-entry prepend
+- Pre-export filter interface component file
+- Filter state handoff interface documented for Instruction 7
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 1 must be confirmed in scope before this instruction runs.
-- Confirm where the opening balance input UI is located (onboarding, settings, or a dedicated balance setup screen).
-- Instruction 1 must define the computation function's input interface before this instruction extends it.
-- Instruction 6 must define the history derivation's entry structure before this instruction prepends to it.
+- PRD Open Question 4 (filter dimensions for export) must be confirmed before the filter interface is built.
+- Confirm that the filter logic from the Search, Filter & Sort PRD is available as a reusable module before building the pre-export UI on top of it.
 
 **Open Questions**
 
-- PRD Open Question 1: Is an opening balance in scope? Without a yes from the author, this instruction must not run.
+- PRD Open Question 4: Which filter dimensions are available for filtered export — date range, category, payment method, transaction type, or others?
+
+---
+
+## Instruction 6: Pre-Export Transaction Count Preview
+
+**Goal**
+Implement the count preview step that queries the matching transaction count for the active filter criteria and displays it to the user before the export file is generated.
+
+**Scope**
+In scope: the count query run against the active filter state from Instruction 5, the display of the matching count to the user, and the user action to proceed with or cancel the export after reviewing the count. Out of scope: the filter interface itself (Instruction 5), the export pipeline execution (Instruction 7), and the empty-filter-result edge case handling beyond displaying a count of zero.
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 30 fourth criterion: number of transactions to be included is displayed before the file is generated)
+
+**Constraints**
+
+- This instruction is conditional on PRD Open Question 6 confirming the count preview is required. If unconfirmed, implement it and flag as an assumption — it is stated in the Story 30 acceptance criteria and removing it later is lower risk than omitting it.
+- Run the count query using the same filter predicate produced by Instruction 5 — do not reimplement filter matching here.
+- Display the count before any file generation begins — do not generate the file and then display the count.
+- If the count is zero: display the zero count and inform the user that no transactions match the selected criteria. Do not generate an export file if the user proceeds from a zero-count state without confirmation — confirm the preferred zero-count behavior with the author.
+- The count display must be followed by a proceed/cancel action. Proceeding passes the filter state to Instruction 7; cancelling returns the user to the filter interface without generating a file.
+- Recommended execution order: run after Instruction 5 defines the filter state output and before Instruction 7 triggers the export.
+
+**Expected Output**
+
+- A count query that accepts the active filter predicate and returns the matching transaction count.
+- A count preview display showing the number of transactions to be exported.
+- Proceed and cancel actions following the count display.
+- Zero-count state handled: user informed, no silent generation of an empty file unless confirmed.
+
+**Deliverables**
+
+- Count query function
+- Count preview display component or inline markup
+- Proceed/cancel action wiring
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 5 must define the filter state interface before this instruction queries against it.
+- Confirm the preferred zero-count behavior (generate empty file with headers, or block generation and inform the user) before implementing the zero-count path.
+
+**Open Questions**
+
+- PRD Open Question 6: Is the pre-export count preview confirmed as required? The acceptance criteria include it as inferred — author confirmation removes the flag.
+
+---
+
+## Instruction 7: Filtered Export Action
+
+**Goal**
+Implement the filtered export trigger that receives the active filter criteria from Instruction 5, passes them to the assembly function to produce a scoped row collection, serializes and delivers the file, and handles the case where all filters are cleared (equivalent to a full export).
+
+**Scope**
+In scope: the filtered export trigger, the pipeline invocation (assembly with filter → serializer → delivery), the cleared-filter path (no transactions excluded), and the zero-result path (empty file with headers or informational message). Out of scope: the filter interface (Instruction 5), the count preview (Instruction 6), filter metadata recording in the file (Instruction 8), and the pipeline function implementations (Instructions 1, 2, 3).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 30 acceptance criteria: only matching transactions in the file; same format and column structure as full export; cleared filters equivalent to full export; zero-match produces empty file with headers or informs user)
+
+**Constraints**
+
+- Pass the active filter criteria to the assembly function from Instruction 1 as a filter parameter — do not duplicate assembly or filter logic here.
+- When all filter criteria are cleared, the assembly function receives no filter and returns all transactions — the resulting file is equivalent to a full export.
+- On zero matching transactions: produce a header-only file or inform the user, consistent with the behavior defined in Instruction 4 for the empty-history case.
+- The output file must use the same column structure and format as the full export — no format differences between full and filtered exports.
+- Do not re-implement assembly, serialization, or delivery — call the functions from Instructions 1, 2, and 3 in sequence with the filter parameter added.
+- Recommended execution order: run after Instructions 1, 2, 3, 5, and 6 are complete.
+
+**Expected Output**
+
+- A filtered export trigger that accepts the active filter state from Instruction 5 (via Instruction 6's proceed action) and invokes the pipeline.
+- Assembly called with the active filter → serializer → delivery.
+- Cleared-filter path: no filter passed to assembly; all transactions included.
+- Zero-result path: header-only file or informational message, consistent with full export empty-history behavior.
+- Output file uses the same column structure as the full export.
+
+**Deliverables**
+
+- Filtered export trigger handler
+- Pipeline invocation sequence showing filter parameter threading
+- Zero-result path handling
+- List of all files added or modified
+
+**Preconditions**
+
+- Instructions 1, 2, and 3 must define their function interfaces, particularly Instruction 1's optional filter parameter, before this instruction wires them together.
+- Instruction 5 must define the filter state output interface before this instruction receives it.
+- Instruction 6 must define the proceed action that passes control and filter state to this instruction.
+
+---
+
+## Instruction 8: Export Filter Metadata
+
+**Goal**
+Implement the recording of applied filter criteria in the exported file — as a filename suffix, a header row, or a metadata section — so the filtered export is self-documenting and identifiable after leaving the app.
+
+**Scope**
+In scope: the filter criteria summary formatted for inclusion in the filename and/or the file content, the logic that constructs the summary from the active filter state, and the handoff to Instruction 3's delivery function (filename) and Instruction 2's serializer (file content metadata, if confirmed). Out of scope: the filter interface (Instruction 5), the serializer implementation (Instruction 2), the delivery function implementation (Instruction 3), and any metadata for full exports (which have no filter to record).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6b (applied filter criteria must be recorded in the filename, a header row, or a separate metadata section so the user can identify the export scope when reviewing the file later)
+
+**Constraints**
+
+- This instruction is conditional on PRD Open Question 7 confirming filter metadata is required. PRD Section 6b states it is required — treat this as confirmed and flag if the author later reverses it.
+- Apply metadata only to filtered exports — full exports have no filter criteria to record.
+- Filename suffix: append a human-readable summary of the active filter criteria to the filename before the extension (e.g., `transactions_category-food_2026-03-26.csv`). Keep the suffix concise — do not produce an excessively long filename.
+- File content metadata: if a header row or metadata section is confirmed, record the filter criteria in a format that does not disrupt the column structure expected by spreadsheet tools. A pre-data metadata block (rows before the header row labeled with a comment character or empty leading column) is one pattern — confirm the preferred approach with the author.
+- Do not modify the assembly row structure — metadata is appended around the data rows, not embedded within them.
+- Recommended execution order: run after Instruction 5 defines the filter state output and after Instructions 2 and 3 expose the interfaces for injecting metadata into the file content and filename.
+
+**Expected Output**
+
+- A metadata construction function that accepts the active filter state and returns a human-readable summary string suitable for use in a filename.
+- The filename suffix appended by Instruction 3's delivery function when the export is filtered.
+- If in-file metadata is confirmed: a metadata block or header rows prepended to the serialized file by Instruction 2's serializer, recording the filter criteria without disrupting the column structure.
+
+**Deliverables**
+
+- Filter metadata construction function
+- Updated filename construction in Instruction 3's delivery function to include the filter summary suffix
+- In-file metadata block implementation (if confirmed), integrated with Instruction 2's serializer
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 7 (metadata in filename, header row, or both) must be confirmed — the preferred recording location determines where the metadata is injected.
+- Instruction 5 must define the filter state structure before the metadata construction function can serialize it to a human-readable summary.
+- Instruction 3 must expose a filename parameter interface before this instruction appends a suffix to it.
+- Instruction 2 must expose an optional metadata injection point before this instruction adds in-file metadata.
+
+**Open Questions**
+
+- PRD Open Question 7: Where should filter criteria be recorded — filename suffix, in-file header rows, or both? The implementation location differs significantly between the three options.

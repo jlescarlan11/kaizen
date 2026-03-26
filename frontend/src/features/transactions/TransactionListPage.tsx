@@ -12,7 +12,8 @@ import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionSort } from './components/TransactionSort'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
 import { ReconciliationModal } from './components/ReconciliationModal'
-import { History } from 'lucide-react'
+import { ExportModal } from './components/ExportModal'
+import { History, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
@@ -36,6 +37,7 @@ export function TransactionListPage(): ReactElement {
   const pendingDeletes = useAppSelector(selectPendingDeletes)
 
   const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   // 1. Pipeline Inputs (State Management)
   const [searchQuery, setSearchQuery] = useState('')
@@ -103,6 +105,15 @@ export function TransactionListPage(): ReactElement {
                   <RefreshCw className="h-3 w-3" />
                   Reconcile
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+                  onClick={() => setIsExportModalOpen(true)}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export
+                </Button>
                 <Link to="/transactions/history">
                   <Button
                     variant="ghost"
@@ -123,6 +134,16 @@ export function TransactionListPage(): ReactElement {
           isOpen={isReconcileModalOpen}
           onClose={() => setIsReconcileModalOpen(false)}
           currentBalance={balance}
+        />
+
+        {/* Export Modal (Instructions 1-8) */}
+        <ExportModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          transactions={visibleTransactions}
+          initialFilter={filterState}
+          initialSearch={searchQuery}
+          initialSort={sortState}
         />
 
         {/* Search, Filter, and Sort Controls */}
