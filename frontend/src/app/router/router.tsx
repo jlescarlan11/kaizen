@@ -63,6 +63,11 @@ const TransactionListPage = lazy(() =>
     default: m.TransactionListPage,
   })),
 )
+const ReminderRedirectHandler = lazy(() =>
+  import('../../features/transactions/components/ReminderRedirectHandler').then((m) => ({
+    default: m.ReminderRedirectHandler,
+  })),
+)
 const BalanceHistoryPage = lazy(() =>
   import('../../features/transactions/BalanceHistoryPage').then((m) => ({
     default: m.BalanceHistoryPage,
@@ -165,6 +170,10 @@ export const router = createBrowserRouter([
                 fallbackPath: '/',
               },
             },
+          },
+          {
+            path: 'transactions/reminder/:id',
+            element: <ReminderRedirectHandler />,
           },
           {
             path: 'transactions/edit/:id',

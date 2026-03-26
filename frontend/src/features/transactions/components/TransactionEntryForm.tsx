@@ -9,15 +9,24 @@ import {
   useDeleteAttachmentMutation,
   useGetTransactionQuery,
   type TransactionType,
+  type FrequencyUnit,
 } from '../../../app/store/api/transactionApi'
 import { CategorySelector } from '../../categories'
 import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
 import { ReceiptPicker } from './ReceiptPicker'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
+import { Checkbox, Select } from '../../../shared/components'
 
 interface TransactionEntryFormProps {
   editId?: number
 }
+
+const FREQUENCY_OPTIONS = [
+  { value: 'DAILY', label: 'Daily' },
+  { value: 'WEEKLY', label: 'Weekly' },
+  { value: 'MONTHLY', label: 'Monthly' },
+  { value: 'YEARLY', label: 'Yearly' },
+]
 
 export function TransactionEntryForm({ editId }: TransactionEntryFormProps): ReactElement {
   const navigate = useNavigate()
@@ -44,6 +53,13 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [categoryId, setCategoryId] = useState<string | null>(null)
   const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null)
+  const [isRecurring, setIsRecurring] = useState(false)
+  const [frequencyUnit, setFrequencyUnit] = useState<FrequencyUnit>('MONTHLY')
+  const [frequencyMultiplier, setFrequencyMultiplier] = useState('1')
+  const [parentRecurringTransactionId, setParentRecurringTransactionId] = useState<number | null>(
+    null,
+  )
+  const [remindersEnabled, setRemindersEnabled] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const isInitialized = useRef(false)
 
@@ -62,6 +78,10 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setNotes(editData.notes || '')
       setCategoryId(editData.category?.id.toString() || null)
       setPaymentMethodId(editData.paymentMethod?.id.toString() || null)
+      setIsRecurring(editData.isRecurring || false)
+      setFrequencyUnit(editData.frequencyUnit || 'MONTHLY')
+      setFrequencyMultiplier(editData.frequencyMultiplier?.toString() || '1')
+      setRemindersEnabled(editData.remindersEnabled ?? true)
       isInitialized.current = true
     } else if (duplicateFrom) {
       setAmount(duplicateFrom.amount.toString())
@@ -72,6 +92,11 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       setNotes(duplicateFrom.notes || '')
       setCategoryId(duplicateFrom.categoryId?.toString() || null)
       setPaymentMethodId(duplicateFrom.paymentMethodId?.toString() || null)
+      setIsRecurring(duplicateFrom.isRecurring || false)
+      setFrequencyUnit(duplicateFrom.frequencyUnit || 'MONTHLY')
+      setFrequencyMultiplier(duplicateFrom.frequencyMultiplier?.toString() || '1')
+      setParentRecurringTransactionId(duplicateFrom.parentRecurringTransactionId || null)
+      setRemindersEnabled(duplicateFrom.remindersEnabled ?? true)
       isInitialized.current = true
     } else if (user?.quickAddPreferences) {
       // Instruction 8: Quick Add Pre-fill
@@ -102,6 +127,12 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       newErrors.transactionDate = 'Future dates are not permitted.'
     }
 
+    if (isRecurring) {
+      if (!frequencyMultiplier || parseInt(frequencyMultiplier) <= 0) {
+        newErrors.frequencyMultiplier = 'Multiplier must be greater than zero.'
+      }
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -115,6 +146,11 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
       notes: notes || undefined,
+      isRecurring,
+      frequencyUnit: isRecurring ? frequencyUnit : undefined,
+      frequencyMultiplier: isRecurring ? parseInt(frequencyMultiplier) : undefined,
+      parentRecurringTransactionId: parentRecurringTransactionId || undefined,
+      remindersEnabled: isRecurring ? remindersEnabled : undefined,
     }
 
     try {
@@ -204,6 +240,43 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
+
+        <div className="space-y-4 rounded-lg border border-ui-border-subtle p-4 bg-ui-surface-muted/30">
+          <Checkbox
+            label="Recurring Transaction"
+            checked={isRecurring}
+            onCheckedChange={setIsRecurring}
+            helperText="Set a frequency for regular charges or income."
+          />
+
+          {isRecurring && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <Select
+                label="Frequency"
+                options={FREQUENCY_OPTIONS}
+                value={frequencyUnit}
+                onChange={(v) => setFrequencyUnit(v as FrequencyUnit)}
+              />
+              <Input
+                label="Every (multiplier)"
+                type="number"
+                min="1"
+                value={frequencyMultiplier}
+                onChange={(e) => setFrequencyMultiplier(e.target.value)}
+                error={errors.frequencyMultiplier}
+                helperText="e.g., '2' for every 2 weeks."
+              />
+              <div className="sm:col-span-2 pt-2 border-t border-ui-border-subtle/50 mt-2">
+                <Checkbox
+                  label="Enable Reminders"
+                  checked={remindersEnabled}
+                  onCheckedChange={setRemindersEnabled}
+                  helperText="Get notified when the next instance is due."
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         <ReceiptPicker
           file={receiptFile}

@@ -54,6 +54,20 @@ public class Transaction extends BaseEntity {
     @Column(name = "transaction_date", nullable = false)
     private LocalDateTime transactionDate;
 
+    @Column(name = "is_recurring", nullable = false)
+    private Boolean isRecurring = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "frequency_unit", length = 20)
+    private FrequencyUnit frequencyUnit;
+
+    @Column(name = "frequency_multiplier")
+    private Integer frequencyMultiplier;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_recurring_transaction_id")
+    private Transaction parentRecurringTransaction;
+
     @Column(name = "reconciliation_increase")
     private Boolean reconciliationIncrease;
 

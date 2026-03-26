@@ -3,6 +3,7 @@ import type { CategoryResponse } from './categoryApi'
 import type { PaymentMethod } from '../../../features/payment-methods/types'
 
 export type TransactionType = 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+export type FrequencyUnit = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
 
 export interface TransactionRequest {
   amount: number
@@ -12,6 +13,9 @@ export interface TransactionRequest {
   categoryId?: number
   paymentMethodId?: number
   notes?: string
+  isRecurring?: boolean
+  frequencyUnit?: FrequencyUnit
+  frequencyMultiplier?: number
 }
 
 export interface TransactionResponse {
@@ -24,6 +28,9 @@ export interface TransactionResponse {
   paymentMethod?: PaymentMethod
   reconciliationIncrease?: boolean
   notes?: string
+  isRecurring?: boolean
+  frequencyUnit?: FrequencyUnit
+  frequencyMultiplier?: number
   attachments?: AttachmentResponse[]
 }
 

@@ -14,6 +14,7 @@ interface User {
   budgetSetupSkipped: boolean
   tourCompleted: boolean
   firstTransactionAdded: boolean
+  remindersEnabled: boolean
 }
 
 export interface OnboardingProgressResponse {
@@ -144,6 +145,22 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    toggleReminders: builder.mutation<User, { enabled: boolean }>({
+      query: (body) => ({
+        url: '/users/reminders',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Failed to toggle reminders:', error)
+        }
+      },
+    }),
     getMe: builder.query<User, void>({
       query: () => '/users/me',
       providesTags: ['User'],
@@ -198,4 +215,5 @@ export const {
   useResetTourFlagMutation,
   useMarkFirstTransactionAddedMutation,
   useResetOnboardingMutation,
+  useToggleRemindersMutation,
 } = authApi

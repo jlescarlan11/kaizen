@@ -12,6 +12,7 @@ public record UserResponse(
     boolean budgetSetupSkipped,
     boolean tourCompleted,
     boolean firstTransactionAdded,
-    String quickAddPreferences
+    String quickAddPreferences,
+    boolean remindersEnabled
 ) {
 }

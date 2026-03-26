@@ -136,6 +136,14 @@ public class UserAccountService {
         return toUserResponse(updated);
     }
 
+    @Transactional
+    public UserResponse toggleReminders(String email, boolean enabled) {
+        UserAccount account = findAccountByEmail(email);
+        account.setRemindersEnabled(enabled);
+        UserAccount updated = userAccountRepository.save(account);
+        return toUserResponse(updated);
+    }
+
     private UserAccount findAccountByEmail(String email) {
         return userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
@@ -152,7 +160,8 @@ public class UserAccountService {
             account.isBudgetSetupSkipped(),
             account.isTourCompleted(),
             account.isFirstTransactionAdded(),
-            account.getQuickAddPreferences()
+            account.getQuickAddPreferences(),
+            account.getRemindersEnabled()
         );
     }
 
@@ -168,7 +177,8 @@ public class UserAccountService {
             account.isBudgetSetupSkipped(),
             account.isTourCompleted(),
             account.isFirstTransactionAdded(),
-            account.getQuickAddPreferences()
+            account.getQuickAddPreferences(),
+            account.getRemindersEnabled()
         );
     }
 }

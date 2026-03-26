@@ -233,6 +233,11 @@ export function TransactionList({
                             <NoteIcon />
                           </div>
                         )}
+                        {tx.isRecurring && (
+                          <div title="Recurring transaction" className="text-primary/70 shrink-0">
+                            <RecurringIcon />
+                          </div>
+                        )}
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {timeFormatter.format(new Date(tx.transactionDate))}
@@ -344,6 +349,27 @@ function NoteIcon() {
       <path d="M15 3v6h6" />
       <path d="M9 13h6" />
       <path d="M9 17h3" />
+    </svg>
+  )
+}
+
+function RecurringIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+      <path d="M16 16h5v5" />
     </svg>
   )
 }

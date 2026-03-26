@@ -13,6 +13,7 @@ import { useAppDispatch } from '../../../app/store/hooks'
 import { triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
 import { CategorySelector } from '../../categories'
 import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
+import { formatFrequency } from '../utils/transactionUtils'
 
 interface TransactionDetailModalProps {
   transaction: TransactionResponse | null
@@ -179,6 +180,13 @@ export function TransactionDetailModal({
               label="Date & Time"
               value={dateFormatter.format(new Date(transaction.transactionDate))}
             />
+
+            {transaction.isRecurring && (
+              <DetailRow
+                label="Frequency"
+                value={formatFrequency(transaction.frequencyUnit, transaction.frequencyMultiplier)}
+              />
+            )}
 
             <DetailRow
               label="Description"

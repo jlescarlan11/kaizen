@@ -77,7 +77,11 @@ public class UserAccount extends BaseEntity {
     @Column(name = "quick_add_preferences", columnDefinition = "TEXT")
     private String quickAddPreferences;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @Column(name = "reminders_enabled", nullable = false)
+    private Boolean remindersEnabled = true;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+
     @JoinTable(
         name = "user_role",
         joinColumns = @JoinColumn(name = "user_account_id"),

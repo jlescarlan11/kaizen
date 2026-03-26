@@ -244,6 +244,40 @@ public class UserAccountController {
     }
 
     @Operation(
+        summary = "Toggle recurring transaction reminders",
+        description = "Enables or disables notifications for all recurring transactions.",
+        operationId = "toggleReminders"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Reminders preference updated successfully.",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PutMapping("/reminders")
+    public UserResponse toggleReminders(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestBody java.util.Map<String, Boolean> payload
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        Boolean enabled = payload.get("enabled");
+        if (enabled == null) {
+            throw new IllegalArgumentException("Field 'enabled' is required.");
+        }
+
+        return userAccountService.toggleReminders(userDetails.getUsername(), enabled);
+    }
+
+    @Operation(
         summary = "Reset onboarding (DEV ONLY)",
         description = "Resets the user's onboarding state, deletes budgets and progress. For development/testing purposes.",
         operationId = "resetOnboarding"

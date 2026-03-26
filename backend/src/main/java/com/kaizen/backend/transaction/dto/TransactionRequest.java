@@ -24,5 +24,15 @@ public record TransactionRequest(
 
     Long paymentMethodId,
 
-    String notes
+    String notes,
+
+    Boolean isRecurring,
+
+    com.kaizen.backend.transaction.entity.FrequencyUnit frequencyUnit,
+
+    Integer frequencyMultiplier,
+
+    Long parentRecurringTransactionId,
+
+    Boolean remindersEnabled
 ) {}

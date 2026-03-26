@@ -77,3 +77,39 @@ export function calculateRunningBalance(transactions: TransactionResponse[]): nu
     return acc
   }, 0)
 }
+
+/**
+ * Formats a frequency unit and multiplier into a human-readable string.
+ * @param unit Frequency unit (DAILY, WEEKLY, MONTHLY, YEARLY).
+ * @param multiplier Frequency multiplier.
+ * @returns Human-readable frequency string.
+ */
+export function formatFrequency(unit?: string, multiplier?: number): string {
+  if (!unit || !multiplier) return '—'
+
+  const unitLabels: Record<string, string> = {
+    DAILY: 'day',
+    WEEKLY: 'week',
+    MONTHLY: 'month',
+    YEARLY: 'year',
+  }
+
+  const label = unitLabels[unit] || unit.toLowerCase()
+
+  if (multiplier === 1) {
+    switch (unit) {
+      case 'DAILY':
+        return 'Daily'
+      case 'WEEKLY':
+        return 'Weekly'
+      case 'MONTHLY':
+        return 'Monthly'
+      case 'YEARLY':
+        return 'Yearly'
+      default:
+        return unit.charAt(0).toUpperCase() + unit.slice(1).toLowerCase()
+    }
+  }
+
+  return `Every ${multiplier} ${label}s`
+}

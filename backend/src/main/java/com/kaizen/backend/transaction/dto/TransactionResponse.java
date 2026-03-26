@@ -17,5 +17,9 @@ public record TransactionResponse(
     PaymentMethodResponse paymentMethod,
     Boolean reconciliationIncrease,
     String notes,
+    Boolean isRecurring,
+    com.kaizen.backend.transaction.entity.FrequencyUnit frequencyUnit,
+    Integer frequencyMultiplier,
+    Boolean remindersEnabled,
     java.util.List<AttachmentResponse> attachments
 ) {}

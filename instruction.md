@@ -1,341 +1,393 @@
-1. Transaction Notes Schema — Add the nullable notes field to the transaction record schema, enforcing null (not empty string) for absent notes at the data layer.
-2. Transaction Notes UI — Implement the notes input field in the transaction entry and edit forms, the notes display in the detail view, and the note-present indicator in the list view.
-3. Receipt Attachment Schema — Define the receipt attachment data model (single reference or one-to-many table per confirmed attachment count), storing file metadata alongside the file reference.
-4. Receipt Storage Integration — Implement the file upload and retrieval integration with the confirmed storage backend, including file size and format validation before upload.
-5. Receipt Attachment UI — Implement the attachment controls in the transaction entry and edit forms, the receipt preview and indicator in the detail view, and the absence-neutral state in the list view.
-6. Receipt Deletion Cascade — Implement the cascade that deletes associated receipt files from storage when a transaction is deleted, ensuring no orphaned files remain.
-7. Receipt Offline Fallback — Implement the fallback indicator shown in the detail view when a remotely stored receipt file is temporarily unavailable.
+1. Recurring Transaction Schema — Add the recurring flag and structured frequency fields to the transaction record schema, enforcing that a recurring flag of true requires a valid frequency value.
+2. Recurring Transaction UI — Implement the recurring toggle and frequency selector in the transaction entry and edit forms, the recurring indicator in the list view, and the human-readable frequency display in the detail view.
+3. Reminder Schedule Record — Define the data schema for per-transaction reminder schedule records, storing the next scheduled reminder timestamp and the reminder preference state.
+4. Reminder Scheduler — Implement the scheduling logic that computes and writes the next reminder timestamp when a recurring transaction is saved, when an instance is logged, or when the frequency is changed.
+5. Reminder Delivery — Implement the notification delivery mechanism that fires at the scheduled reminder time via the confirmed platform notification API, carrying the transaction context payload.
+6. Reminder Deep-Link Handler — Implement the deep-link routing that intercepts a tapped reminder notification and opens the transaction entry form pre-populated with the recurring transaction's field values.
+7. Reminder Cancellation — Implement the cancellation logic that clears all pending reminder schedule records when a recurring transaction is deleted or its recurring designation is removed.
+8. Reminder Settings — Implement the reminder enable/disable controls at the global level and, if confirmed, at the per-transaction level.
 
 ---
 
-## Instruction 1: Transaction Notes Schema
+## Instruction 1: Recurring Transaction Schema
 
 **Goal**
-Add the nullable notes field to the transaction record schema, enforcing a null value (not an empty string) for transactions with no note entered, and document the field name and type for all downstream instructions.
+Add the recurring boolean flag and the structured frequency fields to the transaction record schema, enforcing that a true recurring flag cannot be saved without a valid frequency value, and document all new field names and types as the authoritative reference for all downstream instructions.
 
 **Scope**
-In scope: the notes field addition to the transaction record schema, the null constraint rule, the data-layer enforcement that an empty string is converted to or rejected in favor of null, and the migration if required. Out of scope: the notes UI (Instruction 2), receipt schema (Instruction 3), and all other transaction fields.
+In scope: the recurring boolean field, the frequency structure (interval unit and multiplier), the constraint that recurring=true requires a non-null frequency, and the migration. Out of scope: the UI for setting these fields (Instruction 2), the reminder schedule record (Instruction 3), and all other transaction fields.
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6a (notes field must store null when no note entered — not empty string; allows unambiguous querying of noted vs. unnoted transactions), Section 6b (plain text only; character limit enforced at data layer if confirmed)
+- PRD Section 6a (recurring designation must store both the flag and the frequency; recurring=true with no frequency is invalid), Section 6b (frequency stored as a structured format — interval unit and multiplier — not a freeform string)
 
 **Constraints**
 
-- The field must be nullable — do not assign a default empty string.
-- If a character limit is confirmed (PRD Open Question 5), apply it as a column-level constraint in addition to UI enforcement. If unconfirmed, leave the column unbounded and flag.
-- Do not modify any other transaction fields — this instruction touches only the notes column addition.
-- Use the schema naming convention established in the existing transaction schema (cross-reference Transaction Entry PRD Instruction 9).
-- Do not implement any UI or form logic here — schema and reference document only.
-- Recommended execution order: run before Instruction 2.
+- The recurring field must be a boolean, defaulting to false. A null recurring field is not a valid state — default to false.
+- The frequency must be stored as two fields: an interval unit (e.g., an enum: daily, weekly, monthly, yearly, and any confirmed custom units) and an integer multiplier (e.g., 2 for "every 2 weeks"). Do not store frequency as a freeform string.
+- Enforce at the schema level that frequency fields are non-null when the recurring flag is true. If the database cannot enforce this as a check constraint, document the application-level enforcement required and flag.
+- PRD Open Question 1 (available frequency options) must be confirmed before the interval unit enum is written. If unconfirmed, implement the enum with daily, weekly, monthly, and yearly as provisional values and flag.
+- Do not implement any UI or scheduling logic here — schema and reference document only.
+- Use the naming and migration conventions established in the codebase (cross-reference Transaction Entry PRD Instruction 9).
+- Recommended execution order: run before all other instructions in this set.
 
 **Expected Output**
 
-- Updated transaction record schema with a nullable plain-text notes field.
-- If a character limit is confirmed: column-level constraint applied.
-- Null-not-empty-string rule documented as a constraint comment or schema annotation.
-- Before/after schema comparison and migration file if the codebase uses migrations.
+- Updated transaction record schema with: a boolean recurring field (default false), an interval unit enum field (nullable, non-null when recurring=true), and an integer multiplier field (nullable, non-null when recurring=true).
+- Schema-level or documented application-level constraint: recurring=true requires both frequency fields to be non-null.
+- Flat reference table: field name, type, required/optional, description.
+- Before/after schema comparison and migration file.
 
 **Deliverables**
 
-- Updated schema file with the notes field
-- Migration file or script
-- Field reference entry: field name, type, required/optional, description
-- List of all files added or modified
-
-**Preconditions**
-
-- PRD Open Question 5 (character limit and its value) must be confirmed or defaulted to unbounded with a flag before the column constraint is written.
-- Confirm the transaction schema file location and ORM convention from Transaction Entry PRD Instruction 9 output before modifying it.
-
-**Open Questions**
-
-- PRD Open Question 5: Is there a character limit on the notes field, and what is it? A confirmed limit requires a column-level constraint in addition to the UI enforcement in Instruction 2.
-
----
-
-## Instruction 2: Transaction Notes UI
-
-**Goal**
-Implement the notes input field in the transaction entry and edit forms, the full-content notes display in the detail view, the note-present indicator in the transaction list view, and the null write when the notes field is cleared or left empty.
-
-**Scope**
-In scope: the notes textarea or input in the entry and edit forms, the character count indicator and input restriction if a limit is confirmed, the null write on save when the field is empty, the pre-populated notes value in the edit form, the full non-truncated notes display in the detail view, the note-present indicator in the list row (if confirmed), and the visually neutral absence state. Out of scope: the notes schema (Instruction 1), receipt UI (Instruction 5), and rich text formatting (out of scope per PRD Section 8).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 5 (Story 32 acceptance criteria), Section 6a (null stored when no note; empty string not acceptable), Section 6b (plain text; character limit enforced at UI layer if confirmed; null vs. empty string handling)
-
-**Constraints**
-
-- On save with an empty or whitespace-only notes field, write null to the notes column — do not write an empty string.
-- On save with text content, write the entered text as-is (plain text, no formatting).
-- If a character limit is confirmed (PRD Open Question 5), show a character count indicator as the user approaches the limit and prevent saving when the limit is exceeded. Match the limit value confirmed in Instruction 1.
-- The detail view must display the full note without truncation.
-- The list view must show a note-present indicator (icon or equivalent) without displaying note content, if confirmed (PRD Open Question 6). If unconfirmed, implement the indicator and flag.
-- The absence of a note must be visually neutral in both list and detail views — no empty placeholder text or missing-field indicator.
-- The edit form must pre-populate the notes field with the currently stored value (including null → empty input).
-- Do not modify the notes schema — read the field name from Instruction 1's output.
-- Recommended execution order: run after Instruction 1 confirms the field name and character limit.
-
-**Expected Output**
-
-- Notes input in the entry form: textarea with optional character count, null write on empty submit.
-- Notes input in the edit form: pre-populated from stored value, null write if cleared.
-- Detail view: full note content displayed, no truncation, neutral display when null.
-- List row: note-present indicator when note is non-null, no indicator when null.
-
-**Deliverables**
-
-- Updated transaction entry form component
-- Updated transaction edit form component
-- Updated transaction detail view component
-- Updated transaction list row component (note indicator)
-- List of all files added or modified
-
-**Preconditions**
-
-- Instruction 1 must define the notes field name before this instruction writes to it.
-- PRD Open Question 5 (character limit) must be confirmed before the character count and input restriction are implemented.
-- PRD Open Question 6 (note indicator in list view) must be confirmed or defaulted to implemented with a flag.
-
-**Open Questions**
-
-- PRD Open Question 6: Should a note-present indicator appear in the list view? If confirmed, the list query must include the notes field (or a boolean derived from it) so the indicator can be driven without a secondary fetch.
-
----
-
-## Instruction 3: Receipt Attachment Schema
-
-**Goal**
-Define and implement the receipt attachment data model — either a single file reference field on the transaction record or a one-to-many attachment table — storing file metadata (filename, size, MIME type, upload timestamp) alongside the file reference, as the authoritative schema for all receipt instructions.
-
-**Scope**
-In scope: the attachment schema (single-reference field or separate attachment entity per confirmed count), the file metadata fields, the association to the transaction record by identifier, and the migration. Out of scope: the storage backend integration (Instruction 4), the attachment UI (Instruction 5), deletion cascade (Instruction 6), and offline fallback (Instruction 7).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 6b (receipt file metadata — filename, file size, MIME type, upload timestamp — stored alongside the file reference; storage mechanism unspecified), Section 6a (deleting a transaction must cascade to receipt files; orphaned files must not persist)
-
-**Constraints**
-
-- PRD Open Question 1 (one receipt per transaction vs. multiple) is the primary structural decision. If one: add a nullable file reference field and metadata columns directly to the transaction record. If multiple: create a separate attachment entity with a foreign key to the transaction. If unconfirmed, implement a one-to-many attachment table and flag — it is the safer default that accommodates both cases.
-- The file reference field must store the storage location identifier or URL, not the binary file content.
-- Metadata fields required: original filename, file size (bytes), MIME type, upload timestamp. Do not fabricate additional fields.
-- The association to the transaction must use the transaction's confirmed unique identifier field.
-- Do not implement any UI, upload logic, or deletion cascade here — schema and reference document only.
-- Recommended execution order: run before Instructions 4, 5, and 6.
-
-**Expected Output**
-
-- The receipt attachment schema: field names, types, nullability, constraints, and the association to the transaction record.
-- Flat reference table: entity name, field name, type, required/optional, description.
-- Before/after comparison and migration file if modifying the transaction record schema directly.
-
-**Deliverables**
-
-- New attachment entity schema file or updated transaction record schema
+- Updated transaction schema file
 - Migration file or script
 - Flat reference table
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 1 (single vs. multiple receipts) must be confirmed or defaulted to one-to-many with a flag.
-- Confirm the transaction record's unique identifier field name from Transaction Entry PRD Instruction 9 before writing the foreign key reference.
+- PRD Open Question 1 (frequency options) must be confirmed or provisionally defaulted before the interval unit enum values are written.
+- Confirm the transaction schema file and ORM convention from Transaction Entry PRD Instruction 9 before modifying.
 
 **Open Questions**
 
-- PRD Open Question 1: One receipt per transaction or multiple? This determines the entire schema structure for this instruction.
+- PRD Open Question 1: What frequency options are supported? The interval unit enum cannot be finalized without this list.
 
 ---
 
-## Instruction 4: Receipt Storage Integration
+## Instruction 2: Recurring Transaction UI
 
 **Goal**
-Implement the file upload function that stores an attachment file in the confirmed storage backend, validates file size and format before uploading, and returns a storage reference and metadata object for persistence by the attachment schema.
+Implement the recurring toggle and frequency selector in the transaction entry and edit forms, the recurring indicator in the transaction list view, and the human-readable frequency display in the transaction detail view, including the removal of the recurring designation on edit.
 
 **Scope**
-In scope: the upload function, the file size validation (reject before upload if exceeded), the MIME type / file format validation (reject before upload if unsupported), the storage write, and the returned storage reference and metadata. Out of scope: the attachment schema (Instruction 3), the UI that initiates the upload (Instruction 5), the deletion cascade (Instruction 6), and the offline fallback (Instruction 7).
+In scope: the recurring toggle in the entry and edit forms, the frequency selector presented when the toggle is enabled, the validation that blocks save when recurring=true but no frequency is selected, the recurring indicator on list rows, the human-readable frequency label in the detail view, and the removal of indicator and stored values when recurring is toggled off. Out of scope: the recurring schema (Instruction 1), reminder scheduling (Instruction 4), and reminder settings (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 31: size limit rejection does not block transaction save; format rejection at attachment time), Section 6a (attachment failure must not block transaction save), Section 6b (file metadata stored alongside file reference), Section 6c (storage backend unspecified — Supabase Storage or equivalent)
+- PRD Section 5 (Story 33 acceptance criteria), Section 6a (recurring=true with no frequency is an invalid save state)
 
 **Constraints**
 
-- Validate file size before initiating the upload. If the file exceeds the confirmed maximum (PRD Open Question 3), reject with an error message stating the limit. Do not begin the upload for oversized files.
-- Validate MIME type or file extension before upload against the confirmed accepted formats (PRD Open Question 2). Reject unsupported formats with an error identifying the accepted types. Do not begin the upload for invalid formats.
-- The upload function must be decoupled from the transaction save — a upload failure must not cause the transaction save to fail. Return the error to the caller (Instruction 5) so it can be surfaced to the user independently.
-- Return a storage reference (URL, path, or identifier) and a metadata object (filename, file size, MIME type, upload timestamp) on success — these are written to the attachment schema by Instruction 5.
-- Do not write to the attachment schema here — return the reference and metadata and let Instruction 5 handle the persistence.
-- Use the storage provider already established in the codebase (cross-reference Supabase Storage or equivalent). Do not introduce a new storage provider.
-- Recommended execution order: run after Instruction 3 defines the metadata structure expected by the schema. Run before Instruction 5.
+- The frequency selector must appear only when the recurring toggle is enabled — do not render it for non-recurring transactions.
+- Frequency options presented in the selector must match exactly the interval unit enum values confirmed in Instruction 1. Do not add options not in the schema.
+- When the user enables recurring and saves without selecting a frequency, block save and display a field-level validation error.
+- When the user disables recurring on an existing recurring transaction and saves, write recurring=false and null both frequency fields — do not leave stale frequency values.
+- The list row recurring indicator must be driven by the recurring boolean field — no secondary fetch required.
+- The detail view frequency display must convert the stored interval unit and multiplier into a human-readable string (e.g., unit=weekly, multiplier=2 → "Every 2 weeks"; unit=monthly, multiplier=1 → "Monthly"). Define the formatting rules as a named utility function.
+- Absence of recurring designation must be visually neutral in both list and detail views — no indicator shown when recurring=false.
+- The edit form must pre-populate both the toggle and frequency selector from stored values.
+- Do not modify the recurring schema — read field names from Instruction 1's output.
+- Recommended execution order: run after Instruction 1 confirms field names and enum values.
 
 **Expected Output**
 
-- An upload function that accepts a file and returns `{ storageReference, metadata }` on success or an error object on failure.
-- File size validation before upload: error returned if exceeded.
-- MIME type / format validation before upload: error returned if unsupported.
-- The upload function can fail independently of the transaction save — the caller handles both outcomes separately.
+- Entry and edit forms: recurring toggle, conditional frequency selector, and save-blocking validation when frequency is absent.
+- Edit form: toggle and selector pre-populated from stored values; null write when recurring disabled.
+- List row: recurring indicator when recurring=true, neutral when false.
+- Detail view: human-readable frequency label, not raw field values.
 
 **Deliverables**
 
-- Receipt upload function file
-- Size validation logic with the confirmed limit as a named constant
-- Format validation logic with the confirmed accepted types as a named list
+- Updated transaction entry form component
+- Updated transaction edit form component
+- Updated transaction list row component (recurring indicator)
+- Updated transaction detail view component (frequency display)
+- Frequency label utility function
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 2 (accepted file formats) must be confirmed before the format validation list is written.
-- PRD Open Question 3 (maximum file size) must be confirmed before the size validation constant is set.
-- PRD Open Question 4 (storage backend) must be confirmed before the upload implementation targets a specific provider.
-- Instruction 3 must define the metadata structure before this instruction constructs and returns it.
+- Instruction 1 must confirm the recurring field name, the interval unit enum values, and the multiplier field name before this instruction writes to or reads from them.
+- PRD Open Question 1 (frequency options) must be confirmed before the selector options are rendered.
+
+---
+
+## Instruction 3: Reminder Schedule Record
+
+**Goal**
+Define the data schema for per-transaction reminder schedule records, storing the next scheduled reminder timestamp, the reminder enabled state, and the association to the parent recurring transaction.
+
+**Scope**
+In scope: the reminder schedule entity schema (next reminder timestamp, enabled flag, association to transaction identifier, and any retry state fields if confirmed), and the flat reference table. Out of scope: the scheduling logic that computes and writes the timestamp (Instruction 4), the delivery mechanism (Instruction 5), and the settings UI (Instruction 8).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6b (reminder system must store, per recurring transaction, the timestamp of the next scheduled reminder; this value must be updated when an instance is logged or frequency changes), Section 6a (delete of recurring transaction must cancel all pending reminders)
+
+**Constraints**
+
+- The reminder schedule record must be associated with the transaction by the transaction's confirmed unique identifier — do not embed schedule state directly on the transaction record if a separate entity is cleaner for the codebase's ORM pattern. Confirm the preferred approach.
+- Store at minimum: the transaction identifier (foreign key), the next scheduled reminder timestamp (nullable — null when no reminder is pending), and the enabled boolean (default true).
+- If PRD Open Question 6 (retry behavior) is confirmed, add fields for retry count and retry interval. If unconfirmed, omit and flag.
+- If PRD Open Question 5 (per-transaction reminder control) is confirmed, the enabled field on this record is the per-transaction toggle. If only a global toggle is confirmed, the enabled field may be omitted from this record and managed at the global settings level.
+- Do not implement scheduling logic or delivery here — schema and reference document only.
+- Recommended execution order: run before Instructions 4, 5, 7, and 8.
+
+**Expected Output**
+
+- Reminder schedule entity schema: field names, types, nullability, constraints, and association to the transaction record.
+- Flat reference table: field name, type, required/optional, description.
+- Migration file if the codebase uses migrations.
+
+**Deliverables**
+
+- New reminder schedule entity schema file
+- Migration file or script
+- Flat reference table
+- List of all files added or modified
+
+**Preconditions**
+
+- Confirm the transaction record's unique identifier field name from Transaction Entry PRD Instruction 9 before writing the foreign key.
+- PRD Open Question 5 (per-transaction reminder control vs. global toggle only) must be confirmed before deciding whether the enabled field belongs on this record.
+- PRD Open Question 6 (retry behavior) must be confirmed or defaulted to no retry fields with a flag.
 
 **Open Questions**
 
-- PRD Open Question 2: What file formats are accepted — JPEG, PNG, PDF, others?
-- PRD Open Question 3: What is the maximum allowed file size per attachment?
-- PRD Open Question 4: Where are receipt files stored — local device, Supabase Storage, or another provider?
+- PRD Open Question 5: Is reminder control per-transaction or global-only? This determines whether the enabled field belongs here or only in global settings.
+- PRD Open Question 6: What is the retry behavior? If retries are supported, retry count and interval fields must be added here.
 
 ---
 
-## Instruction 5: Receipt Attachment UI
+## Instruction 4: Reminder Scheduler
 
 **Goal**
-Implement the attachment controls in the transaction entry and edit forms (camera, photo library, file picker per confirmed sources), the receipt preview and indicator in the detail view, the replace behavior, and the visually neutral absent-attachment state in the list view.
+Implement the scheduling logic that computes the next reminder timestamp and writes it to the reminder schedule record when a recurring transaction is first saved, when an instance of the transaction is logged, or when the transaction's frequency is changed.
 
 **Scope**
-In scope: the attachment picker trigger in the entry and edit forms, the platform file/camera API integration, the file selection flow, the upload invocation (delegating to Instruction 4), the storage reference and metadata write to the attachment schema, the receipt preview and attachment indicator in the detail view, the replace flow (new file replaces old, old reference removed), and the neutral absent-attachment state. Out of scope: the upload function itself (Instruction 4), the attachment schema (Instruction 3), the deletion cascade on transaction delete (Instruction 6), and the offline fallback (Instruction 7).
+In scope: the next-timestamp computation function (given anchor date and frequency, returns the next due date), the write of the computed timestamp to the reminder schedule record, and the three trigger points: initial save of a recurring transaction, logging of a new instance, and frequency change on edit. Out of scope: the reminder delivery mechanism (Instruction 5), the schedule record schema (Instruction 3), the cancellation logic (Instruction 7), and the settings UI (Instruction 8).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 31 acceptance criteria), Section 6a (attachment failure does not block transaction save; orphaned files must not persist on replace), Section 6c (platform file and camera API access; permission handling per platform)
+- PRD Section 6a (reminders scheduled based on the transaction's stored frequency and the date of the most recently logged instance — not the creation date alone), Section 6b (next scheduled reminder timestamp updated each time an instance is logged or frequency is changed)
 
 **Constraints**
 
-- The attachment picker must offer the confirmed source options (camera, photo library, file picker — per PRD Open Question 1 of this PRD's platform context — cross-reference PRD Section 5 Story 31 first criterion). Implement only the confirmed sources.
-- After the user selects a file, invoke the upload function from Instruction 4. On upload success, write the returned storage reference and metadata to the attachment schema. On upload failure, surface the error to the user without blocking the transaction save.
-- Replace behavior: when the user selects a new file for a transaction that already has an attachment, delete the previous storage reference and file before writing the new one. No orphaned file may remain after a replace.
-- The detail view must show a visible indicator that a receipt is attached, and allow the user to open or preview the file without leaving the transaction context.
-- The absent-attachment state in the list and detail views must be visually neutral — no broken indicator or empty slot shown.
-- Request platform permissions (camera, photo library, file access) per the conventions already established in the codebase. Do not introduce a new permissions library.
-- Recommended execution order: run after Instructions 3 and 4 define the schema and upload function.
+- The anchor date for next-timestamp computation must be confirmed (PRD Open Question 2): creation date, last logged date, or user-defined start date. If unconfirmed, use the date of the most recently logged instance (falling back to the transaction's stored date if no instance has been logged yet) and flag.
+- The computation function accepts the anchor date, the interval unit, and the multiplier, and returns the next due timestamp. Implement it as a pure, testable function separate from the trigger logic.
+- Trigger 1 — initial recurring save: create a reminder schedule record and write the first computed timestamp.
+- Trigger 2 — instance logged: update the reminder schedule record's next timestamp by advancing the anchor date to the just-logged instance's date and recomputing.
+- Trigger 3 — frequency change on edit: recompute the next timestamp from the current anchor date using the new frequency values and overwrite the stored timestamp.
+- Do not deliver the notification here — write only the timestamp. Instruction 5 reads it and delivers at the right time.
+- Use the date arithmetic library already present in the codebase (cross-reference Transaction Attachments PRD for the date utility convention). Do not introduce a new date library.
+- Recommended execution order: run after Instructions 1 and 3 confirm the frequency field names and reminder schedule schema.
 
 **Expected Output**
 
-- Attachment picker trigger in the entry and edit forms, opening the confirmed source options.
-- On file selection: upload invoked; on success, reference and metadata written to schema; on failure, error surfaced independently of transaction save.
-- Replace flow: old reference and file deleted; new reference and metadata written.
-- Detail view: attachment indicator and file preview accessible without navigation away.
-- List view and detail view: neutral state when no attachment exists.
+- A pure next-timestamp computation function: (anchorDate, intervalUnit, multiplier) → nextDueTimestamp.
+- Trigger 1 handler: on recurring transaction save, creates a reminder schedule record with the first computed timestamp.
+- Trigger 2 handler: on instance logged, updates the reminder schedule record's timestamp.
+- Trigger 3 handler: on frequency change saved, recomputes and overwrites the timestamp.
+- All three triggers write to the reminder schedule record using the schema from Instruction 3.
 
 **Deliverables**
 
-- Updated transaction entry form component (attachment picker and upload invocation)
-- Updated transaction edit form component (replace flow and upload invocation)
-- Updated transaction detail view component (indicator and preview)
-- Updated transaction list row component (neutral absent state — no indicator)
+- Next-timestamp computation function file
+- Trigger handlers wired to the three mutation points
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 3 must define the attachment schema field names before this instruction writes to them.
-- Instruction 4 must define the upload function's interface (input: file; output: `{ storageReference, metadata }` or error) before this instruction calls it.
-- Confirm the platform file, camera, and photo library APIs available in the codebase before implementing the picker.
-- PRD Open Question 1 (single vs. multiple receipts) — if multiple, the UI must support adding additional files rather than replacing; confirm before building the picker flow.
-
----
-
-## Instruction 6: Receipt Deletion Cascade
-
-**Goal**
-Implement the cascade that deletes all associated receipt files from storage and removes their attachment records when a transaction is deleted, ensuring no orphaned files or metadata records remain after deletion.
-
-**Scope**
-In scope: the cascade logic triggered when a transaction is deleted (single delete and bulk delete), the storage file deletion for each associated attachment, the attachment record deletion from the schema, and the orphan check. Out of scope: the transaction delete logic itself (Transaction Management PRD), the upload function (Instruction 4), and the attachment UI (Instruction 5).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 6a (deleting a transaction must also delete associated receipt files; orphaned files must not persist after parent transaction removal)
-
-**Constraints**
-
-- The cascade must fire for both single-transaction delete and bulk delete — audit both delete paths from the Transaction Management PRD and confirm each triggers the cascade.
-- Delete storage files before or alongside attachment record deletion — do not delete the schema record while leaving the storage file, or vice versa.
-- If a storage file deletion fails, surface the error and log it — do not silently pass. The transaction deletion may still complete, but the orphaned file must be flagged for cleanup.
-- For bulk delete: delete all associated attachments for all selected transactions, not just the first.
-- Do not modify the transaction delete handlers — hook into them via the established cascade or post-delete event pattern in the codebase.
-- Recommended execution order: run after Instructions 3 and 4 confirm the attachment schema structure and storage provider. Cross-reference Transaction Management PRD Instruction 3 (single delete) and Instruction 9 (bulk delete) for the delete hook points.
-
-**Expected Output**
-
-- A cascade function or hook that fires on transaction deletion, reads all attachment records for the deleted transaction(s), deletes each file from storage, and removes the attachment records from the schema.
-- Bulk delete path: iterates all deleted transaction identifiers and cascades each.
-- Storage deletion failure: error surfaced and logged; orphaned file flagged.
-- Post-cascade: zero attachment records and zero storage files associated with the deleted transaction(s).
-
-**Deliverables**
-
-- Deletion cascade function or hook file
-- Integration points in single-delete and bulk-delete handlers
-- Orphaned file error handling and logging
-- List of all files added or modified
-
-**Preconditions**
-
-- Instruction 3 must define the attachment schema and its association to the transaction identifier before the cascade query is written.
-- Instruction 4 must define the storage provider's file deletion API before this instruction calls it.
-- Cross-reference Transaction Management PRD Instructions 3 and 9 for the delete handler hook points before wiring the cascade.
-
----
-
-## Instruction 7: Receipt Offline Fallback
-
-**Goal**
-Implement the fallback indicator displayed in the transaction detail view when a remotely stored receipt file is temporarily unavailable, preventing a broken or crashed state when the file cannot be fetched.
-
-**Scope**
-In scope: the availability check or error handler on receipt file fetch in the detail view, the fallback indicator rendered when the file is unavailable, and the recovery behavior when connectivity is restored. Out of scope: local receipt caching for offline access (see Open Questions), the upload function (Instruction 4), the attachment schema (Instruction 3), and the detail view's non-receipt content (Instruction 5).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 6c (if receipt files stored remotely, detail view must handle temporary unavailability without crashing or broken state; a fallback indicator must be shown)
-
-**Constraints**
-
-- This instruction applies only if PRD Open Question 4 confirms remote storage. If local-only storage is confirmed, this instruction is void — flag and halt.
-- The fallback indicator must replace the receipt preview in the detail view when the file fetch fails or times out — do not show a broken image or a blank space.
-- The fallback must not prevent the rest of the detail view from rendering — the transaction's other fields must display normally regardless of receipt availability.
-- Do not implement local caching of receipt files unless PRD Open Question 7 confirms it is required. If caching is required, it is a separate instruction — this instruction covers only the fallback indicator.
-- Use the error handling and retry pattern already established in the codebase for remote resource fetches.
-- Recommended execution order: run after Instruction 5 establishes the receipt preview component in the detail view.
-
-**Expected Output**
-
-- An error handler on the receipt file fetch that catches fetch failures and renders a fallback indicator (e.g., a placeholder with a "Receipt unavailable" label or an offline icon).
-- The fallback indicator replaces the preview without disrupting the rest of the detail view.
-- When the file becomes available again (connectivity restored), the preview loads normally on next view or retry.
-
-**Deliverables**
-
-- Updated receipt preview component with fetch error handler and fallback indicator
-- List of all files added or modified
-
-**Preconditions**
-
-- PRD Open Question 4 (remote vs. local storage) must be confirmed as remote before this instruction runs. If local, halt.
-- PRD Open Question 7 (offline caching strategy) must be reviewed — if local caching is required, a separate instruction is needed before this one, since a cached file would prevent the fallback from being reached.
-- Instruction 5 must establish the receipt preview component before this instruction adds the error handler to it.
+- Instruction 1 must confirm the interval unit enum values and the multiplier field name.
+- Instruction 3 must define the reminder schedule record schema and its write interface.
+- PRD Open Question 2 (anchor date) must be confirmed or defaulted with a flag.
+- Confirm where in the codebase "instance logged" is detectable — this is the point where a new transaction is saved that the user identifies as an instance of a recurring one. If no such mechanism exists, define how the system distinguishes an instance log from a new unrelated transaction save.
 
 **Open Questions**
 
-- PRD Open Question 7: Should receipts be cached locally for offline viewing, or is a fallback indicator sufficient? If local caching is required, it must be implemented as a prerequisite to this instruction — a cached file eliminates the offline fallback scenario.
+- PRD Open Question 2: What is the anchor date for reminder scheduling — creation date, last logged instance date, or a user-defined start date?
+- How does the system know a newly saved transaction is an instance of a specific recurring transaction? If this linkage is not already established in the codebase, it must be defined before Trigger 2 can be implemented.
+
+---
+
+## Instruction 5: Reminder Delivery
+
+**Goal**
+Implement the notification delivery mechanism that reads the next scheduled reminder timestamp for each recurring transaction and fires a notification at that time via the confirmed platform notification API, carrying a transaction context payload.
+
+**Scope**
+In scope: the background scheduler or polling mechanism that reads pending reminder timestamps and fires notifications when due, the notification payload construction (transaction identifier and field values for deep-link pre-fill), and the platform notification API integration. Out of scope: the deep-link routing on tap (Instruction 6), the timestamp computation (Instruction 4), the cancellation logic (Instruction 7), and the settings UI (Instruction 8).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 34: notification delivered when due date arrives; notification tapped opens pre-filled entry form; no further reminder for a logged instance), Section 6b (device push tokens stored and kept current if push notifications used), Section 6c (background scheduling required; resilient to app closed or device offline)
+
+**Constraints**
+
+- This instruction is entirely dependent on PRD Open Question 3 (notification mechanism: push notification, in-app alert, or both). Do not implement until confirmed. If unconfirmed, implement push notification and flag as an assumption.
+- The notification payload must carry at minimum the recurring transaction's identifier. If PRD Open Question 4 (deep-link to pre-filled form) is confirmed, the payload must also carry enough field values for Instruction 6 to reconstruct the entry form.
+- Read only reminder schedule records where the enabled flag is true (per Instruction 3) and the next timestamp is at or before the current time.
+- After delivering a notification, do not automatically advance the next timestamp — that is Trigger 2 in Instruction 4, fired when the user actually logs the instance.
+- If push notifications are confirmed: store device push tokens per user, handle token refresh and invalidation, and use the confirmed push provider (APNs, FCM, or Web Push). Do not introduce a provider not already in the codebase or confirmed by the author.
+- The scheduler must be resilient to the app being closed — it must not rely on the app being in the foreground to fire.
+- Recommended execution order: run after Instructions 3 and 4 define the reminder schedule record and the scheduling logic.
+
+**Expected Output**
+
+- A background scheduler or server-side job that reads due reminder schedule records and fires notifications.
+- Notification payload: transaction identifier and (if confirmed) field values for pre-fill.
+- Push token management (if push notifications): storage, refresh, and invalidation handling.
+- The scheduler fires only for enabled reminders with a due timestamp at or before now.
+
+**Deliverables**
+
+- Background scheduler or job implementation
+- Notification payload construction
+- Push token storage and refresh logic (if push notifications confirmed)
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 3 (notification mechanism) must be confirmed before this instruction runs.
+- PRD Open Question 4 (deep-link payload) must be confirmed to determine whether field values beyond the transaction identifier are required in the payload.
+- PRD Open Question 6 (retry behavior) — if retries are confirmed, the scheduler must check retry count against the maximum before firing repeat notifications for the same due date.
+- Instruction 3 must define the reminder schedule record and its enabled and timestamp fields before the scheduler queries them.
+- Confirm the background job or scheduler infrastructure already available in the codebase before building a new one.
+
+**Open Questions**
+
+- PRD Open Question 3: Push notification, in-app alert, or both? The implementation differs significantly between the two.
+- PRD Open Question 6: What is the retry behavior when a reminder is not acknowledged?
+
+---
+
+## Instruction 6: Reminder Deep-Link Handler
+
+**Goal**
+Implement the deep-link routing that intercepts a tapped reminder notification and navigates the user directly to a transaction entry form pre-populated with the recurring transaction's field values.
+
+**Scope**
+In scope: the notification tap handler, the routing logic that parses the notification payload and navigates to the entry form, and the pre-population of the entry form from the payload data. Out of scope: the notification delivery (Instruction 5), the entry form component itself (Transaction Entry PRD), and the reminder settings (Instruction 8).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 34 second criterion: tapping reminder navigates to pre-filled entry form), Section 6c (notification payload must carry enough context to reconstruct the entry form)
+
+**Constraints**
+
+- This instruction is conditional on PRD Open Question 4 confirming deep-link routing. If unconfirmed, implement it and flag — the acceptance criteria state it as a requirement and removing it later is lower risk than omitting it.
+- The handler must parse the transaction identifier from the notification payload and fetch the recurring transaction's current field values from the data store — do not rely solely on field values embedded in the payload, which may be stale if the transaction was edited after the notification was scheduled.
+- Open the transaction entry form with all fields pre-populated from the recurring transaction, with the date field defaulting to the current date (not the recurring transaction's stored date), consistent with the duplicate behavior established in Transaction Management PRD Instruction 7.
+- If the transaction no longer exists when the notification is tapped (it was deleted after the notification was scheduled), navigate to the home screen or transaction list and display an informational message — do not crash or open a blank form.
+- Use the navigation and deep-link routing pattern already established in the codebase. Do not introduce a new routing library.
+- Recommended execution order: run after Instruction 5 defines the notification payload structure and after the transaction entry form is available (Transaction Entry PRD).
+
+**Expected Output**
+
+- A notification tap handler that parses the payload, fetches the current transaction record, and navigates to a pre-filled entry form.
+- The entry form opens with all recurring transaction field values pre-populated and the date field set to today.
+- If the transaction no longer exists: informational navigation to the list or home screen.
+
+**Deliverables**
+
+- Notification tap handler and routing logic
+- Entry form pre-population wiring (reusing the duplicate pre-fill pattern from Transaction Management PRD Instruction 7)
+- Deleted-transaction fallback handling
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 4 (deep-link to pre-filled form) must be confirmed or assumed confirmed with a flag.
+- Instruction 5 must define the notification payload structure (specifically, the transaction identifier field) before this instruction parses it.
+- Confirm the deep-link or notification routing pattern in the codebase before implementing the handler.
+
+**Open Questions**
+
+- PRD Open Question 4: Does tapping the notification deep-link to a pre-filled entry form, or open the app to the home screen? Without this confirmed, the entry form pre-population logic may be unnecessary.
+
+---
+
+## Instruction 7: Reminder Cancellation
+
+**Goal**
+Implement the cancellation logic that clears all pending reminder schedule records for a recurring transaction when that transaction is deleted, and updates the reminder schedule when the recurring designation is removed on edit.
+
+**Scope**
+In scope: the cancellation triggered on transaction deletion (single and bulk delete), the cancellation or nullification of the reminder schedule record when recurring is toggled off on an edited transaction, and the verification that no orphaned reminder schedule records remain after either event. Out of scope: the deletion logic itself (Transaction Management PRD), the delivery mechanism (Instruction 5), and the settings UI (Instruction 8).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 34: recurring transaction deleted → all scheduled reminders cancelled; frequency changed → future reminders rescheduled — handled in Instruction 4; recurring designation removed → no further reminders), Section 6a (delete of recurring transaction must cancel all pending reminders; no reminder must fire for a non-existent transaction)
+
+**Constraints**
+
+- Cancellation on delete must hook into both single-delete and bulk-delete paths from the Transaction Management PRD — cross-reference Instruction 3 (single delete) and Instruction 9 (bulk delete) of that PRD for hook points.
+- On transaction delete: delete the associated reminder schedule record(s) entirely — do not leave them with a null timestamp and an enabled=false flag.
+- On recurring designation removed (edit saves recurring=false): delete or deactivate the associated reminder schedule record. If the codebase pattern prefers soft-deactivation (enabled=false, timestamp=null) over hard deletion, document the choice and confirm it is consistent with the deletion cascade pattern.
+- No reminder schedule record may exist for a transaction that is either deleted or no longer marked recurring.
+- Do not modify the delivery mechanism — the scheduler in Instruction 5 already filters by enabled=true; this instruction ensures no stale enabled records remain.
+- Recommended execution order: run after Instructions 3 and 4 define the reminder schedule record, and after the transaction delete hook points are identifiable from the Transaction Management PRD.
+
+**Expected Output**
+
+- A cancellation function that accepts one or more transaction identifiers and deletes or deactivates all associated reminder schedule records.
+- Wired to: single-delete handler, bulk-delete handler, and the edit-save path when recurring is toggled off.
+- Post-cancellation: no reminder schedule record exists for the affected transaction(s) in an enabled state with a future timestamp.
+
+**Deliverables**
+
+- Cancellation function file
+- Integration points in single-delete, bulk-delete, and recurring-toggle-off handlers
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 3 must define the reminder schedule record schema and its association to the transaction identifier.
+- Cross-reference Transaction Management PRD Instructions 3 and 9 for the delete handler hook points before wiring the cancellation.
+- Confirm whether hard delete or soft deactivation is the codebase's preferred cleanup pattern for associated records.
+
+---
+
+## Instruction 8: Reminder Settings
+
+**Goal**
+Implement the reminder enable/disable controls — a global toggle that enables or disables all recurring transaction reminders, and, if confirmed, a per-transaction toggle that enables or disables reminders for a specific recurring transaction.
+
+**Scope**
+In scope: the global reminder toggle in the notification settings screen, the per-transaction reminder toggle in the transaction detail or edit view (if confirmed), the storage of these preferences, and the effect of each toggle on the reminder schedule record's enabled field. Out of scope: the reminder delivery (Instruction 5), the schedule record schema (Instruction 3), and the scheduling logic (Instruction 4).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 34 fifth criterion: user can enable or disable reminders globally or per recurring transaction)
+
+**Constraints**
+
+- The global toggle must suppress all reminder deliveries when disabled — the scheduler in Instruction 5 must check the global setting before firing any notification. Confirm the global setting storage location (user settings table, local storage, or equivalent).
+- If PRD Open Question 5 confirms per-transaction control: the per-transaction toggle reads and writes the enabled field on the reminder schedule record (Instruction 3). Disabling a specific transaction's reminder sets its enabled=false; re-enabling sets it back to true without changing the stored next timestamp.
+- If PRD Open Question 5 confirms global-only: do not implement per-transaction toggle UI and flag the omission.
+- The global toggle must not delete reminder schedule records — it suppresses delivery. Reminder schedule records remain intact so that reminders resume correctly when the global toggle is re-enabled.
+- Do not modify the scheduler logic — this instruction only writes preference state that the scheduler reads.
+- Recommended execution order: run after Instruction 3 defines the enabled field on the reminder schedule record.
+
+**Expected Output**
+
+- A global reminder toggle in the notification or app settings screen, persisted to the confirmed user settings store.
+- If per-transaction control confirmed: a per-transaction toggle in the detail or edit view that writes to the reminder schedule record's enabled field.
+- The scheduler in Instruction 5 reads the global setting and per-record enabled flag to determine whether to deliver each notification.
+
+**Deliverables**
+
+- Global toggle UI and persistence in the settings screen
+- Per-transaction toggle UI and enabled field write (if confirmed)
+- Documentation of where the global setting is stored and how the scheduler reads it
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 5 (per-transaction vs. global-only reminder control) must be confirmed before the per-transaction toggle is built.
+- Instruction 3 must define the reminder schedule record's enabled field before this instruction writes to it.
+- Confirm the user settings storage mechanism in the codebase before persisting the global toggle value.
+
+**Open Questions**
+
+- PRD Open Question 5: Is reminder control per-transaction, global-only, or both? Without this, the per-transaction toggle cannot be scoped.
