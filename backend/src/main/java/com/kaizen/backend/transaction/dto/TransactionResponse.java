@@ -21,5 +21,6 @@ public record TransactionResponse(
     com.kaizen.backend.transaction.entity.FrequencyUnit frequencyUnit,
     Integer frequencyMultiplier,
     Boolean remindersEnabled,
-    java.util.List<AttachmentResponse> attachments
+    java.util.List<AttachmentResponse> attachments,
+    String clientGeneratedId
 ) {}

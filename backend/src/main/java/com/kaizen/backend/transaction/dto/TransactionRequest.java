@@ -34,5 +34,7 @@ public record TransactionRequest(
 
     Long parentRecurringTransactionId,
 
-    Boolean remindersEnabled
+    Boolean remindersEnabled,
+
+    String clientGeneratedId
 ) {}

@@ -1,0 +1,100 @@
+import { useState, useCallback, useMemo, useEffect } from 'react'
+import {
+  useGetTransactionsQuery,
+  useLazyGetTransactionsQuery,
+} from '../../../app/store/api/transactionApi'
+import type { TransactionResponse } from '../../../app/store/api/transactionApi'
+import { TRANSACTION_PAGE_SIZE } from '../constants'
+import { db, SyncStatus } from '../lib/localStore'
+import { useLiveQuery } from 'dexie-react-hooks'
+
+export function useTransactionPagination() {
+  const [transactions, setTransactions] = useState<TransactionResponse[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+
+  // Fetch local pending transactions
+  const pendingTransactions = useLiveQuery(
+    () => db.transactions.where('syncStatus').equals(SyncStatus.PENDING).toArray(),
+    [],
+  )
+
+  // Initial fetch
+  const {
+    data: initialData,
+    isLoading,
+    isError,
+  } = useGetTransactionsQuery({
+    pageSize: TRANSACTION_PAGE_SIZE,
+  })
+
+  const [trigger] = useLazyGetTransactionsQuery()
+
+  useEffect(() => {
+    if (initialData) {
+      setTransactions(initialData)
+      setHasMore(initialData.length === TRANSACTION_PAGE_SIZE)
+    }
+  }, [initialData])
+
+  const loadMore = useCallback(async () => {
+    if (isFetchingMore || !hasMore || transactions.length === 0) return
+
+    setIsFetchingMore(true)
+    const lastTx = transactions[transactions.length - 1]
+
+    try {
+      const result = await trigger({
+        pageSize: TRANSACTION_PAGE_SIZE,
+        lastDate: lastTx.transactionDate,
+        lastId: lastTx.id,
+      }).unwrap()
+
+      setTransactions((prev) => [...prev, ...result])
+      setHasMore(result.length === TRANSACTION_PAGE_SIZE)
+    } catch (error) {
+      console.error('Failed to fetch more transactions', error)
+    } finally {
+      setIsFetchingMore(false)
+    }
+  }, [isFetchingMore, hasMore, transactions, trigger])
+
+  // Map local pending transactions to TransactionResponse format for merging
+  const mappedPending = useMemo(() => {
+    if (!pendingTransactions) return []
+    return pendingTransactions.map(
+      (pt) =>
+        ({
+          id: -1, // Use a dummy ID for pending
+          amount: pt.amount,
+          type: pt.type,
+          transactionDate: pt.transactionDate || pt.createdAt,
+          description: pt.description || '',
+          notes: pt.notes,
+          isRecurring: pt.isRecurring,
+          frequencyUnit: pt.frequencyUnit,
+          frequencyMultiplier: pt.frequencyMultiplier,
+          clientGeneratedId: pt.clientGeneratedId,
+          // Missing category and payment method details from local store
+          // (Instruction 6 says sync status flag not exposed, just merge them)
+        }) as TransactionResponse,
+    )
+  }, [pendingTransactions])
+
+  const allTransactions = useMemo(() => {
+    const combined = [...mappedPending, ...transactions]
+    // Sort by date descending
+    return combined.sort(
+      (a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime(),
+    )
+  }, [mappedPending, transactions])
+
+  return {
+    transactions: allTransactions,
+    isLoading,
+    isError,
+    hasMore,
+    loadMore,
+    isFetchingMore,
+  }
+}

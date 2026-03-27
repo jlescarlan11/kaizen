@@ -1,12 +1,9 @@
 import { useState, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
-import { useGetTransactionsQuery } from '../../app/store/api/transactionApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { calculateRunningBalance } from './utils/transactionUtils'
 import { cn } from '../../shared/lib/cn'
-import { useAppSelector } from '../../app/store/hooks'
-import { selectPendingDeletes } from '../../app/store/notificationSlice'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionSort } from './components/TransactionSort'
@@ -20,6 +17,7 @@ import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
 import { RefreshCw } from 'lucide-react'
 import type { FilterState } from './types'
+import { useTransactionPagination } from './hooks/useTransactionPagination'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
@@ -32,9 +30,7 @@ const INITIAL_FILTER: FilterState = {
 }
 
 export function TransactionListPage(): ReactElement {
-  // NOTE: Full load implemented with no pagination per PRD Instruction 1 constraints.
-  const { data: transactions = [], isLoading } = useGetTransactionsQuery()
-  const pendingDeletes = useAppSelector(selectPendingDeletes)
+  const { transactions, isLoading, hasMore, loadMore } = useTransactionPagination()
 
   const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
@@ -46,9 +42,8 @@ export function TransactionListPage(): ReactElement {
 
   // 2. The Shared Result Pipeline
   // Composable data pipeline: filter → search → sort
-  const visibleTransactions = transactions.filter((tx) => !pendingDeletes.includes(tx.id))
   const processedTransactions = useTransactionPipeline({
-    transactions: visibleTransactions,
+    transactions,
     searchQuery,
     filterState,
     sortState,
@@ -56,7 +51,7 @@ export function TransactionListPage(): ReactElement {
 
   // Calculate balance based on ALL visible transactions (unfiltered by search/filter)
   // to maintain consistent "Total Balance" context.
-  const balance = calculateRunningBalance(visibleTransactions)
+  const balance = calculateRunningBalance(transactions)
 
   const isSearchActive = searchQuery.trim().length > 0
   const isFilterActive = filterState.categories.length > 0 || filterState.types.length > 0
@@ -219,7 +214,13 @@ export function TransactionListPage(): ReactElement {
             onClearAll={handleClearAll}
           />
         ) : (
-          <TransactionList transactions={processedTransactions} searchQuery={searchQuery} />
+          <TransactionList
+            transactions={processedTransactions}
+            searchQuery={searchQuery}
+            hasMore={hasMore}
+            onLoadMore={loadMore}
+            isLoading={isLoading}
+          />
         )}
       </div>
     </div>

@@ -55,8 +55,13 @@ public class TransactionController {
         description = "Returns a list of transactions ordered by date descending."
     )
     @GetMapping
-    public List<TransactionResponse> getTransactions(@AuthenticationPrincipal UserDetails userDetails) {
-        return transactionService.getTransactions(userDetails.getUsername());
+    public List<TransactionResponse> getTransactions(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime lastDate,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) Long lastId,
+        @org.springframework.web.bind.annotation.RequestParam(defaultValue = "25") int pageSize
+    ) {
+        return transactionService.getTransactionsPaginated(userDetails.getUsername(), lastDate, lastId, pageSize);
     }
 
     @Operation(

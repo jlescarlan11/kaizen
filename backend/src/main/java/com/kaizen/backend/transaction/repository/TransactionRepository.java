@@ -1,5 +1,6 @@
 package com.kaizen.backend.transaction.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,17 @@ import com.kaizen.backend.transaction.entity.Transaction;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
+
+    @Query("SELECT t FROM Transaction t WHERE t.userAccount.id = :userId AND " +
+           "(:lastDate IS NULL OR t.transactionDate < :lastDate OR " +
+           "(t.transactionDate = :lastDate AND t.id < :lastId)) " +
+           "ORDER BY t.transactionDate DESC, t.id DESC")
+    List<Transaction> findByUserAccountIdPaginated(
+        @Param("userId") Long userId,
+        @Param("lastDate") LocalDateTime lastDate,
+        @Param("lastId") Long lastId,
+        org.springframework.data.domain.Pageable pageable
+    );
 
     @Query("SELECT SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
@@ -44,4 +56,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.paymentMethod IS NULL")
     java.math.BigDecimal getUnspecifiedExpenseSummary(@Param("userId") Long userId);
+
+    Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);
+
+    boolean existsByClientGeneratedId(String clientGeneratedId);
 }

@@ -1,393 +1,437 @@
-1. Recurring Transaction Schema — Add the recurring flag and structured frequency fields to the transaction record schema, enforcing that a recurring flag of true requires a valid frequency value.
-2. Recurring Transaction UI — Implement the recurring toggle and frequency selector in the transaction entry and edit forms, the recurring indicator in the list view, and the human-readable frequency display in the detail view.
-3. Reminder Schedule Record — Define the data schema for per-transaction reminder schedule records, storing the next scheduled reminder timestamp and the reminder preference state.
-4. Reminder Scheduler — Implement the scheduling logic that computes and writes the next reminder timestamp when a recurring transaction is saved, when an instance is logged, or when the frequency is changed.
-5. Reminder Delivery — Implement the notification delivery mechanism that fires at the scheduled reminder time via the confirmed platform notification API, carrying the transaction context payload.
-6. Reminder Deep-Link Handler — Implement the deep-link routing that intercepts a tapped reminder notification and opens the transaction entry form pre-populated with the recurring transaction's field values.
-7. Reminder Cancellation — Implement the cancellation logic that clears all pending reminder schedule records when a recurring transaction is deleted or its recurring designation is removed.
-8. Reminder Settings — Implement the reminder enable/disable controls at the global level and, if confirmed, at the per-transaction level.
+1. Virtualized Transaction List — Implement windowed/virtualized rendering for the transaction list, rendering only viewport-visible rows plus a defined buffer, with a loading indicator and stable in-view rows during incremental fetches.
+2. Paginated Transaction Query — Implement the paginated or cursor-based data fetch that supplies the virtualized list with successive pages of transaction records without loading the full dataset into memory.
+3. List Navigation Cache — Implement the in-memory cache that serves already-loaded transaction data immediately on re-navigation to the list, bypassing a full network re-fetch.
+4. Local Transaction Store — Implement the on-device structured data store that persists transaction records locally using the confirmed platform storage technology, with the same schema as the remote store.
+5. Offline Transaction Creation — Implement the transaction entry flow that writes new records to the local store when offline, assigns a client-generated identifier, sets the sync status to pending, and confirms the save to the user without requiring connectivity.
+6. Offline List Visibility — Implement the merging of locally pending transactions into the transaction list view so that offline-created records are visible alongside synced records before sync completes.
+7. Background Sync — Implement the background process that monitors network state and, on connectivity restoration, syncs all pending local transactions to the remote store idempotently, updates sync status flags, and retries on failure per the confirmed retry strategy.
+8. Sync Conflict Resolution — Implement the conflict detection and resolution logic applied during sync when a local transaction record conflicts with a remote state, using the confirmed resolution strategy.
+9. Offline Connectivity Indicator — Implement the UI indicator that signals to the user when the app is operating offline, and identifies which specific actions are unavailable in that state.
 
 ---
 
-## Instruction 1: Recurring Transaction Schema
+## Instruction 1: Virtualized Transaction List
 
 **Goal**
-Add the recurring boolean flag and the structured frequency fields to the transaction record schema, enforcing that a true recurring flag cannot be saved without a valid frequency value, and document all new field names and types as the authoritative reference for all downstream instructions.
+Implement windowed or virtualized rendering for the transaction list so that only the rows currently visible in the viewport plus a defined overscan buffer are rendered at any time, with a loading indicator during initial fetch and stable in-view rows during incremental data fetches.
 
 **Scope**
-In scope: the recurring boolean field, the frequency structure (interval unit and multiplier), the constraint that recurring=true requires a non-null frequency, and the migration. Out of scope: the UI for setting these fields (Instruction 2), the reminder schedule record (Instruction 3), and all other transaction fields.
+In scope: the virtualized list component wrapping the transaction list, the overscan buffer configuration, the loading indicator during initial data unavailability, and the stability guarantee that already-rendered rows do not reorder, flash, or disappear when additional data is fetched. Out of scope: the paginated data query that feeds the list (Instruction 2), the navigation cache (Instruction 3), the offline list merging (Instruction 6), and date grouping or icon rendering (covered in Transaction History PRD).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6a (recurring designation must store both the flag and the frequency; recurring=true with no frequency is invalid), Section 6b (frequency stored as a structured format — interval unit and multiplier — not a freeform string)
+- PRD Section 5 (Story 35 acceptance criteria: first visible rows within 2 seconds; smooth scroll with no frame drops or blank rows; loading indicator when data unavailable; visible rows stable during incremental fetch), Section 6a (virtualized rendering required; full history rendering not permitted)
 
 **Constraints**
 
-- The recurring field must be a boolean, defaulting to false. A null recurring field is not a valid state — default to false.
-- The frequency must be stored as two fields: an interval unit (e.g., an enum: daily, weekly, monthly, yearly, and any confirmed custom units) and an integer multiplier (e.g., 2 for "every 2 weeks"). Do not store frequency as a freeform string.
-- Enforce at the schema level that frequency fields are non-null when the recurring flag is true. If the database cannot enforce this as a check constraint, document the application-level enforcement required and flag.
-- PRD Open Question 1 (available frequency options) must be confirmed before the interval unit enum is written. If unconfirmed, implement the enum with daily, weekly, monthly, and yearly as provisional values and flag.
-- Do not implement any UI or scheduling logic here — schema and reference document only.
-- Use the naming and migration conventions established in the codebase (cross-reference Transaction Entry PRD Instruction 9).
-- Recommended execution order: run before all other instructions in this set.
+- Only rows within the current viewport plus the defined overscan buffer may be rendered to the DOM or native view hierarchy at any time. Do not render the full transaction list.
+- The overscan buffer size must be a named, configurable constant — do not hardcode a magic number.
+- During initial load, display a loading indicator immediately — never a blank screen.
+- When additional rows are fetched as the user scrolls, already-rendered rows must not reorder, flash, or be removed. The fetch must append to or extend the rendered window, not replace it.
+- Use the virtualized list or windowed rendering library already present in the codebase. If none is present, select the standard library for the target platform (e.g., FlatList with windowSize for React Native, virtual scroll for web) and document the choice as an assumption for author confirmation.
+- Do not re-implement date grouping, icon display, or row-level content — the virtualized list is a container concern only.
+- PRD Open Question 1 (load time threshold and record count target) must be confirmed or defaulted to 2 seconds at 1000 records with a flag.
+- Recommended execution order: run before Instruction 2, since Instruction 2 feeds data into the list this instruction renders.
 
 **Expected Output**
 
-- Updated transaction record schema with: a boolean recurring field (default false), an interval unit enum field (nullable, non-null when recurring=true), and an integer multiplier field (nullable, non-null when recurring=true).
-- Schema-level or documented application-level constraint: recurring=true requires both frequency fields to be non-null.
-- Flat reference table: field name, type, required/optional, description.
-- Before/after schema comparison and migration file.
+- A virtualized list component that renders only viewport-visible rows plus the overscan buffer.
+- Named overscan buffer constant.
+- Loading indicator rendered when no data is yet available.
+- In-view row stability during incremental fetches: no flash, reorder, or disappearance.
 
 **Deliverables**
 
-- Updated transaction schema file
-- Migration file or script
-- Flat reference table
+- Updated or new virtualized transaction list component file
+- Overscan buffer constant definition
+- Loading indicator integration
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 1 (frequency options) must be confirmed or provisionally defaulted before the interval unit enum values are written.
-- Confirm the transaction schema file and ORM convention from Transaction Entry PRD Instruction 9 before modifying.
+- PRD Open Question 1 (load time threshold and record count) must be confirmed or defaulted before the performance target is documented.
+- Confirm whether a virtualized list or windowed rendering library is already present in the codebase before introducing a new dependency.
+- Cross-reference Transaction History PRD Instruction 1 for the existing list component structure before wrapping it in virtualization.
 
 **Open Questions**
 
-- PRD Open Question 1: What frequency options are supported? The interval unit enum cannot be finalized without this list.
+- PRD Open Question 1: What is the target load time and at what record count must it be met? This determines how aggressive the virtualization and pagination parameters must be.
+- PRD Open Question 7: Is the pagination strategy cursor-based or offset-based? The virtualized list's scroll position handling differs between the two — cursor-based is more stable when new transactions are inserted mid-scroll.
 
 ---
 
-## Instruction 2: Recurring Transaction UI
+## Instruction 2: Paginated Transaction Query
 
 **Goal**
-Implement the recurring toggle and frequency selector in the transaction entry and edit forms, the recurring indicator in the transaction list view, and the human-readable frequency display in the transaction detail view, including the removal of the recurring designation on edit.
+Implement the paginated or cursor-based data fetch that supplies the virtualized list with successive pages of transaction records on demand, without loading the full transaction dataset into memory in a single query.
 
 **Scope**
-In scope: the recurring toggle in the entry and edit forms, the frequency selector presented when the toggle is enabled, the validation that blocks save when recurring=true but no frequency is selected, the recurring indicator on list rows, the human-readable frequency label in the detail view, and the removal of indicator and stored values when recurring is toggled off. Out of scope: the recurring schema (Instruction 1), reminder scheduling (Instruction 4), and reminder settings (Instruction 8).
+In scope: the paginated query function, the cursor or offset mechanism, the first-page fetch that initiates list render, the subsequent-page fetch triggered by the virtualized list's scroll threshold, and the end-of-data signal. Out of scope: the virtualized list component (Instruction 1), the navigation cache (Instruction 3), offline data merging (Instruction 6), and the transaction data schema.
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 33 acceptance criteria), Section 6a (recurring=true with no frequency is an invalid save state)
+- PRD Section 6b (full dataset must never be loaded into memory in a single query above a defined threshold; pagination or cursor-based fetching required), Section 6c (initial render uses first page only; list must not require complete dataset before rendering begins)
 
 **Constraints**
 
-- The frequency selector must appear only when the recurring toggle is enabled — do not render it for non-recurring transactions.
-- Frequency options presented in the selector must match exactly the interval unit enum values confirmed in Instruction 1. Do not add options not in the schema.
-- When the user enables recurring and saves without selecting a frequency, block save and display a field-level validation error.
-- When the user disables recurring on an existing recurring transaction and saves, write recurring=false and null both frequency fields — do not leave stale frequency values.
-- The list row recurring indicator must be driven by the recurring boolean field — no secondary fetch required.
-- The detail view frequency display must convert the stored interval unit and multiplier into a human-readable string (e.g., unit=weekly, multiplier=2 → "Every 2 weeks"; unit=monthly, multiplier=1 → "Monthly"). Define the formatting rules as a named utility function.
-- Absence of recurring designation must be visually neutral in both list and detail views — no indicator shown when recurring=false.
-- The edit form must pre-populate both the toggle and frequency selector from stored values.
-- Do not modify the recurring schema — read field names from Instruction 1's output.
-- Recommended execution order: run after Instruction 1 confirms field names and enum values.
+- PRD Open Question 7 (cursor-based vs. offset-based pagination) must be confirmed before implementing the query mechanism. If unconfirmed, implement cursor-based pagination and flag — it is more stable when new transactions are inserted between pages.
+- The page size must be a named, configurable constant. Do not hardcode a magic number.
+- The first-page fetch must be initiatable before the full transaction count is known — do not pre-fetch the count to compute total pages before rendering begins.
+- Subsequent page fetches must be triggered by the virtualized list's scroll threshold event, not by a manual user action.
+- The query must return an end-of-data signal when no further pages exist — the list must handle this without attempting an additional fetch.
+- Do not load previously fetched pages again when the user scrolls back up — the navigation cache (Instruction 3) handles already-loaded data.
+- Recommended execution order: run after Instruction 1 establishes the scroll threshold event interface, since this instruction responds to it.
 
 **Expected Output**
 
-- Entry and edit forms: recurring toggle, conditional frequency selector, and save-blocking validation when frequency is absent.
-- Edit form: toggle and selector pre-populated from stored values; null write when recurring disabled.
-- List row: recurring indicator when recurring=true, neutral when false.
-- Detail view: human-readable frequency label, not raw field values.
+- A paginated query function that accepts a cursor or offset and a page size, fetches the next page of transactions ordered by date descending, and returns the page plus a next-cursor or has-more flag.
+- First-page fetch called on initial list mount.
+- Subsequent fetches called on scroll threshold event from the virtualized list.
+- End-of-data handled without an additional network request.
 
 **Deliverables**
 
-- Updated transaction entry form component
-- Updated transaction edit form component
-- Updated transaction list row component (recurring indicator)
-- Updated transaction detail view component (frequency display)
-- Frequency label utility function
+- Paginated transaction query function
+- Page size constant
+- Scroll threshold integration with the virtualized list component
+- End-of-data handling
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the recurring field name, the interval unit enum values, and the multiplier field name before this instruction writes to or reads from them.
-- PRD Open Question 1 (frequency options) must be confirmed before the selector options are rendered.
-
----
-
-## Instruction 3: Reminder Schedule Record
-
-**Goal**
-Define the data schema for per-transaction reminder schedule records, storing the next scheduled reminder timestamp, the reminder enabled state, and the association to the parent recurring transaction.
-
-**Scope**
-In scope: the reminder schedule entity schema (next reminder timestamp, enabled flag, association to transaction identifier, and any retry state fields if confirmed), and the flat reference table. Out of scope: the scheduling logic that computes and writes the timestamp (Instruction 4), the delivery mechanism (Instruction 5), and the settings UI (Instruction 8).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 6b (reminder system must store, per recurring transaction, the timestamp of the next scheduled reminder; this value must be updated when an instance is logged or frequency changes), Section 6a (delete of recurring transaction must cancel all pending reminders)
-
-**Constraints**
-
-- The reminder schedule record must be associated with the transaction by the transaction's confirmed unique identifier — do not embed schedule state directly on the transaction record if a separate entity is cleaner for the codebase's ORM pattern. Confirm the preferred approach.
-- Store at minimum: the transaction identifier (foreign key), the next scheduled reminder timestamp (nullable — null when no reminder is pending), and the enabled boolean (default true).
-- If PRD Open Question 6 (retry behavior) is confirmed, add fields for retry count and retry interval. If unconfirmed, omit and flag.
-- If PRD Open Question 5 (per-transaction reminder control) is confirmed, the enabled field on this record is the per-transaction toggle. If only a global toggle is confirmed, the enabled field may be omitted from this record and managed at the global settings level.
-- Do not implement scheduling logic or delivery here — schema and reference document only.
-- Recommended execution order: run before Instructions 4, 5, 7, and 8.
-
-**Expected Output**
-
-- Reminder schedule entity schema: field names, types, nullability, constraints, and association to the transaction record.
-- Flat reference table: field name, type, required/optional, description.
-- Migration file if the codebase uses migrations.
-
-**Deliverables**
-
-- New reminder schedule entity schema file
-- Migration file or script
-- Flat reference table
-- List of all files added or modified
-
-**Preconditions**
-
-- Confirm the transaction record's unique identifier field name from Transaction Entry PRD Instruction 9 before writing the foreign key.
-- PRD Open Question 5 (per-transaction reminder control vs. global toggle only) must be confirmed before deciding whether the enabled field belongs on this record.
-- PRD Open Question 6 (retry behavior) must be confirmed or defaulted to no retry fields with a flag.
+- PRD Open Question 7 (pagination strategy) must be confirmed or defaulted to cursor-based with a flag.
+- Confirm that the transaction data layer (database query interface or API) supports cursor-based or offset-based pagination before implementing the query.
+- Instruction 1 must define the scroll threshold event interface before this instruction wires to it.
 
 **Open Questions**
 
-- PRD Open Question 5: Is reminder control per-transaction or global-only? This determines whether the enabled field belongs here or only in global settings.
-- PRD Open Question 6: What is the retry behavior? If retries are supported, retry count and interval fields must be added here.
+- PRD Open Question 7: Cursor-based or offset-based pagination? Cursor-based is recommended for stability during concurrent inserts, but the data layer must support it.
 
 ---
 
-## Instruction 4: Reminder Scheduler
+## Instruction 3: List Navigation Cache
 
 **Goal**
-Implement the scheduling logic that computes the next reminder timestamp and writes it to the reminder schedule record when a recurring transaction is first saved, when an instance of the transaction is logged, or when the transaction's frequency is changed.
+Implement the in-memory cache that serves already-loaded transaction list data immediately when the user re-navigates to the list screen, bypassing a full network re-fetch for data already in memory.
 
 **Scope**
-In scope: the next-timestamp computation function (given anchor date and frequency, returns the next due date), the write of the computed timestamp to the reminder schedule record, and the three trigger points: initial save of a recurring transaction, logging of a new instance, and frequency change on edit. Out of scope: the reminder delivery mechanism (Instruction 5), the schedule record schema (Instruction 3), the cancellation logic (Instruction 7), and the settings UI (Instruction 8).
+In scope: the cache store that holds the loaded transaction pages, the cache read on list mount that short-circuits the network fetch when data is already present, and the cache invalidation trigger when the transaction store changes (new transaction created, edited, or deleted). Out of scope: the paginated query itself (Instruction 2), the virtualized list rendering (Instruction 1), and the offline data merge (Instruction 6).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 6a (reminders scheduled based on the transaction's stored frequency and the date of the most recently logged instance — not the creation date alone), Section 6b (next scheduled reminder timestamp updated each time an instance is logged or frequency is changed)
+- PRD Section 5 (Story 35 fifth criterion: re-navigating to the list shows previously loaded records immediately from cache without a full reload)
 
 **Constraints**
 
-- The anchor date for next-timestamp computation must be confirmed (PRD Open Question 2): creation date, last logged date, or user-defined start date. If unconfirmed, use the date of the most recently logged instance (falling back to the transaction's stored date if no instance has been logged yet) and flag.
-- The computation function accepts the anchor date, the interval unit, and the multiplier, and returns the next due timestamp. Implement it as a pure, testable function separate from the trigger logic.
-- Trigger 1 — initial recurring save: create a reminder schedule record and write the first computed timestamp.
-- Trigger 2 — instance logged: update the reminder schedule record's next timestamp by advancing the anchor date to the just-logged instance's date and recomputing.
-- Trigger 3 — frequency change on edit: recompute the next timestamp from the current anchor date using the new frequency values and overwrite the stored timestamp.
-- Do not deliver the notification here — write only the timestamp. Instruction 5 reads it and delivers at the right time.
-- Use the date arithmetic library already present in the codebase (cross-reference Transaction Attachments PRD for the date utility convention). Do not introduce a new date library.
-- Recommended execution order: run after Instructions 1 and 3 confirm the frequency field names and reminder schedule schema.
+- On re-navigation to the list, if cached data exists, render it immediately — do not initiate a network fetch before showing cached rows.
+- The cache must be invalidated when any transaction mutation occurs (create, edit, delete) so that stale data is not served after a change. Confirm all mutation event points from the Transaction Entry and Transaction Management PRDs.
+- The cache must be scoped to the current session — it is an in-memory store, not a persistent cache. Do not write to disk or local storage here; that is the offline store's responsibility (Instruction 4).
+- Use the caching or state management pattern already established in the codebase (React Query, a store, or equivalent). Do not introduce a new caching library.
+- The cache must not prevent the list from eventually reflecting fresh data — after serving cached rows, a background refresh may run to check for new records, but it must not cause already-visible rows to flash or reorder.
+- Recommended execution order: run after Instructions 1 and 2 establish the list rendering and fetch patterns.
 
 **Expected Output**
 
-- A pure next-timestamp computation function: (anchorDate, intervalUnit, multiplier) → nextDueTimestamp.
-- Trigger 1 handler: on recurring transaction save, creates a reminder schedule record with the first computed timestamp.
-- Trigger 2 handler: on instance logged, updates the reminder schedule record's timestamp.
-- Trigger 3 handler: on frequency change saved, recomputes and overwrites the timestamp.
-- All three triggers write to the reminder schedule record using the schema from Instruction 3.
+- A cache store holding loaded transaction pages for the current session.
+- On list mount: cache hit → render cached rows immediately; cache miss → initiate paginated fetch.
+- Cache invalidation on any transaction mutation event.
+- Background refresh after cache hit completes without disrupting visible rows.
 
 **Deliverables**
 
-- Next-timestamp computation function file
-- Trigger handlers wired to the three mutation points
+- Cache store implementation (or configuration of existing caching library)
+- Cache read on list mount
+- Cache invalidation wiring to mutation event points
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 1 must confirm the interval unit enum values and the multiplier field name.
-- Instruction 3 must define the reminder schedule record schema and its write interface.
-- PRD Open Question 2 (anchor date) must be confirmed or defaulted with a flag.
-- Confirm where in the codebase "instance logged" is detectable — this is the point where a new transaction is saved that the user identifies as an instance of a recurring one. If no such mechanism exists, define how the system distinguishes an instance log from a new unrelated transaction save.
+- Confirm the caching or state management library already present in the codebase before implementing the cache store.
+- Cross-reference Transaction Management PRD and Transaction Entry PRD mutation event points to ensure cache invalidation covers all write paths.
+- Instruction 2 must define the page structure before this instruction caches it.
+
+---
+
+## Instruction 4: Local Transaction Store
+
+**Goal**
+Implement the on-device structured data store that persists transaction records locally using the confirmed platform storage technology, supporting the full transaction schema so that all fields writable online are also writable offline.
+
+**Scope**
+In scope: the local database setup (SQLite, IndexedDB, or equivalent per confirmed platform), the local transaction table or object store mirroring the remote schema, the sync status flag field (pending, synced, failed), and the client-generated unique identifier strategy. Out of scope: the offline entry flow that writes to this store (Instruction 5), the sync process that reads from it (Instruction 7), and the conflict resolution logic (Instruction 8).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6a (local-first data layer; transactions written locally first; sync is non-blocking), Section 6b (local store must support the same schema as remote store; reduced-field offline mode not acceptable; sync status flag required; client-generated ID preserved through sync), Section 6c (local database technology per platform — SQLite for mobile, IndexedDB for web, or equivalent)
+
+**Constraints**
+
+- The local schema must match the remote transaction schema exactly — every field available in online entry must be writable in the local store. Cross-reference Transaction Entry PRD Instruction 9 and all subsequent schema-modifying PRDs (Categories, Payment Methods, Attachments, Recurring) for the full field list.
+- Include a sync status field with at minimum three values: pending, synced, failed. This field must not be exposed in transaction display UI.
+- Include a client-generated unique identifier field. The identifier generation strategy must produce collision-resistant IDs without a server round-trip (e.g., UUID v4). Confirm the identifier convention used in the codebase.
+- PRD Open Question 2 (local storage technology per platform) must be confirmed before the local store is implemented. Do not assume a technology — the choice differs between mobile and web.
+- Do not implement the sync process here — the local store is read and written; sync logic belongs to Instruction 7.
+- Recommended execution order: run before Instructions 5, 6, and 7.
+
+**Expected Output**
+
+- Local database initialized with the full transaction schema, including the sync status field and client-generated identifier field.
+- The local store is queryable and writable independently of network state.
+- Schema documentation showing field-by-field parity with the remote schema.
+
+**Deliverables**
+
+- Local database setup and schema definition
+- Sync status field and its allowed values (as a named enum or constant set)
+- Client identifier generation utility
+- Schema parity documentation (local field → remote field mapping)
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 2 (local storage technology per platform) must be confirmed before implementation begins.
+- The full remote transaction schema must be assembled from all schema-defining PRDs (Transaction Entry, Categories, Payment Methods, Notes, Recurring) before the local schema is written to match it.
 
 **Open Questions**
 
-- PRD Open Question 2: What is the anchor date for reminder scheduling — creation date, last logged instance date, or a user-defined start date?
-- How does the system know a newly saved transaction is an instance of a specific recurring transaction? If this linkage is not already established in the codebase, it must be defined before Trigger 2 can be implemented.
+- PRD Open Question 2: What local storage technology is used per platform — SQLite, IndexedDB, or another? This is the foundational infrastructure decision for this instruction.
 
 ---
 
-## Instruction 5: Reminder Delivery
+## Instruction 5: Offline Transaction Creation
 
 **Goal**
-Implement the notification delivery mechanism that reads the next scheduled reminder timestamp for each recurring transaction and fires a notification at that time via the confirmed platform notification API, carrying a transaction context payload.
+Implement the transaction entry flow that writes new records to the local store when the device is offline, assigns a client-generated identifier at save time, sets the sync status to pending, and confirms the save to the user without indicating that a network connection is required.
 
 **Scope**
-In scope: the background scheduler or polling mechanism that reads pending reminder timestamps and fires notifications when due, the notification payload construction (transaction identifier and field values for deep-link pre-fill), and the platform notification API integration. Out of scope: the deep-link routing on tap (Instruction 6), the timestamp computation (Instruction 4), the cancellation logic (Instruction 7), and the settings UI (Instruction 8).
+In scope: the connectivity detection at the time of form submission, the local-store write path for offline submissions, the client identifier assignment, the pending sync status write, and the user confirmation that the transaction was saved. Out of scope: the local store setup (Instruction 4), the background sync (Instruction 7), the offline list visibility of pending records (Instruction 6), and receipt upload deferral (covered in the Attachments PRD offline behavior).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 34: notification delivered when due date arrives; notification tapped opens pre-filled entry form; no further reminder for a logged instance), Section 6b (device push tokens stored and kept current if push notifications used), Section 6c (background scheduling required; resilient to app closed or device offline)
+- PRD Section 5 (Story 36: form fully functional offline; offline save confirmed to user without network requirement; sync automatic on connectivity restoration), Section 6a (client-generated ID at local save time; ID preserved through sync), Section 6b (sync status set to pending on local write)
 
 **Constraints**
 
-- This instruction is entirely dependent on PRD Open Question 3 (notification mechanism: push notification, in-app alert, or both). Do not implement until confirmed. If unconfirmed, implement push notification and flag as an assumption.
-- The notification payload must carry at minimum the recurring transaction's identifier. If PRD Open Question 4 (deep-link to pre-filled form) is confirmed, the payload must also carry enough field values for Instruction 6 to reconstruct the entry form.
-- Read only reminder schedule records where the enabled flag is true (per Instruction 3) and the next timestamp is at or before the current time.
-- After delivering a notification, do not automatically advance the next timestamp — that is Trigger 2 in Instruction 4, fired when the user actually logs the instance.
-- If push notifications are confirmed: store device push tokens per user, handle token refresh and invalidation, and use the confirmed push provider (APNs, FCM, or Web Push). Do not introduce a provider not already in the codebase or confirmed by the author.
-- The scheduler must be resilient to the app being closed — it must not rely on the app being in the foreground to fire.
-- Recommended execution order: run after Instructions 3 and 4 define the reminder schedule record and the scheduling logic.
+- Detect network state at the moment of form submission — do not rely on a stale connectivity flag captured at form open.
+- When offline: write the transaction to the local store (Instruction 4) with a client-generated identifier and sync status = pending. Do not attempt a remote write.
+- When online: follow the existing remote write path. Do not route online submissions through the local store unless the codebase's local-first architecture requires it — confirm the intended online write path.
+- The save confirmation shown to the user must not indicate that a network connection is required or that the record is in a pending state. The transaction is saved — the sync is an implementation detail.
+- Receipt upload: if a receipt is attached and the device is offline, decouple the upload from the transaction save. Save the transaction locally; queue the receipt upload for when connectivity is available. Do not block the transaction save on the receipt upload. Cross-reference Attachments PRD Instruction 4 for the upload function's error handling pattern.
+- Do not implement sync here — the local store write ends this instruction's responsibility.
+- Recommended execution order: run after Instruction 4 establishes the local store and after the existing online transaction entry form is identifiable.
 
 **Expected Output**
 
-- A background scheduler or server-side job that reads due reminder schedule records and fires notifications.
-- Notification payload: transaction identifier and (if confirmed) field values for pre-fill.
-- Push token management (if push notifications): storage, refresh, and invalidation handling.
-- The scheduler fires only for enabled reminders with a due timestamp at or before now.
+- Connectivity check at form submission time.
+- Offline path: local store write with client ID and sync status = pending; user confirmation displayed.
+- Online path: existing remote write path unchanged (or confirmed local-first if the architecture requires it).
+- Receipt upload decoupled from transaction save when offline.
 
 **Deliverables**
 
-- Background scheduler or job implementation
-- Notification payload construction
-- Push token storage and refresh logic (if push notifications confirmed)
+- Updated transaction entry form submission handler with online/offline branching
+- Offline local store write call
+- User confirmation messaging (no network-state language)
+- Receipt upload deferral integration point
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 3 (notification mechanism) must be confirmed before this instruction runs.
-- PRD Open Question 4 (deep-link payload) must be confirmed to determine whether field values beyond the transaction identifier are required in the payload.
-- PRD Open Question 6 (retry behavior) — if retries are confirmed, the scheduler must check retry count against the maximum before firing repeat notifications for the same due date.
-- Instruction 3 must define the reminder schedule record and its enabled and timestamp fields before the scheduler queries them.
-- Confirm the background job or scheduler infrastructure already available in the codebase before building a new one.
+- Instruction 4 must define the local store's write interface and the client identifier generator before this instruction uses them.
+- Confirm the connectivity detection API available in the codebase (network state listener, navigator.onLine, or equivalent).
+- Confirm whether the architecture is always local-first (online writes also go to local store first) or only local-store-on-offline.
+
+---
+
+## Instruction 6: Offline List Visibility
+
+**Goal**
+Implement the merging of locally pending transactions into the transaction list view so that offline-created records are visible alongside synced records before sync completes, with no offline-origin label visible to the user after sync.
+
+**Scope**
+In scope: the query or merge that combines pending local transactions with the paginated remote transaction list, the display of pending transactions in the correct chronological position, and the removal of any pending-state distinction from the display after successful sync. Out of scope: the local store setup (Instruction 4), the paginated remote query (Instruction 2), the sync process (Instruction 7), and the connectivity indicator (Instruction 9).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 36: offline transactions visible in list alongside synced records; after sync, no offline origin label or special state persists), Section 6b (sync status flag not exposed in transaction display)
+
+**Constraints**
+
+- Query the local store for transactions with sync status = pending and merge them into the list displayed to the user — do not exclude them from the list because they have not yet synced.
+- Pending transactions must appear in the correct chronological position based on their stored date — not pinned to the top or bottom.
+- The sync status flag must not be visible in the list row or detail view. It is an internal implementation field.
+- After a pending transaction is synced (sync status updated to synced), its list row must update to reflect the synced state without any offline-origin label, visual distinction, or special marker.
+- The merge must not cause already-visible synced rows to reorder or flash.
+- Recommended execution order: run after Instructions 4 and 5 define the local store schema and pending transaction writes, and after Instruction 1 establishes the list rendering component.
+
+**Expected Output**
+
+- A merged list source that combines remote paginated results with local pending transactions.
+- Pending transactions rendered at the correct chronological position with no special visual treatment.
+- After sync status updates to synced: row renders identically to an online-created transaction.
+
+**Deliverables**
+
+- Merged list data source function or hook
+- Updated list component showing merged data source integration
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 4 must define the local store query interface and the sync status field before this instruction queries pending records.
+- Instruction 5 must write pending records to the local store before this instruction can surface them.
+- Instruction 1 must define the list rendering component's data input interface before this instruction provides a merged source to it.
+
+---
+
+## Instruction 7: Background Sync
+
+**Goal**
+Implement the background process that monitors network state and, on connectivity restoration, syncs all pending local transactions to the remote store idempotently, updates sync status flags to synced or failed on each outcome, and retries failed transactions per the confirmed retry strategy.
+
+**Scope**
+In scope: the network state monitor, the sync trigger on connectivity restoration, the idempotent remote write for each pending transaction (using the client-generated identifier to prevent duplicates), the sync status update on success or failure, the retry logic on failure, and graceful handling of mid-sync connectivity interruption. Out of scope: conflict resolution (Instruction 8), the local store setup (Instruction 4), offline entry (Instruction 5), and the connectivity indicator (Instruction 9).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 36: automatic sync on connectivity restoration without user action; sync idempotent; no duplicates), Section 6a (sync idempotent; client ID preserved through sync; failed sync retained and retried; no data loss on failure), Section 6b (sync status updated as sync progresses), Section 6c (background sync operates without user initiation; handles mid-sync interruption)
+
+**Constraints**
+
+- The sync process must be idempotent: syncing the same pending transaction multiple times must produce exactly one remote record. Use the client-generated identifier as the idempotency key — if a record with that identifier already exists remotely, do not insert a duplicate.
+- On connectivity restoration: query the local store for all transactions with sync status = pending and attempt a remote write for each.
+- On successful remote write: update the local store sync status to synced.
+- On failed remote write: update the local store sync status to failed and apply the confirmed retry strategy (PRD Open Question 6). If unconfirmed, retry on the next connectivity event only and flag.
+- If connectivity is interrupted mid-sync: any transaction not yet written remotely remains in pending or failed state and is retried on the next connectivity restoration.
+- Do not delete the local record after successful sync — keep it with sync status = synced so the local store remains a consistent cache.
+- PRD Open Question 6 (retry strategy: immediate, exponential backoff, or next connectivity event) must be confirmed before the retry logic is written.
+- Recommended execution order: run after Instructions 4 and 5 define the local store and pending records, and after Instruction 8 defines the conflict detection hook point.
+
+**Expected Output**
+
+- A network state monitor that triggers the sync process on connectivity restoration.
+- A sync loop that reads all pending local transactions, writes each to the remote store using the client identifier as the idempotency key, and updates the sync status.
+- Retry logic for failed writes per the confirmed strategy.
+- Mid-sync interruption handled: partially synced transactions resume on next connectivity event.
+
+**Deliverables**
+
+- Background sync process implementation
+- Network state monitor integration
+- Idempotency check in the remote write call
+- Retry logic with the confirmed strategy
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 6 (retry strategy) must be confirmed or defaulted to next-connectivity-event retry with a flag.
+- Instruction 4 must define the local store query for pending transactions and the sync status update interface.
+- Instruction 8 must define the conflict detection hook point so the sync loop can hand off conflicts before writing.
+- Confirm the network state monitoring API available in the codebase (NetInfo for React Native, navigator.onLine with event listeners for web, or equivalent).
 
 **Open Questions**
 
-- PRD Open Question 3: Push notification, in-app alert, or both? The implementation differs significantly between the two.
-- PRD Open Question 6: What is the retry behavior when a reminder is not acknowledged?
+- PRD Open Question 6: What is the retry strategy for a failed sync — immediate retry, exponential backoff, or retry on next connectivity event?
 
 ---
 
-## Instruction 6: Reminder Deep-Link Handler
+## Instruction 8: Sync Conflict Resolution
 
 **Goal**
-Implement the deep-link routing that intercepts a tapped reminder notification and navigates the user directly to a transaction entry form pre-populated with the recurring transaction's field values.
+Implement the conflict detection and resolution logic applied during sync when a locally pending transaction record conflicts with a remote state, applying the confirmed resolution strategy consistently and ensuring no data is silently discarded.
 
 **Scope**
-In scope: the notification tap handler, the routing logic that parses the notification payload and navigates to the entry form, and the pre-population of the entry form from the payload data. Out of scope: the notification delivery (Instruction 5), the entry form component itself (Transaction Entry PRD), and the reminder settings (Instruction 8).
+In scope: the conflict detection step in the sync loop (checking whether the remote record has diverged from the local version), the resolution logic applying the confirmed strategy (last-write-wins, server-wins, client-wins, or user-prompted), and the post-resolution write. Out of scope: the sync loop orchestration (Instruction 7), the local store setup (Instruction 4), and the connectivity indicator (Instruction 9).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 34 second criterion: tapping reminder navigates to pre-filled entry form), Section 6c (notification payload must carry enough context to reconstruct the entry form)
+- PRD Section 5 (Story 36 seventh criterion: conflict resolution strategy applied consistently; no data silently discarded), Section 6a (conflict resolution strategy must be defined)
 
 **Constraints**
 
-- This instruction is conditional on PRD Open Question 4 confirming deep-link routing. If unconfirmed, implement it and flag — the acceptance criteria state it as a requirement and removing it later is lower risk than omitting it.
-- The handler must parse the transaction identifier from the notification payload and fetch the recurring transaction's current field values from the data store — do not rely solely on field values embedded in the payload, which may be stale if the transaction was edited after the notification was scheduled.
-- Open the transaction entry form with all fields pre-populated from the recurring transaction, with the date field defaulting to the current date (not the recurring transaction's stored date), consistent with the duplicate behavior established in Transaction Management PRD Instruction 7.
-- If the transaction no longer exists when the notification is tapped (it was deleted after the notification was scheduled), navigate to the home screen or transaction list and display an informational message — do not crash or open a blank form.
-- Use the navigation and deep-link routing pattern already established in the codebase. Do not introduce a new routing library.
-- Recommended execution order: run after Instruction 5 defines the notification payload structure and after the transaction entry form is available (Transaction Entry PRD).
+- This instruction is contingent on PRD Open Question 3 (conflict resolution strategy). Do not implement until confirmed. If unconfirmed, implement last-write-wins using the transaction's stored timestamp as the comparator, flag the assumption, and note that a user-prompted strategy would require a UI component not covered here.
+- Conflict detection must occur before the remote write in the sync loop — check whether the remote record (if it exists) has a modification timestamp newer than the local record's last-modified timestamp.
+- If no conflict is detected (remote record does not exist or has not diverged): proceed with the standard remote write from Instruction 7.
+- If a conflict is detected: apply the confirmed resolution strategy. For last-write-wins: compare timestamps and write the newer version. For server-wins: discard the local version and update the local store to match the remote. For client-wins: overwrite the remote record unconditionally. For user-prompted: surface a conflict resolution UI (scope this as a separate sub-task if confirmed).
+- No conflict resolution path may silently discard data — log all conflict events and their resolution outcomes.
+- Recommended execution order: run before Instruction 7 finalizes the sync loop, since the sync loop must call into this instruction's conflict check before each remote write.
 
 **Expected Output**
 
-- A notification tap handler that parses the payload, fetches the current transaction record, and navigates to a pre-filled entry form.
-- The entry form opens with all recurring transaction field values pre-populated and the date field set to today.
-- If the transaction no longer exists: informational navigation to the list or home screen.
+- A conflict detection function that compares local and remote record states and returns a conflict flag and the conflicting versions.
+- A resolution function that applies the confirmed strategy and returns the winning record version to be written.
+- Conflict event logging: each conflict and its resolution outcome are logged.
+- No silent data discard — the losing version is either logged or surfaced to the user per the confirmed strategy.
 
 **Deliverables**
 
-- Notification tap handler and routing logic
-- Entry form pre-population wiring (reusing the duplicate pre-fill pattern from Transaction Management PRD Instruction 7)
-- Deleted-transaction fallback handling
+- Conflict detection function
+- Resolution function implementing the confirmed strategy
+- Conflict event logging
 - List of all files added or modified
 
 **Preconditions**
 
-- PRD Open Question 4 (deep-link to pre-filled form) must be confirmed or assumed confirmed with a flag.
-- Instruction 5 must define the notification payload structure (specifically, the transaction identifier field) before this instruction parses it.
-- Confirm the deep-link or notification routing pattern in the codebase before implementing the handler.
+- PRD Open Question 3 (conflict resolution strategy) must be confirmed before the resolution function is implemented.
+- Instruction 7 must define the sync loop's hook point for pre-write conflict checking before this instruction's function is wired in.
+- Confirm that the remote store exposes the last-modified timestamp or equivalent version field needed for conflict detection.
 
 **Open Questions**
 
-- PRD Open Question 4: Does tapping the notification deep-link to a pre-filled entry form, or open the app to the home screen? Without this confirmed, the entry form pre-population logic may be unnecessary.
+- PRD Open Question 3: What is the conflict resolution strategy — last-write-wins, server-wins, client-wins, or user-prompted? Each requires a different implementation, and user-prompted requires a UI component.
 
 ---
 
-## Instruction 7: Reminder Cancellation
+## Instruction 9: Offline Connectivity Indicator
 
 **Goal**
-Implement the cancellation logic that clears all pending reminder schedule records for a recurring transaction when that transaction is deleted, and updates the reminder schedule when the recurring designation is removed on edit.
+Implement the UI indicator that signals to the user when the app is operating offline, and identifies which specific actions are unavailable in the offline state, without blocking the transaction entry flow.
 
 **Scope**
-In scope: the cancellation triggered on transaction deletion (single and bulk delete), the cancellation or nullification of the reminder schedule record when recurring is toggled off on an edited transaction, and the verification that no orphaned reminder schedule records remain after either event. Out of scope: the deletion logic itself (Transaction Management PRD), the delivery mechanism (Instruction 5), and the settings UI (Instruction 8).
+In scope: the connectivity state detection, the offline indicator rendered in the app UI (banner, badge, or status bar element — consistent with the codebase's existing pattern), and the per-action unavailability messaging for actions explicitly confirmed as not available offline (e.g., remote receipt upload). Out of scope: the offline entry flow (Instruction 5), the sync process (Instruction 7), and the list visibility of pending records (Instruction 6).
 
 **Inputs**
 
 - Full codebase
-- PRD Section 5 (Story 34: recurring transaction deleted → all scheduled reminders cancelled; frequency changed → future reminders rescheduled — handled in Instruction 4; recurring designation removed → no further reminders), Section 6a (delete of recurring transaction must cancel all pending reminders; no reminder must fire for a non-existent transaction)
+- PRD Section 5 (Story 36 sixth criterion: specific unavailable actions clearly identified offline; transaction entry itself not blocked), PRD Open Question 5 (whether a visual offline indicator is shown in the transaction list)
 
 **Constraints**
 
-- Cancellation on delete must hook into both single-delete and bulk-delete paths from the Transaction Management PRD — cross-reference Instruction 3 (single delete) and Instruction 9 (bulk delete) of that PRD for hook points.
-- On transaction delete: delete the associated reminder schedule record(s) entirely — do not leave them with a null timestamp and an enabled=false flag.
-- On recurring designation removed (edit saves recurring=false): delete or deactivate the associated reminder schedule record. If the codebase pattern prefers soft-deactivation (enabled=false, timestamp=null) over hard deletion, document the choice and confirm it is consistent with the deletion cascade pattern.
-- No reminder schedule record may exist for a transaction that is either deleted or no longer marked recurring.
-- Do not modify the delivery mechanism — the scheduler in Instruction 5 already filters by enabled=true; this instruction ensures no stale enabled records remain.
-- Recommended execution order: run after Instructions 3 and 4 define the reminder schedule record, and after the transaction delete hook points are identifiable from the Transaction Management PRD.
+- The offline indicator must not block or disable the transaction entry form — the entry flow is fully available offline per the PRD.
+- Identify as unavailable offline only those actions confirmed as network-dependent: at minimum, remote receipt upload (cross-reference Attachments PRD). Do not mark transaction entry, list view, or balance display as unavailable unless confirmed.
+- The offline indicator must update dynamically as connectivity changes — it must appear when offline and disappear when connectivity is restored, without requiring a user action or app restart.
+- Use the connectivity detection API already established in the codebase (same as Instruction 7's network state monitor — do not create a duplicate monitor).
+- PRD Open Question 5 (visual indicator in the transaction list when offline) must be confirmed before adding list-specific offline state display. If unconfirmed, implement a global app-level indicator and flag the list-specific variant as pending.
+- Recommended execution order: run after Instruction 7 establishes the network state monitor, since this instruction should subscribe to the same connectivity state rather than creating a separate monitor.
 
 **Expected Output**
 
-- A cancellation function that accepts one or more transaction identifiers and deletes or deactivates all associated reminder schedule records.
-- Wired to: single-delete handler, bulk-delete handler, and the edit-save path when recurring is toggled off.
-- Post-cancellation: no reminder schedule record exists for the affected transaction(s) in an enabled state with a future timestamp.
+- A connectivity state subscription (reading from Instruction 7's network monitor) that drives the offline indicator's visibility.
+- An offline indicator component rendered at the app level when connectivity is absent.
+- Per-action unavailability messaging shown inline when the user attempts an offline-unavailable action (e.g., receipt upload) — without blocking the rest of the form.
+- Indicator disappears automatically when connectivity is restored.
 
 **Deliverables**
 
-- Cancellation function file
-- Integration points in single-delete, bulk-delete, and recurring-toggle-off handlers
+- Offline indicator component file
+- Connectivity state subscription wired to Instruction 7's network monitor
+- Per-action unavailability message integration points
 - List of all files added or modified
 
 **Preconditions**
 
-- Instruction 3 must define the reminder schedule record schema and its association to the transaction identifier.
-- Cross-reference Transaction Management PRD Instructions 3 and 9 for the delete handler hook points before wiring the cancellation.
-- Confirm whether hard delete or soft deactivation is the codebase's preferred cleanup pattern for associated records.
-
----
-
-## Instruction 8: Reminder Settings
-
-**Goal**
-Implement the reminder enable/disable controls — a global toggle that enables or disables all recurring transaction reminders, and, if confirmed, a per-transaction toggle that enables or disables reminders for a specific recurring transaction.
-
-**Scope**
-In scope: the global reminder toggle in the notification settings screen, the per-transaction reminder toggle in the transaction detail or edit view (if confirmed), the storage of these preferences, and the effect of each toggle on the reminder schedule record's enabled field. Out of scope: the reminder delivery (Instruction 5), the schedule record schema (Instruction 3), and the scheduling logic (Instruction 4).
-
-**Inputs**
-
-- Full codebase
-- PRD Section 5 (Story 34 fifth criterion: user can enable or disable reminders globally or per recurring transaction)
-
-**Constraints**
-
-- The global toggle must suppress all reminder deliveries when disabled — the scheduler in Instruction 5 must check the global setting before firing any notification. Confirm the global setting storage location (user settings table, local storage, or equivalent).
-- If PRD Open Question 5 confirms per-transaction control: the per-transaction toggle reads and writes the enabled field on the reminder schedule record (Instruction 3). Disabling a specific transaction's reminder sets its enabled=false; re-enabling sets it back to true without changing the stored next timestamp.
-- If PRD Open Question 5 confirms global-only: do not implement per-transaction toggle UI and flag the omission.
-- The global toggle must not delete reminder schedule records — it suppresses delivery. Reminder schedule records remain intact so that reminders resume correctly when the global toggle is re-enabled.
-- Do not modify the scheduler logic — this instruction only writes preference state that the scheduler reads.
-- Recommended execution order: run after Instruction 3 defines the enabled field on the reminder schedule record.
-
-**Expected Output**
-
-- A global reminder toggle in the notification or app settings screen, persisted to the confirmed user settings store.
-- If per-transaction control confirmed: a per-transaction toggle in the detail or edit view that writes to the reminder schedule record's enabled field.
-- The scheduler in Instruction 5 reads the global setting and per-record enabled flag to determine whether to deliver each notification.
-
-**Deliverables**
-
-- Global toggle UI and persistence in the settings screen
-- Per-transaction toggle UI and enabled field write (if confirmed)
-- Documentation of where the global setting is stored and how the scheduler reads it
-- List of all files added or modified
-
-**Preconditions**
-
-- PRD Open Question 5 (per-transaction vs. global-only reminder control) must be confirmed before the per-transaction toggle is built.
-- Instruction 3 must define the reminder schedule record's enabled field before this instruction writes to it.
-- Confirm the user settings storage mechanism in the codebase before persisting the global toggle value.
+- Instruction 7 must define the network state monitor and its event interface before this instruction subscribes to it.
+- PRD Open Question 5 (list-level offline indicator) must be confirmed or defaulted to app-level-only with a flag.
+- Confirm the list of network-dependent actions with the author before marking any as offline-unavailable.
 
 **Open Questions**
 
-- PRD Open Question 5: Is reminder control per-transaction, global-only, or both? Without this, the per-transaction toggle cannot be scoped.
+- PRD Open Question 5: Should the transaction list display a visual indicator when offline, so the user knows the list may not reflect the latest remote state? If yes, the list component must subscribe to the connectivity state.

@@ -61,6 +61,13 @@ public class TransactionService {
 
     @Transactional
     public TransactionResponse createTransaction(String email, TransactionRequest request) {
+        if (request.clientGeneratedId() != null) {
+            java.util.Optional<Transaction> existing = transactionRepository.findByClientGeneratedId(request.clientGeneratedId());
+            if (existing.isPresent()) {
+                return mapToResponse(existing.get());
+            }
+        }
+
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
@@ -104,6 +111,10 @@ public class TransactionService {
         if (isRecurring) {
             transaction.setFrequencyUnit(request.frequencyUnit());
             transaction.setFrequencyMultiplier(request.frequencyMultiplier());
+        }
+
+        if (request.clientGeneratedId() != null) {
+            transaction.setClientGeneratedId(request.clientGeneratedId());
         }
 
         if (request.parentRecurringTransactionId() != null) {
@@ -155,6 +166,21 @@ public class TransactionService {
 
         // Instruction 6: Descending date/time sort order by default
         return transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId()).stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
+    }
+
+    public List<TransactionResponse> getTransactionsPaginated(
+        String email,
+        LocalDateTime lastDate,
+        Long lastId,
+        int pageSize
+    ) {
+        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, pageSize);
+        return transactionRepository.findByUserAccountIdPaginated(account.getId(), lastDate, lastId, pageable).stream()
             .map(this::mapToResponse)
             .collect(Collectors.toList());
     }
@@ -432,7 +458,8 @@ public class TransactionService {
                     a.getMimeType(),
                     a.getStorageReference()
                 ))
-                .collect(Collectors.toList())
+                .collect(Collectors.toList()),
+            transaction.getClientGeneratedId()
         );
     }
 }

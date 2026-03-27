@@ -9,6 +9,7 @@ import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
+import { ConnectivityIndicator } from '../../shared/components/ConnectivityIndicator'
 import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
@@ -380,6 +381,7 @@ function AuthenticatedLayoutContent(): ReactElement {
       )}
 
       <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
+      <ConnectivityIndicator />
     </div>
   )
 }

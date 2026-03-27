@@ -74,6 +74,9 @@ public class Transaction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "client_generated_id", unique = true)
+    private String clientGeneratedId;
+
     public Transaction(
         UserAccount userAccount,
         Category category,

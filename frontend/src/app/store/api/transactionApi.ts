@@ -16,6 +16,9 @@ export interface TransactionRequest {
   isRecurring?: boolean
   frequencyUnit?: FrequencyUnit
   frequencyMultiplier?: number
+  clientGeneratedId?: string
+  remindersEnabled?: boolean
+  parentRecurringTransactionId?: number
 }
 
 export interface TransactionResponse {
@@ -69,9 +72,18 @@ export const transactionApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
     }),
-    getTransactions: builder.query<TransactionResponse[], void>({
-      query: () => '/transactions',
-      providesTags: ['Transactions'],
+    getTransactions: builder.query<
+      TransactionResponse[],
+      { lastDate?: string; lastId?: number; pageSize?: number } | void
+    >({
+      query: (params) => ({
+        url: '/transactions',
+        params: params || {},
+      }),
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: 'Transactions' as const, id })), 'Transactions']
+          : ['Transactions'],
     }),
     getTransaction: builder.query<TransactionResponse, number>({
       query: (id) => `/transactions/${id}`,

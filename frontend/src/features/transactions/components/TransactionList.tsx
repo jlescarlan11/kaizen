@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react'
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
+import { VariableSizeList as List } from 'react-window'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Card } from '../../../shared/components/Card'
 import { Badge } from '../../../shared/components/Badge'
@@ -11,10 +12,15 @@ import { SearchHighlight } from './SearchHighlight'
 import { cn } from '../../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../../app/store/hooks'
 import { selectPendingDeletes, triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
+import { TRANSACTION_OVERSCAN_BUFFER } from '../constants'
+import { flattenTransactions, ITEM_HEIGHTS } from '../utils/virtualizationUtils'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
   searchQuery?: string
+  hasMore?: boolean
+  onLoadMore?: () => void
+  isLoading?: boolean
 }
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
@@ -29,6 +35,9 @@ const timeFormatter = new Intl.DateTimeFormat('en-PH', {
 export function TransactionList({
   transactions,
   searchQuery = '',
+  hasMore = false,
+  onLoadMore,
+  isLoading = false,
 }: TransactionListProps): ReactElement {
   const dispatch = useAppDispatch()
   const [selectedTx, setSelectedTx] = useState<TransactionResponse | null>(null)
@@ -90,10 +99,216 @@ export function TransactionList({
     exitSelectionMode()
   }
 
-  const groupedTransactions = groupTransactionsByDate(visibleTransactions)
+  const flattenedItems = useMemo(() => {
+    return flattenTransactions(visibleTransactions, groupTransactionsByDate)
+  }, [visibleTransactions])
+
+  const getItemSize = (index: number) => {
+    const item = flattenedItems[index]
+    return item.type === 'header' ? ITEM_HEIGHTS.header : ITEM_HEIGHTS.transaction
+  }
+
+  const listRef = useRef<List>(null)
+
+  // Instruction 1: In-view row stability during incremental fetches
+  useEffect(() => {
+    if (listRef.current) {
+      // Small delay to ensure items are rendered before recalculating
+      listRef.current.resetAfterIndex(0)
+    }
+  }, [flattenedItems.length])
+
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+    const item = flattenedItems[index]
+
+    if (item.type === 'header') {
+      return (
+        <div style={style} className="px-1 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+            {formatGroupDate(item.date)}
+          </h2>
+          {isSelectionMode && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-auto p-0 text-xs font-semibold text-primary hover:bg-transparent"
+              onClick={() => {
+                // Find all transaction IDs in this date group
+                const groupItems: number[] = []
+                for (let i = index + 1; i < flattenedItems.length; i++) {
+                  const subItem = flattenedItems[i]
+                  if (subItem.type === 'header') break
+                  groupItems.push(subItem.transaction.id)
+                }
+                const allSelected = groupItems.every((id) => selectedIds.includes(id))
+                if (allSelected) {
+                  setSelectedIds((prev) => prev.filter((id) => !groupItems.includes(id)))
+                } else {
+                  setSelectedIds((prev) => Array.from(new Set([...prev, ...groupItems])))
+                }
+              }}
+            >
+              Select group
+            </Button>
+          )}
+        </div>
+      )
+    }
+
+    const { transaction: tx } = item
+    return (
+      <div
+        style={{ ...style, height: style.height ? (style.height as number) - 12 : style.height }}
+        className="relative flex items-center gap-3"
+      >
+        {isSelectionMode && (
+          <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200">
+            <Checkbox
+              checked={selectedIds.includes(tx.id)}
+              onCheckedChange={() => toggleSelection(tx.id)}
+            />
+          </div>
+        )}
+        <Card
+          role="button"
+          tabIndex={0}
+          onClick={() => handleRowClick(tx)}
+          onKeyDown={(e) => e.key === 'Enter' && handleRowClick(tx)}
+          onMouseDown={() => handleLongPressStart(tx.id)}
+          onMouseUp={handleLongPressEnd}
+          onMouseLeave={handleLongPressEnd}
+          onTouchStart={() => handleLongPressStart(tx.id)}
+          onTouchEnd={handleLongPressEnd}
+          className={cn(
+            'flex-1 flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
+            selectedIds.includes(tx.id) &&
+              'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
+            !tx.category &&
+              !selectedIds.includes(tx.id) &&
+              'border-amber-200 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10',
+          )}
+        >
+          <div className="flex items-center gap-4">
+            {tx.category ? (
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition-transform group-hover:scale-110"
+                style={{
+                  backgroundColor: tx.category.color + '22',
+                  color: tx.category.color,
+                }}
+              >
+                {tx.category.icon}
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  'flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110',
+                  tx.type === 'INCOME'
+                    ? 'bg-ui-success/10 text-ui-success'
+                    : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
+                )}
+              >
+                {tx.type === 'INCOME' ? (
+                  <IncomeIcon />
+                ) : (
+                  <span className="text-lg font-bold">?</span>
+                )}
+              </div>
+            )}
+            <div>
+              <div className="flex items-center gap-1.5">
+                <SearchHighlight
+                  text={tx.description || tx.category?.name || 'Uncategorized'}
+                  query={searchQuery}
+                  className={cn(
+                    'font-semibold transition-colors block',
+                    tx.category
+                      ? 'text-foreground group-hover:text-primary'
+                      : 'text-amber-700 dark:text-amber-500',
+                  )}
+                />
+                {tx.notes && (
+                  <div title="Contains notes" className="text-muted-foreground/60 shrink-0">
+                    <NoteIcon />
+                  </div>
+                )}
+                {tx.isRecurring && (
+                  <div title="Recurring transaction" className="text-primary/70 shrink-0">
+                    <RecurringIcon />
+                  </div>
+                )}
+                {/* Instruction 6: Merge local pending transactions */}
+                {tx.id === -1 && (
+                  <Badge tone="warning" className="text-[8px] animate-pulse">
+                    Syncing
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {timeFormatter.format(new Date(tx.transactionDate))}
+                {tx.paymentMethod && (
+                  <span className="ml-2 font-medium text-foreground/70">
+                    • {tx.paymentMethod.name}
+                  </span>
+                )}
+                {!tx.category && (
+                  <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
+                    • Needs category
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <p
+              className={cn(
+                'font-bold',
+                tx.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
+              )}
+            >
+              {tx.type === 'INCOME' ? '+' : '-'}
+              <SearchHighlight
+                text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
+                query={searchQuery}
+              />
+              <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+            </p>
+            <Badge
+              tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+              className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
+            >
+              {tx.type}
+            </Badge>
+          </div>
+        </Card>
+      </div>
+    )
+  }
+
+  const handleScroll = ({ scrollOffset }: { scrollOffset: number }) => {
+    if (!onLoadMore || isFetchingMore || !hasMore) return
+
+    // Simple check if we're near the bottom
+    const totalHeight = flattenedItems.reduce((acc, _, i) => acc + getItemSize(i), 0)
+    if (scrollOffset + 800 > totalHeight) {
+      onLoadMore()
+    }
+  }
+
+  // Add dummy state for isFetchingMore if not provided
+  const isFetchingMore = false
+
+  if (isLoading && transactions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground animate-pulse">Loading transactions...</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-8 pb-24">
+    <div className="h-[600px] w-full pb-24">
       {/* Selection Mode Toolbar */}
       {isSelectionMode && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg">
@@ -131,158 +346,17 @@ export function TransactionList({
         </div>
       )}
 
-      {groupedTransactions.map((group) => (
-        <div key={group.date} className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-              {formatGroupDate(group.date)}
-            </h2>
-            {isSelectionMode && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-auto p-0 text-xs font-semibold text-primary hover:bg-transparent"
-                onClick={() => {
-                  const groupIds = group.transactions.map((t) => t.id)
-                  const allSelected = groupIds.every((id) => selectedIds.includes(id))
-                  if (allSelected) {
-                    setSelectedIds((prev) => prev.filter((id) => !groupIds.includes(id)))
-                  } else {
-                    setSelectedIds((prev) => Array.from(new Set([...prev, ...groupIds])))
-                  }
-                }}
-              >
-                {group.transactions.every((id) => selectedIds.includes(id.id))
-                  ? 'Deselect group'
-                  : 'Select group'}
-              </Button>
-            )}
-          </div>
-          <div className="space-y-3">
-            {group.transactions.map((tx) => (
-              <div key={tx.id} className="relative flex items-center gap-3">
-                {isSelectionMode && (
-                  <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200">
-                    <Checkbox
-                      checked={selectedIds.includes(tx.id)}
-                      onCheckedChange={() => toggleSelection(tx.id)}
-                    />
-                  </div>
-                )}
-                <Card
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleRowClick(tx)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleRowClick(tx)}
-                  onMouseDown={() => handleLongPressStart(tx.id)}
-                  onMouseUp={handleLongPressEnd}
-                  onMouseLeave={handleLongPressEnd}
-                  onTouchStart={() => handleLongPressStart(tx.id)}
-                  onTouchEnd={handleLongPressEnd}
-                  className={cn(
-                    'flex-1 flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
-                    selectedIds.includes(tx.id) &&
-                      'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
-                    // Instruction 7: Uncategorized Transaction Highlighting
-                    !tx.category &&
-                      !selectedIds.includes(tx.id) &&
-                      'border-amber-200 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10',
-                  )}
-                >
-                  <div className="flex items-center gap-4">
-                    {tx.category ? (
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition-transform group-hover:scale-110"
-                        style={{
-                          backgroundColor: tx.category.color + '22',
-                          color: tx.category.color,
-                        }}
-                      >
-                        {tx.category.icon}
-                      </div>
-                    ) : (
-                      <div
-                        className={cn(
-                          'flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110',
-                          tx.type === 'INCOME'
-                            ? 'bg-ui-success/10 text-ui-success'
-                            : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
-                        )}
-                      >
-                        {tx.type === 'INCOME' ? (
-                          <IncomeIcon />
-                        ) : (
-                          <span className="text-lg font-bold">?</span>
-                        )}
-                      </div>
-                    )}
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <SearchHighlight
-                          text={tx.description || tx.category?.name || 'Uncategorized'}
-                          query={searchQuery}
-                          className={cn(
-                            'font-semibold transition-colors block',
-                            tx.category
-                              ? 'text-foreground group-hover:text-primary'
-                              : 'text-amber-700 dark:text-amber-500',
-                          )}
-                        />
-                        {tx.notes && (
-                          <div title="Contains notes" className="text-muted-foreground/60 shrink-0">
-                            <NoteIcon />
-                          </div>
-                        )}
-                        {tx.isRecurring && (
-                          <div title="Recurring transaction" className="text-primary/70 shrink-0">
-                            <RecurringIcon />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {timeFormatter.format(new Date(tx.transactionDate))}
-                        {tx.paymentMethod && (
-                          <span className="ml-2 font-medium text-foreground/70">
-                            • {tx.paymentMethod.name}
-                          </span>
-                        )}
-                        {!tx.category && (
-                          <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
-                            • Needs category
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p
-                      className={cn(
-                        'font-bold',
-                        tx.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
-                      )}
-                    >
-                      {tx.type === 'INCOME' ? '+' : '-'}
-                      <SearchHighlight
-                        text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
-                        query={searchQuery}
-                      />
-                      <span className="ml-1 text-[10px] text-muted-foreground font-normal">
-                        PHP
-                      </span>
-                    </p>
-                    <Badge
-                      tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
-                      className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
-                    >
-                      {tx.type}
-                    </Badge>
-                  </div>
-                </Card>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+      <List
+        ref={listRef}
+        height={600}
+        itemCount={flattenedItems.length}
+        itemSize={getItemSize}
+        width="100%"
+        overscanCount={TRANSACTION_OVERSCAN_BUFFER}
+        onScroll={handleScroll}
+      >
+        {Row}
+      </List>
 
       {!isSelectionMode && (
         <TransactionDetailModal

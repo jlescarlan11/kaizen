@@ -16,6 +16,7 @@ import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelect
 import { ReceiptPicker } from './ReceiptPicker'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 import { Checkbox, Select } from '../../../shared/components'
+import { db, SyncStatus, generateClientId } from '../lib/localStore'
 
 interface TransactionEntryFormProps {
   editId?: number
@@ -138,10 +139,11 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       return
     }
 
+    const clientId = generateClientId()
     const payload = {
       amount: parseFloat(amount),
       type,
-      transactionDate: transactionDate ? `${transactionDate}T00:00:00` : undefined,
+      transactionDate: transactionDate ? `${transactionDate}T00:00:00` : new Date().toISOString(),
       description: description || undefined,
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
@@ -151,33 +153,47 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       frequencyMultiplier: isRecurring ? parseInt(frequencyMultiplier) : undefined,
       parentRecurringTransactionId: parentRecurringTransactionId || undefined,
       remindersEnabled: isRecurring ? remindersEnabled : undefined,
+      clientGeneratedId: clientId,
     }
 
     try {
-      let savedId: number
-      if (editId) {
-        await updateTransaction({ id: editId, payload }).unwrap()
-        savedId = editId
-      } else {
-        const result = await createTransaction(payload).unwrap()
-        savedId = result.id
-      }
+      const isOnline = navigator.onLine
 
-      // Handle receipt attachment
-      if (receiptFile) {
-        // If editing and already has an attachment, delete it first (Replace behavior)
-        if (editId && editData?.attachments && editData.attachments.length > 0) {
-          for (const att of editData.attachments) {
-            await deleteAttachment({ transactionId: editId, attachmentId: att.id }).unwrap()
+      if (isOnline) {
+        let savedId: number
+        if (editId) {
+          await updateTransaction({ id: editId, payload }).unwrap()
+          savedId = editId
+        } else {
+          const result = await createTransaction(payload).unwrap()
+          savedId = result.id
+        }
+
+        // Handle receipt attachment
+        if (receiptFile) {
+          // If editing and already has an attachment, delete it first (Replace behavior)
+          if (editId && editData?.attachments && editData.attachments.length > 0) {
+            for (const att of editData.attachments) {
+              await deleteAttachment({ transactionId: editId, attachmentId: att.id }).unwrap()
+            }
+          }
+
+          try {
+            await uploadAttachment({ transactionId: savedId, file: receiptFile }).unwrap()
+          } catch (uploadErr) {
+            // Attachment failure must not block transaction save (Story 31)
+            console.error('Failed to upload receipt:', uploadErr)
           }
         }
-
-        try {
-          await uploadAttachment({ transactionId: savedId, file: receiptFile }).unwrap()
-        } catch (uploadErr) {
-          // Attachment failure must not block transaction save (Story 31)
-          console.error('Failed to upload receipt:', uploadErr)
-        }
+      } else {
+        // Instruction 5: Offline Transaction Creation
+        await db.transactions.add({
+          ...payload,
+          syncStatus: SyncStatus.PENDING,
+          clientGeneratedId: clientId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
       }
 
       navigate('/')
