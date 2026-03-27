@@ -36,17 +36,60 @@ public class GlobalExceptionHandler {
     private final SecurityAuditLogger auditLogger;
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorResponse> handleValidationException(@NonNull MethodArgumentNotValidException exception) {
+    public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValidException(@NonNull MethodArgumentNotValidException exception) {
         log.error("Validation Exception: {}", exception.getMessage());
 
         List<ValidationError> errors = exception.getBindingResult().getFieldErrors().stream()
-            .map(error -> new ValidationError(error.getField(), error.getDefaultMessage()))
+            .map(error -> {
+                String code = "VALIDATION_ERROR";
+                if ("NotNull".equals(error.getCode())) code = "REQUIRED";
+                else if ("DecimalMin".equals(error.getCode())) code = "AMOUNT_POSITIVE";
+                else if ("PastOrPresent".equals(error.getCode())) code = "FUTURE_DATE_REJECT";
+                
+                return new ValidationError(error.getField(), error.getDefaultMessage(), code);
+            })
             .collect(Collectors.toList());
 
         ValidationErrorResponse response = new ValidationErrorResponse(
             "VALIDATION_FAILURE",
             "Input validation failed.",
             errors,
+            generateTraceId()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ValidationErrorResponse> handleIllegalArgumentException(@NonNull IllegalArgumentException exception) {
+        log.error("Illegal Argument Exception: {}", exception.getMessage());
+
+        // We can check the message to map to a specific field if it's a known error
+        String field = "form";
+        String code = "BAD_REQUEST";
+        String message = exception.getMessage();
+
+        if (message.contains("Amount")) {
+            field = "amount";
+            if (message.contains("required")) code = "REQUIRED";
+            else if (message.contains("positive")) code = "AMOUNT_POSITIVE";
+            else if (message.contains("decimal")) code = "AMOUNT_MAX_DECIMALS";
+        } else if (message.contains("type")) {
+            field = "type";
+            if (message.contains("required")) code = "REQUIRED";
+            else code = "TYPE_INVALID";
+        } else if (message.contains("future")) {
+            field = "transactionDate";
+            code = "FUTURE_DATE_REJECT";
+        } else if (message.contains("frequency")) {
+            field = message.contains("unit") ? "frequencyUnit" : "frequencyMultiplier";
+            code = message.contains("unit") ? "RECURRING_UNIT_REQUIRED" : "RECURRING_MULTIPLIER_POSITIVE";
+        }
+
+        ValidationErrorResponse response = new ValidationErrorResponse(
+            "VALIDATION_FAILURE",
+            "Input validation failed.",
+            List.of(new ValidationError(field, message, code)),
             generateTraceId()
         );
 

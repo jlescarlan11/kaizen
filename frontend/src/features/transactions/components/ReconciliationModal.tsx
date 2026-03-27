@@ -12,8 +12,11 @@ import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { useReconcileBalanceMutation } from '../../../app/store/api/transactionApi'
 import { useCurrencyFormatter } from '@/shared/hooks/useCurrencyFormatter'
-import { toast } from 'sonner'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
+
+import { useAppDispatch } from '../../../app/store/hooks'
+import { showAlert } from '../../../app/store/notificationSlice'
+import { SystemMessages } from '../utils/errorMessages'
 
 interface ReconciliationModalProps {
   isOpen: boolean
@@ -22,6 +25,7 @@ interface ReconciliationModalProps {
 }
 
 export function ReconciliationModal({ isOpen, onClose, currentBalance }: ReconciliationModalProps) {
+  const dispatch = useAppDispatch()
   const [realWorldBalance, setRealWorldBalance] = useState<string>('')
   const [description, setDescription] = useState<string>('')
   const [reconcile, { isLoading }] = useReconcileBalanceMutation()
@@ -44,17 +48,37 @@ export function ReconciliationModal({ isOpen, onClose, currentBalance }: Reconci
       }).unwrap()
 
       if (difference === 0) {
-        toast.info('Balances already match. No adjustment needed.')
+        dispatch(
+          showAlert({
+            title: 'Info',
+            message: 'Balances already match. No adjustment needed.',
+            type: 'info',
+          }),
+        )
       } else {
-        toast.success(
-          `Balance reconciled. Adjustment of ${currencyFormatter.format(Math.abs(difference))} applied.`,
+        dispatch(
+          showAlert({
+            ...SystemMessages.SUCCESS,
+            message: `Balance reconciled. Adjustment of ${currencyFormatter.format(Math.abs(difference))} applied.`,
+            type: 'success',
+            dataSaved: true,
+          }),
         )
       }
       onClose()
       setRealWorldBalance('')
       setDescription('')
-    } catch {
-      toast.error('Failed to reconcile balance. Please try again.')
+    } catch (err: unknown) {
+      console.error('Failed to reconcile balance:', err)
+      const error = err as { data?: { message?: string } }
+      dispatch(
+        showAlert({
+          title: 'Error',
+          message: error.data?.message || 'Failed to reconcile balance. Please try again.',
+          type: 'error',
+          dataSaved: false,
+        }),
+      )
     }
   }
 

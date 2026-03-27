@@ -9,14 +9,25 @@ export interface UndoableAction {
   timeoutMs: number
 }
 
+export interface AlertNotification {
+  id: string
+  title: string
+  message: string
+  type: 'success' | 'error' | 'info'
+  dataSaved?: boolean
+  autoRetry?: boolean
+}
+
 interface NotificationState {
   pendingDeletes: number[]
   activeUndo: UndoableAction | null
+  activeAlert: AlertNotification | null
 }
 
 const initialState: NotificationState = {
   pendingDeletes: [],
   activeUndo: null,
+  activeAlert: null,
 }
 
 export const notificationSlice = createSlice({
@@ -32,10 +43,29 @@ export const notificationSlice = createSlice({
     setActiveUndo: (state, action: PayloadAction<UndoableAction | null>) => {
       state.activeUndo = action.payload
     },
+    setAlert: (state, action: PayloadAction<AlertNotification | null>) => {
+      state.activeAlert = action.payload
+    },
   },
 })
 
-export const { setPendingDeletes, clearPendingDeletes, setActiveUndo } = notificationSlice.actions
+export const { setPendingDeletes, clearPendingDeletes, setActiveUndo, setAlert } =
+  notificationSlice.actions
+
+// Thunk to show an alert that auto-dismisses
+export const showAlert = createAsyncThunk(
+  'notification/showAlert',
+  async (alert: Omit<AlertNotification, 'id'>, { dispatch }) => {
+    const id = Math.random().toString(36).substring(7)
+    dispatch(setAlert({ ...alert, id }))
+
+    // Auto dismiss after 5 seconds if not error, or 8 seconds if error
+    const timeout = alert.type === 'error' ? 8000 : 5000
+    await new Promise((resolve) => setTimeout(resolve, timeout))
+
+    dispatch(setAlert(null))
+  },
+)
 
 // Thunk to handle the delayed delete with undo
 export const triggerDeleteWithUndo = createAsyncThunk(
@@ -96,5 +126,6 @@ export const undoDeletion = createAsyncThunk(
 
 export const selectPendingDeletes = (state: RootState) => state.notification.pendingDeletes
 export const selectActiveUndo = (state: RootState) => state.notification.activeUndo
+export const selectActiveAlert = (state: RootState) => state.notification.activeAlert
 
 export default notificationSlice.reducer

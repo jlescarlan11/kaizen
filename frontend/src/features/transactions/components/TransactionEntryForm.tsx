@@ -18,6 +18,11 @@ import { useAuthState } from '../../../shared/hooks/useAuthState'
 import { Checkbox, Select } from '../../../shared/components'
 import { db, SyncStatus, generateClientId } from '../lib/localStore'
 
+import { useAppDispatch } from '../../../app/store/hooks'
+import { showAlert } from '../../../app/store/notificationSlice'
+import { validationGate } from '../lib/validationGate'
+import { getErrorMessage, SystemMessages } from '../utils/errorMessages'
+
 interface TransactionEntryFormProps {
   editId?: number
 }
@@ -33,6 +38,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuthState()
+  const dispatch = useAppDispatch()
   const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation()
   const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation()
   const [uploadAttachment] = useUploadAttachmentMutation()
@@ -118,26 +124,6 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setErrors({})
-    const newErrors: Record<string, string> = {}
-
-    if (!amount || parseFloat(amount) <= 0) {
-      newErrors.amount = 'Amount must be greater than zero.'
-    }
-
-    if (transactionDate && transactionDate > today) {
-      newErrors.transactionDate = 'Future dates are not permitted.'
-    }
-
-    if (isRecurring) {
-      if (!frequencyMultiplier || parseInt(frequencyMultiplier) <= 0) {
-        newErrors.frequencyMultiplier = 'Multiplier must be greater than zero.'
-      }
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors)
-      return
-    }
 
     const clientId = generateClientId()
     const payload = {
@@ -154,6 +140,16 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       parentRecurringTransactionId: parentRecurringTransactionId || undefined,
       remindersEnabled: isRecurring ? remindersEnabled : undefined,
       clientGeneratedId: clientId,
+    }
+
+    const validationResult = validationGate(payload)
+    if (!validationResult.valid) {
+      const newErrors: Record<string, string> = {}
+      validationResult.errors.forEach((err) => {
+        newErrors[err.field] = getErrorMessage(err.code, err.field)
+      })
+      setErrors(newErrors)
+      return
     }
 
     try {
@@ -185,6 +181,14 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
             console.error('Failed to upload receipt:', uploadErr)
           }
         }
+
+        dispatch(
+          showAlert({
+            ...SystemMessages.SUCCESS,
+            type: 'success',
+            dataSaved: true,
+          }),
+        )
       } else {
         // Instruction 5: Offline Transaction Creation
         await db.transactions.add({
@@ -194,12 +198,57 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         })
+
+        dispatch(
+          showAlert({
+            ...SystemMessages.OFFLINE_SAVE,
+            type: 'success',
+            dataSaved: true,
+          }),
+        )
       }
 
       navigate('/')
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to save transaction:', err)
-      setErrors({ form: 'An error occurred while saving. Please try again.' })
+      const error = err as {
+        status?: number | 'FETCH_ERROR'
+        data?: {
+          message?: string
+          errors?: Array<{ field: string; message: string; code: string }>
+        }
+      }
+
+      // Handle specific system-level errors
+      let alertProps = {
+        title: 'Error',
+        message: 'An unexpected error occurred while saving.',
+        type: 'error' as const,
+        dataSaved: false,
+        autoRetry: false,
+      }
+
+      if (error.status === 'FETCH_ERROR') {
+        alertProps = {
+          ...SystemMessages.NETWORK_TIMEOUT,
+          type: 'error',
+          dataSaved: false,
+          autoRetry: true,
+        }
+      } else if (error.data?.errors && Array.isArray(error.data.errors)) {
+        // Handle structured validation errors from backend
+        const backendErrors: Record<string, string> = {}
+        error.data.errors.forEach((e: { field: string; message: string; code: string }) => {
+          backendErrors[e.field] = e.message
+        })
+        setErrors(backendErrors)
+        alertProps.message = 'Please correct the highlighted errors.'
+      } else if (error.data?.message) {
+        alertProps.message = error.data.message
+      }
+
+      dispatch(showAlert(alertProps))
+      setErrors({ form: alertProps.message })
     }
   }
 

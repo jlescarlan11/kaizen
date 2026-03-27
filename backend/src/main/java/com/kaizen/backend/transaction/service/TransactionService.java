@@ -71,6 +71,29 @@ public class TransactionService {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
+        // Canonical Validation Rules
+        if (request.amount() == null) {
+            throw new IllegalArgumentException("Amount is required.");
+        }
+        if (request.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be a positive value greater than zero.");
+        }
+        // Check for max 2 decimal places
+        String amountStr = request.amount().toPlainString();
+        int decimalPointIndex = amountStr.indexOf('.');
+        if (decimalPointIndex >= 0 && amountStr.length() - decimalPointIndex - 1 > 2) {
+             throw new IllegalArgumentException("Amount cannot have more than two decimal places.");
+        }
+
+        if (request.type() == null) {
+            throw new IllegalArgumentException("Transaction type is required.");
+        }
+
+        LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
+        if (date.isAfter(LocalDateTime.now().plusMinutes(1))) { // small buffer for clock skew
+            throw new IllegalArgumentException("Transactions cannot be set in the future.");
+        }
+
         Category category = null;
         if (request.categoryId() != null) {
             category = categoryRepository.findById(request.categoryId())
@@ -83,7 +106,6 @@ public class TransactionService {
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
         }
 
-        LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
         String notes = (request.notes() == null || request.notes().isBlank()) ? null : request.notes();
 
         boolean isRecurring = request.isRecurring() != null && request.isRecurring();
@@ -209,6 +231,27 @@ public class TransactionService {
 
         if (!transaction.getUserAccount().getId().equals(account.getId())) {
             throw new IllegalArgumentException("You do not have permission to update this transaction.");
+        }
+
+        // Canonical Validation Rules
+        if (request.amount() == null) {
+            throw new IllegalArgumentException("Amount is required.");
+        }
+        if (request.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be a positive value greater than zero.");
+        }
+        String amountStr = String.valueOf(request.amount());
+        int decimalPointIndex = amountStr.indexOf('.');
+        if (decimalPointIndex >= 0 && amountStr.length() - decimalPointIndex - 1 > 2) {
+             throw new IllegalArgumentException("Amount cannot have more than two decimal places.");
+        }
+
+        if (request.type() == null) {
+            throw new IllegalArgumentException("Transaction type is required.");
+        }
+
+        if (request.transactionDate() != null && request.transactionDate().isAfter(LocalDateTime.now().plusMinutes(1))) {
+            throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
         // Update fields
