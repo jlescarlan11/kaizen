@@ -2,6 +2,7 @@ package com.kaizen.backend.auth.controller;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -47,6 +48,8 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
     private String validToken;
     private UserAccount testUser;
 
+    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
+
     @BeforeEach
     void setUp() {
         sessionRepository.deleteAll();
@@ -70,7 +73,7 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
     void shouldAuthenticateWithValidToken() throws Exception {
         mockMvc.perform(get("/api/users/me")
                 .cookie(new Cookie(COOKIE_NAME, validToken))
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(JSON_MEDIA_TYPE))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.email").value("test@example.com"))
             .andExpect(jsonPath("$.name").value("Test User"));

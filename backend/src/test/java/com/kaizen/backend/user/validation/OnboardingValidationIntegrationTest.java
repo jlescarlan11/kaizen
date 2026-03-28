@@ -21,6 +21,7 @@ import com.kaizen.backend.user.repository.UserFundingSourceRepository;
 import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,8 @@ class OnboardingValidationIntegrationTest extends AbstractPostgresContainerInteg
 
     @Autowired
     private SessionProperties sessionProperties;
+
+    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     private UserAccount user;
     private Cookie authCookie;
@@ -170,12 +173,12 @@ class OnboardingValidationIntegrationTest extends AbstractPostgresContainerInteg
     @DisplayName("Positive starting funds with a valid funding source are accepted")
     void positiveOpeningBalanceSucceeds() throws Exception {
         mockMvc.perform(post("/api/users/onboarding")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(objectMapper.writeValueAsString(Map.of(
+            .content(Objects.requireNonNull(objectMapper.writeValueAsString(Map.of(
                 "startingFunds", new BigDecimal("10.00"),
                 "fundingSourceType", "E_WALLET"
-            ))))
+            )))))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -190,12 +193,12 @@ class OnboardingValidationIntegrationTest extends AbstractPostgresContainerInteg
     void maximumOpeningBalanceSucceeds() throws Exception {
         BigDecimal max = new BigDecimal(ValidationConstants.MAX_BALANCE_VALUE);
         mockMvc.perform(post("/api/users/onboarding")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(objectMapper.writeValueAsString(Map.of(
+            .content(Objects.requireNonNull(objectMapper.writeValueAsString(Map.of(
                 "startingFunds", max,
                 "fundingSourceType", "BANK_ACCOUNT"
-            ))))
+            )))))
             .andExpect(status().isOk())
             .andReturn();
     }
@@ -204,12 +207,12 @@ class OnboardingValidationIntegrationTest extends AbstractPostgresContainerInteg
     @DisplayName("Reset onboarding removes persisted funding sources")
     void resetOnboardingDeletesFundingSources() throws Exception {
         mockMvc.perform(post("/api/users/onboarding")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(objectMapper.writeValueAsString(Map.of(
+            .content(Objects.requireNonNull(objectMapper.writeValueAsString(Map.of(
                 "startingFunds", new BigDecimal("500.00"),
                 "fundingSourceType", "CASH_ON_HAND"
-            ))))
+            )))))
             .andExpect(status().isOk());
 
         assertTrue(
@@ -228,9 +231,9 @@ class OnboardingValidationIntegrationTest extends AbstractPostgresContainerInteg
 
     private ValidationErrorResponse postOnboarding(Map<String, ?> payload) throws Exception {
         ResultActions result = mockMvc.perform(post("/api/users/onboarding")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(objectMapper.writeValueAsString(payload)));
+            .content(Objects.requireNonNull(objectMapper.writeValueAsString(payload))));
 
         return objectMapper.readValue(
             result.andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString(),

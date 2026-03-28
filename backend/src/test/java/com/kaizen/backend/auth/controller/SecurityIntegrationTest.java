@@ -3,10 +3,10 @@ package com.kaizen.backend.auth.controller;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +66,6 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
 
     private static final String COOKIE_NAME = "kzn_pst";
     private String userToken;
-    private String adminToken;
     private String expiredToken;
 
     @BeforeEach
@@ -90,7 +89,9 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         admin.addRole(adminRole);
         admin.addRole(userRole);
         userRepository.save(admin);
-        adminToken = createSessionToken(admin, 90);
+        
+        // Admin token is currently unused in rejection-only tests
+        createSessionToken(admin, 90);
 
         // 4. Create Expired Session for Standard User
         expiredToken = createSessionToken(user, -1);
@@ -168,8 +169,8 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         String path = endpoint.path().replace("{id}", "1");
         
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-                .request(endpoint.method(), path)
-                .contentType(MediaType.APPLICATION_JSON);
+                .request(Objects.requireNonNull(endpoint.method()), Objects.requireNonNull(path))
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON));
         
         if (token != null) {
             builder.cookie(new Cookie(COOKIE_NAME, token));
@@ -193,8 +194,18 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
                 continue;
             }
 
+            // Robustly extract path patterns, supporting both PathPatternParser and AntPathMatcher configurations
+            Set<String> patterns = info.getPathPatternsCondition() != null 
+                ? info.getPathPatternsCondition().getPatternValues() 
+                : (info.getPatternsCondition() != null ? info.getPatternsCondition().getPatterns() : Set.of());
+            
+            if (patterns.isEmpty()) {
+                continue;
+            }
+
+            String path = patterns.iterator().next();
+
             // Exclude actuator and swagger if needed (they are public in SecurityConfig)
-            String path = info.getPathPatternsCondition().getPatternValues().iterator().next();
             if (path.startsWith("/actuator") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
                 continue;
             }

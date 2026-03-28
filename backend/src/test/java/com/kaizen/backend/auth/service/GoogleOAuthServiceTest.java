@@ -48,6 +48,8 @@ class GoogleOAuthServiceTest {
 
     private MockRestServiceServer mockServer;
 
+    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
+
     @BeforeEach
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
@@ -103,7 +105,7 @@ class GoogleOAuthServiceTest {
             .andExpect(method(Objects.requireNonNull(HttpMethod.POST)))
             .andRespond(withSuccess(
                 "{\"access_token\":\"" + accessToken + "\", \"refresh_token\":\"" + refreshToken + "\"}",
-                MediaType.APPLICATION_JSON
+                JSON_MEDIA_TYPE
             ));
 
         // Mock User Info Fetch
@@ -111,7 +113,7 @@ class GoogleOAuthServiceTest {
             .andExpect(method(Objects.requireNonNull(HttpMethod.GET)))
             .andRespond(withSuccess(
                 "{\"sub\":\"" + subject + "\", \"name\":\"" + name + "\", \"email\":\"" + email + "\"}",
-                MediaType.APPLICATION_JSON
+                JSON_MEDIA_TYPE
             ));
 
         String returnedEmail = googleOAuthService.handleGoogleCallback(authCode);

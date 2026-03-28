@@ -8,6 +8,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ public class TransactionControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     @Test
     @WithMockUser
@@ -69,8 +72,8 @@ public class TransactionControllerTest {
         when(transactionService.updateTransaction(anyString(), anyLong(), any())).thenReturn(response);
 
         mockMvc.perform(put("/api/transactions/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .contentType(JSON_MEDIA_TYPE)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(request))))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.description").value("Update description"));
@@ -91,8 +94,8 @@ public class TransactionControllerTest {
         BulkDeleteRequest request = new BulkDeleteRequest(Collections.singletonList(1L));
 
         mockMvc.perform(post("/api/transactions/bulk-delete")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .contentType(JSON_MEDIA_TYPE)
+                .content(Objects.requireNonNull(objectMapper.writeValueAsString(request))))
             .andExpect(status().isNoContent());
 
         verify(transactionService, times(1)).bulkDeleteTransactions(anyString(), anyList());
