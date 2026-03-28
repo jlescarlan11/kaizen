@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.ResultActions;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@SuppressWarnings("null") // Eclipse null-checker false positives on MockMvc/JPA return types
 class OnboardingValidationIntegrationTest extends AbstractPostgresContainerIntegrationTest {
 
     @Autowired

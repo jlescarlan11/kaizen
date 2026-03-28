@@ -174,7 +174,7 @@ public class GoogleOAuthController {
 
                     return ResponseEntity
                         .status(HttpStatus.FOUND)
-                        .location(URI.create(authUri))
+                        .location(Objects.requireNonNull(URI.create(authUri), "Auth redirect URI must not be null"))
                         .build();
                 }
                 log.warn("Google OAuth provider returned an error: {}", error);
@@ -208,7 +208,10 @@ public class GoogleOAuthController {
                 ? UriComponentsBuilder.fromUriString(dynamicBaseUri).build().toString()
                 : authFlowProperties.postAuthRedirectUri();
                 
-            URI redirectUri = URI.create(postAuthUri);
+            URI redirectUri = Objects.requireNonNull(
+                URI.create(postAuthUri),
+                "Post-auth redirect URI must not be null"
+            );
 
             ResponseCookie cookie = ResponseCookie.from(sessionProperties.cookieName(), persistentToken)
                 .httpOnly(true)
@@ -228,9 +231,6 @@ public class GoogleOAuthController {
             return redirectToAuthWithError(e.getCode(), dynamicBaseUri);
         } catch (RestClientException | IllegalStateException e) {
             log.error("Google OAuth provider error or token exchange/userinfo fetch failure.", e);
-            return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
-        } catch (Exception e) {
-            log.error("Unexpected error during Google OAuth callback processing.", e);
             return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
         } finally {
             // Cleanup the session attribute after processing

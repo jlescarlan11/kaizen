@@ -1,7 +1,14 @@
 package com.kaizen.backend.transaction.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +28,6 @@ import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional(readOnly = true)
 public class TransactionService {
@@ -41,14 +41,13 @@ public class TransactionService {
     private final com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository;
 
     public TransactionService(
-        TransactionRepository transactionRepository,
-        UserAccountRepository userAccountRepository,
-        CategoryRepository categoryRepository,
-        PaymentMethodRepository paymentMethodRepository,
-        ReceiptAttachmentService attachmentService,
-        ReminderSchedulerService reminderSchedulerService,
-        com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository
-    ) {
+            TransactionRepository transactionRepository,
+            UserAccountRepository userAccountRepository,
+            CategoryRepository categoryRepository,
+            PaymentMethodRepository paymentMethodRepository,
+            ReceiptAttachmentService attachmentService,
+            ReminderSchedulerService reminderSchedulerService,
+            com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository) {
         this.transactionRepository = transactionRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
@@ -61,92 +60,68 @@ public class TransactionService {
     @Transactional
     public TransactionResponse createTransaction(String email, TransactionRequest request) {
         if (request.clientGeneratedId() != null) {
-            java.util.Optional<Transaction> existing = transactionRepository.findByClientGeneratedId(request.clientGeneratedId());
+            java.util.Optional<Transaction> existing = transactionRepository
+                    .findByClientGeneratedId(request.clientGeneratedId());
             if (existing.isPresent()) {
                 return mapToResponse(existing.get());
             }
         }
 
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        // Canonical Validation Rules
-        if (request.amount() == null) {
-            throw new IllegalArgumentException("Amount is required.");
-        }
-        if (request.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be a positive value greater than zero.");
-        }
-        // Check for max 2 decimal places
-        String amountStr = request.amount().toPlainString();
-        int decimalPointIndex = amountStr.indexOf('.');
-        if (decimalPointIndex >= 0 && amountStr.length() - decimalPointIndex - 1 > 2) {
-             throw new IllegalArgumentException("Amount cannot have more than two decimal places.");
-        }
-
-        if (request.type() == null) {
-            throw new IllegalArgumentException("Transaction type is required.");
-        }
+        UserAccount account = requireAccount(email);
+        validateRequest(request);
 
         LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
-        if (date.isAfter(LocalDateTime.now().plusMinutes(1))) { // small buffer for clock skew
+        if (date.isAfter(LocalDateTime.now().plusMinutes(1))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
-        Category category = null;
-        if (request.categoryId() != null) {
-            category = categoryRepository.findById(Objects.requireNonNull(request.categoryId()))
-                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
-        }
-
-        PaymentMethod paymentMethod = null;
-        if (request.paymentMethodId() != null) {
-            paymentMethod = paymentMethodRepository.findById(Objects.requireNonNull(request.paymentMethodId()))
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
-        }
-
+        Category category = fetchCategory(request.categoryId());
+        PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
         String notes = (request.notes() == null || request.notes().isBlank()) ? null : request.notes();
-
         boolean isRecurring = request.isRecurring() != null && request.isRecurring();
+
         if (isRecurring) {
             if (request.frequencyUnit() == null) {
                 throw new IllegalArgumentException("Frequency unit is required for recurring transactions.");
             }
             if (request.frequencyMultiplier() == null || request.frequencyMultiplier() <= 0) {
-                throw new IllegalArgumentException("Valid frequency multiplier is required for recurring transactions.");
+                throw new IllegalArgumentException(
+                        "Valid frequency multiplier is required for recurring transactions.");
             }
         }
 
         Transaction transaction = new Transaction(
-            account,
-            category,
-            paymentMethod,
-            request.amount(),
-            request.type(),
-            request.description(),
-            date,
-            null,
-            notes
-        );
+                account,
+                category,
+                paymentMethod,
+                request.amount(),
+                request.type(),
+                request.description(),
+                date,
+                null,
+                notes);
+
         transaction.setIsRecurring(isRecurring);
         if (isRecurring) {
             transaction.setFrequencyUnit(request.frequencyUnit());
             transaction.setFrequencyMultiplier(request.frequencyMultiplier());
         }
-
         if (request.clientGeneratedId() != null) {
             transaction.setClientGeneratedId(request.clientGeneratedId());
         }
 
-        if (request.parentRecurringTransactionId() != null) {
-            Transaction parent = transactionRepository.findById(Objects.requireNonNull(request.parentRecurringTransactionId()))
-                .orElseThrow(() -> new IllegalArgumentException("Parent recurring transaction not found with id: " + request.parentRecurringTransactionId()));
+        Long parentId = request.parentRecurringTransactionId();
+        if (parentId != null) {
+            Transaction parent = transactionRepository.findById(parentId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Parent recurring transaction not found with id: " + parentId));
             transaction.setParentRecurringTransaction(parent);
         }
 
-        Transaction saved = transactionRepository.save(transaction);
+        Transaction saved = Objects.requireNonNull(
+                transactionRepository.save(transaction),
+                "repository.save() returned null unexpectedly.");
 
-        // Instruction 4: Reminder Scheduler Triggers
         if (isRecurring) {
             reminderSchedulerService.scheduleInitialReminder(saved);
             if (request.remindersEnabled() != null) {
@@ -156,117 +131,72 @@ public class TransactionService {
             reminderSchedulerService.updateReminderOnInstanceLogged(saved);
         }
 
-        // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(Objects.requireNonNull(account));
-
-        // Side effect: Mark first transaction added
+        recalculateUserBalance(account);
         if (!account.isFirstTransactionAdded()) {
             account.setFirstTransactionAdded(true);
         }
+        saveAccount(account);
 
-        userAccountRepository.save(account);
-
-        // Instruction 7: Quick Add Preference Storage
-        // Store basic transaction details for pre-filling the next entry.
         String prefs = String.format(
-            "{\"amount\":%.2f,\"type\":\"%s\"%s%s}",
-            saved.getAmount(),
-            saved.getType().name(),
-            saved.getCategory() != null ? ",\"categoryId\":" + saved.getCategory().getId() : "",
-            saved.getPaymentMethod() != null ? ",\"paymentMethodId\":" + saved.getPaymentMethod().getId() : ""
-        );
+                "{\"amount\":%.2f,\"type\":\"%s\"%s%s}",
+                saved.getAmount(),
+                saved.getType().name(),
+                saved.getCategory() != null ? ",\"categoryId\":" + saved.getCategory().getId() : "",
+                saved.getPaymentMethod() != null ? ",\"paymentMethodId\":" + saved.getPaymentMethod().getId() : "");
         account.setQuickAddPreferences(prefs);
-        userAccountRepository.save(account);
+        saveAccount(account);
 
         return mapToResponse(saved);
     }
 
     public List<TransactionResponse> getTransactions(String email) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        // Instruction 6: Descending date/time sort order by default
-        return transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId()).stream()
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+        UserAccount account = requireAccount(email);
+        Long accountId = requireAccountId(account);
+        return transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(accountId).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     public List<TransactionResponse> getTransactionsPaginated(
-        String email,
-        LocalDateTime lastDate,
-        Long lastId,
-        int pageSize
-    ) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
+            String email,
+            LocalDateTime lastDate,
+            Long lastId,
+            int pageSize) {
+        UserAccount account = requireAccount(email);
+        Long accountId = requireAccountId(account);
         org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, pageSize);
-        return transactionRepository.findByUserAccountIdPaginated(account.getId(), lastDate, lastId, pageable).stream()
-            .map(this::mapToResponse)
-            .collect(Collectors.toList());
+        return transactionRepository.findByUserAccountIdPaginated(accountId, lastDate, lastId, pageable).stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     public TransactionResponse getTransaction(String email, Long id) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
-
+        UserAccount account = requireAccount(email);
+        Transaction transaction = requireTransaction(id);
         validateTransactionOwnership(account, transaction);
-
         return mapToResponse(transaction);
     }
 
     @Transactional
     public TransactionResponse updateTransaction(String email, Long id, TransactionRequest request) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
-
+        UserAccount account = requireAccount(email);
+        Transaction transaction = requireTransaction(id);
         validateTransactionOwnership(account, transaction);
+        validateRequest(request);
 
-        // Canonical Validation Rules
-        if (request.amount() == null) {
-            throw new IllegalArgumentException("Amount is required.");
-        }
-        if (request.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be a positive value greater than zero.");
-        }
-        String amountStr = String.valueOf(request.amount());
-        int decimalPointIndex = amountStr.indexOf('.');
-        if (decimalPointIndex >= 0 && amountStr.length() - decimalPointIndex - 1 > 2) {
-             throw new IllegalArgumentException("Amount cannot have more than two decimal places.");
-        }
-
-        if (request.type() == null) {
-            throw new IllegalArgumentException("Transaction type is required.");
-        }
-
-        if (request.transactionDate() != null && request.transactionDate().isAfter(LocalDateTime.now().plusMinutes(1))) {
+        if (request.transactionDate() != null
+                && request.transactionDate().isAfter(LocalDateTime.now().plusMinutes(1))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
-        // Update fields
-        Category category = null;
-        if (request.categoryId() != null) {
-            category = categoryRepository.findById(Objects.requireNonNull(request.categoryId()))
-                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
-        }
-
+        Category category = fetchCategory(request.categoryId());
         transaction.setAmount(request.amount());
         transaction.setType(request.type());
         transaction.setDescription(request.description());
         transaction.setCategory(category);
         transaction.setNotes((request.notes() == null || request.notes().isBlank()) ? null : request.notes());
 
-        PaymentMethod paymentMethod = null;
-        if (request.paymentMethodId() != null) {
-            paymentMethod = paymentMethodRepository.findById(Objects.requireNonNull(request.paymentMethodId()))
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
-        }
+        PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
         transaction.setPaymentMethod(paymentMethod);
 
         if (request.transactionDate() != null) {
@@ -279,7 +209,8 @@ public class TransactionService {
                 throw new IllegalArgumentException("Frequency unit is required for recurring transactions.");
             }
             if (request.frequencyMultiplier() == null || request.frequencyMultiplier() <= 0) {
-                throw new IllegalArgumentException("Valid frequency multiplier is required for recurring transactions.");
+                throw new IllegalArgumentException(
+                        "Valid frequency multiplier is required for recurring transactions.");
             }
             transaction.setIsRecurring(true);
             transaction.setFrequencyUnit(request.frequencyUnit());
@@ -290,76 +221,59 @@ public class TransactionService {
             transaction.setFrequencyMultiplier(null);
         }
 
-        Transaction saved = transactionRepository.save(transaction);
-
-        // Instruction 4: Reminder Scheduler Trigger
+        Transaction saved = Objects.requireNonNull(
+                transactionRepository.save(transaction),
+                "repository.save() returned null unexpectedly.");
         reminderSchedulerService.rescheduleOnFrequencyChange(saved);
         if (saved.getIsRecurring() && request.remindersEnabled() != null) {
             reminderSchedulerService.toggleReminder(saved.getId(), request.remindersEnabled());
         }
 
-        // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(Objects.requireNonNull(account));
-
-        userAccountRepository.save(account);
+        recalculateUserBalance(account);
+        saveAccount(account);
 
         return mapToResponse(saved);
     }
 
     @Transactional
     public void deleteTransaction(String email, Long id) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        Transaction transaction = transactionRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
-
+        UserAccount account = requireAccount(email);
+        Transaction transaction = requireTransaction(id);
         validateTransactionOwnership(account, transaction);
-
-        // Cascade storage deletion
         attachmentService.deleteAttachmentsForTransaction(id);
-
-        // Instruction 7: Reminder Cancellation
         reminderSchedulerService.rescheduleOnFrequencyChange(transaction);
-
         transactionRepository.delete(transaction);
-
-        // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(Objects.requireNonNull(account));
-
-        userAccountRepository.save(account);
+        recalculateUserBalance(account);
+        saveAccount(account);
     }
 
     @Transactional
     public void bulkDeleteTransactions(String email, List<Long> ids) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        List<Transaction> transactions = transactionRepository.findAllById(Objects.requireNonNull(ids));
-
+        UserAccount account = requireAccount(email);
+        if (ids == null) {
+            return;
+        }
+        List<Transaction> transactions = transactionRepository.findAllById(ids);
         for (Transaction transaction : transactions) {
+            if (transaction == null) {
+                continue;
+            }
             validateTransactionOwnership(account, transaction);
-            // Cascade storage deletion
-            attachmentService.deleteAttachmentsForTransaction(transaction.getId());
-            // Instruction 7: Reminder Cancellation
+            Long transactionId = transaction.getId();
+            if (transactionId != null) {
+                attachmentService.deleteAttachmentsForTransaction(transactionId);
+            }
             reminderSchedulerService.rescheduleOnFrequencyChange(transaction);
         }
-
         transactionRepository.deleteAll(transactions);
-
-        // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(Objects.requireNonNull(account));
-
-        userAccountRepository.save(account);
+        recalculateUserBalance(account);
+        saveAccount(account);
     }
 
     public BalanceHistoryResponse getBalanceHistory(String email) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
-        List<Transaction> transactions = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId());
-        
-        // Sort chronologically for running balance computation
+        UserAccount account = requireAccount(email);
+        Long accountId = requireAccountId(account);
+        List<Transaction> transactions = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(accountId);
         List<Transaction> chronological = new ArrayList<>(transactions);
         chronological.sort(Comparator.comparing(Transaction::getTransactionDate).thenComparing(Transaction::getId));
 
@@ -367,83 +281,182 @@ public class TransactionService {
         java.math.BigDecimal runningBalance = java.math.BigDecimal.ZERO;
 
         for (Transaction t : chronological) {
-            if (t.getType() == TransactionType.INCOME) {
-                runningBalance = runningBalance.add(t.getAmount());
-            } else if (t.getType() == TransactionType.EXPENSE) {
-                runningBalance = runningBalance.subtract(t.getAmount());
-            } else if (t.getType() == TransactionType.RECONCILIATION) {
-                if (Boolean.TRUE.equals(t.getReconciliationIncrease())) {
-                    runningBalance = runningBalance.add(t.getAmount());
-                } else {
-                    runningBalance = runningBalance.subtract(t.getAmount());
+            switch (t.getType()) {
+                case INCOME -> runningBalance = runningBalance.add(t.getAmount());
+                case EXPENSE -> runningBalance = runningBalance.subtract(t.getAmount());
+                case RECONCILIATION -> {
+                    if (Boolean.TRUE.equals(t.getReconciliationIncrease())) {
+                        runningBalance = runningBalance.add(t.getAmount());
+                    } else {
+                        runningBalance = runningBalance.subtract(t.getAmount());
+                    }
                 }
             }
-
             history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
-                t.getTransactionDate(),
-                runningBalance,
-                t.getDescription(),
-                t.getId(),
-                t.getType().name()
-            ));
+                    t.getTransactionDate(),
+                    runningBalance,
+                    t.getDescription(),
+                    t.getId(),
+                    t.getType().name()));
         }
 
-        // Return in reverse chronological order as per Instruction 7
         Collections.reverse(history);
         return new BalanceHistoryResponse(history);
     }
 
     @Transactional
-    public TransactionResponse reconcileBalance(String email, java.math.BigDecimal realWorldBalance, String description) {
-        UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-
+    public TransactionResponse reconcileBalance(String email, java.math.BigDecimal realWorldBalance,
+            String description) {
+        UserAccount account = requireAccount(email);
         java.math.BigDecimal currentBalance = account.getBalance();
         java.math.BigDecimal difference = realWorldBalance.subtract(currentBalance);
 
         if (difference.compareTo(java.math.BigDecimal.ZERO) == 0) {
-            return null; // Or throw an exception if preferred, but PRD says "no adjustment created when balances match"
+            return null;
         }
 
         Boolean increase = difference.compareTo(java.math.BigDecimal.ZERO) > 0;
         java.math.BigDecimal absoluteDifference = difference.abs();
 
         Transaction reconciliation = new Transaction(
-            account,
-            null, // No category
-            null, // No specific payment method (could be improved if we have per-method balance)
-            absoluteDifference,
-            TransactionType.RECONCILIATION,
-            description != null ? description : "Balance Reconciliation Adjustment",
-            LocalDateTime.now(),
-            increase
-        );
+                account,
+                null,
+                null,
+                absoluteDifference,
+                TransactionType.RECONCILIATION,
+                description != null ? description : "Balance Reconciliation Adjustment",
+                LocalDateTime.now(),
+                increase);
 
-        Transaction saved = transactionRepository.save(reconciliation);
-        
-        recalculateUserBalance(Objects.requireNonNull(account));
-        userAccountRepository.save(account);
+        Transaction saved = Objects.requireNonNull(
+                transactionRepository.save(reconciliation),
+                "repository.save() returned null unexpectedly.");
+        requireTransactionId(saved);
+
+        recalculateUserBalance(account);
+        saveAccount(account);
 
         return mapToResponse(saved);
     }
 
     @Transactional
-    public void recalculateUserBalance(@org.springframework.lang.NonNull UserAccount account) {
-        java.math.BigDecimal netAmount = transactionRepository.calculateNetTransactionAmount(Objects.requireNonNull(account.getId()))
-            .orElse(java.math.BigDecimal.ZERO);
-        
-        // Instruction 1 & 8: Include opening balance if confirmed. 
-        // For now, we assume account.getBalance() might contain an opening balance seed 
-        // if it was set during onboarding but we don't have a separate field yet.
-        // However, Section 6a says derived EXCLUSIVELY from transaction store.
-        // So we just use netAmount for now.
+    public void recalculateUserBalance(@NonNull UserAccount account) {
+        Long accountId = account.getId();
+        if (accountId == null) {
+            return;
+        }
+        java.math.BigDecimal netAmount = transactionRepository.calculateNetTransactionAmount(accountId)
+                .orElse(java.math.BigDecimal.ZERO);
         account.setBalance(netAmount);
     }
 
-    private void validateTransactionOwnership(UserAccount account, Transaction transaction) {
-        if (!transaction.getUserAccount().getId().equals(Objects.requireNonNull(account.getId()))) {
+    // -------------------------------------------------------------------------
+    // Guard helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Resolves a {@link UserAccount} by email or throws.
+     * {@code Optional.orElseThrow()} guarantees non-null at runtime but the
+     * unannotated generic return type cannot be verified statically.
+     */
+    @NonNull
+    @SuppressWarnings("null")
+    private UserAccount requireAccount(String email) {
+        return userAccountRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+    }
+
+    /**
+     * Unwraps an account's ID or throws.
+     */
+    @NonNull
+    private Long requireAccountId(@NonNull UserAccount account) {
+        Long id = account.getId();
+        if (id == null) {
+            throw new IllegalStateException("User account ID is missing.");
+        }
+        return id;
+    }
+
+    /**
+     * Resolves a {@link Transaction} by ID or throws.
+     * {@code Optional.orElseThrow()} guarantees non-null at runtime but the
+     * unannotated generic return type cannot be verified statically.
+     */
+    @NonNull
+    @SuppressWarnings("null")
+    private Transaction requireTransaction(Long id) {
+        return transactionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
+    }
+
+    /**
+     * Unwraps a saved transaction's generated ID or throws.
+     * {@code Transaction.getId()} returns boxed {@code Long}, which the checker
+     * treats as nullable. This guard makes the post-persist ID contract explicit.
+     */
+    @NonNull
+    private Long requireTransactionId(@NonNull Transaction transaction) {
+        Long id = transaction.getId();
+        if (id == null) {
+            throw new IllegalStateException(
+                    "Saved transaction has no ID — verify @GeneratedValue is configured on Transaction.id.");
+        }
+        return id;
+    }
+
+    /**
+     * Persists a {@link UserAccount} via the repository.
+     * {@code JpaRepository.save()} return value intentionally discarded here —
+     * the managed entity is already updated in-place within the same transaction.
+     */
+    private void saveAccount(@NonNull UserAccount account) {
+        userAccountRepository.save(account);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    private void validateTransactionOwnership(@NonNull UserAccount account, @NonNull Transaction transaction) {
+        Long accountId = account.getId();
+        if (accountId == null || !transaction.getUserAccount().getId().equals(accountId)) {
             throw new IllegalArgumentException("You do not have permission to access this transaction.");
         }
+    }
+
+    private void validateRequest(TransactionRequest request) {
+        if (request.amount() == null) {
+            throw new IllegalArgumentException("Amount is required.");
+        }
+        if (request.amount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be a positive value greater than zero.");
+        }
+        String amountStr = request.amount().toPlainString();
+        int decimalPointIndex = amountStr.indexOf('.');
+        if (decimalPointIndex >= 0 && amountStr.length() - decimalPointIndex - 1 > 2) {
+            throw new IllegalArgumentException("Amount cannot have more than two decimal places.");
+        }
+        if (request.type() == null) {
+            throw new IllegalArgumentException("Transaction type is required.");
+        }
+    }
+
+    private Category fetchCategory(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + categoryId));
+    }
+
+    private PaymentMethod fetchPaymentMethod(Long paymentMethodId) {
+        if (paymentMethodId == null) {
+            return null;
+        }
+        return paymentMethodRepository.findById(paymentMethodId)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Payment method not found with id: " + paymentMethodId));
     }
 
     private TransactionResponse mapToResponse(Transaction transaction) {
@@ -451,55 +464,51 @@ public class TransactionService {
         if (transaction.getCategory() != null) {
             Category cat = transaction.getCategory();
             categoryResponse = new CategoryResponse(
-                cat.getId(),
-                cat.getName(),
-                cat.isGlobal(),
-                cat.getIcon(),
-                cat.getColor()
-            );
+                    cat.getId(),
+                    cat.getName(),
+                    cat.isGlobal(),
+                    cat.getIcon(),
+                    cat.getColor());
         }
 
         PaymentMethodResponse paymentMethodResponse = null;
         if (transaction.getPaymentMethod() != null) {
             PaymentMethod pm = transaction.getPaymentMethod();
             paymentMethodResponse = new PaymentMethodResponse(
-                pm.getId(),
-                pm.getName(),
-                pm.isGlobal()
-            );
+                    pm.getId(),
+                    pm.getName(),
+                    pm.isGlobal());
         }
 
         Boolean remindersEnabled = null;
         if (Boolean.TRUE.equals(transaction.getIsRecurring())) {
             remindersEnabled = reminderScheduleRepository.findByTransactionId(transaction.getId())
-                .map(com.kaizen.backend.transaction.entity.ReminderSchedule::getIsEnabled)
-                .orElse(true);
+                    .map(com.kaizen.backend.transaction.entity.ReminderSchedule::getIsEnabled)
+                    .orElse(true);
         }
 
         return new TransactionResponse(
-            transaction.getId(),
-            transaction.getAmount(),
-            transaction.getType(),
-            transaction.getTransactionDate(),
-            transaction.getDescription(),
-            categoryResponse,
-            paymentMethodResponse,
-            transaction.getReconciliationIncrease(),
-            transaction.getNotes(),
-            transaction.getIsRecurring(),
-            transaction.getFrequencyUnit(),
-            transaction.getFrequencyMultiplier(),
-            remindersEnabled,
-            attachmentService.getAttachmentsForTransaction(transaction.getId()).stream()
-                .map(a -> new AttachmentResponse(
-                    a.getId(),
-                    a.getFilename(),
-                    a.getFileSize(),
-                    a.getMimeType(),
-                    a.getStorageReference()
-                ))
-                .collect(Collectors.toList()),
-            transaction.getClientGeneratedId()
-        );
+                transaction.getId(),
+                transaction.getAmount(),
+                transaction.getType(),
+                transaction.getTransactionDate(),
+                transaction.getDescription(),
+                categoryResponse,
+                paymentMethodResponse,
+                transaction.getReconciliationIncrease(),
+                transaction.getNotes(),
+                transaction.getIsRecurring(),
+                transaction.getFrequencyUnit(),
+                transaction.getFrequencyMultiplier(),
+                remindersEnabled,
+                attachmentService.getAttachmentsForTransaction(transaction.getId()).stream()
+                        .map(a -> new AttachmentResponse(
+                                a.getId(),
+                                a.getFilename(),
+                                a.getFileSize(),
+                                a.getMimeType(),
+                                a.getStorageReference()))
+                        .collect(Collectors.toList()),
+                transaction.getClientGeneratedId());
     }
 }

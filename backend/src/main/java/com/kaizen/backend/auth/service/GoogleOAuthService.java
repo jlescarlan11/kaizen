@@ -19,6 +19,7 @@ import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -73,17 +74,17 @@ public class GoogleOAuthService {
         });
     }
 
-    private void revokeTokenAtProvider(String token) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("token", token);
+private void revokeTokenAtProvider(String token) {
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("token", token);
 
-        restClient.post()
-            .uri(GOOGLE_REVOCATION_URI)
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(formData)
-            .retrieve()
-            .toBodilessEntity();
-    }
+    restClient.post()
+        .uri(GOOGLE_REVOCATION_URI)
+        .contentType(Objects.requireNonNull(MediaType.APPLICATION_FORM_URLENCODED))
+        .body(formData)
+        .retrieve()
+        .toBodilessEntity();
+}
 
     @NonNull
     public URI buildAuthorizationRedirectUri(@NonNull String state) {

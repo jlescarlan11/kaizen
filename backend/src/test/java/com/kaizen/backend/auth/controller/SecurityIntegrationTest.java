@@ -79,7 +79,8 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         Role adminRole = roleRepository.save(new Role("ADMIN"));
 
         // 2. Create Standard User
-        UserAccount user = new UserAccount("Standard User", "user@example.com", "google", "123", null, null, "at", "rt");
+        UserAccount user = new UserAccount("Standard User", "user@example.com", "google", "123", null, null, "at",
+                "rt");
         user.addRole(userRole);
         userRepository.save(user);
         userToken = createSessionToken(user, 90);
@@ -89,7 +90,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         admin.addRole(adminRole);
         admin.addRole(userRole);
         userRepository.save(admin);
-        
+
         // Admin token is currently unused in rejection-only tests
         createSessionToken(admin, 90);
 
@@ -111,7 +112,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         for (EndpointInfo endpoint : getProtectedEndpoints()) {
             log.info("Testing 401 (No Credentials) for protected endpoint: {} {}", endpoint.method(), endpoint.path());
             performRequest(endpoint, null)
-                .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -122,7 +123,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         for (EndpointInfo endpoint : getProtectedEndpoints()) {
             log.info("Testing 401 (Invalid Token) for protected endpoint: {} {}", endpoint.method(), endpoint.path());
             performRequest(endpoint, invalidToken)
-                .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -132,7 +133,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         for (EndpointInfo endpoint : getProtectedEndpoints()) {
             log.info("Testing 401 (Expired Token) for protected endpoint: {} {}", endpoint.method(), endpoint.path());
             performRequest(endpoint, expiredToken)
-                .andExpect(status().isUnauthorized());
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -145,9 +146,10 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
                 .toList();
 
         for (EndpointInfo endpoint : adminOnlyEndpoints) {
-            log.info("Testing 403 (Insufficient Permissions) for ADMIN endpoint: {} {}", endpoint.method(), endpoint.path());
+            log.info("Testing 403 (Insufficient Permissions) for ADMIN endpoint: {} {}", endpoint.method(),
+                    endpoint.path());
             performRequest(endpoint, userToken)
-                .andExpect(status().isForbidden());
+                    .andExpect(status().isForbidden());
         }
     }
 
@@ -159,7 +161,7 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
         // If a new endpoint is added to the system and not marked as @PublicEndpoint,
         // it must be caught by our loop in tests above.
         log.info("Coverage verification: detected {} protected endpoints.", protectedEndpoints.size());
-        
+
         // Assert that we have at least one protected endpoint (the /me endpoint)
         assert !protectedEndpoints.isEmpty() : "No protected endpoints found to test! Coverage gap detected.";
     }
@@ -167,11 +169,11 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
     private ResultActions performRequest(EndpointInfo endpoint, String token) throws Exception {
         // Simple heuristic to expand common path variables for security testing
         String path = endpoint.path().replace("{id}", "1");
-        
+
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
                 .request(Objects.requireNonNull(endpoint.method()), Objects.requireNonNull(path))
                 .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON));
-        
+
         if (token != null) {
             builder.cookie(new Cookie(COOKIE_NAME, token));
         }
@@ -180,7 +182,8 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
     }
 
     private List<EndpointInfo> getProtectedEndpoints() {
-        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping",
+                RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
         List<EndpointInfo> endpoints = new ArrayList<>();
 
@@ -189,18 +192,23 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
             HandlerMethod method = entry.getValue();
 
             // Exclude public endpoints
-            if (method.getBeanType().isAnnotationPresent(PublicEndpoint.class) || 
-                method.hasMethodAnnotation(PublicEndpoint.class)) {
+            if (method.getBeanType().isAnnotationPresent(PublicEndpoint.class) ||
+                    method.hasMethodAnnotation(PublicEndpoint.class)) {
                 continue;
             }
 
-            // Robustly extract path patterns, supporting both PathPatternParser and AntPathMatcher configurations
-            Set<String> patterns = info.getPathPatternsCondition() != null 
-                ? info.getPathPatternsCondition().getPatternValues() 
-                : (info.getPatternsCondition() != null ? info.getPatternsCondition().getPatterns() : Set.of());
-            
-            if (patterns.isEmpty()) {
-                continue;
+            // Robustly extract path patterns, supporting both PathPatternParser and
+            // AntPathMatcher configurations
+            var pathPatternsCondition = info.getPathPatternsCondition();
+            var patternsCondition = info.getPatternsCondition();
+
+            Set<String> patterns;
+            if (pathPatternsCondition != null) {
+                patterns = pathPatternsCondition.getPatternValues();
+            } else if (patternsCondition != null) {
+                patterns = patternsCondition.getPatterns();
+            } else {
+                patterns = Set.of();
             }
 
             String path = patterns.iterator().next();
@@ -210,12 +218,12 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
                 continue;
             }
 
-            info.getMethodsCondition().getMethods().forEach(m -> 
-                endpoints.add(new EndpointInfo(path, m.asHttpMethod()))
-            );
+            info.getMethodsCondition().getMethods()
+                    .forEach(m -> endpoints.add(new EndpointInfo(path, m.asHttpMethod())));
         }
         return endpoints;
     }
 
-    private record EndpointInfo(String path, org.springframework.http.HttpMethod method) {}
+    private record EndpointInfo(String path, org.springframework.http.HttpMethod method) {
+    }
 }

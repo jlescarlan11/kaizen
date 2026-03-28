@@ -1,32 +1,12 @@
 package com.kaizen.backend.budget.validation;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kaizen.backend.auth.repository.PersistentSessionRepository;
-import com.kaizen.backend.auth.service.PersistentSessionService;
-import com.kaizen.backend.auth.config.SessionProperties;
-import com.kaizen.backend.budget.entity.BudgetPeriod;
-import com.kaizen.backend.category.entity.Category;
-import com.kaizen.backend.category.repository.CategoryRepository;
-import com.kaizen.backend.common.constants.ValidationConstants;
-import com.kaizen.backend.common.dto.ValidationErrorResponse;
-import com.kaizen.backend.support.AbstractPostgresContainerIntegrationTest;
-import com.kaizen.backend.user.entity.Role;
-import com.kaizen.backend.user.entity.UserAccount;
-import com.kaizen.backend.user.repository.RoleRepository;
-import com.kaizen.backend.user.repository.UserAccountRepository;
-import com.kaizen.backend.budget.repository.BudgetRepository;
-import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
-import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
-import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,10 +15,35 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kaizen.backend.auth.config.SessionProperties;
+import com.kaizen.backend.auth.repository.PersistentSessionRepository;
+import com.kaizen.backend.auth.service.PersistentSessionService;
+import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
+import com.kaizen.backend.budget.entity.Budget;
+import com.kaizen.backend.budget.entity.BudgetPeriod;
+import com.kaizen.backend.budget.repository.BudgetRepository;
+import com.kaizen.backend.category.entity.Category;
+import com.kaizen.backend.category.repository.CategoryRepository;
+import com.kaizen.backend.common.constants.ValidationConstants;
+import com.kaizen.backend.common.dto.ValidationErrorResponse;
+import com.kaizen.backend.support.AbstractPostgresContainerIntegrationTest;
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
+import com.kaizen.backend.user.entity.Role;
+import com.kaizen.backend.user.entity.UserAccount;
+import com.kaizen.backend.user.repository.RoleRepository;
+import com.kaizen.backend.user.repository.UserAccountRepository;
+
+import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("Budget validation integration tests")
+@SuppressWarnings("null") // Eclipse null-checker false positives on MockMvc/JPA return types
 class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrationTest {
 
     @Autowired
@@ -73,6 +78,10 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     private Category primaryCategory;
     private Category secondaryCategory;
 
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
+
     @BeforeEach
     void setUp() {
         sessionRepository.deleteAll();
@@ -98,11 +107,16 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         user = userRepository.save(user);
 
         String token = persistentSessionService.createSession(user.getEmail());
+        assertNotNull(token, "Session token must not be null");
         authCookie = new Cookie(sessionProperties.cookieName(), token);
 
         primaryCategory = categoryRepository.save(new Category("Needs", true, null, "icon-1", "#000000"));
         secondaryCategory = categoryRepository.save(new Category("Wants", true, null, "icon-2", "#111111"));
     }
+
+    // -------------------------------------------------------------------------
+    // Batch endpoint — amount constraints
+    // -------------------------------------------------------------------------
 
     @Test
     @DisplayName("Rejects budgets with non-positive amounts")
@@ -112,9 +126,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         ));
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budgets[0].amount".equals(error.field())
-                    && ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budgets[0].amount", e.field())
+                    && Objects.equals(ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR, e.message())
             ), "Expected positive amount validation error");
     }
 
@@ -124,9 +138,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         mockMvc.perform(post("/api/budgets/batch")
             .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(buildBudgetPayload(List.of(
+            .content(serialize(Map.of("budgets", List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("100.00"), BudgetPeriod.MONTHLY)
-            ))))
+            )))))
             .andExpect(status().isCreated());
     }
 
@@ -138,9 +152,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         ));
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budgets[0].amount".equals(error.field())
-                    && ValidationConstants.BUDGET_OVER_BALANCE_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budgets[0].amount", e.field())
+                    && Objects.equals(ValidationConstants.BUDGET_OVER_BALANCE_ERROR, e.message())
             ), "Expected per-entry balance constraint violation");
     }
 
@@ -150,9 +164,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         mockMvc.perform(post("/api/budgets/batch")
             .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(buildBudgetPayload(List.of(
+            .content(serialize(Map.of("budgets", List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("150.00"), BudgetPeriod.MONTHLY)
-            ))))
+            )))))
             .andExpect(status().isCreated());
     }
 
@@ -165,9 +179,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         ));
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budgets.total".equals(error.field())
-                    && ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budgets.total", e.field())
+                    && Objects.equals(ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR, e.message())
             ), "Expected total balance constraint violation");
     }
 
@@ -177,12 +191,16 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         mockMvc.perform(post("/api/budgets/batch")
             .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(buildBudgetPayload(List.of(
+            .content(serialize(Map.of("budgets", List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("80.00"), BudgetPeriod.MONTHLY),
                 budgetEntry(secondaryCategory.getId(), new BigDecimal("20.00"), BudgetPeriod.MONTHLY)
-            ))))
+            )))))
             .andExpect(status().isCreated());
     }
+
+    // -------------------------------------------------------------------------
+    // Batch endpoint — category constraints
+    // -------------------------------------------------------------------------
 
     @Test
     @DisplayName("Rejects non-existent categories")
@@ -192,9 +210,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         ));
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budgets[0].categoryId".equals(error.field())
-                    && ValidationConstants.CATEGORY_NOT_FOUND_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budgets[0].categoryId", e.field())
+                    && Objects.equals(ValidationConstants.CATEGORY_NOT_FOUND_ERROR, e.message())
             ), "Expected category existence validation error");
     }
 
@@ -204,9 +222,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         mockMvc.perform(post("/api/budgets/batch")
             .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(buildBudgetPayload(List.of(
+            .content(serialize(Map.of("budgets", List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("10.00"), BudgetPeriod.MONTHLY)
-            ))))
+            )))))
             .andExpect(status().isCreated());
     }
 
@@ -219,9 +237,10 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         ));
 
         assertTrue(response.errors().stream()
-            .filter(error -> ValidationConstants.DUPLICATE_CATEGORY_ERROR.equals(error.message()))
-            .map(error -> error.field())
-            .anyMatch(field -> field.startsWith("budgets")), "Expected duplicate category validation errors for each entry");
+            .filter(e -> ValidationConstants.DUPLICATE_CATEGORY_ERROR.equals(e.message()))
+            .map(e -> e.field())
+            .anyMatch(field -> field != null && field.startsWith("budgets")),
+            "Expected duplicate category validation errors for each entry");
     }
 
     @Test
@@ -230,40 +249,45 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         mockMvc.perform(post("/api/budgets/batch")
             .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(buildBudgetPayload(List.of(
+            .content(serialize(Map.of("budgets", List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("10.00"), BudgetPeriod.MONTHLY),
                 budgetEntry(secondaryCategory.getId(), new BigDecimal("15.00"), BudgetPeriod.MONTHLY)
-            ))))
+            )))))
             .andExpect(status().isCreated());
     }
+
+    // -------------------------------------------------------------------------
+    // Single-budget endpoint
+    // -------------------------------------------------------------------------
 
     @Test
     @DisplayName("Rejects single budget when existing allocations leave insufficient remaining balance")
     void rejectsSingleBudgetOverRemainingBalance() throws Exception {
-        budgetRepository.saveAll(List.of(
-            new com.kaizen.backend.budget.entity.Budget(user, primaryCategory, new BigDecimal("180.00"), BudgetPeriod.MONTHLY)
-        ));
+        saveBudgets(
+            new Budget(user, primaryCategory, new BigDecimal("180.00"), BudgetPeriod.MONTHLY)
+        );
 
         ValidationErrorResponse response = postSingleBudget(
             budgetEntry(secondaryCategory.getId(), new BigDecimal("30.00"), BudgetPeriod.MONTHLY)
         );
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budget.amount".equals(error.field())
-                    && ValidationConstants.BUDGET_OVER_BALANCE_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budget.amount", e.field())
+                    && Objects.equals(ValidationConstants.BUDGET_OVER_BALANCE_ERROR, e.message())
             ), "Expected remaining-balance violation for single budget creation");
+
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budget.total".equals(error.field())
-                    && ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budget.total", e.field())
+                    && Objects.equals(ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR, e.message())
             ), "Expected total-over-balance violation for single budget creation");
     }
 
     @Test
     @DisplayName("Rejects single budget when category already has a persisted budget")
     void rejectsDuplicatePersistedCategoryOnSingleCreate() throws Exception {
-        budgetRepository.save(new com.kaizen.backend.budget.entity.Budget(
+        budgetRepository.save(new Budget(
             user,
             primaryCategory,
             new BigDecimal("20.00"),
@@ -275,72 +299,125 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
         );
 
         assertTrue(response.errors().stream()
-            .anyMatch(error ->
-                "budget.categoryId".equals(error.field())
-                    && ValidationConstants.DUPLICATE_CATEGORY_ERROR.equals(error.message())
+            .anyMatch(e ->
+                Objects.equals("budget.categoryId", e.field())
+                    && Objects.equals(ValidationConstants.DUPLICATE_CATEGORY_ERROR, e.message())
             ), "Expected duplicate-category validation error for single budget creation");
     }
+
+    // -------------------------------------------------------------------------
+    // Summary endpoint
+    // -------------------------------------------------------------------------
 
     @Test
     @DisplayName("Returns budget summary without mutating the stored user balance")
     void returnsBudgetSummaryAndPreservesStoredBalance() throws Exception {
-        budgetRepository.saveAll(List.of(
-            new com.kaizen.backend.budget.entity.Budget(user, primaryCategory, new BigDecimal("80.00"), BudgetPeriod.MONTHLY),
-            new com.kaizen.backend.budget.entity.Budget(user, secondaryCategory, new BigDecimal("20.00"), BudgetPeriod.WEEKLY)
-        ));
-
-        BudgetSummaryResponse response = objectMapper.readValue(
-            mockMvc.perform(get("/api/budgets/summary")
-                .cookie(authCookie))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString(),
-            BudgetSummaryResponse.class
+        saveBudgets(
+            new Budget(user, primaryCategory, new BigDecimal("80.00"), BudgetPeriod.MONTHLY),
+            new Budget(user, secondaryCategory, new BigDecimal("20.00"), BudgetPeriod.WEEKLY)
         );
 
-        assertTrue(new BigDecimal("200.00").compareTo(response.balance()) == 0, "Expected actual balance to remain unchanged");
-        assertTrue(new BigDecimal("100.00").compareTo(response.totalAllocated()) == 0, "Expected allocated total to match saved budgets");
-        assertTrue(new BigDecimal("100.00").compareTo(response.remainingToAllocate()) == 0, "Expected remaining allocatable amount to be derived from balance minus budgets");
-        assertTrue(response.allocationPercentage() == 50, "Expected allocation percentage to be derived from allocated vs balance");
-        assertTrue(response.budgetCount() == 2, "Expected summary count to match saved budgets");
+        String body = responseBody(
+            mockMvc.perform(get("/api/budgets/summary").cookie(authCookie))
+                .andExpect(status().isOk())
+        );
+
+        BudgetSummaryResponse response = objectMapper.readValue(body, BudgetSummaryResponse.class);
+
+        assertTrue(new BigDecimal("200.00").compareTo(response.balance()) == 0,
+            "Expected actual balance to remain unchanged");
+        assertTrue(new BigDecimal("100.00").compareTo(response.totalAllocated()) == 0,
+            "Expected allocated total to match saved budgets");
+        assertTrue(new BigDecimal("100.00").compareTo(response.remainingToAllocate()) == 0,
+            "Expected remaining allocatable amount to be derived from balance minus budgets");
+        assertTrue(response.allocationPercentage() == 50,
+            "Expected allocation percentage to be derived from allocated vs balance");
+        assertTrue(response.budgetCount() == 2,
+            "Expected summary count to match saved budgets");
         assertTrue(
             new BigDecimal("200.00").compareTo(
-                userRepository.findById(user.getId()).orElseThrow().getBalance()
+                userRepository.findById(Objects.requireNonNull(user.getId())).orElseThrow().getBalance()
             ) == 0,
             "Expected persisted user balance to remain unchanged after summary calculation"
         );
     }
 
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Saves one or more {@link Budget} entities via varargs, avoiding a
+     * {@code List.of(...)} literal at the call site — the Eclipse null checker
+     * flags the inferred {@code List<Budget>} return type of {@code List.of}
+     * as a potentially-null {@code Iterable} when passed directly to
+     * {@code saveAll}.
+     */
+    @SafeVarargs
+    private final void saveBudgets(Budget... budgets) {
+        for (Budget b : budgets) {
+            budgetRepository.save(b);
+        }
+    }
+
+    /**
+     * Extracts and validates the response body string from a {@link ResultActions}.
+     * Centralises the {@code getContentAsString()} call so the Eclipse null checker
+     * only needs one suppression point (the class-level {@code @SuppressWarnings("null")})
+     * rather than one at every call site.
+     */
+    private String responseBody(ResultActions actions) throws Exception {
+        String body = actions.andReturn().getResponse().getContentAsString();
+        assertNotNull(body, "Response body must not be null");
+        return body;
+    }
+
+    /**
+     * Serializes {@code value} to JSON.
+     */
+    private String serialize(Object value) throws Exception {
+        String json = objectMapper.writeValueAsString(value);
+        assertNotNull(json, "ObjectMapper must not return null JSON");
+        return json;
+    }
+
+    /**
+     * Posts to {@code /api/budgets/batch}, asserts HTTP 400, and deserializes
+     * the {@link ValidationErrorResponse}.
+     */
     private ValidationErrorResponse postBudgetBatch(List<Map<String, Object>> budgets) throws Exception {
-        ResultActions result = mockMvc.perform(post("/api/budgets/batch")
-            .contentType(JSON_MEDIA_TYPE)
-            .cookie(authCookie)
-            .content(buildBudgetPayload(budgets)));
-
-        return objectMapper.readValue(
-            result.andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString(),
-            ValidationErrorResponse.class
+        String body = responseBody(
+            mockMvc.perform(post("/api/budgets/batch")
+                .contentType(JSON_MEDIA_TYPE)
+                .cookie(authCookie)
+                .content(serialize(Map.of("budgets", budgets))))
+                .andExpect(status().isBadRequest())
         );
+        return objectMapper.readValue(body, ValidationErrorResponse.class);
     }
 
+    /**
+     * Posts to {@code /api/budgets}, asserts HTTP 400, and deserializes the
+     * {@link ValidationErrorResponse}.
+     */
     private ValidationErrorResponse postSingleBudget(Map<String, Object> budget) throws Exception {
-        ResultActions result = mockMvc.perform(post("/api/budgets")
-            .contentType(JSON_MEDIA_TYPE)
-            .cookie(authCookie)
-            .content(Objects.requireNonNull(objectMapper.writeValueAsString(budget))));
-
-        return objectMapper.readValue(
-            result.andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString(),
-            ValidationErrorResponse.class
+        String body = responseBody(
+            mockMvc.perform(post("/api/budgets")
+                .contentType(JSON_MEDIA_TYPE)
+                .cookie(authCookie)
+                .content(serialize(budget)))
+                .andExpect(status().isBadRequest())
         );
+        return objectMapper.readValue(body, ValidationErrorResponse.class);
     }
 
-    private String buildBudgetPayload(List<Map<String, Object>> budgets) throws Exception {
-        return Objects.requireNonNull(objectMapper.writeValueAsString(Map.of("budgets", budgets)));
-    }
-
+    /**
+     * Builds a single budget entry map.
+     */
     private Map<String, Object> budgetEntry(Long categoryId, BigDecimal amount, BudgetPeriod period) {
+        Objects.requireNonNull(categoryId, "categoryId must not be null");
+        Objects.requireNonNull(amount, "amount must not be null");
+        Objects.requireNonNull(period, "period must not be null");
         return Map.of(
             "categoryId", categoryId,
             "amount", amount,

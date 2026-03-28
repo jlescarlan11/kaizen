@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -27,10 +28,9 @@ public class PaymentMethodService {
     private final TransactionRepository transactionRepository;
 
     public PaymentMethodService(
-        PaymentMethodRepository paymentMethodRepository,
-        UserAccountRepository userAccountRepository,
-        TransactionRepository transactionRepository
-    ) {
+            PaymentMethodRepository paymentMethodRepository,
+            UserAccountRepository userAccountRepository,
+            TransactionRepository transactionRepository) {
         this.paymentMethodRepository = paymentMethodRepository;
         this.userAccountRepository = userAccountRepository;
         this.transactionRepository = transactionRepository;
@@ -38,19 +38,20 @@ public class PaymentMethodService {
 
     public List<PaymentMethodResponse> getPaymentMethods(String email) {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         return paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId()).stream()
-            .map(pm -> new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()))
-            .collect(Collectors.toList());
+                .map(pm -> new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()))
+                .collect(Collectors.toList());
     }
 
     public List<PaymentMethodSummaryResponse> getPaymentMethodSummary(String email) {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         List<PaymentMethod> allMethods = paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId());
-        Map<Long, PaymentMethod> methodMap = allMethods.stream().collect(Collectors.toMap(PaymentMethod::getId, pm -> pm));
+        Map<Long, PaymentMethod> methodMap = allMethods.stream()
+                .collect(Collectors.toMap(PaymentMethod::getId, pm -> pm));
 
         List<Object[]> groupedResults = transactionRepository.getExpenseSummaryGroupedByPaymentMethod(account.getId());
         List<PaymentMethodSummaryResponse> summaries = new ArrayList<>();
@@ -61,9 +62,8 @@ public class PaymentMethodService {
             PaymentMethod pm = methodMap.get(methodId);
             if (pm != null) {
                 summaries.add(new PaymentMethodSummaryResponse(
-                    new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()),
-                    total
-                ));
+                        new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()),
+                        total));
             }
         }
 
@@ -79,7 +79,7 @@ public class PaymentMethodService {
     @Transactional
     public PaymentMethodResponse createPaymentMethod(String email, PaymentMethodCreatePayload payload) {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         if (payload.name() == null || payload.name().trim().isEmpty()) {
             throw new IllegalArgumentException("Payment method name cannot be empty.");
@@ -104,11 +104,13 @@ public class PaymentMethodService {
     }
 
     public long countTransactionsUsingMethod(String email, Long id) {
+        Objects.requireNonNull(id, "Payment method id must not be null");
+
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         PaymentMethod pm = paymentMethodRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + id));
 
         if (!pm.isGlobal() && !pm.getUserAccount().getId().equals(account.getId())) {
             throw new IllegalArgumentException("You do not have permission to access this payment method.");
@@ -119,11 +121,13 @@ public class PaymentMethodService {
 
     @Transactional
     public void deletePaymentMethod(String email, Long id) {
+        Objects.requireNonNull(id, "Payment method id must not be null");
+
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         PaymentMethod pm = paymentMethodRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + id));
 
         if (pm.isGlobal()) {
             throw new IllegalArgumentException("System payment methods cannot be deleted.");

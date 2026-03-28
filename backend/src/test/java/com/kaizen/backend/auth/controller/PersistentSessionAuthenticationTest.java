@@ -1,8 +1,12 @@
 package com.kaizen.backend.auth.controller;
 
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,10 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.lang.NonNull;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.kaizen.backend.auth.entity.PersistentSession;
 import com.kaizen.backend.auth.repository.PersistentSessionRepository;
@@ -25,8 +27,6 @@ import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
 import jakarta.servlet.http.Cookie;
-
-import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,7 +47,7 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
 
     private static final String COOKIE_NAME = "kzn_pst";
     private String validToken;
-    private UserAccount testUser;
+    private @NonNull UserAccount testUser = new UserAccount("", "", "", "", null, null, "", "");
 
     @BeforeEach
     void setUp() {
@@ -56,10 +56,10 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
         roleRepository.deleteAll();
 
         Role userRole = roleRepository.save(new Role("USER"));
-        
+
         testUser = new UserAccount("Test User", "test@example.com", "google", "12345", null, null, "at", "rt");
         testUser.addRole(userRole);
-        userRepository.save(testUser);
+        testUser = userRepository.save(testUser);
 
         validToken = SessionTokenUtil.generateToken();
         String tokenHash = SessionTokenUtil.hashToken(validToken);
@@ -73,8 +73,8 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
         mockMvc.perform(get("/api/users/me")
                 .cookie(new Cookie(COOKIE_NAME, validToken))
                 .contentType(JSON_MEDIA_TYPE))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.email").value("test@example.com"))
-            .andExpect(jsonPath("$.name").value("Test User"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("test@example.com"))
+                .andExpect(jsonPath("$.name").value("Test User"));
     }
 }

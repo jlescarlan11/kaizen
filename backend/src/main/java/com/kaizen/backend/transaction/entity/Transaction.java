@@ -3,6 +3,8 @@ package com.kaizen.backend.transaction.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import org.springframework.lang.NonNull;
+
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.common.entity.BaseEntity;
 import com.kaizen.backend.common.entity.TransactionType;
@@ -29,6 +31,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Transaction extends BaseEntity {
 
+    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_account_id", nullable = false)
     private UserAccount userAccount;
@@ -78,41 +81,39 @@ public class Transaction extends BaseEntity {
     private String clientGeneratedId;
 
     public Transaction(
-        UserAccount userAccount,
-        Category category,
-        PaymentMethod paymentMethod,
-        BigDecimal amount,
-        TransactionType type,
-        String description,
-        LocalDateTime transactionDate
-    ) {
+            @NonNull UserAccount userAccount,
+            Category category,
+            PaymentMethod paymentMethod,
+            BigDecimal amount,
+            TransactionType type,
+            String description,
+            LocalDateTime transactionDate) {
         this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null, null);
     }
 
     public Transaction(
-        UserAccount userAccount,
-        Category category,
-        PaymentMethod paymentMethod,
-        BigDecimal amount,
-        TransactionType type,
-        String description,
-        LocalDateTime transactionDate,
-        Boolean reconciliationIncrease
-    ) {
-        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, reconciliationIncrease, null);
+            @NonNull UserAccount userAccount,
+            Category category,
+            PaymentMethod paymentMethod,
+            BigDecimal amount,
+            TransactionType type,
+            String description,
+            LocalDateTime transactionDate,
+            Boolean reconciliationIncrease) {
+        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, reconciliationIncrease,
+                null);
     }
 
     public Transaction(
-        UserAccount userAccount,
-        Category category,
-        PaymentMethod paymentMethod,
-        BigDecimal amount,
-        TransactionType type,
-        String description,
-        LocalDateTime transactionDate,
-        Boolean reconciliationIncrease,
-        String notes
-    ) {
+            @NonNull UserAccount userAccount,
+            Category category,
+            PaymentMethod paymentMethod,
+            BigDecimal amount,
+            TransactionType type,
+            String description,
+            LocalDateTime transactionDate,
+            Boolean reconciliationIncrease,
+            String notes) {
         this.userAccount = userAccount;
         this.category = category;
         this.paymentMethod = paymentMethod;

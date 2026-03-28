@@ -51,31 +51,29 @@ public class SecurityConfig {
         log.info("Registering {} public patterns in Security Allowlist", publicPatterns.length);
 
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable())
-            .headers(headers -> headers
-                .cacheControl(cache -> cache.disable())
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .addFilterBefore(persistentSessionFilter, UsernamePasswordAuthenticationFilter.class)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
-                .requestMatchers(
-                    "/actuator/health/**",
-                    "/swagger-ui.html",
-                    "/swagger-ui/**",
-                    "/v3/api-docs/**"
-                ).permitAll()
-                .requestMatchers(publicPatterns).permitAll() // Dynamically found @PublicEndpoints
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/users/me").hasRole("USER")
-                .requestMatchers("/api/users/onboarding/progress").hasRole("USER")
-                .anyRequest().authenticated() // Default Protected Posture
-            )
-            .exceptionHandling(exception -> exception
-                .authenticationEntryPoint(authenticationEntryPoint)
-                .accessDeniedHandler(accessDeniedHandler)
-            );
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .cacheControl(cache -> cache.disable()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .addFilterBefore(persistentSessionFilter, UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
+                        .requestMatchers(
+                                "/actuator/health/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**")
+                        .permitAll()
+                        .requestMatchers(publicPatterns).permitAll() // Dynamically found @PublicEndpoints
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/me").hasRole("USER")
+                        .requestMatchers("/api/users/onboarding/progress").hasRole("USER")
+                        .anyRequest().authenticated() // Default Protected Posture
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
@@ -85,11 +83,11 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         // Allow common frontend development origins
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:5173",
-            "http://localhost:4173"
-        ));
+                "http://localhost:5173",
+                "http://localhost:4173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin",
+                "Access-Control-Request-Method", "Access-Control-Request-Headers"));
         configuration.setExposedHeaders(List.of("Set-Cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
@@ -101,19 +99,23 @@ public class SecurityConfig {
 
     private String[] getPublicPatterns() {
         List<String> patterns = new ArrayList<>();
-        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping", RequestMappingHandlerMapping.class);
+        RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping",
+                RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
 
         for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethods.entrySet()) {
             RequestMappingInfo info = entry.getKey();
             HandlerMethod method = entry.getValue();
 
-            // Check if class or method is annotated with @PublicEndpoint
-            if (method.getBeanType().isAnnotationPresent(PublicEndpoint.class) || 
-                method.hasMethodAnnotation(PublicEndpoint.class)) {
-                
-                if (info.getPathPatternsCondition() != null) {
-                    patterns.addAll(info.getPathPatternsCondition().getPatternValues());
+            if (method.getBeanType().isAnnotationPresent(PublicEndpoint.class) ||
+                    method.hasMethodAnnotation(PublicEndpoint.class)) {
+
+                var pathPatternsCondition = info.getPathPatternsCondition();
+                if (pathPatternsCondition != null) {
+                    var patternValues = pathPatternsCondition.getPatternValues();
+                    if (patternValues != null) {
+                        patterns.addAll(patternValues);
+                    }
                 }
             }
         }

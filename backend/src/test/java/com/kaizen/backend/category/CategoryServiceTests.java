@@ -1,11 +1,14 @@
 package com.kaizen.backend.category;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import com.kaizen.backend.category.entity.Category;
-import com.kaizen.backend.category.exception.CategoryNotFoundException;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.category.service.CategoryService;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
@@ -47,10 +49,10 @@ public class CategoryServiceTests {
         categoryService = new CategoryService(categoryRepository, userAccountRepository, transactionRepository);
         user = mock(UserAccount.class);
         when(user.getId()).thenReturn(1L);
-        
+
         sourceCategory = mock(Category.class);
         when(sourceCategory.getId()).thenReturn(10L);
-        
+
         targetCategory = mock(Category.class);
         when(targetCategory.getId()).thenReturn(20L);
     }
@@ -65,7 +67,7 @@ public class CategoryServiceTests {
         categoryService.mergeCategories(email, 10L, 20L);
 
         verify(transactionRepository).updateCategoryId(10L, 20L);
-        verify(categoryRepository).delete(sourceCategory);
+        verify(categoryRepository).delete(Objects.requireNonNull(sourceCategory));
         verify(transactionRepository).existsByCategoryId(10L);
     }
 

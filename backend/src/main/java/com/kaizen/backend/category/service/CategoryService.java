@@ -1,5 +1,12 @@
 package com.kaizen.backend.category.service;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.kaizen.backend.category.CategoryDesignSystem;
 import com.kaizen.backend.category.dto.CategoryCreateRequest;
 import com.kaizen.backend.category.dto.CategoryUpdateRequest;
@@ -11,11 +18,9 @@ import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
-import java.util.Set;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,11 +30,13 @@ public class CategoryService {
     private final UserAccountRepository userAccountRepository;
     private final com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public CategoryService(
-        CategoryRepository categoryRepository,
-        UserAccountRepository userAccountRepository,
-        com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository
-    ) {
+            CategoryRepository categoryRepository,
+            UserAccountRepository userAccountRepository,
+            com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository) {
         this.categoryRepository = categoryRepository;
         this.userAccountRepository = userAccountRepository;
         this.transactionRepository = transactionRepository;
@@ -41,13 +48,12 @@ public class CategoryService {
 
     public long getTransactionCountForCategory(String email, Long categoryId) {
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
-        // Verify category is accessible to user
         categoryRepository.findAccessibleByIds(List.of(categoryId), user.getId())
-            .stream()
-            .findFirst()
-            .orElseThrow(CategoryNotFoundException::new);
+                .stream()
+                .findFirst()
+                .orElseThrow(CategoryNotFoundException::new);
 
         return transactionRepository.countByCategoryId(categoryId);
     }
@@ -59,38 +65,39 @@ public class CategoryService {
         }
 
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
-        // Verify both categories are accessible to user
         List<Category> categories = categoryRepository.findAccessibleByIds(List.of(sourceId, targetId), user.getId());
         if (categories.size() < 2) {
             throw new CategoryNotFoundException();
         }
 
         Category sourceCategory = categories.stream()
-            .filter(c -> c.getId().equals(sourceId))
-            .findFirst()
-            .orElseThrow();
+                .filter(c -> c.getId().equals(sourceId))
+                .findFirst()
+                .orElseThrow(CategoryNotFoundException::new);
 
-        // Perform merge
         transactionRepository.updateCategoryId(sourceId, targetId);
+        entityManager.flush();
+        entityManager.clear();
 
-        // Delete source category
-        categoryRepository.delete(sourceCategory);
+        if (sourceCategory != null) {
+            categoryRepository.delete(sourceCategory);
+        }
+        entityManager.flush();
 
-        // Instruction 9: Post-Merge Referential Integrity Enforcement
-        // Verify no transactions still reference the source category
         if (transactionRepository.existsByCategoryId(sourceId)) {
-            throw new IllegalStateException("Referential integrity violation: transactions still reference the merged source category.");
+            throw new IllegalStateException(
+                    "Referential integrity violation: transactions still reference the merged source category.");
         }
     }
 
     @Transactional
     public void ensureDefaultCategoriesExist() {
         Set<String> existingDefaultNames = categoryRepository.findByGlobalTrue().stream()
-            .map(Category::getName)
-            .map(name -> name.trim().toLowerCase())
-            .collect(Collectors.toSet());
+                .map(Category::getName)
+                .map(name -> name.trim().toLowerCase())
+                .collect(Collectors.toSet());
 
         for (CategoryDesignSystem.CategoryTemplate template : CategoryDesignSystem.DEFAULT_CATEGORIES) {
             if (existingDefaultNames.contains(template.name().trim().toLowerCase())) {
@@ -98,21 +105,19 @@ public class CategoryService {
             }
 
             categoryRepository.save(
-                new Category(
-                    template.name(),
-                    true,
-                    null,
-                    template.icon(),
-                    template.color()
-                )
-            );
+                    new Category(
+                            template.name(),
+                            true,
+                            null,
+                            template.icon(),
+                            template.color()));
         }
     }
 
     @Transactional
     public Category createCategory(String email, CategoryCreateRequest request) {
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
         String normalizedName = request.name().trim();
         if (categoryRepository.existsVisibleToUserByNameIgnoreCase(user.getId(), normalizedName)) {
@@ -134,10 +139,10 @@ public class CategoryService {
     @Transactional
     public Category updateCategory(String email, Long categoryId, CategoryUpdateRequest request) {
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
         Category category = categoryRepository.findByIdAndUserId(categoryId, user.getId())
-            .orElseThrow(CategoryNotFoundException::new);
+                .orElseThrow(CategoryNotFoundException::new);
 
         String normalizedName = request.name().trim();
         if (categoryRepository.existsOtherVisibleToUserByNameIgnoreCase(user.getId(), categoryId, normalizedName)) {

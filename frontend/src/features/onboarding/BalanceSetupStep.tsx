@@ -121,7 +121,7 @@ export function BalanceSetupStep(): ReactElement {
             aria-label="Starting funds in Philippine Peso"
           />
 
-          <div className="min-h-[1.25rem] pl-1">
+          <div className="min-h-5 pl-1">
             {formattedPreview ? (
               <p className="text-sm font-medium leading-none text-foreground tabular-nums">
                 {formattedPreview}

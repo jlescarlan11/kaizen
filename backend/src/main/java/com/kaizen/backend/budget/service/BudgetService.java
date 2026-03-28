@@ -1,23 +1,25 @@
 package com.kaizen.backend.budget.service;
 
-import com.kaizen.backend.budget.dto.BudgetBatchRequest;
-import com.kaizen.backend.budget.dto.BudgetCreateRequest;
-import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
-import com.kaizen.backend.budget.entity.Budget;
-import com.kaizen.backend.category.entity.Category;
-import com.kaizen.backend.category.repository.CategoryRepository;
-import com.kaizen.backend.budget.repository.BudgetRepository;
-import com.kaizen.backend.user.entity.UserAccount;
-import com.kaizen.backend.user.exception.ProfileNotFoundException;
-import com.kaizen.backend.user.repository.UserAccountRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import com.kaizen.backend.budget.dto.BudgetBatchRequest;
+import com.kaizen.backend.budget.dto.BudgetCreateRequest;
+import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
+import com.kaizen.backend.budget.entity.Budget;
+import com.kaizen.backend.budget.repository.BudgetRepository;
+import com.kaizen.backend.category.entity.Category;
+import com.kaizen.backend.category.repository.CategoryRepository;
+import com.kaizen.backend.user.entity.UserAccount;
+import com.kaizen.backend.user.exception.ProfileNotFoundException;
+import com.kaizen.backend.user.repository.UserAccountRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -49,7 +51,7 @@ public class BudgetService {
         for (BudgetCreateRequest createRequest : request.budgets()) {
             Category category = categoryRepository.findById(createRequest.categoryId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category not found."));
-            if (!category.isGlobal() && (category.getUser() == null || !category.getUser().getId().equals(user.getId()))) {
+            if (!category.isGlobal() && (category.getUser() == null || !user.getId().equals(category.getUser().getId()))) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category is not available for this user.");
             }
 

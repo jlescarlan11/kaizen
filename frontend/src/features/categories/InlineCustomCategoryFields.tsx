@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { useLayoutEffect, useRef, useState, type ReactElement } from 'react'
 import { Input } from '../../shared/components/Input'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { Button } from '../../shared/components/Button'
@@ -34,6 +34,14 @@ export function InlineCustomCategoryFields({
   // Staged state - only committed on "Done"
   const [stagedIcon, setStagedIcon] = useState<CategoryIconName>(icon)
   const [stagedColor, setStagedColor] = useState(color)
+
+  const previewRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const el = previewRef.current
+    if (!el) return
+    el.style.setProperty('--preview-bg', `${stagedColor}14`)
+    el.style.setProperty('--preview-color', stagedColor)
+  }, [stagedColor])
 
   const openModal = (): void => {
     setStagedIcon(icon)
@@ -122,12 +130,12 @@ export function InlineCustomCategoryFields({
         <div className="space-y-5">
           {/* Live mini-preview inside modal */}
           <div
-            className="flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200"
-            style={{ backgroundColor: `${stagedColor}14` }}
+            ref={previewRef}
+            className="flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-200 bg-(--preview-bg)"
           >
             <CategoryBadge icon={stagedIcon} color={stagedColor} size={40} label="Preview" />
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold" style={{ color: stagedColor }}>
+              <p className="truncate text-sm font-semibold text-(--preview-color)">
                 {name.trim() || 'Custom category'}
               </p>
             </div>

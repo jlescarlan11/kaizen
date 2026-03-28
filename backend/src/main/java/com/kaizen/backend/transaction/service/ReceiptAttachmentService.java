@@ -2,6 +2,7 @@ package com.kaizen.backend.transaction.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,10 +32,9 @@ public class ReceiptAttachmentService {
     private String allowedMimeTypesString;
 
     public ReceiptAttachmentService(
-        TransactionAttachmentRepository attachmentRepository,
-        TransactionRepository transactionRepository,
-        StorageService storageService
-    ) {
+            TransactionAttachmentRepository attachmentRepository,
+            TransactionRepository transactionRepository,
+            StorageService storageService) {
         this.attachmentRepository = attachmentRepository;
         this.transactionRepository = transactionRepository;
         this.storageService = storageService;
@@ -42,40 +42,45 @@ public class ReceiptAttachmentService {
 
     @Transactional
     public TransactionAttachment attachReceipt(Long transactionId, MultipartFile file) throws IOException {
+        Objects.requireNonNull(transactionId, "transactionId must not be null");
+
         Transaction transaction = transactionRepository.findById(transactionId)
-            .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + transactionId));
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + transactionId));
 
         validateFile(file);
 
         String storageReference = storageService.store(file);
-        
+
         TransactionAttachment attachment = new TransactionAttachment(
-            transaction,
-            file.getOriginalFilename(),
-            file.getSize(),
-            file.getContentType(),
-            storageReference
-        );
+                transaction,
+                file.getOriginalFilename(),
+                file.getSize(),
+                file.getContentType(),
+                storageReference);
 
         return attachmentRepository.save(attachment);
     }
 
     private void validateFile(MultipartFile file) {
         if (file.getSize() > maxFileSize) {
-            throw new IllegalArgumentException("File size exceeds maximum limit of " + (maxFileSize / 1024 / 1024) + "MB.");
+            throw new IllegalArgumentException(
+                    "File size exceeds maximum limit of " + (maxFileSize / 1024 / 1024) + "MB.");
         }
 
         String mimeType = file.getContentType();
         Set<String> allowedTypes = Set.of(allowedMimeTypesString.split(","));
         if (mimeType == null || !allowedTypes.contains(mimeType)) {
-            throw new IllegalArgumentException("Unsupported file format: " + mimeType + ". Accepted formats: " + allowedMimeTypesString);
+            throw new IllegalArgumentException(
+                    "Unsupported file format: " + mimeType + ". Accepted formats: " + allowedMimeTypesString);
         }
     }
 
     @Transactional
     public void deleteAttachment(Long attachmentId) throws IOException {
+        Objects.requireNonNull(attachmentId, "attachmentId must not be null");
+
         TransactionAttachment attachment = attachmentRepository.findById(attachmentId)
-            .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
+                .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
 
         storageService.delete(attachment.getStorageReference());
         attachmentRepository.delete(attachment);
@@ -99,9 +104,11 @@ public class ReceiptAttachmentService {
     }
 
     public byte[] loadAttachmentContent(Long attachmentId) throws IOException {
+        Objects.requireNonNull(attachmentId, "attachmentId must not be null");
+
         TransactionAttachment attachment = attachmentRepository.findById(attachmentId)
-            .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
-        
+                .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
+
         return storageService.load(attachment.getStorageReference());
     }
 }

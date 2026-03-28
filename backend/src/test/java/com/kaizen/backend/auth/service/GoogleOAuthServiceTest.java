@@ -1,25 +1,27 @@
 package com.kaizen.backend.auth.service;
 
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static org.mockito.ArgumentMatchers.any;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.client.MockRestServiceServer;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import org.springframework.web.client.RestClient;
 
 import com.kaizen.backend.auth.config.GoogleOAuthProperties;
@@ -27,8 +29,6 @@ import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
-
-import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
 
 @ExtendWith(MockitoExtension.class)
 class GoogleOAuthServiceTest {
@@ -55,12 +55,11 @@ class GoogleOAuthServiceTest {
         mockServer = MockRestServiceServer.bindTo(builder).build();
 
         googleOAuthService = new GoogleOAuthService(
-            googleOAuthProperties,
-            oAuthTokenCipher,
-            builder,
-            userAccountRepository,
-            roleRepository
-        );
+                googleOAuthProperties,
+                oAuthTokenCipher,
+                builder,
+                userAccountRepository,
+                roleRepository);
     }
 
     @Test
@@ -83,6 +82,7 @@ class GoogleOAuthServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null") // captor.capture() returns a Mockito placeholder; null checker cannot track it
     void handlesCallbackSuccessfully() {
         String authCode = "test-auth-code";
         String accessToken = "test-access-token";
@@ -93,7 +93,7 @@ class GoogleOAuthServiceTest {
 
         when(googleOAuthProperties.tokenUri()).thenReturn("https://oauth2.googleapis.com/token");
         when(googleOAuthProperties.userInfoUri()).thenReturn("https://www.googleapis.com/oauth2/v3/userinfo");
-        
+
         when(oAuthTokenCipher.encrypt(accessToken)).thenReturn("encrypted-access-token");
         when(oAuthTokenCipher.encryptNullable(refreshToken)).thenReturn("encrypted-refresh-token");
         when(userAccountRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
@@ -101,25 +101,25 @@ class GoogleOAuthServiceTest {
 
         // Mock Token Exchange
         mockServer.expect(requestTo("https://oauth2.googleapis.com/token"))
-            .andExpect(method(Objects.requireNonNull(HttpMethod.POST)))
-            .andRespond(withSuccess(
-                "{\"access_token\":\"" + accessToken + "\", \"refresh_token\":\"" + refreshToken + "\"}",
-                JSON_MEDIA_TYPE
-            ));
+                .andExpect(method(Objects.requireNonNull(HttpMethod.POST)))
+                .andRespond(withSuccess(
+                        "{\"access_token\":\"" + accessToken + "\", \"refresh_token\":\"" + refreshToken + "\"}",
+                        JSON_MEDIA_TYPE));
 
         // Mock User Info Fetch
         mockServer.expect(requestTo("https://www.googleapis.com/oauth2/v3/userinfo"))
-            .andExpect(method(Objects.requireNonNull(HttpMethod.GET)))
-            .andRespond(withSuccess(
-                "{\"sub\":\"" + subject + "\", \"name\":\"" + name + "\", \"email\":\"" + email + "\"}",
-                JSON_MEDIA_TYPE
-            ));
+                .andExpect(method(Objects.requireNonNull(HttpMethod.GET)))
+                .andRespond(withSuccess(
+                        "{\"sub\":\"" + subject + "\", \"name\":\"" + name + "\", \"email\":\"" + email + "\"}",
+                        JSON_MEDIA_TYPE));
 
         String returnedEmail = googleOAuthService.handleGoogleCallback(authCode);
 
         assertEquals(email, returnedEmail);
-        verify(userAccountRepository).save(any(UserAccount.class));
+
+        ArgumentCaptor<UserAccount> captor = ArgumentCaptor.captor();
+        verify(userAccountRepository).save(captor.capture());
+        assertNotNull(captor.getValue());
         mockServer.verify();
     }
 }
-

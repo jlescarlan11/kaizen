@@ -10,7 +10,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -20,16 +19,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(
-    name = "user_account",
-    uniqueConstraints = {
+@Table(name = "user_account", uniqueConstraints = {
         @UniqueConstraint(name = "uk_user_account_email", columnNames = "email"),
-        @UniqueConstraint(
-            name = "uk_user_account_provider_identity",
-            columnNames = {"provider_name", "provider_user_id"}
-        )
-    }
-)
+        @UniqueConstraint(name = "uk_user_account_provider_identity", columnNames = { "provider_name",
+                "provider_user_id" })
+})
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -82,23 +76,18 @@ public class UserAccount extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.EAGER)
 
-    @JoinTable(
-        name = "user_role",
-        joinColumns = @JoinColumn(name = "user_account_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_account_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     public UserAccount(
-        String name,
-        String email,
-        String providerName,
-        String providerUserId,
-        String passwordHash,
-        String pictureUrl,
-        String encryptedAccessToken,
-        String encryptedRefreshToken
-    ) {
+            String name,
+            String email,
+            String providerName,
+            String providerUserId,
+            String passwordHash,
+            String pictureUrl,
+            String encryptedAccessToken,
+            String encryptedRefreshToken) {
         this.name = name;
         this.email = email;
         this.providerName = providerName;

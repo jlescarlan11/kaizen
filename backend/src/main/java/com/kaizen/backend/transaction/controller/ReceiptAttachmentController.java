@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,9 +31,8 @@ public class ReceiptAttachmentController {
 
     @PostMapping("/{transactionId}/attachments")
     public ResponseEntity<AttachmentResponse> uploadAttachment(
-        @PathVariable Long transactionId,
-        @RequestParam("file") MultipartFile file
-    ) throws IOException {
+            @PathVariable Long transactionId,
+            @RequestParam("file") MultipartFile file) throws IOException {
         TransactionAttachment attachment = attachmentService.attachReceipt(transactionId, file);
         return ResponseEntity.ok(mapToResponse(attachment));
     }
@@ -55,19 +52,17 @@ public class ReceiptAttachmentController {
     @GetMapping("/attachments/{attachmentId}/content")
     public ResponseEntity<byte[]> getAttachmentContent(@PathVariable Long attachmentId) throws IOException {
         byte[] content = attachmentService.loadAttachmentContent(attachmentId);
-        // We should ideally set the correct MIME type here
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_OCTET_STREAM) // Fallback
-            .body(content);
+                .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .body(content);
     }
 
     private AttachmentResponse mapToResponse(TransactionAttachment attachment) {
         return new AttachmentResponse(
-            attachment.getId(),
-            attachment.getFilename(),
-            attachment.getFileSize(),
-            attachment.getMimeType(),
-            attachment.getStorageReference()
-        );
+                attachment.getId(),
+                attachment.getFilename(),
+                attachment.getFileSize(),
+                attachment.getMimeType(),
+                attachment.getStorageReference());
     }
 }

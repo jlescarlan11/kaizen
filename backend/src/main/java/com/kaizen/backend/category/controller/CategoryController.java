@@ -3,7 +3,7 @@ package com.kaizen.backend.category.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaizen.backend.category.dto.CategoryCreateRequest;
+import com.kaizen.backend.category.dto.CategoryMergeRequest;
 import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.category.dto.CategoryUpdateRequest;
 import com.kaizen.backend.category.entity.Category;
@@ -31,10 +32,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-
-import org.springframework.web.bind.annotation.RequestParam;
-import com.kaizen.backend.category.dto.CategoryMergeRequest;
+import jakarta.validation.Valid;
 
 @Tag(name = "Category", description = "Category management.")
 @RestController

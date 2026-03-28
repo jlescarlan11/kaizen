@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { cn } from '../../shared/lib/cn'
 import { CATEGORY_COLOR_PALETTE } from './designSystem'
 
@@ -29,8 +29,8 @@ export function CategoryColorPicker({ value, onChange }: CategoryColorPickerProp
             )}
           >
             <span
-              className="block h-5 w-5 rounded-full border border-black/10"
-              style={{ backgroundColor: color }}
+              className="block h-5 w-5 rounded-full border border-black/10 [background-color:var(--swatch-color)]"
+              style={{ '--swatch-color': color } as CSSProperties}
             />
           </button>
         )

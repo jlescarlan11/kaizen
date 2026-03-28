@@ -10,11 +10,13 @@ public final class ValidationConstants {
     }
 
     /**
-     * Maximum allowable balance value.
-     *
-     * TODO: Confirm this ceiling value with the product author. (PRD Open Question 1)
+     * Default maximum allowable balance value.
+     * This constant seeds {@link com.kaizen.backend.config.ValidationProperties#getMaxBalanceValue()}
+     * and can be overridden at runtime via the {@code app.validation.max-balance-value} property
+     * without a code change. Confirm the ceiling with the product author and set the property in
+     * the environment-specific configuration file when a different limit is required.
      */
-    public static final String MAX_BALANCE_VALUE = "999999999999.99"; // Placeholder: Requires author confirmation.
+    public static final String MAX_BALANCE_VALUE = "999999999999.99";
 
     /**
      * Error copy needs UX/copy review before shipping.
@@ -45,8 +47,10 @@ public final class ValidationConstants {
 
     /**
      * Default toggle for enforcing balance-based budget constraints.
-     *
-     * TODO: Confirm the restricted-mode behavior. (PRD Open Question 2)
+     * When {@code true}, budget amounts are validated against the user's available balance.
+     * This constant seeds {@link com.kaizen.backend.config.ValidationProperties#isBudgetBalanceConstraintEnabled()}
+     * and can be overridden at runtime via the {@code app.validation.budget-balance-constraint-enabled}
+     * property without a code change.
      */
     public static final boolean BUDGET_BALANCE_CONSTRAINT_ENABLED = true;
 }
