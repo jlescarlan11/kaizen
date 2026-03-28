@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,7 +51,9 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
     public static final String AUTH_FAILURE_REASON_ATTR = "KZN_AUTH_FAILURE_REASON";
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, 
+                                   @NonNull HttpServletResponse response, 
+                                   @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         // Skip if already authenticated (e.g. by another filter in the chain)
@@ -86,7 +90,7 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
                     handleAuthenticationFailure(request, response, new BadCredentialsException("Invalid session token"), "INVALID_TOKEN");
                     return;
                 }
-            } catch (Exception e) {
+            } catch (AuthenticationException | IllegalStateException | DataAccessException e) {
                 log.error("Error during authentication validation", e);
                 handleAuthenticationFailure(request, response, new BadCredentialsException("Authentication system error"), "SYSTEM_ERROR");
                 return;
