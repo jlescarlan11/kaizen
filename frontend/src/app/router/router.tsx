@@ -78,6 +78,11 @@ const BudgetsPage = lazy(() =>
     default: m.BudgetsPage,
   })),
 )
+const InsightsPage = lazy(() =>
+  import('../../features/insights').then((m) => ({
+    default: m.InsightsPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -232,6 +237,16 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Back',
                 fallbackPath: '/budget',
+              },
+            },
+          },
+          {
+            path: 'insights',
+            element: <InsightsPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
               },
             },
           },

@@ -1,0 +1,63 @@
+package com.kaizen.backend.insights.controller;
+
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.kaizen.backend.insights.dto.CategoryBreakdownResponse;
+import com.kaizen.backend.insights.dto.SpendingSummaryResponse;
+import com.kaizen.backend.insights.dto.TrendSeriesResponse;
+import com.kaizen.backend.insights.service.InsightsService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping("/api/insights")
+@Tag(name = "Insights", description = "Endpoints for financial insights and analytics")
+public class InsightsController {
+
+    private final InsightsService insightsService;
+
+    public InsightsController(InsightsService insightsService) {
+        this.insightsService = insightsService;
+    }
+
+    @GetMapping("/summary")
+    @Operation(summary = "Get spending summary for a date range")
+    public ResponseEntity<SpendingSummaryResponse> getSpendingSummary(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    ) {
+        return ResponseEntity.ok(insightsService.getSpendingSummary(userDetails.getUsername(), start, end));
+    }
+
+    @GetMapping("/category-breakdown")
+    @Operation(summary = "Get expense breakdown by category for a date range")
+    public ResponseEntity<CategoryBreakdownResponse> getCategoryBreakdown(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+    ) {
+        return ResponseEntity.ok(insightsService.getCategoryBreakdown(userDetails.getUsername(), start, end));
+    }
+
+    @GetMapping("/trends")
+    @Operation(summary = "Get spending trends for a date range")
+    public ResponseEntity<TrendSeriesResponse> getSpendingTrends(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam(defaultValue = "MONTHLY") String granularity
+    ) {
+        return ResponseEntity.ok(insightsService.getSpendingTrends(userDetails.getUsername(), start, end, granularity));
+    }
+}

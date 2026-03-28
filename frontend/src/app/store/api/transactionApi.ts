@@ -70,7 +70,12 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+      invalidatesTags: [
+        'Transactions',
+        'User',
+        'Insights',
+        { type: 'PaymentMethods', id: 'SUMMARY' },
+      ],
     }),
     getTransactions: builder.query<
       TransactionResponse[],
@@ -98,14 +103,24 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'PUT',
         body: payload,
       }),
-      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+      invalidatesTags: [
+        'Transactions',
+        'User',
+        'Insights',
+        { type: 'PaymentMethods', id: 'SUMMARY' },
+      ],
     }),
     deleteTransaction: builder.mutation<void, number>({
       query: (id) => ({
         url: `/transactions/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+      invalidatesTags: [
+        'Transactions',
+        'User',
+        'Insights',
+        { type: 'PaymentMethods', id: 'SUMMARY' },
+      ],
     }),
     bulkDeleteTransactions: builder.mutation<void, number[]>({
       query: (ids) => ({
@@ -113,7 +128,12 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'POST',
         body: { ids },
       }),
-      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+      invalidatesTags: [
+        'Transactions',
+        'User',
+        'Insights',
+        { type: 'PaymentMethods', id: 'SUMMARY' },
+      ],
     }),
     reconcileBalance: builder.mutation<TransactionResponse, ReconciliationRequest>({
       query: (payload) => ({
@@ -121,7 +141,12 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Transactions', 'User', { type: 'PaymentMethods', id: 'SUMMARY' }],
+      invalidatesTags: [
+        'Transactions',
+        'User',
+        'Insights',
+        { type: 'PaymentMethods', id: 'SUMMARY' },
+      ],
     }),
     getBalanceHistory: builder.query<BalanceHistoryResponse, void>({
       query: () => '/transactions/history',
@@ -140,6 +165,7 @@ export const transactionApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { transactionId }) => [
         { type: 'Transactions', id: transactionId },
         'Transactions',
+        'Insights',
       ],
     }),
     deleteAttachment: builder.mutation<void, { transactionId: number; attachmentId: number }>({
@@ -150,6 +176,7 @@ export const transactionApi = baseApi.injectEndpoints({
       invalidatesTags: (_result, _error, { transactionId }) => [
         { type: 'Transactions', id: transactionId },
         'Transactions',
+        'Insights',
       ],
     }),
   }),

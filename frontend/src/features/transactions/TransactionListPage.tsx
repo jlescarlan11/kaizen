@@ -1,4 +1,5 @@
-import { useState, type ReactElement } from 'react'
+import { useState, useEffect, type ReactElement } from 'react'
+import { useSearchParams, Link } from 'react-router-dom'
 import { TransactionList } from './components/TransactionList'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
@@ -10,12 +11,10 @@ import { TransactionSort } from './components/TransactionSort'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
 import { ReconciliationModal } from './components/ReconciliationModal'
 import { ExportModal } from './components/ExportModal'
-import { History, Download } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { History, Download, RefreshCw } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
-import { RefreshCw } from 'lucide-react'
 import type { FilterState } from './types'
 import { useTransactionPagination } from './hooks/useTransactionPagination'
 
@@ -30,6 +29,7 @@ const INITIAL_FILTER: FilterState = {
 }
 
 export function TransactionListPage(): ReactElement {
+  const [searchParams, setSearchParams] = useSearchParams()
   const { transactions, isLoading, hasMore, loadMore } = useTransactionPagination()
 
   const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
@@ -37,8 +37,28 @@ export function TransactionListPage(): ReactElement {
 
   // 1. Pipeline Inputs (State Management)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterState, setFilterState] = useState<FilterState>(INITIAL_FILTER)
+  const [filterState, setFilterState] = useState<FilterState>(() => {
+    const categories = searchParams
+      .getAll('category')
+      .map(Number)
+      .filter((id) => !isNaN(id))
+    const types = searchParams.getAll('type') as ('INCOME' | 'EXPENSE')[]
+    return {
+      categories,
+      types: types.filter((t) => ['INCOME', 'EXPENSE'].includes(t)),
+    }
+  })
   const [sortState, setSortState] = useSortPersistence()
+
+  // Sync URL when filters change
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete('category')
+    newParams.delete('type')
+    filterState.categories.forEach((c) => newParams.append('category', String(c)))
+    filterState.types.forEach((t) => newParams.append('type', t))
+    setSearchParams(newParams, { replace: true })
+  }, [filterState, setSearchParams, searchParams])
 
   // 2. The Shared Result Pipeline
   // Composable data pipeline: filter → search → sort

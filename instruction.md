@@ -375,3 +375,356 @@ In scope: the copy store module mapping error codes and message type identifiers
 
 - PRD Open Question 4: What is the confirmed tone and reading level for error message copy?
 - PRD Open Question 5: Must localization be supported at launch, or is single-language acceptable for the initial release?
+
+1. Insights Aggregation Queries — Implement the date-range-scoped data layer query functions that compute spending summary totals, category breakdown groups, and per-period trend sums, operating efficiently without full in-memory dataset loads.
+2. Shared Period Selector — Implement the shared time period selector component used across all three insights views, ensuring a period change propagates consistently to all dependent views.
+3. Spending Summary View — Implement the spending summary screen that displays total income, total expenses, and net figure for the selected period, with zero-state handling and reactivity to transaction mutations.
+4. Category Breakdown View — Implement the category breakdown screen that distributes total expenses across categories with amounts, percentage shares, and an uncategorized entry, in the confirmed visual format.
+5. Category Drill-Down — Implement the navigation from a category breakdown entry to the filtered transaction list showing the transactions that make up that category's total for the selected period.
+6. Spending Trends View — Implement the trend chart that displays total spending across consecutive periods at the selected granularity, with zero-value periods represented explicitly and interactive value display on selection.
+7. Insights Cache Invalidation — Implement the cache invalidation trigger that clears pre-computed trend and summary caches when any transaction within the relevant date range is added, edited, or deleted.
+
+---
+
+## Instruction 1: Insights Aggregation Queries
+
+**Goal**
+Implement the date-range-scoped data layer query functions that compute total income, total expenses, category-grouped expense sums, and per-period trend sums — as efficient aggregation queries that do not load the full transaction dataset into application memory.
+
+**Scope**
+In scope: three query functions — spending summary (total income, total expenses for a date range), category breakdown (expense sum and row count grouped by category including null, for a date range), and trend series (expense sum grouped by time unit for a sequence of periods). Out of scope: the UI views that call these functions (Instructions 3, 4, 6), the period selector (Instruction 2), cache invalidation (Instruction 7), and the category drill-down list (Instruction 5).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6a (all views operate on the same period; totals derived from transaction store at query time; net must equal income minus expenses), Section 6b (data layer must support date-range filtering, category grouping, and time-unit grouping; uncategorized transactions queryable as a distinct null group; zero-spending periods represented as zero not omitted), Section 6c (charting and breakdown depend on category system from Transaction Categories PRD)
+
+**Constraints**
+
+- All three functions must operate as aggregation queries at the data layer — sum, group-by, and filter must execute in the query, not in application-layer loops over full result sets.
+- Spending summary query: accepts a date range, returns `{ totalIncome, totalExpenses }`. Net is computed by the caller — do not return a stored net field.
+- Category breakdown query: accepts a date range, groups expense transactions by category identifier (treating null as a distinct group key, not excluded), returns `[{ categoryId, categoryName, total, transactionCount }]` including a row where categoryId is null labeled for "Uncategorized" display.
+- Trend query: accepts a date range and a time unit (week or month), groups expense transactions by the time unit bucket derived from the transaction's stored date, returns `[{ periodStart, total }]` with zero-value entries for buckets within the range that have no transactions.
+- Use the transaction date field (not creation timestamp or sync timestamp) as the grouping and filter key in all three queries.
+- Do not fabricate query syntax, ORM method names, or table names — use the data layer patterns verifiably present in the codebase.
+- PRD Open Question 4 (trend granularity options) must be confirmed before the time-unit parameter enum is defined. If unconfirmed, support weekly and monthly and flag.
+- PRD Open Question 5 (expenses only vs. income overlay in trend) must be confirmed. If unconfirmed, implement expense-only trend query and flag.
+- Recommended execution order: run before Instructions 3, 4, 5, and 6, which all call these functions.
+
+**Expected Output**
+
+- `querySummary(startDate, endDate) → { totalIncome, totalExpenses }` — data-layer aggregation, no full load.
+- `queryCategoryBreakdown(startDate, endDate) → [{ categoryId, categoryName, total, transactionCount }]` — includes null category as distinct row.
+- `queryTrendSeries(startDate, endDate, timeUnit) → [{ periodStart, total }]` — zero-filled for empty buckets within range.
+
+**Deliverables**
+
+- Three aggregation query functions in a shared insights query module
+- Zero-bucket fill logic for trend query
+- List of all files added or modified
+
+**Preconditions**
+
+- Confirm the data layer's support for grouping and aggregation queries (ORM group-by, SQL aggregate, or equivalent) before writing query syntax.
+- Cross-reference Transaction Categories PRD Instruction 1 for the category entity field names used in the breakdown grouping.
+- PRD Open Question 4 (trend granularity options) must be confirmed or defaulted to weekly/monthly with a flag.
+- PRD Open Question 5 (expense-only vs. income overlay) must be confirmed or defaulted to expense-only with a flag.
+
+**Open Questions**
+
+- PRD Open Question 4: What time granularity options are available for the trend query — weekly, monthly, quarterly, others?
+- PRD Open Question 5: Does the trend query return expense data only, or also income for overlay?
+- PRD Open Question 7: Are zero-spending periods represented as explicit zero data points or omitted? PRD Section 6b states zero — treat as confirmed and flag if author reverses.
+
+---
+
+## Instruction 2: Shared Period Selector
+
+**Goal**
+Implement the shared time period selector component used across all three insights views, ensuring that a period change in any view propagates the new selection to all dependent views simultaneously.
+
+**Scope**
+In scope: the period selector UI component, the confirmed period options (current month, last month, last 3 months, all time, and any confirmed custom range), the shared state that all three insight views subscribe to, and the update propagation on period change. Out of scope: the three insight view implementations (Instructions 3, 4, 6), the aggregation queries (Instruction 1), and any per-view independent period selector if PRD Open Question 2 confirms independent scoping.
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6a (period selection shared across all three views; a period change must not leave another view showing data from a different period), Section 6c (shared period selector reused across views for consistent scoping)
+
+**Constraints**
+
+- PRD Open Question 2 (shared vs. independent period selectors) must be confirmed before this instruction is implemented. If shared is confirmed, implement one selector with shared state. If per-view independent is confirmed, this instruction changes to three independent selectors and the shared state mechanism is removed.
+- PRD Open Question 1 (available period options) must be confirmed before the selector options are rendered. If unconfirmed, implement current month, last month, last 3 months, and all time as provisional options and flag.
+- The selected period must be stored in a shared state accessible by all three insight views — not as local component state that does not propagate.
+- When the period changes, all three insight views must re-query using the new period without requiring the user to navigate or refresh.
+- Use the state management pattern already established in the codebase (context, store, or equivalent). Do not introduce a new state library.
+- Recommended execution order: run before Instructions 3, 4, and 6, which subscribe to the shared period state.
+
+**Expected Output**
+
+- A period selector UI component rendering the confirmed period options.
+- A shared period state that Instructions 3, 4, and 6 subscribe to.
+- Period change propagates immediately to all three insight views.
+
+**Deliverables**
+
+- Period selector component file
+- Shared period state definition (context, store key, or equivalent)
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 1 (period options) must be confirmed or provisionally defaulted before the selector options are built.
+- PRD Open Question 2 (shared vs. independent) must be confirmed before the state architecture is chosen.
+
+**Open Questions**
+
+- PRD Open Question 1: What time period options are available — current month, last month, last 3 months, custom range, all time?
+- PRD Open Question 2: Is period selection shared across all three views, or can each be scoped independently?
+
+---
+
+## Instruction 3: Spending Summary View
+
+**Goal**
+Implement the spending summary screen that displays total income, total expenses, and net (income minus expenses) for the selected period, handles the zero-transaction empty state with zero values (not null), and updates when the period changes or transaction data changes.
+
+**Scope**
+In scope: the spending summary screen component, the invocation of the summary aggregation query from Instruction 1, the display of total income, total expenses, and computed net, the zero-state (all three figures show zero), and reactivity to period selector changes and transaction mutations. Out of scope: the period selector (Instruction 2), the aggregation query (Instruction 1), the category breakdown (Instruction 4), and the trend view (Instruction 6).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 39 acceptance criteria), Section 6a (net equals total income minus total expenses; must not be a stored field)
+
+**Constraints**
+
+- Compute net as `totalIncome - totalExpenses` in the view layer from the query results — do not read a stored net field.
+- When the selected period contains no transactions, display 0 for all three figures — not blank, null, or a loading state.
+- The view must re-invoke the summary query when the shared period selection changes (subscribing to the state from Instruction 2).
+- The view must reflect updated data when a transaction affecting the selected period is added, edited, or deleted — cross-reference Instruction 7 for the cache invalidation trigger that drives this.
+- Do not display internal field names, raw database values, or query metadata in the view.
+- Recommended execution order: run after Instructions 1 and 2 define the query function and shared period state.
+
+**Expected Output**
+
+- A spending summary screen displaying: total income, total expenses, and computed net for the selected period.
+- Zero-state: all three figures display as 0 when no transactions exist in the period.
+- Period change: view re-queries and updates immediately.
+- Transaction mutation: view reflects updated data when the period-relevant transaction cache is invalidated.
+
+**Deliverables**
+
+- Spending summary screen component file
+- Query invocation and period subscription wiring
+- Net computation (not stored field)
+- Zero-state display
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 1 must define the `querySummary` function signature before this instruction calls it.
+- Instruction 2 must define the shared period state interface before this instruction subscribes to it.
+- Instruction 7 must define the cache invalidation event before this instruction's re-fetch is wired to it.
+
+---
+
+## Instruction 4: Category Breakdown View
+
+**Goal**
+Implement the category breakdown screen that distributes total expenses across categories for the selected period, displaying each category's amount and percentage share in the confirmed visual format, with uncategorized spending as a distinct labeled entry, and an empty state when no expense transactions exist.
+
+**Scope**
+In scope: the category breakdown screen, the invocation of the category breakdown query from Instruction 1, the percentage share computation per category, the uncategorized entry rendering, the confirmed visual format (ranked list, pie/donut chart, or combination), the descending-amount default sort, and the empty state. Out of scope: the period selector (Instruction 2), the aggregation query (Instruction 1), the drill-down navigation (Instruction 5), and the spending summary (Instruction 3).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 40 acceptance criteria), Section 6a (expense transactions only; uncategorized as distinct group; category totals must sum to the period's total expense figure), Section 6c (charting library for visual format — unspecified)
+
+**Constraints**
+
+- Compute percentage share per category as `categoryTotal / totalExpenses * 100` — do not store or retrieve a pre-computed percentage.
+- The sum of all displayed category totals (including the uncategorized entry) must equal the total expenses figure from the spending summary for the same period.
+- The uncategorized entry must be explicitly labeled (e.g., "Uncategorized") — it must not be excluded or silently merged into another category.
+- Default sort: descending by category total. Largest spending category appears first.
+- Empty state: when no expense transactions exist in the period, display an empty state message — do not render a breakdown with zero-value entries for every category.
+- PRD Open Question 3 (visual format: pie/donut, ranked list, or combination) must be confirmed before building the visualization component. If unconfirmed, implement a ranked list with percentage bars and flag.
+- PRD Open Question 6 (drill-down required or terminal view) must be confirmed before wiring the category row tap action. If drill-down is confirmed, the tap handler belongs to Instruction 5 — this instruction renders the row and exposes a tap callback; Instruction 5 implements the navigation.
+- If a charting library is required by the confirmed format, confirm whether one is already present in the codebase before introducing a new dependency.
+- Recommended execution order: run after Instructions 1 and 2. If drill-down is confirmed, run before Instruction 5.
+
+**Expected Output**
+
+- A category breakdown screen displaying each category with: name, total spending amount, and percentage share of total expenses.
+- Uncategorized entry rendered as a distinct row with its total and percentage.
+- Default sort: descending by amount.
+- Empty state when no expense transactions exist in the period.
+- Tap callback exposed on each row for Instruction 5 to wire if drill-down is confirmed.
+
+**Deliverables**
+
+- Category breakdown screen component file
+- Percentage share computation
+- Uncategorized entry rendering
+- Empty state markup
+- Tap callback interface for drill-down (if confirmed)
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 1 must define the `queryCategoryBreakdown` function signature and return shape before this instruction calls it.
+- Instruction 2 must define the shared period state before this instruction subscribes to it.
+- PRD Open Question 3 (visual format) must be confirmed before the visualization component is built.
+- PRD Open Question 6 (drill-down) must be confirmed before the tap callback is wired.
+
+**Open Questions**
+
+- PRD Open Question 3: What visual format is used — pie/donut chart, ranked list with percentage bars, or a combination?
+- PRD Open Question 6: Is drill-down from a category entry to the underlying transaction list required?
+
+---
+
+## Instruction 5: Category Drill-Down
+
+**Goal**
+Implement the navigation from a category breakdown entry to the filtered transaction list showing the individual transactions that compose that category's total for the selected period.
+
+**Scope**
+In scope: the tap handler on the category breakdown row that navigates to a filtered transaction list view, the filter parameters passed to the list (category identifier and date range from the selected period), and the back-navigation return to the breakdown. Out of scope: the category breakdown view itself (Instruction 4), the transaction list rendering (Transaction History PRD), and the filter logic (Search, Filter & Sort PRD).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 40 fifth criterion: selecting a category entry navigates to the transactions making up that category's total for the period)
+
+**Constraints**
+
+- This instruction is conditional on PRD Open Question 6 confirming drill-down is required. If unconfirmed, implement and flag — the acceptance criteria include it as inferred and removal later is lower risk than omission.
+- Pass the category identifier and the selected period's start and end dates as filter parameters to the transaction list — do not re-query in the list view independently.
+- The uncategorized entry must also support drill-down, passing a null category identifier as the filter — the list must show only transactions with no category assigned within the period.
+- Back-navigation from the drill-down list must return the user to the category breakdown at the same scroll position and period — do not reset the breakdown view state.
+- Use the navigation pattern already established in the codebase. Do not introduce a new routing library.
+- Cross-reference Search, Filter & Sort PRD Instruction 4 for the filter interface used to scope the transaction list by category and date range.
+- Recommended execution order: run after Instruction 4 defines the tap callback interface on the breakdown row.
+
+**Expected Output**
+
+- A tap handler on each category row (and the uncategorized row) that navigates to the transaction list filtered to that category and the selected period.
+- The drill-down list shows only the transactions composing that category's total — no out-of-scope transactions.
+- Back-navigation returns to the category breakdown without resetting period or scroll position.
+
+**Deliverables**
+
+- Tap handler wired to Instruction 4's row tap callback
+- Navigation call with category and date range filter parameters
+- Back-navigation return behavior
+- List of all files added or modified
+
+**Preconditions**
+
+- PRD Open Question 6 (drill-down required) must be confirmed or assumed confirmed with a flag.
+- Instruction 4 must expose the tap callback interface before this instruction wires to it.
+- Confirm the transaction list's filter parameter interface (from Search, Filter & Sort PRD Instruction 4) before passing filter parameters to it.
+
+---
+
+## Instruction 6: Spending Trends View
+
+**Goal**
+Implement the trend chart that displays total spending across consecutive time periods at the selected granularity, with zero-value periods rendered as explicit data points, direction of change visually apparent, and exact values displayed on data point selection.
+
+**Scope**
+In scope: the trend chart screen, the invocation of the trend series query from Instruction 1, the granularity selector, the chart rendering (at the confirmed visual format), the zero-period data point representation, the interactive value display on data point selection, and the insufficient-data state (fewer than two periods). Out of scope: the period selector (Instruction 2), the aggregation query (Instruction 1), the category breakdown (Instruction 4), income overlay if not confirmed, and cache invalidation (Instruction 7).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 5 (Story 41 acceptance criteria), Section 6b (zero-spending periods as explicit zero, not omitted; transaction stored date as grouping key), Section 6c (charting library unspecified)
+
+**Constraints**
+
+- PRD Open Question 4 (default granularity and available options) must be confirmed before the granularity selector options are built. If unconfirmed, implement monthly as default with weekly as the alternative and flag.
+- PRD Open Question 5 (expense-only vs. income overlay) must be confirmed before deciding whether the chart has one or two data series. If unconfirmed, implement expense-only and flag.
+- Zero-spending periods within the displayed range must appear as explicit zero data points — not omitted. This is handled by the query's zero-fill logic in Instruction 1; confirm the chart component renders them rather than skipping nulls.
+- When fewer than two periods of data exist, display an informational message explaining that more data is needed — do not display a single-point chart.
+- Interactive value display: when the user selects a data point, show the exact spending total for that period as a label or tooltip — not only its chart position.
+- Direction of change (increase vs. decrease vs. flat) must be visually apparent from the chart without requiring the user to compare exact values.
+- PRD Open Question 3 for the trend view (line chart, bar chart, or combination) — cross-reference the acceptance criteria which imply bars or line. Confirm the format with the author. If unconfirmed, implement a bar chart and flag.
+- Confirm whether a charting library is already present in the codebase before introducing a new dependency.
+- Recommended execution order: run after Instructions 1 and 2.
+
+**Expected Output**
+
+- A trend chart screen displaying spending per period at the selected granularity.
+- Granularity selector with the confirmed options.
+- Zero-period data points rendered explicitly.
+- Insufficient-data state (< 2 periods) shown as an informational message.
+- Interactive data point selection displays the exact spending total.
+- Direction of change visually distinguishable from the chart.
+
+**Deliverables**
+
+- Spending trends screen component file
+- Granularity selector integration
+- Chart rendering with zero-value data point support
+- Insufficient-data state display
+- Interactive tooltip or value label on data point selection
+- List of all files added or modified
+
+**Preconditions**
+
+- Instruction 1 must define the `queryTrendSeries` function signature and its zero-filled return shape before this instruction calls it.
+- Instruction 2 must define the shared period state before this instruction subscribes to it.
+- PRD Open Question 4 (granularity options) must be confirmed or defaulted.
+- PRD Open Question 5 (expense-only vs. income overlay) must be confirmed or defaulted.
+- Confirm charting library availability in the codebase.
+
+**Open Questions**
+
+- PRD Open Question 4: What is the default granularity and what options are available?
+- PRD Open Question 5: Does the trend chart show expenses only, or overlay income as a second series?
+
+---
+
+## Instruction 7: Insights Cache Invalidation
+
+**Goal**
+Implement the cache invalidation trigger that clears pre-computed summary, breakdown, and trend caches when any transaction within the relevant date range is added, edited, or deleted, so that the three insight views reflect current transaction data after mutations.
+
+**Scope**
+In scope: the invalidation trigger wired to all transaction mutation events (create, edit, delete, bulk delete), the date-range check that determines which cache entries (if any) are affected by the mutated transaction's date, and the re-fetch invocation that causes the insight views to update. Out of scope: the aggregation queries (Instruction 1), the view components (Instructions 3, 4, 6), and the transaction mutation handlers themselves (Transaction Entry and Management PRDs).
+
+**Inputs**
+
+- Full codebase
+- PRD Section 6a (trend caches acceptable for performance but must be invalidated when a transaction within the trend's date range is added, edited, or deleted; net figure must always reflect live transaction data)
+
+**Constraints**
+
+- Invalidation must fire on every transaction mutation: create, edit, delete, and bulk delete. Audit all mutation paths and confirm each triggers invalidation.
+- Invalidation must be scoped to the relevant date range — a transaction mutated outside the currently selected period does not need to invalidate the cached result for a different period. If scoped invalidation is complex, full cache invalidation (clearing all insight caches) is an acceptable fallback — document the choice.
+- After invalidation, the three insight views must re-invoke their queries automatically — do not require the user to navigate away and return.
+- Do not re-implement the mutation event hooks — subscribe to the same events already established in the codebase (cross-reference Transaction Entry PRD and Transaction Management PRD mutation hooks).
+- If no pre-computed cache is in use (all queries run live on every render), this instruction reduces to confirming that the view components re-query on mutation events — document this finding and confirm no additional work is needed.
+- Recommended execution order: run after Instructions 3, 4, and 6 establish the view components and their query invocation points.
+
+**Expected Output**
+
+- An invalidation trigger subscribed to all transaction mutation events.
+- On mutation: the affected insight caches (or all caches as a fallback) are cleared.
+- After invalidation: the three insight view components re-fetch their data and update.
+- Audit list of mutation paths and confirmation that each is covered.
+
+**Deliverables**
+
+- Cache invalidation trigger implementation
+- Audit list of transaction mutation paths and their invalidation coverage
+- Re-fetch trigger wiring in each insight view component
+- List of all files added or modified
+
+**Preconditions**
+
+- Confirm whether a pre-computed cache is in use for insights queries. If all queries run live, document this and confirm Instruction 7 reduces to a re-fetch trigger only.
+- Cross-reference Transaction Entry PRD and Transaction Management PRD mutation event hooks before subscribing to them.
+- Instructions 3, 4, and 6 must expose their re-fetch interfaces before this instruction triggers them.

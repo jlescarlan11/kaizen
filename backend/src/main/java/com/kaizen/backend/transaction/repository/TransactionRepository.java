@@ -57,6 +57,32 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.paymentMethod IS NULL")
     java.math.BigDecimal getUnspecifiedExpenseSummary(@Param("userId") Long userId);
 
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = :type AND t.transactionDate >= :start AND t.transactionDate <= :end")
+    java.math.BigDecimal sumAmountByTypeAndDateRange(
+        @Param("userId") Long userId,
+        @Param("type") com.kaizen.backend.common.entity.TransactionType type,
+        @Param("start") java.time.LocalDateTime start,
+        @Param("end") java.time.LocalDateTime end
+    );
+
+    @Query("SELECT t.category.id, t.category.name, SUM(t.amount), COUNT(t.id) " +
+           "FROM Transaction t " +
+           "WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.transactionDate >= :start AND t.transactionDate <= :end " +
+           "GROUP BY t.category.id, t.category.name " +
+           "ORDER BY SUM(t.amount) DESC")
+    List<Object[]> getCategoryBreakdown(
+        @Param("userId") Long userId,
+        @Param("start") java.time.LocalDateTime start,
+        @Param("end") java.time.LocalDateTime end
+    );
+
+    @Query("SELECT t.transactionDate, t.amount FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'EXPENSE' AND t.transactionDate >= :start AND t.transactionDate <= :end ORDER BY t.transactionDate ASC")
+    List<Object[]> getRawTrendData(
+        @Param("userId") Long userId,
+        @Param("start") java.time.LocalDateTime start,
+        @Param("end") java.time.LocalDateTime end
+    );
+
     Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);
 
     boolean existsByClientGeneratedId(String clientGeneratedId);
