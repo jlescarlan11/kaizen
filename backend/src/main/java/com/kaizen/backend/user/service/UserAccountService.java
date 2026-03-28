@@ -150,35 +150,35 @@ public class UserAccountService {
     }
 
     private UserResponse toUserResponse(UserAccount account) {
-        return new UserResponse(
-            account.getId(),
-            account.getName(),
-            account.getEmail(),
-            account.getPictureUrl(),
-            account.isOnboardingCompleted(),
-            account.getBalance(),
-            account.isBudgetSetupSkipped(),
-            account.isTourCompleted(),
-            account.isFirstTransactionAdded(),
-            account.getQuickAddPreferences(),
-            account.getRemindersEnabled()
-        );
+        return UserResponse.builder()
+            .id(account.getId())
+            .name(account.getName())
+            .email(account.getEmail())
+            .picture(account.getPictureUrl())
+            .onboardingCompleted(account.isOnboardingCompleted())
+            .balance(account.getBalance())
+            .budgetSetupSkipped(account.isBudgetSetupSkipped())
+            .tourCompleted(account.isTourCompleted())
+            .firstTransactionAdded(account.isFirstTransactionAdded())
+            .quickAddPreferences(account.getQuickAddPreferences())
+            .remindersEnabled(account.getRemindersEnabled())
+            .build();
     }
 
     private UserProfileResponse toUserProfileResponse(UserAccount account) {
-        return new UserProfileResponse(
-            account.getId(),
-            account.getName(),
-            account.getEmail(),
-            account.getPictureUrl(),
-            account.getCreatedAt(),
-            account.isOnboardingCompleted(),
-            account.getBalance(),
-            account.isBudgetSetupSkipped(),
-            account.isTourCompleted(),
-            account.isFirstTransactionAdded(),
-            account.getQuickAddPreferences(),
-            account.getRemindersEnabled()
-        );
+        return UserProfileResponse.builder()
+            .id(account.getId())
+            .name(account.getName())
+            .email(account.getEmail())
+            .picture(account.getPictureUrl())
+            .createdAt(account.getCreatedAt())
+            .onboardingCompleted(account.isOnboardingCompleted())
+            .balance(account.getBalance())
+            .budgetSetupSkipped(account.isBudgetSetupSkipped())
+            .tourCompleted(account.isTourCompleted())
+            .firstTransactionAdded(account.isFirstTransactionAdded())
+            .quickAddPreferences(account.getQuickAddPreferences())
+            .remindersEnabled(account.getRemindersEnabled())
+            .build();
     }
 }

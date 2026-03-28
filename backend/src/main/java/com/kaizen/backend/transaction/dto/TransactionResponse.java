@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.common.entity.TransactionType;
 import com.kaizen.backend.payment.dto.PaymentMethodResponse;
+import lombok.Builder;
 
+@Builder
 public record TransactionResponse(
     Long id,
     BigDecimal amount,

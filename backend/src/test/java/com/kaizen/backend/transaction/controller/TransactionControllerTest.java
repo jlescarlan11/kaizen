@@ -13,9 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,7 +32,7 @@ public class TransactionControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private TransactionService transactionService;
 
     @Autowired
@@ -51,22 +51,20 @@ public class TransactionControllerTest {
     @Test
     @WithMockUser
     public void testUpdateTransaction() throws Exception {
-        TransactionRequest request = new TransactionRequest(
-            new BigDecimal("100.00"),
-            TransactionType.EXPENSE,
-            LocalDateTime.now(),
-            "Update description",
-            null
-        );
+        TransactionRequest request = TransactionRequest.builder()
+            .amount(new BigDecimal("100.00"))
+            .type(TransactionType.EXPENSE)
+            .transactionDate(LocalDateTime.now())
+            .description("Update description")
+            .build();
 
-        TransactionResponse response = new TransactionResponse(
-            1L,
-            new BigDecimal("100.00"),
-            TransactionType.EXPENSE,
-            LocalDateTime.now(),
-            "Update description",
-            null
-        );
+        TransactionResponse response = TransactionResponse.builder()
+            .id(1L)
+            .amount(new BigDecimal("100.00"))
+            .type(TransactionType.EXPENSE)
+            .transactionDate(LocalDateTime.now())
+            .description("Update description")
+            .build();
 
         when(transactionService.updateTransaction(anyString(), anyLong(), any())).thenReturn(response);
 

@@ -1,7 +1,9 @@
 package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
+import lombok.Builder;
 
+@Builder
 public record UserResponse(
     Long id,
     String name,

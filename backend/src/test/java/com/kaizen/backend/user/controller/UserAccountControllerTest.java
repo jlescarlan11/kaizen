@@ -35,22 +35,32 @@ class UserAccountControllerTest {
     @MockitoBean
     private PersistentSessionRepository persistentSessionRepository;
 
+    @MockitoBean
+    private org.springframework.security.web.AuthenticationEntryPoint authenticationEntryPoint;
+
+    @MockitoBean
+    private com.kaizen.backend.auth.config.SessionProperties sessionProperties;
+
+    @MockitoBean
+    private com.kaizen.backend.common.logging.SecurityAuditLogger securityAuditLogger;
+
     @Test
     @WithMockUser(username = "test@example.com")
     void meReturnsUserProfileWhenAuthenticated() throws Exception {
-        UserProfileResponse response = new UserProfileResponse(
-            1L,
-            "Test User",
-            "test@example.com",
-            "http://example.com/pic.jpg",
-            Instant.parse("2026-03-18T10:00:00Z"),
-            false,
-            null,
-            false,
-            false,
-            false,
-            null
-        );
+        UserProfileResponse response = UserProfileResponse.builder()
+            .id(1L)
+            .name("Test User")
+            .email("test@example.com")
+            .picture("http://example.com/pic.jpg")
+            .createdAt(Instant.parse("2026-03-18T10:00:00Z"))
+            .onboardingCompleted(false)
+            .balance(null)
+            .budgetSetupSkipped(false)
+            .tourCompleted(false)
+            .firstTransactionAdded(false)
+            .quickAddPreferences(null)
+            .remindersEnabled(false)
+            .build();
 
         when(userAccountService.getProfileByEmail("test@example.com"))
             .thenReturn(response);
