@@ -25,6 +25,7 @@ import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,8 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
 
     @Autowired
     private SessionProperties sessionProperties;
+
+    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     private UserAccount user;
     private Cookie authCookie;
@@ -121,7 +124,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     @DisplayName("Accepts positive budget amounts")
     void acceptsPositiveBudgetAmounts() throws Exception {
         mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("100.00"), BudgetPeriod.MONTHLY)
@@ -147,7 +150,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     @DisplayName("Accepts budgets within balance per entry")
     void acceptsBudgetAmountWithinBalance() throws Exception {
         mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("150.00"), BudgetPeriod.MONTHLY)
@@ -174,7 +177,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     @DisplayName("Accepts combined budgets within the available balance")
     void acceptsCombinedBudgetTotalWithinBalance() throws Exception {
         mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("80.00"), BudgetPeriod.MONTHLY),
@@ -201,7 +204,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     @DisplayName("Accepts existing categories")
     void acceptsExistingCategory() throws Exception {
         mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("10.00"), BudgetPeriod.MONTHLY)
@@ -227,7 +230,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     @DisplayName("Accepts distinct categories")
     void acceptsDistinctCategories() throws Exception {
         mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(List.of(
                 budgetEntry(primaryCategory.getId(), new BigDecimal("10.00"), BudgetPeriod.MONTHLY),
@@ -313,7 +316,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
 
     private ValidationErrorResponse postBudgetBatch(List<Map<String, Object>> budgets) throws Exception {
         ResultActions result = mockMvc.perform(post("/api/budgets/batch")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
             .content(buildBudgetPayload(budgets)));
 
@@ -325,9 +328,9 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
 
     private ValidationErrorResponse postSingleBudget(Map<String, Object> budget) throws Exception {
         ResultActions result = mockMvc.perform(post("/api/budgets")
-            .contentType(MediaType.APPLICATION_JSON)
+            .contentType(JSON_MEDIA_TYPE)
             .cookie(authCookie)
-            .content(objectMapper.writeValueAsString(budget)));
+            .content(Objects.requireNonNull(objectMapper.writeValueAsString(budget))));
 
         return objectMapper.readValue(
             result.andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString(),
@@ -336,7 +339,7 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
     }
 
     private String buildBudgetPayload(List<Map<String, Object>> budgets) throws Exception {
-        return objectMapper.writeValueAsString(Map.of("budgets", budgets));
+        return Objects.requireNonNull(objectMapper.writeValueAsString(Map.of("budgets", budgets)));
     }
 
     private Map<String, Object> budgetEntry(Long categoryId, BigDecimal amount, BudgetPeriod period) {
