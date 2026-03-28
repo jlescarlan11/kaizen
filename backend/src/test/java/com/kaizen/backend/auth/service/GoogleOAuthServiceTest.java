@@ -16,7 +16,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -28,6 +27,8 @@ import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
 
 @ExtendWith(MockitoExtension.class)
 class GoogleOAuthServiceTest {
@@ -47,8 +48,6 @@ class GoogleOAuthServiceTest {
     private RoleRepository roleRepository;
 
     private MockRestServiceServer mockServer;
-
-    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     @BeforeEach
     void setUp() {

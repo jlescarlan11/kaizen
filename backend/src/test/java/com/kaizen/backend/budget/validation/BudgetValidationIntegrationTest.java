@@ -21,6 +21,7 @@ import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import com.kaizen.backend.budget.repository.BudgetRepository;
 import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
 import jakarta.servlet.http.Cookie;
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -67,8 +67,6 @@ class BudgetValidationIntegrationTest extends AbstractPostgresContainerIntegrati
 
     @Autowired
     private SessionProperties sessionProperties;
-
-    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     private UserAccount user;
     private Cookie authCookie;

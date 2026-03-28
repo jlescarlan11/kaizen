@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +25,8 @@ import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
 import jakarta.servlet.http.Cookie;
+
+import static com.kaizen.backend.support.TestConstants.JSON_MEDIA_TYPE;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -47,8 +48,6 @@ class PersistentSessionAuthenticationTest extends AbstractPostgresContainerInteg
     private static final String COOKIE_NAME = "kzn_pst";
     private String validToken;
     private UserAccount testUser;
-
-    private static final MediaType JSON_MEDIA_TYPE = Objects.requireNonNull(MediaType.APPLICATION_JSON);
 
     @BeforeEach
     void setUp() {
