@@ -1,8 +1,6 @@
 package com.kaizen.backend.transaction.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,13 +95,13 @@ public class TransactionService {
 
         Category category = null;
         if (request.categoryId() != null) {
-            category = categoryRepository.findById(request.categoryId())
+            category = categoryRepository.findById(Objects.requireNonNull(request.categoryId()))
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
         }
 
         PaymentMethod paymentMethod = null;
         if (request.paymentMethodId() != null) {
-            paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
+            paymentMethod = paymentMethodRepository.findById(Objects.requireNonNull(request.paymentMethodId()))
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
         }
 
@@ -140,7 +139,7 @@ public class TransactionService {
         }
 
         if (request.parentRecurringTransactionId() != null) {
-            Transaction parent = transactionRepository.findById(request.parentRecurringTransactionId())
+            Transaction parent = transactionRepository.findById(Objects.requireNonNull(request.parentRecurringTransactionId()))
                 .orElseThrow(() -> new IllegalArgumentException("Parent recurring transaction not found with id: " + request.parentRecurringTransactionId()));
             transaction.setParentRecurringTransaction(parent);
         }
@@ -158,7 +157,7 @@ public class TransactionService {
         }
 
         // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(account);
+        recalculateUserBalance(Objects.requireNonNull(account));
 
         // Side effect: Mark first transaction added
         if (!account.isFirstTransactionAdded()) {
@@ -214,9 +213,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
 
-        if (!transaction.getUserAccount().getId().equals(account.getId())) {
-            throw new IllegalArgumentException("You do not have permission to view this transaction.");
-        }
+        validateTransactionOwnership(account, transaction);
 
         return mapToResponse(transaction);
     }
@@ -229,9 +226,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
 
-        if (!transaction.getUserAccount().getId().equals(account.getId())) {
-            throw new IllegalArgumentException("You do not have permission to update this transaction.");
-        }
+        validateTransactionOwnership(account, transaction);
 
         // Canonical Validation Rules
         if (request.amount() == null) {
@@ -257,7 +252,7 @@ public class TransactionService {
         // Update fields
         Category category = null;
         if (request.categoryId() != null) {
-            category = categoryRepository.findById(request.categoryId())
+            category = categoryRepository.findById(Objects.requireNonNull(request.categoryId()))
                 .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + request.categoryId()));
         }
 
@@ -269,7 +264,7 @@ public class TransactionService {
 
         PaymentMethod paymentMethod = null;
         if (request.paymentMethodId() != null) {
-            paymentMethod = paymentMethodRepository.findById(request.paymentMethodId())
+            paymentMethod = paymentMethodRepository.findById(Objects.requireNonNull(request.paymentMethodId()))
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not found with id: " + request.paymentMethodId()));
         }
         transaction.setPaymentMethod(paymentMethod);
@@ -304,7 +299,7 @@ public class TransactionService {
         }
 
         // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(account);
+        recalculateUserBalance(Objects.requireNonNull(account));
 
         userAccountRepository.save(account);
 
@@ -319,9 +314,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
 
-        if (!transaction.getUserAccount().getId().equals(account.getId())) {
-            throw new IllegalArgumentException("You do not have permission to delete this transaction.");
-        }
+        validateTransactionOwnership(account, transaction);
 
         // Cascade storage deletion
         attachmentService.deleteAttachmentsForTransaction(id);
@@ -332,7 +325,7 @@ public class TransactionService {
         transactionRepository.delete(transaction);
 
         // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(account);
+        recalculateUserBalance(Objects.requireNonNull(account));
 
         userAccountRepository.save(account);
     }
@@ -342,12 +335,10 @@ public class TransactionService {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
-        List<Transaction> transactions = transactionRepository.findAllById(ids);
+        List<Transaction> transactions = transactionRepository.findAllById(Objects.requireNonNull(ids));
 
         for (Transaction transaction : transactions) {
-            if (!transaction.getUserAccount().getId().equals(account.getId())) {
-                throw new IllegalArgumentException("You do not have permission to delete transaction with id: " + transaction.getId());
-            }
+            validateTransactionOwnership(account, transaction);
             // Cascade storage deletion
             attachmentService.deleteAttachmentsForTransaction(transaction.getId());
             // Instruction 7: Reminder Cancellation
@@ -357,7 +348,7 @@ public class TransactionService {
         transactionRepository.deleteAll(transactions);
 
         // Instruction 2: Balance Auto-Calculation Trigger
-        recalculateUserBalance(account);
+        recalculateUserBalance(Objects.requireNonNull(account));
 
         userAccountRepository.save(account);
     }
@@ -430,15 +421,15 @@ public class TransactionService {
 
         Transaction saved = transactionRepository.save(reconciliation);
         
-        recalculateUserBalance(account);
+        recalculateUserBalance(Objects.requireNonNull(account));
         userAccountRepository.save(account);
 
         return mapToResponse(saved);
     }
 
     @Transactional
-    public void recalculateUserBalance(UserAccount account) {
-        java.math.BigDecimal netAmount = transactionRepository.calculateNetTransactionAmount(account.getId())
+    public void recalculateUserBalance(@org.springframework.lang.NonNull UserAccount account) {
+        java.math.BigDecimal netAmount = transactionRepository.calculateNetTransactionAmount(Objects.requireNonNull(account.getId()))
             .orElse(java.math.BigDecimal.ZERO);
         
         // Instruction 1 & 8: Include opening balance if confirmed. 
@@ -447,6 +438,12 @@ public class TransactionService {
         // However, Section 6a says derived EXCLUSIVELY from transaction store.
         // So we just use netAmount for now.
         account.setBalance(netAmount);
+    }
+
+    private void validateTransactionOwnership(UserAccount account, Transaction transaction) {
+        if (!transaction.getUserAccount().getId().equals(Objects.requireNonNull(account.getId()))) {
+            throw new IllegalArgumentException("You do not have permission to access this transaction.");
+        }
     }
 
     private TransactionResponse mapToResponse(Transaction transaction) {
