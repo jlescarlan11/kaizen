@@ -1,7 +1,7 @@
 import { useState, type ReactElement } from 'react'
-import { Input } from '../../../shared/components/Input'
-import { Button } from '../../../shared/components/Button'
-import { useCreatePaymentMethodMutation } from '../../../app/store/api/paymentMethodApi'
+import { Input } from '../../shared/components/Input'
+import { Button } from '../../shared/components/Button'
+import { useCreatePaymentMethodMutation } from '../../app/store/api/paymentMethodApi'
 import type { PaymentMethod } from './types'
 
 interface PaymentMethodCreationFormProps {

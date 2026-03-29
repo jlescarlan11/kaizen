@@ -2,7 +2,7 @@ import { type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { PaymentMethodCreationForm } from './PaymentMethodCreationForm'
 import { PaymentMethodList } from './PaymentMethodList'
-import { useGetPaymentMethodsQuery } from '../../../app/store/api/paymentMethodApi'
+import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
 import { pageLayout } from '../../shared/styles/layout'
 
 export function PaymentMethodManagementPage(): ReactElement {

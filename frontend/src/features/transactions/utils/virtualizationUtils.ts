@@ -1,4 +1,4 @@
-import type { TransactionResponse } from '../app/store/api/transactionApi'
+import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 
 export type FlattenedTransactionItem =
   | { type: 'header'; date: string }

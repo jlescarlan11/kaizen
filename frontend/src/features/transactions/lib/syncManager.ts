@@ -1,6 +1,6 @@
 import { db, SyncStatus } from './localStore'
 import { transactionApi } from '../../../app/store/api/transactionApi'
-import { store } from '../../../app/store'
+import { store } from '../../../app/store/store'
 import { validationGate } from './validationGate'
 import { showAlert } from '../../../app/store/notificationSlice'
 import { SystemMessages } from '../utils/errorMessages'

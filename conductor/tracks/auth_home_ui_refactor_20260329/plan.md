@@ -1,11 +1,11 @@
 # Implementation Plan: Authenticated Home UI Refactor
 
 ## Phase 1: Research & Navigation Cleanup
-- [ ] Task: Identify existing `BottomNav`, `Sidebar`, and `HomePage` components.
-- [ ] Task: Write tests to verify the removal of "Add Entry" from `BottomNav` and `Sidebar`.
-- [ ] Task: Modify `BottomNav` to remove "Add Entry" and re-center the remaining 4 items (Home, Budget, Goal, Vault).
-- [ ] Task: Modify `Sidebar` to remove "Add Entry" if present.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Research & Navigation Cleanup' (Protocol in workflow.md)
+- [x] Task: Identify existing `BottomNav`, `Sidebar`, and `HomePage` components. d87b2e1
+- [x] Task: Write tests to verify the removal of "Add Entry" from `BottomNav` and `Sidebar`. 67ce80a
+- [x] Task: Modify `BottomNav` to remove "Add Entry" and re-center the remaining 4 items (Home, Budget, Goal, Vault). 67ce80a
+- [x] Task: Modify `Sidebar` to remove "Add Entry" if present. 67ce80a
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Research & Navigation Cleanup' (Protocol in workflow.md)
 
 ## Phase 2: Add Entry Floating Action Button
 - [ ] Task: Write tests for the `AddEntryFAB` component (visibility, icon, action).

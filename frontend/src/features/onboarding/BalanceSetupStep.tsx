@@ -24,6 +24,7 @@ import {
   FUNDING_SOURCE_OPTIONS,
   type FundingSourceType,
 } from './fundingSource'
+import { FUNDING_SOURCE_ICONS } from './FundingSourceIcons'
 
 const formatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
@@ -48,6 +49,15 @@ export function BalanceSetupStep(): ReactElement {
   } = useOnboardingErrorHandler('BALANCE' as OnboardingStep)
 
   const balanceError = useMemo(() => validateBalance(startingFundsInput), [startingFundsInput])
+
+  const optionsWithIcons = useMemo(
+    () =>
+      FUNDING_SOURCE_OPTIONS.map((opt) => ({
+        ...opt,
+        icon: FUNDING_SOURCE_ICONS[opt.value],
+      })),
+    [],
+  )
 
   const parsedBalance = parseFloat(startingFundsInput)
   const hasValidBalance = !Number.isNaN(parsedBalance) && parsedBalance > 0 && !balanceError
@@ -132,7 +142,7 @@ export function BalanceSetupStep(): ReactElement {
 
         <Select
           label="Where is this money stored?"
-          options={FUNDING_SOURCE_OPTIONS}
+          options={optionsWithIcons}
           value={fundingSourceType ?? undefined}
           onChange={handleFundingSourceChange}
           error={fundingSourceError ?? undefined}

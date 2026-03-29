@@ -3,9 +3,9 @@ import {
   useGetCategoriesQuery,
   useGetCategoryTransactionCountQuery,
   useMergeCategoriesMutation,
-} from '../../../app/store/api/categoryApi'
-import { Button } from '../../../shared/components/Button'
-import { ResponsiveModal } from '../../../shared/components/ResponsiveModal'
+} from '../../app/store/api/categoryApi'
+import { Button } from '../../shared/components/Button'
+import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { CategorySelector } from './CategorySelector'
 
 interface MergeCategoriesModalProps {

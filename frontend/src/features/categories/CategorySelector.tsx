@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
-import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
-import { Select, type SelectOption } from '../../../shared/components/Select'
-import { cn } from '../../../shared/lib/cn'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
+import { Select, type SelectOption } from '../../shared/components/Select'
+import { cn } from '../../shared/lib/cn'
 
 interface CategorySelectorProps {
   value?: string | null

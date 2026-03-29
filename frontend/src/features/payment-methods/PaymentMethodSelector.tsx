@@ -1,7 +1,7 @@
 import { type ReactElement } from 'react'
-import { useGetPaymentMethodsQuery } from '../../../app/store/api/paymentMethodApi'
-import { Select, type SelectOption } from '../../../shared/components/Select'
-import { cn } from '../../../shared/lib/cn'
+import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
+import { Select, type SelectOption } from '../../shared/components/Select'
+import { cn } from '../../shared/lib/cn'
 
 interface PaymentMethodSelectorProps {
   value?: string | null

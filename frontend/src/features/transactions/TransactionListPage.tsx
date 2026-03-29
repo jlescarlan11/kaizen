@@ -155,7 +155,7 @@ export function TransactionListPage(): ReactElement {
         <ExportModal
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
-          transactions={visibleTransactions}
+          transactions={processedTransactions}
           initialFilter={filterState}
           initialSearch={searchQuery}
           initialSort={sortState}

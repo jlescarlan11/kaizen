@@ -135,31 +135,16 @@ function AuthenticatedLayoutContent(): ReactElement {
   const navItems: ReadonlyArray<NavItem> = [
     { label: 'Transactions', to: '/', icon: <HomeIcon /> },
     { label: 'Budgets', to: '/budget', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
-    { label: 'Insights', to: '/insights', icon: <TrendingUpIcon /> },
-    {
-      label: 'Add Entry',
-      to: '/budget/manual',
-      icon: <AddIcon />,
-      isAction: true,
-      // TODO: swap to the real add-transaction route once the flow is built.
-    },
     {
       label: 'Goals',
-      to: '/playground',
+      to: '/goals',
       icon: <GoalIcon />,
       anchorKey: 'goalsTab',
-      // Placeholder route: replace with /goals when the tab is implemented.
     },
     {
       label: 'Vault',
-      to: '/playground',
+      to: '/vault',
       icon: <VaultIcon />,
-      // Additional tab per spec; currently maps to playground until the real vault exists.
-    },
-    {
-      label: 'Payments',
-      to: '/payment-summary',
-      icon: <PaymentIcon />,
     },
   ]
 
@@ -329,7 +314,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 h-24 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-end justify-around px-4 pb-6 z-30">
+        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'
@@ -345,7 +330,6 @@ function AuthenticatedLayoutContent(): ReactElement {
                 className={({ isActive }) =>
                   cn(
                     'flex flex-col items-center gap-1.5 transition-all duration-200',
-                    item.isAction ? 'mb-4' : 'mb-0',
                     isActive
                       ? 'text-foreground scale-110'
                       : 'text-muted-foreground hover:text-foreground',
@@ -357,22 +341,15 @@ function AuthenticatedLayoutContent(): ReactElement {
                   <>
                     <div
                       className={cn(
-                        'transition-all duration-200 flex items-center justify-center',
-                        item.isAction
-                          ? 'h-16 w-16 rounded-full bg-black text-white shadow-xl border-4 border-background -translate-y-2 hover:scale-110 active:scale-95'
-                          : cn(
-                              'p-2 rounded-xl',
-                              isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
-                            ),
+                        'transition-all duration-200 flex items-center justify-center p-2 rounded-xl',
+                        isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
                       )}
                     >
                       {item.icon}
                     </div>
-                    {!item.isAction && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider">
-                        {item.label}
-                      </span>
-                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      {item.label}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -425,42 +402,6 @@ function BudgetIcon() {
   )
 }
 
-function TrendingUpIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-      <polyline points="17 6 23 6 23 12" />
-    </svg>
-  )
-}
-
-function AddIcon() {
-  return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
-  )
-}
-
 function GoalIcon() {
   return (
     <svg
@@ -497,24 +438,6 @@ function VaultIcon() {
     >
       <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
       <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
-  )
-}
-
-function PaymentIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect x="2" y="5" width="20" height="14" rx="2" />
-      <line x1="2" y1="10" x2="22" y2="10" />
     </svg>
   )
 }

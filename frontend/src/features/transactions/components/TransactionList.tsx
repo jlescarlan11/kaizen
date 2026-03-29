@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
-import { useState, useRef, useMemo, useEffect } from 'react'
-import { VariableSizeList as List } from 'react-window'
+import { useState, useRef, useMemo } from 'react'
+import { List, type ListImperativeAPI, type RowComponentProps } from 'react-window'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Card } from '../../../shared/components/Card'
 import { Badge } from '../../../shared/components/Badge'
@@ -46,7 +46,7 @@ export function TransactionList({
   // Selection Mode State
   const [isSelectionMode, setIsSelectionMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null)
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const pendingDeletes = useAppSelector(selectPendingDeletes)
 
@@ -108,22 +108,14 @@ export function TransactionList({
     return item.type === 'header' ? ITEM_HEIGHTS.header : ITEM_HEIGHTS.transaction
   }
 
-  const listRef = useRef<List>(null)
+  const listRef = useRef<ListImperativeAPI>(null)
 
-  // Instruction 1: In-view row stability during incremental fetches
-  useEffect(() => {
-    if (listRef.current) {
-      // Small delay to ensure items are rendered before recalculating
-      listRef.current.resetAfterIndex(0)
-    }
-  }, [flattenedItems.length])
-
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+  const Row = ({ index, style, ariaAttributes }: RowComponentProps) => {
     const item = flattenedItems[index]
 
     if (item.type === 'header') {
       return (
-        <div style={style} className="px-1 flex items-center justify-between">
+        <div {...ariaAttributes} style={style} className="px-1 flex items-center justify-between">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
             {formatGroupDate(item.date)}
           </h2>
@@ -158,6 +150,7 @@ export function TransactionList({
     const { transaction: tx } = item
     return (
       <div
+        {...ariaAttributes}
         style={{ ...style, height: style.height ? (style.height as number) - 12 : style.height }}
         className="relative flex items-center gap-3"
       >
@@ -285,8 +278,10 @@ export function TransactionList({
     )
   }
 
-  const handleScroll = ({ scrollOffset }: { scrollOffset: number }) => {
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     if (!onLoadMore || isFetchingMore || !hasMore) return
+
+    const scrollOffset = event.currentTarget.scrollTop
 
     // Simple check if we're near the bottom
     const totalHeight = flattenedItems.reduce((acc, _, i) => acc + getItemSize(i), 0)
@@ -347,16 +342,15 @@ export function TransactionList({
       )}
 
       <List
-        ref={listRef}
-        height={600}
-        itemCount={flattenedItems.length}
-        itemSize={getItemSize}
-        width="100%"
+        listRef={listRef}
+        rowCount={flattenedItems.length}
+        rowHeight={getItemSize}
+        style={{ height: 600, width: '100%' }}
         overscanCount={TRANSACTION_OVERSCAN_BUFFER}
         onScroll={handleScroll}
-      >
-        {Row}
-      </List>
+        rowComponent={Row}
+        rowProps={{} as Record<string, never>}
+      />
 
       {!isSelectionMode && (
         <TransactionDetailModal

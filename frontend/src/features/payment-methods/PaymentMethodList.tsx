@@ -1,11 +1,11 @@
 import { useState, type ReactElement } from 'react'
-import { Card } from '../../../shared/components/Card'
-import { Button } from '../../../shared/components/Button'
-import { ResponsiveModal } from '../../../shared/components/ResponsiveModal'
+import { Card } from '../../shared/components/Card'
+import { Button } from '../../shared/components/Button'
+import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import {
   useDeletePaymentMethodMutation,
   useGetPaymentMethodTransactionCountQuery,
-} from '../../../app/store/api/paymentMethodApi'
+} from '../../app/store/api/paymentMethodApi'
 import type { PaymentMethod } from './types'
 
 interface PaymentMethodListProps {

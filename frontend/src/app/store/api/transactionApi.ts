@@ -185,6 +185,7 @@ export const transactionApi = baseApi.injectEndpoints({
 export const {
   useCreateTransactionMutation,
   useGetTransactionsQuery,
+  useLazyGetTransactionsQuery,
   useGetTransactionQuery,
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
