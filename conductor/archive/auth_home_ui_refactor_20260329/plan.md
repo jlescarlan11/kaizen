@@ -13,15 +13,15 @@
 - [x] Task: Integrate `AddEntryFAB` into the main layout, ensuring it remains at the bottom right on both mobile and desktop. f9bd7c4
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Add Entry Floating Action Button' (Protocol in workflow.md) f9bd7c4
 
-## Phase 3: Home Screen Layout Overhaul
+## Phase 3: Home Screen Layout Overhaul [checkpoint: e64252c]
 - [x] Task: Write tests for the new `HomePage` layout and sections. f9bd7c4
 - [x] Task: Implement the new Header with three icons (Profile + 2 others). f9bd7c4
 - [x] Task: Create shared `SectionHeader` and `SkeletonList` components for consistent loading states. f9bd7c4
-- [x] Task: Refactor `HomePage` to include the restructured Transactions, Budget, and Goal sections (latest 3-5 items). f9bd7c4
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Home Screen Layout Overhaul' (Protocol in workflow.md)
+- [x] Task: Refactor `HomePage` to include the restructured Transactions, Budget, and Goal sections (latest 3-5 items). e64252c
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Home Screen Layout Overhaul' (Protocol in workflow.md) e64252c
 
 ## Phase 4: Final Polish & Verification
-- [ ] Task: Verify responsive design across different screen sizes (mobile and desktop).
-- [ ] Task: Verify accessibility (ARIA labels for FAB and Nav).
-- [ ] Task: Verify consistent application of the Project Green Theme.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Final Polish & Verification' (Protocol in workflow.md)
+- [x] Task: Verify responsive design across different screen sizes (mobile and desktop). e64252c
+- [x] Task: Verify accessibility (ARIA labels for FAB and Nav). e64252c
+- [x] Task: Verify consistent application of the Project Green Theme. e64252c
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Final Polish & Verification' (Protocol in workflow.md) e64252c
