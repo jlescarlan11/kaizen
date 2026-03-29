@@ -7,6 +7,7 @@ import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
+import { AddEntryFAB } from '../../shared/components/AddEntryFAB'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
 import { ConnectivityIndicator } from '../../shared/components/ConnectivityIndicator'
@@ -360,6 +361,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
       <ConnectivityIndicator />
+      <AddEntryFAB onClick={() => navigate('/budget/manual')} />
     </div>
   )
 }

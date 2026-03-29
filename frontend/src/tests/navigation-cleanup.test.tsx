@@ -65,4 +65,24 @@ describe('Navigation Cleanup', () => {
     const addEntryLink = screen.queryByRole('link', { name: /add entry/i })
     expect(addEntryLink).not.toBeInTheDocument()
   })
+
+  it('should have an "Add Entry" FAB on both desktop and mobile', () => {
+    mockMediaQuery(1200) // Desktop
+    const { rerender } = render(<AuthenticatedLayout />, {
+      preloadedState: {
+        auth: {
+          isAuthenticated: true,
+          user: { id: '1', name: 'Test User', email: 'test@example.com' },
+          loading: false,
+          error: null,
+        },
+      },
+    })
+
+    expect(screen.getByRole('button', { name: /add entry/i })).toBeInTheDocument()
+
+    mockMediaQuery(768) // Mobile
+    rerender(<AuthenticatedLayout />)
+    expect(screen.getByRole('button', { name: /add entry/i })).toBeInTheDocument()
+  })
 })
