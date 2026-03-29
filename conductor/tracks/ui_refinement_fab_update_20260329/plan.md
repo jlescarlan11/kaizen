@@ -1,9 +1,9 @@
 # Implementation Plan: UI Refinement and FAB Update
 
-## Phase 1: Currency Standardization
+## Phase 1: Currency Standardization [checkpoint: af4695a]
 - [x] Task: Write Tests - Add/Update unit tests for currency formatting utility to expect "PHP X" instead of "₱X". 0a33b9c
 - [x] Task: Implement - Update global currency formatter to use "PHP " prefix and remove all hardcoded "₱" signs. 0a33b9c
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Currency Standardization' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Currency Standardization' (Protocol in workflow.md) af4695a
 
 ## Phase 2: Budget Icons Synchronization
 - [ ] Task: Write Tests - Add tests to verify that budget list components render the icon associated with the budget entity.
