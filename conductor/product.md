@@ -11,6 +11,7 @@ Initial monorepo scaffold for backend and frontend development.
 - **User Authentication & RBAC:** Spring Security, JWT/OAuth2, and user management.
 - **Real-time Data Processing & Storage:** Spring Data JPA, PostgreSQL, and Redis caching.
 - **Interactive Frontend Dashboard:** Vite, Redux Toolkit, and Tailwind for responsive UI.
+- **Speed Dial Navigation:** Persistent, multi-action Speed Dial FAB for rapid entry creation (Transactions, Budgets, Goals).
 
 ## Success Metrics
 - **High Code Quality & Test Coverage:** Minimum 80% coverage and passing lint/type checks.
@@ -20,4 +21,5 @@ Initial monorepo scaffold for backend and frontend development.
 ## Key Differentiators
 - **Advanced Backend Modularity:** Highly modular and extensible architecture.
 - **Modern Frontend Tech (React 19):** State-of-the-art frontend patterns with React 19 features.
+- **Flat UI Architecture:** Clean, minimalist "flat out" design for data-dense components (Widgets, Lists, Items).
 - **Superior Dev Experience & Automation:** Ready-to-use CI/CD and Dockerized environments.
