@@ -33,6 +33,18 @@ export function validateTransaction(transaction: Partial<TransactionRequest>): V
     errors.push({ field: 'type', code: ErrorCode.REQUIRED })
   }
 
+  // Type-specific requirements
+  if (transaction.type === 'EXPENSE' && !transaction.categoryId) {
+    errors.push({ field: 'categoryId', code: ErrorCode.REQUIRED })
+  }
+
+  if (
+    (transaction.type === 'EXPENSE' || transaction.type === 'INCOME') &&
+    !transaction.paymentMethodId
+  ) {
+    errors.push({ field: 'paymentMethodId', code: ErrorCode.REQUIRED })
+  }
+
   // Type-specific required checks (e.g., recurring)
   if (transaction.isRecurring) {
     if (!transaction.frequencyUnit) {

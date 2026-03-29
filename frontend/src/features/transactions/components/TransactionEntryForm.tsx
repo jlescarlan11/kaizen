@@ -131,7 +131,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       type,
       transactionDate: transactionDate ? `${transactionDate}T00:00:00` : new Date().toISOString(),
       description: description || undefined,
-      categoryId: categoryId ? parseInt(categoryId) : undefined,
+      categoryId: type === 'EXPENSE' && categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
       notes: notes || undefined,
       isRecurring,
@@ -288,9 +288,21 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           helperText={editId ? undefined : 'Captured at submission if not set.'}
         />
 
-        <CategorySelector value={categoryId} onChange={setCategoryId} />
+        {type === 'EXPENSE' && (
+          <CategorySelector
+            label="Category"
+            value={categoryId}
+            onChange={setCategoryId}
+            error={errors.categoryId}
+          />
+        )}
 
-        <PaymentMethodSelector value={paymentMethodId} onChange={setPaymentMethodId} />
+        <PaymentMethodSelector
+          label="Payment Method"
+          value={paymentMethodId}
+          onChange={setPaymentMethodId}
+          error={errors.paymentMethodId}
+        />
 
         <Input
           label="Description (Optional)"
