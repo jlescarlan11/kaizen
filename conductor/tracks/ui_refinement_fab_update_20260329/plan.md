@@ -1,8 +1,8 @@
 # Implementation Plan: UI Refinement and FAB Update
 
 ## Phase 1: Currency Standardization
-- [ ] Task: Write Tests - Add/Update unit tests for currency formatting utility to expect "PHP X" instead of "₱X".
-- [ ] Task: Implement - Update global currency formatter to use "PHP " prefix and remove all hardcoded "₱" signs.
+- [x] Task: Write Tests - Add/Update unit tests for currency formatting utility to expect "PHP X" instead of "₱X". 0a33b9c
+- [x] Task: Implement - Update global currency formatter to use "PHP " prefix and remove all hardcoded "₱" signs. 0a33b9c
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Currency Standardization' (Protocol in workflow.md)
 
 ## Phase 2: Budget Icons Synchronization
