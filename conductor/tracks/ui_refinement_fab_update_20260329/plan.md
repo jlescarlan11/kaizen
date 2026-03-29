@@ -17,7 +17,7 @@
 - [x] Task: Implement - Refactor Budget Items styles to remove surface card UI. 7599cdc
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Flat UI Implementation' (Protocol in workflow.md) 7599cdc
 
-## Phase 4: FAB Speed Dial Integration
-- [ ] Task: Write Tests - Add component tests for the new Speed Dial FAB to verify the presence of the 4 required actions and their click handlers.
-- [ ] Task: Implement - Replace existing FAB with a Speed Dial component containing: Add transaction, Create Budget, Create Goal, Hold Purchase.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: FAB Speed Dial Integration' (Protocol in workflow.md)
+## Phase 4: FAB Speed Dial Integration [checkpoint: 1547ec6]
+- [x] Task: Write Tests - Add component tests for the new Speed Dial FAB to verify the presence of the 4 required actions and their click handlers. 1547ec6
+- [x] Task: Implement - Replace existing FAB with a Speed Dial component containing: Add transaction, Create Budget, Create Goal, Hold Purchase. 1547ec6
+- [x] Task: Conductor - User Manual Verification 'Phase 4: FAB Speed Dial Integration' (Protocol in workflow.md) 1547ec6
