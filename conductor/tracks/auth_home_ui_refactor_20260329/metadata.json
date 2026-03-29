@@ -1,0 +1,8 @@
+{
+  "track_id": "auth_home_ui_refactor_20260329",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-29T00:00:00Z",
+  "updated_at": "2026-03-29T00:00:00Z",
+  "description": "Modify the UI of the authenticated home to match the wireframe, with the 'Add Entry' button at the bottom right instead of in the navigation."
+}
