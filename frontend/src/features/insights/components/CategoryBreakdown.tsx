@@ -38,7 +38,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
   }))
 
   return (
-    <Card title="Category Breakdown">
+    <Card tone="flat" title="Category Breakdown">
       <div className="flex flex-col md:flex-row items-center">
         <div className="w-full md:w-1/2 h-64">
           <ResponsiveContainer width="100%" height="100%">

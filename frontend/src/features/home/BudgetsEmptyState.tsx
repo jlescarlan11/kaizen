@@ -9,7 +9,7 @@ interface BudgetsEmptyStateProps {
 
 export function BudgetsEmptyState({ onQuickSetup }: BudgetsEmptyStateProps): ReactElement {
   return (
-    <Card className="space-y-3 border border-ui-border-subtle p-6">
+    <Card tone="flat" className="space-y-3 p-6">
       <div>
         <p className="text-base font-semibold text-foreground">{BUDGETS_EMPTY_MESSAGE}</p>
       </div>

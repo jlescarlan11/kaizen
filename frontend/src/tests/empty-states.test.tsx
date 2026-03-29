@@ -8,7 +8,6 @@ import {
   BUDGETS_EMPTY_MESSAGE,
   TRANSACTIONS_EMPTY_BUTTON,
   TRANSACTIONS_EMPTY_TITLE,
-  TRANSACTIONS_EMPTY_SUBTEXT,
 } from '../features/home/emptyStateCopy'
 
 describe('TransactionsEmptyState', () => {
@@ -18,8 +17,9 @@ describe('TransactionsEmptyState', () => {
 
     render(<TransactionsEmptyState onAddTransaction={onAdd} buttonRef={buttonRef} />)
 
-    expect(screen.getByText(TRANSACTIONS_EMPTY_TITLE)).toBeInTheDocument()
-    expect(screen.getByText(TRANSACTIONS_EMPTY_SUBTEXT)).toBeInTheDocument()
+    const card = screen.getByText(TRANSACTIONS_EMPTY_TITLE).closest('.rounded-xl')
+    expect(card).toHaveClass('shadow-none')
+    expect(card).toHaveClass('bg-transparent')
 
     fireEvent.click(screen.getByRole('button', { name: TRANSACTIONS_EMPTY_BUTTON }))
     expect(onAdd).toHaveBeenCalledOnce()
@@ -33,7 +33,9 @@ describe('BudgetsEmptyState', () => {
 
     render(<BudgetsEmptyState onQuickSetup={onQuickSetup} />)
 
-    expect(screen.getByText(BUDGETS_EMPTY_MESSAGE)).toBeInTheDocument()
+    const card = screen.getByText(BUDGETS_EMPTY_MESSAGE).closest('.rounded-xl')
+    expect(card).toHaveClass('shadow-none')
+    expect(card).toHaveClass('bg-transparent')
 
     fireEvent.click(screen.getByRole('button', { name: BUDGETS_EMPTY_BUTTON }))
     expect(onQuickSetup).toHaveBeenCalledOnce()

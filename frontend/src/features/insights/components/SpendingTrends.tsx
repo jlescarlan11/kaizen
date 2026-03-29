@@ -50,7 +50,7 @@ export function SpendingTrends({
   })
 
   return (
-    <Card title="Spending Trends">
+    <Card tone="flat" title="Spending Trends">
       <div className="flex justify-end mb-4 space-x-2">
         <button
           onClick={() => onGranularityChange('WEEKLY')}

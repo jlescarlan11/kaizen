@@ -98,7 +98,8 @@ export function HomePage(): ReactElement {
                 return (
                   <Card
                     key={budget.id}
-                    className="p-5 border border-ui-border-subtle hover:border-ui-border-strong transition-all group"
+                    tone="flat"
+                    className="p-5 hover:border-ui-border-strong transition-all group"
                   >
                     <div className="flex items-center gap-3 mb-4">
                       <div

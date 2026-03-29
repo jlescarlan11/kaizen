@@ -17,7 +17,7 @@ export function TransactionsEmptyState({
   buttonRef,
 }: TransactionsEmptyStateProps): ReactElement {
   return (
-    <Card className="space-y-3 border border-ui-border-subtle p-6">
+    <Card tone="flat" className="space-y-3 p-6">
       <div className="space-y-1">
         <p className="text-base font-semibold text-foreground">{TRANSACTIONS_EMPTY_TITLE}</p>
         <p className="text-sm text-muted-foreground">{TRANSACTIONS_EMPTY_SUBTEXT}</p>

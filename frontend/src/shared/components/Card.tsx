@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactElement, ForwardedRef } from 'react'
 import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
-type CardTone = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info'
+type CardTone = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info' | 'flat'
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   tone?: CardTone
@@ -15,6 +15,7 @@ const toneStyles: Record<CardTone, string> = {
   error: 'border-ui-border bg-ui-danger-subtle text-foreground',
   warning: 'border-ui-border bg-ui-warning-subtle text-foreground',
   info: 'border-ui-border bg-ui-info-subtle text-foreground',
+  flat: 'border-ui-border-subtle bg-transparent text-foreground shadow-none',
 }
 
 export const Card = forwardRef(function Card(
