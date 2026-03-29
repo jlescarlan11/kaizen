@@ -6,8 +6,8 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Currency Standardization' (Protocol in workflow.md) af4695a
 
 ## Phase 2: Budget Icons Synchronization
-- [ ] Task: Write Tests - Add tests to verify that budget list components render the icon associated with the budget entity.
-- [ ] Task: Implement - Update budget list and summary components to consume and display the `icon` property from the budget object rather than a default/static icon.
+- [x] Task: Write Tests - Add tests to verify that budget list components render the icon associated with the budget entity. 7685b0b
+- [x] Task: Implement - Update budget list and summary components to consume and display the `icon` property from the budget object rather than a default/static icon. 7685b0b
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Budget Icons Synchronization' (Protocol in workflow.md)
 
 ## Phase 3: Flat UI Implementation
