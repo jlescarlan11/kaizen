@@ -102,7 +102,6 @@ export function BudgetsPage(): ReactElement {
               return (
                 <Card
                   key={budget.id}
-                  tone="flat"
                   className="group space-y-4 p-6 transition-colors hover:border-ui-border-strong"
                 >
                   <div className="flex items-start justify-between">

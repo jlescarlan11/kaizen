@@ -46,12 +46,12 @@ export function BalanceHistoryPage(): ReactElement {
 
       <div className="mx-auto max-w-3xl w-full">
         {isLoading ? (
-          <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
+          <Card className="p-12 flex justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </Card>
         ) : history.length === 0 ? (
-          <Card className="p-12 flex flex-col items-center text-center border border-ui-border-subtle bg-ui-surface-subtle shadow-sm">
-            <div className="h-12 w-12 rounded-full bg-ui-surface flex items-center justify-center mb-4">
+          <Card className="p-12 flex flex-col items-center text-center">
+            <div className="h-12 w-12 rounded-full bg-ui-surface-muted flex items-center justify-center mb-4">
               <RefreshCw className="h-6 w-6 text-subtle-foreground" />
             </div>
             <h3 className="text-lg font-medium text-foreground mb-1">No history yet</h3>
@@ -64,7 +64,7 @@ export function BalanceHistoryPage(): ReactElement {
             {history.map((entry, index) => (
               <Card
                 key={`${entry.transactionId}-${index}`}
-                className="flex items-center justify-between p-4 border border-ui-border-subtle bg-ui-surface shadow-sm hover:border-ui-border transition-colors"
+                className="flex items-center justify-between p-4 hover:border-ui-border-strong transition-colors"
               >
                 <div className="flex items-center gap-4">
                   <div

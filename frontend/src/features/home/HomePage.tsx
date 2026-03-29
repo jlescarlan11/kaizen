@@ -98,7 +98,6 @@ export function HomePage(): ReactElement {
                 return (
                   <Card
                     key={budget.id}
-                    tone="flat"
                     className="p-5 hover:border-ui-border-strong transition-all group"
                   >
                     <div className="flex items-center gap-3 mb-4">
@@ -143,10 +142,9 @@ export function HomePage(): ReactElement {
           )}
         </section>
 
-        {/* ───────── GOAL SECTION ───────── */}
         <section className="space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-800 delay-225">
           <SectionHeader title="Goal" seeAllHref="/goals" />
-          <Card className="p-10 border border-dashed border-ui-border-strong bg-ui-surface-muted/30 flex flex-col items-center justify-center text-center space-y-3">
+          <div className="p-10 border border-dashed border-ui-border-subtle rounded-xl flex flex-col items-center justify-center text-center space-y-3">
             <div className="h-12 w-12 rounded-full bg-ui-accent-subtle flex items-center justify-center">
               <svg
                 width="24"
@@ -176,7 +174,7 @@ export function HomePage(): ReactElement {
             >
               Coming Soon
             </Badge>
-          </Card>
+          </div>
         </section>
       </div>
       <DashboardTour />

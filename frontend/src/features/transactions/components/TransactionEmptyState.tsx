@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react'
-import { Card } from '../../../shared/components/Card'
 import { Button } from '../../../shared/components/Button'
 
 interface TransactionEmptyStateProps {
@@ -32,8 +31,8 @@ export function TransactionEmptyState({
   }
 
   return (
-    <Card className="p-16 text-center border border-ui-border-subtle shadow-sm flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-300">
-      <div className="h-16 w-16 bg-ui-surface-muted rounded-full flex items-center justify-center text-muted-foreground mb-2">
+    <div className="p-16 text-center border border-dashed border-ui-border-subtle rounded-2xl flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-300">
+      <div className="h-16 w-16 bg-ui-surface-muted/20 rounded-full flex items-center justify-center text-muted-foreground mb-2">
         <EmptyIcon />
       </div>
       <div className="space-y-2 max-w-sm">
@@ -60,7 +59,7 @@ export function TransactionEmptyState({
           )}
         </div>
       )}
-    </Card>
+    </div>
   )
 }
 

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react'
 import { Button } from '../../shared/components/Button'
-import { Card } from '../../shared/components/Card'
 import { BUDGETS_EMPTY_BUTTON, BUDGETS_EMPTY_MESSAGE } from './emptyStateCopy'
 
 interface BudgetsEmptyStateProps {
@@ -9,7 +8,7 @@ interface BudgetsEmptyStateProps {
 
 export function BudgetsEmptyState({ onQuickSetup }: BudgetsEmptyStateProps): ReactElement {
   return (
-    <Card tone="flat" className="space-y-3 p-6">
+    <div className="space-y-3 p-6 border border-dashed border-ui-border-subtle rounded-xl bg-transparent">
       <div>
         <p className="text-base font-semibold text-foreground">{BUDGETS_EMPTY_MESSAGE}</p>
       </div>
@@ -23,6 +22,6 @@ export function BudgetsEmptyState({ onQuickSetup }: BudgetsEmptyStateProps): Rea
           {BUDGETS_EMPTY_BUTTON}
         </Button>
       </div>
-    </Card>
+    </div>
   )
 }

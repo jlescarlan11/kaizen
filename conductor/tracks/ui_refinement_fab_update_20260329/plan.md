@@ -11,10 +11,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Budget Icons Synchronization' (Protocol in workflow.md) 7632ed9
 
 ## Phase 3: Flat UI Implementation
-- [ ] Task: Write Tests - Add/Update component tests for Dashboard Widgets, Transaction Lists, and Budget Items to verify the absence of card-specific CSS classes (e.g., shadows, surface colors).
-- [ ] Task: Implement - Refactor Dashboard Widgets styles to remove surface card UI.
-- [ ] Task: Implement - Refactor Transaction Lists styles to remove surface card UI.
-- [ ] Task: Implement - Refactor Budget Items styles to remove surface card UI.
+- [x] Task: Write Tests - Add/Update component tests for Dashboard Widgets, Transaction Lists, and Budget Items to verify the absence of card-specific CSS classes (e.g., shadows, surface colors). 7fc5812
+- [x] Task: Implement - Refactor Dashboard Widgets styles to remove surface card UI. 7fc5812
+- [x] Task: Implement - Refactor Transaction Lists styles to remove surface card UI. 7fc5812
+- [x] Task: Implement - Refactor Budget Items styles to remove surface card UI. 7fc5812
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Flat UI Implementation' (Protocol in workflow.md)
 
 ## Phase 4: FAB Speed Dial Integration

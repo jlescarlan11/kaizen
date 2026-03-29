@@ -98,7 +98,7 @@ export function TransactionListPage(): ReactElement {
           {/* Running Balance Card */}
           {!isLoading && transactions.length > 0 && (
             <div className="flex flex-col items-center md:items-end gap-2">
-              <Card className="flex flex-col items-center md:items-end justify-center px-6 py-3 border-ui-border-subtle bg-ui-surface shadow-sm">
+              <Card className="flex flex-col items-center md:items-end justify-center px-6 py-3">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
                   Total Balance
                 </p>

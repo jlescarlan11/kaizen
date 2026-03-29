@@ -120,7 +120,7 @@ function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): R
       className={`flex items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors ${
         isInvalid
           ? 'border-ui-danger-bg bg-ui-danger-subtle'
-          : 'border-ui-border-subtle bg-ui-surface'
+          : 'border-ui-border-subtle bg-transparent'
       }`}
     >
       <CategoryBadge
@@ -497,7 +497,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
   return (
     <>
       <div className="flex flex-col gap-6 pb-28 sm:pb-10">
-        <div className="rounded-xl border border-ui-border-subtle bg-ui-surface px-4 py-4">
+        <div className="rounded-xl border border-ui-border-subtle bg-transparent px-4 py-4">
           <p className="mb-3 text-xs leading-5 text-subtle-foreground">Balance overview</p>
           <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
         </div>

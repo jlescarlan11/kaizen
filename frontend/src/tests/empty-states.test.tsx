@@ -17,8 +17,7 @@ describe('TransactionsEmptyState', () => {
 
     render(<TransactionsEmptyState onAddTransaction={onAdd} buttonRef={buttonRef} />)
 
-    const card = screen.getByText(TRANSACTIONS_EMPTY_TITLE).closest('.rounded-xl')
-    expect(card).toHaveClass('shadow-none')
+    const card = screen.getByText(TRANSACTIONS_EMPTY_TITLE).closest('.border-dashed')
     expect(card).toHaveClass('bg-transparent')
 
     fireEvent.click(screen.getByRole('button', { name: TRANSACTIONS_EMPTY_BUTTON }))
@@ -33,8 +32,7 @@ describe('BudgetsEmptyState', () => {
 
     render(<BudgetsEmptyState onQuickSetup={onQuickSetup} />)
 
-    const card = screen.getByText(BUDGETS_EMPTY_MESSAGE).closest('.rounded-xl')
-    expect(card).toHaveClass('shadow-none')
+    const card = screen.getByText(BUDGETS_EMPTY_MESSAGE).closest('.border-dashed')
     expect(card).toHaveClass('bg-transparent')
 
     fireEvent.click(screen.getByRole('button', { name: BUDGETS_EMPTY_BUTTON }))

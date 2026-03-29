@@ -1,6 +1,5 @@
 import type { ReactElement, Ref } from 'react'
 import { Button } from '../../shared/components/Button'
-import { Card } from '../../shared/components/Card'
 import {
   TRANSACTIONS_EMPTY_BUTTON,
   TRANSACTIONS_EMPTY_SUBTEXT,
@@ -17,7 +16,7 @@ export function TransactionsEmptyState({
   buttonRef,
 }: TransactionsEmptyStateProps): ReactElement {
   return (
-    <Card tone="flat" className="space-y-3 p-6">
+    <div className="space-y-3 p-6 border border-dashed border-ui-border-subtle rounded-xl bg-transparent">
       <div className="space-y-1">
         <p className="text-base font-semibold text-foreground">{TRANSACTIONS_EMPTY_TITLE}</p>
         <p className="text-sm text-muted-foreground">{TRANSACTIONS_EMPTY_SUBTEXT}</p>
@@ -31,6 +30,6 @@ export function TransactionsEmptyState({
       >
         {TRANSACTIONS_EMPTY_BUTTON}
       </Button>
-    </Card>
+    </div>
   )
 }

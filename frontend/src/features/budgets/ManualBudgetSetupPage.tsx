@@ -283,7 +283,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           </p>
         </header>
 
-        <div className="rounded-2xl border border-ui-border-subtle bg-ui-surface-subtle/60 p-4">
+        <div className="rounded-2xl border border-ui-border-subtle p-4">
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
@@ -308,8 +308,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
               sessionBudgets.map((budget, index) => (
                 <Card
                   key={`${budget.categoryId}-${index}`}
-                  className="flex items-center justify-between gap-3 border border-ui-border-subtle p-4"
-                  tone="neutral"
+                  className="flex items-center justify-between gap-3 p-4"
                 >
                   <div className="flex min-w-0 flex-1 items-center gap-3">
                     <CategoryBadge

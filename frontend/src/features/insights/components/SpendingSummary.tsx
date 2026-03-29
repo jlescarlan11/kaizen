@@ -20,13 +20,13 @@ export function SpendingSummary({ summary, isLoading }: SpendingSummaryProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card tone="flat" title="Total Income">
+      <Card title="Total Income">
         <p className="text-2xl font-bold text-green-600">{formatCurrency(summary.totalIncome)}</p>
       </Card>
-      <Card tone="flat" title="Total Expenses">
+      <Card title="Total Expenses">
         <p className="text-2xl font-bold text-red-600">{formatCurrency(summary.totalExpenses)}</p>
       </Card>
-      <Card tone="flat" title="Net Balance">
+      <Card title="Net Balance">
         <p
           className={`text-2xl font-bold ${summary.netBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}
         >
