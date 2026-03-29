@@ -328,6 +328,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
+                aria-label={item.label}
                 className={({ isActive }) =>
                   cn(
                     'flex flex-col items-center gap-1.5 transition-all duration-200',

@@ -1,0 +1,23 @@
+# Implementation Plan: UI Refinement and FAB Update
+
+## Phase 1: Currency Standardization
+- [ ] Task: Write Tests - Add/Update unit tests for currency formatting utility to expect "PHP X" instead of "₱X".
+- [ ] Task: Implement - Update global currency formatter to use "PHP " prefix and remove all hardcoded "₱" signs.
+- [ ] Task: Conductor - User Manual Verification 'Phase 1: Currency Standardization' (Protocol in workflow.md)
+
+## Phase 2: Budget Icons Synchronization
+- [ ] Task: Write Tests - Add tests to verify that budget list components render the icon associated with the budget entity.
+- [ ] Task: Implement - Update budget list and summary components to consume and display the `icon` property from the budget object rather than a default/static icon.
+- [ ] Task: Conductor - User Manual Verification 'Phase 2: Budget Icons Synchronization' (Protocol in workflow.md)
+
+## Phase 3: Flat UI Implementation
+- [ ] Task: Write Tests - Add/Update component tests for Dashboard Widgets, Transaction Lists, and Budget Items to verify the absence of card-specific CSS classes (e.g., shadows, surface colors).
+- [ ] Task: Implement - Refactor Dashboard Widgets styles to remove surface card UI.
+- [ ] Task: Implement - Refactor Transaction Lists styles to remove surface card UI.
+- [ ] Task: Implement - Refactor Budget Items styles to remove surface card UI.
+- [ ] Task: Conductor - User Manual Verification 'Phase 3: Flat UI Implementation' (Protocol in workflow.md)
+
+## Phase 4: FAB Speed Dial Integration
+- [ ] Task: Write Tests - Add component tests for the new Speed Dial FAB to verify the presence of the 4 required actions and their click handlers.
+- [ ] Task: Implement - Replace existing FAB with a Speed Dial component containing: Add transaction, Create Budget, Create Goal, Hold Purchase.
+- [ ] Task: Conductor - User Manual Verification 'Phase 4: FAB Speed Dial Integration' (Protocol in workflow.md)
