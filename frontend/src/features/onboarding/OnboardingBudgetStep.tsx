@@ -106,16 +106,9 @@ const periodLabel: Record<BudgetPeriod, string> = {
   WEEKLY: 'Weekly',
 }
 
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+
 function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): ReactElement {
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
-  )
   const categoryDesign = resolveCategoryDesign(
     budget.categoryName,
     budget.categoryIcon,
@@ -142,7 +135,7 @@ function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): R
           {budget.categoryName}
         </p>
         <p className="text-xs leading-5 text-muted-foreground tabular-nums">
-          {formatter.format(budget.amount)} / {periodLabel[budget.period]}
+          {formatCurrency(budget.amount)} / {periodLabel[budget.period]}
         </p>
       </div>
 
@@ -298,16 +291,6 @@ export function OnboardingBudgetStep(): ReactElement | null {
     return Math.max(balance - otherTotal, 0)
   }, [balance, editingCategoryId, pendingBudgets])
 
-  const currencyFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
-  )
-
   const nextCustomCategoryDesign = useMemo(
     () => getAutoAssignedCategoryDesign(categories.filter((category) => !category.isGlobal)),
     [categories],
@@ -433,7 +416,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
     if (parsedAmount > available) {
       setAmountValidationError(
-        `Amount cannot exceed your remaining balance of ${currencyFormatter.format(Math.max(available, 0))}.`,
+        `Amount cannot exceed your remaining balance of ${formatCurrency(Math.max(available, 0))}.`,
       )
       return
     }
@@ -698,7 +681,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             error={amountValidationError ?? undefined}
             helperText={
               !amountValidationError
-                ? `Unallocated: ${currencyFormatter.format(availableForCurrent)}`
+                ? `Unallocated: ${formatCurrency(availableForCurrent)}`
                 : undefined
             }
           />

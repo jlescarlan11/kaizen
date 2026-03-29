@@ -3,10 +3,11 @@ import { Card } from '../../shared/components/Card'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
 import { pageLayout } from '../../shared/styles/layout'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-})
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 export function PaymentMethodSummaryPage(): ReactElement {
   const { data: summary = [], isLoading, error } = useGetPaymentMethodSummaryQuery()

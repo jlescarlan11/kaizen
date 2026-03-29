@@ -23,10 +23,11 @@ interface TransactionListProps {
   isLoading?: boolean
 }
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-})
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
+
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 const timeFormatter = new Intl.DateTimeFormat('en-PH', {
   timeStyle: 'short',

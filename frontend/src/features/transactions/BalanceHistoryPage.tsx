@@ -7,10 +7,11 @@ import { ChevronLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '../../shared/lib/cn'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-})
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 const dateFormatter = new Intl.DateTimeFormat('en-PH', {
   month: 'short',

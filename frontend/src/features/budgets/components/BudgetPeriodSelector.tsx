@@ -2,12 +2,11 @@ import type { ReactElement } from 'react'
 import { typography } from '../../../shared/styles/typography'
 import { SMART_BUDGET_PERIOD, WEEKS_PER_MONTH_DIVISOR } from '../constants'
 import type { BudgetPeriod } from '../constants'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-})
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 interface BudgetPeriodSelectorProps {
   value: BudgetPeriod

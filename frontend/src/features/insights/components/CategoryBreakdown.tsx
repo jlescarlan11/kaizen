@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 interface CategoryBreakdownProps {
   breakdown: CategoryBreakdownType
@@ -29,13 +30,6 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
         </div>
       </Card>
     )
-  }
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(val)
   }
 
   const chartData = breakdown.categories.map((c) => ({

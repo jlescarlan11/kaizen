@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import type { TrendSeries, Granularity } from '../types'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 interface SpendingTrendsProps {
   trends: TrendSeries
@@ -33,13 +34,6 @@ export function SpendingTrends({
         </div>
       </Card>
     )
-  }
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(val)
   }
 
   const chartData = trends.series.map((t) => {
@@ -76,7 +70,7 @@ export function SpendingTrends({
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" fontSize={12} />
-            <YAxis fontSize={12} width={60} tickFormatter={(val) => `$${val}`} />
+            <YAxis fontSize={12} width={60} tickFormatter={(val) => `PHP ${val}`} />
             <Tooltip formatter={(value: number) => formatCurrency(value)} />
             <Bar dataKey="value" fill="#6366f1" />
           </BarChart>

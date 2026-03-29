@@ -18,10 +18,11 @@ import { Button } from '../../shared/components/Button'
 import type { FilterState } from './types'
 import { useTransactionPagination } from './hooks/useTransactionPagination'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-})
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 const INITIAL_FILTER: FilterState = {
   categories: [],

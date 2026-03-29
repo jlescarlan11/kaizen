@@ -16,13 +16,11 @@ import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
 import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
 import { cn } from '../../shared/lib/cn'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 export function HomePage(): ReactElement {
   const { user } = useAuthState()
@@ -62,10 +60,10 @@ export function HomePage(): ReactElement {
             Total Balance
           </p>
           <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold text-muted-foreground">PHP</span>
             <h2 className="text-4xl font-black tracking-tight text-foreground">
               {formattedBalance.replace('PHP', '').trim()}
             </h2>
-            <span className="text-lg font-bold text-muted-foreground">PHP</span>
           </div>
         </section>
 

@@ -22,6 +22,7 @@ import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
 export function SmartBudgetPage(): ReactElement | null {
   const { user } = useAuthState()
@@ -36,11 +37,7 @@ export function SmartBudgetPage(): ReactElement | null {
 
   const isSaving = isSavingOnboarding || isSavingBudgets
 
-  const formattedBalance = new Intl.NumberFormat('en-PH', {
-    style: 'currency',
-    currency: 'PHP',
-    minimumFractionDigits: 2,
-  }).format(balance)
+  const formattedBalance = formatCurrency(balance)
 
   const [amounts, setAmounts] = useState(() =>
     SMART_BUDGET_SLOTS.map((slot) => (balance * slot.percentage).toFixed(2)),

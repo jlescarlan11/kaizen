@@ -4,13 +4,11 @@ import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/ap
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()

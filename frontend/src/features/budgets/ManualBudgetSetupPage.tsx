@@ -38,6 +38,7 @@ import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
 export function ManualBudgetSetupPage(): ReactElement | null {
   const { user } = useAuthState()
@@ -86,15 +87,9 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     [sessionBudgets],
   )
 
-  const currencyFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
-  )
+  const currencyFormatter = {
+    format: (amount: number) => formatCurrency(amount),
+  }
 
   const nextCustomCategoryDesign = useMemo(
     () => getAutoAssignedCategoryDesign(categories.filter((category) => !category.isGlobal)),
@@ -189,7 +184,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
 
     const parsedAmount = Number(amountInput)
     if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
-      setAmountValidationError('Enter an amount of at least ₱1.00.')
+      setAmountValidationError('Enter an amount of at least PHP 1.00.')
       return
     }
 
@@ -200,7 +195,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     const available = balance - otherBudgetsTotal
     if (parsedAmount > available) {
       setAmountValidationError(
-        `Amount cannot exceed your remaining balance of ₱${available.toFixed(2)}.`,
+        `Amount cannot exceed your remaining balance of ${formatCurrency(Math.max(available, 0))}.`,
       )
       return
     }
@@ -505,7 +500,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             max={availableForCurrent}
             step="0.01"
             endAdornment="PHP"
-            helperText={`Enter up to ₱${availableForCurrent.toFixed(2)}.`}
+            helperText={`Enter up to ${formatCurrency(availableForCurrent)}.`}
             value={amountInput}
             onChange={(event) => {
               setAmountInput(event.target.value)

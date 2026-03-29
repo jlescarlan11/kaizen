@@ -21,10 +21,11 @@ interface TransactionDetailModalProps {
   onClose: () => void
 }
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-})
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
+
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 const dateFormatter = new Intl.DateTimeFormat('en-PH', {
   dateStyle: 'full',

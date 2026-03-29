@@ -1,5 +1,6 @@
 import { Card } from '../../../shared/components/Card'
 import type { SpendingSummary as SpendingSummaryType } from '../types'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 interface SpendingSummaryProps {
   summary: SpendingSummaryType
@@ -15,13 +16,6 @@ export function SpendingSummary({ summary, isLoading }: SpendingSummaryProps) {
         ))}
       </div>
     )
-  }
-
-  const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(val)
   }
 
   return (

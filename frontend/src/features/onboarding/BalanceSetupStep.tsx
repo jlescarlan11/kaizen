@@ -25,12 +25,11 @@ import {
   type FundingSourceType,
 } from './fundingSource'
 import { FUNDING_SOURCE_ICONS } from './FundingSourceIcons'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
-const formatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-})
+const formatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 export function BalanceSetupStep(): ReactElement {
   const navigate = useNavigate()

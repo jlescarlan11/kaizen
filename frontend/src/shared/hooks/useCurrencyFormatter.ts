@@ -1,12 +1,11 @@
 import { useMemo } from 'react'
+import { formatCurrency } from '../lib/formatCurrency'
 
 export function useCurrencyFormatter() {
   return useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-      }),
+    () => ({
+      format: (amount: number) => formatCurrency(amount),
+    }),
     [],
   )
 }
