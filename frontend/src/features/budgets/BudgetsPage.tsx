@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { pageLayout } from '../../shared/styles/layout'
@@ -12,8 +13,9 @@ const currencyFormatter = {
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
-  const { data: budgets, isLoading } = useGetBudgetsQuery()
+  const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: budgetSummary } = useGetBudgetSummaryQuery()
+  const { data: categories = [] } = useGetCategoriesQuery()
 
   const handleEditBudget = () => {
     // For now, redirect to the smart setup as an "editor" (MVP logic)
@@ -25,7 +27,7 @@ export function BudgetsPage(): ReactElement {
     navigate('/budget/manual')
   }
 
-  if (isLoading) {
+  if (isBudgetsLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -95,36 +97,50 @@ export function BudgetsPage(): ReactElement {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {budgets.map((budget) => (
-              <Card
-                key={budget.id}
-                className="group space-y-4 border border-ui-border-subtle p-6 transition-colors hover:border-ui-border-strong"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                      {budget.categoryName}
-                    </p>
-                    <p className="text-2xl font-semibold text-foreground">
-                      {currencyFormatter.format(budget.amount)}
-                    </p>
+            {budgets.map((budget) => {
+              const category = categories.find((c) => c.id === budget.categoryId)
+              return (
+                <Card
+                  key={budget.id}
+                  className="group space-y-4 border border-ui-border-subtle p-6 transition-colors hover:border-ui-border-strong"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-lg"
+                        style={{
+                          backgroundColor: (category?.color || '#000') + '15',
+                          color: category?.color,
+                        }}
+                      >
+                        {category?.icon || '💰'}
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+                          {budget.categoryName}
+                        </p>
+                        <p className="text-2xl font-semibold text-foreground">
+                          {currencyFormatter.format(budget.amount)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="rounded-md bg-ui-accent-subtle px-2 py-1 text-[10px] font-medium uppercase text-ui-action">
+                      {budget.period}
+                    </div>
                   </div>
-                  <div className="rounded-md bg-ui-accent-subtle px-2 py-1 text-[10px] font-medium uppercase text-ui-action">
-                    {budget.period}
-                  </div>
-                </div>
 
-                <div className="pt-2">
-                  <Button
-                    variant="ghost"
-                    onClick={handleEditBudget}
-                    className="w-full text-xs font-medium"
-                  >
-                    Edit Budget
-                  </Button>
-                </div>
-              </Card>
-            ))}
+                  <div className="pt-2">
+                    <Button
+                      variant="ghost"
+                      onClick={handleEditBudget}
+                      className="w-full text-xs font-medium"
+                    >
+                      Edit Budget
+                    </Button>
+                  </div>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>

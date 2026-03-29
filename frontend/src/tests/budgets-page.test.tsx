@@ -7,6 +7,7 @@ import { BudgetsPage } from '../features/budgets/BudgetsPage'
 import type { RootState } from '../app/store/store'
 import { setupStore } from '../app/store/store'
 import * as budgetApi from '../app/store/api/budgetApi'
+import * as categoryApi from '../app/store/api/categoryApi'
 
 const mockUser: RootState['auth']['user'] = {
   id: 'user-1',
@@ -47,16 +48,73 @@ const createStore = (): ReturnType<typeof setupStore> =>
 
 const getBudgetsSpy = vi.spyOn(budgetApi, 'useGetBudgetsQuery')
 const getBudgetSummarySpy = vi.spyOn(budgetApi, 'useGetBudgetSummaryQuery')
+const getCategoriesSpy = vi.spyOn(categoryApi, 'useGetCategoriesQuery')
 
 describe('BudgetsPage', () => {
   afterEach(() => {
     getBudgetsSpy.mockClear()
     getBudgetSummarySpy.mockClear()
+    getCategoriesSpy.mockClear()
   })
 
   afterAll(() => {
     getBudgetsSpy.mockRestore()
     getBudgetSummarySpy.mockRestore()
+    getCategoriesSpy.mockRestore()
+  })
+
+  it('renders budget cards with their associated category icons', () => {
+    getBudgetsSpy.mockReturnValue({
+      data: [
+        {
+          id: 1,
+          userId: 1,
+          categoryId: 10,
+          categoryName: 'Food',
+          amount: 250,
+          period: 'MONTHLY',
+          createdAt: '2026-03-23T00:00:00Z',
+          updatedAt: '2026-03-23T00:00:00Z',
+        },
+      ],
+      isLoading: false,
+      refetch: vi.fn(),
+    })
+    getBudgetSummarySpy.mockReturnValue({
+      data: {
+        balance: 1000,
+        totalAllocated: 250,
+        remainingToAllocate: 750,
+        allocationPercentage: 25,
+        budgetCount: 1,
+      },
+      isFetching: false,
+      refetch: vi.fn(),
+    })
+    getCategoriesSpy.mockReturnValue({
+      data: [
+        {
+          id: 10,
+          name: 'Food',
+          isGlobal: true,
+          icon: '🍕',
+          color: '#FF5733',
+        },
+      ],
+      isLoading: false,
+      refetch: vi.fn(),
+    })
+
+    render(
+      <Provider store={createStore()}>
+        <MemoryRouter>
+          <BudgetsPage />
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    expect(screen.getByText(/Food/i)).toBeInTheDocument()
+    expect(screen.getByText('🍕')).toBeInTheDocument()
   })
 
   it('shows actual balance separately from allocated and remaining amounts', () => {
