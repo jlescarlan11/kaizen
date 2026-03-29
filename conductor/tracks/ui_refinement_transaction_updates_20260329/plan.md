@@ -1,7 +1,7 @@
 # Implementation Plan: UI Refinement and Transaction Input Updates
 
 ## Phase 1: Budget Card Component Sharing & Styling
-- [ ] Task: Create a shared `BudgetCard` component in `frontend/src/features/budgets/components/BudgetCard.tsx`.
+- [~] Task: Create a shared `BudgetCard` component in `frontend/src/features/budgets/components/BudgetCard.tsx`.
 - [ ] Task: Migrate the styling and logic from `OnboardingBudgetStep.tsx` to the shared `BudgetCard`.
 - [ ] Task: Update `OnboardingBudgetStep.tsx` to use the shared `BudgetCard`.
 - [ ] Task: Update `ManualBudgetSetupPage.tsx` to use the shared `BudgetCard` for consistent visuals.

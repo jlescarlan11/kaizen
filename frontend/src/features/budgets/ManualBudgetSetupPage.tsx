@@ -18,7 +18,7 @@ import {
   setPendingBudgets,
 } from '../onboarding/onboardingSlice'
 import { createCategory, getCategories } from '../categories/api'
-import { CategoryBadge } from '../categories/CategoryBadge'
+import { BudgetCard } from './components/BudgetCard'
 import { InlineCustomCategoryFields } from '../categories/InlineCustomCategoryFields'
 import {
   getAutoAssignedCategoryDesign,
@@ -87,9 +87,13 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     [sessionBudgets],
   )
 
-  const currencyFormatter = {
-    format: (amount: number) => formatCurrency(amount),
-  }
+  const invalidBudgetIds = useMemo(
+    () =>
+      new Set(
+        sessionBudgets.filter((budget) => budget.amount <= 0).map((budget) => budget.categoryId),
+      ),
+    [sessionBudgets],
+  )
 
   const nextCustomCategoryDesign = useMemo(
     () => getAutoAssignedCategoryDesign(categories.filter((category) => !category.isGlobal)),
@@ -306,60 +310,13 @@ export function ManualBudgetSetupPage(): ReactElement | null {
               </p>
             ) : (
               sessionBudgets.map((budget, index) => (
-                <Card
+                <BudgetCard
                   key={`${budget.categoryId}-${index}`}
-                  className="flex items-center justify-between gap-3 p-4"
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <CategoryBadge
-                      icon={
-                        resolveCategoryDesign(
-                          budget.categoryName,
-                          budget.categoryIcon,
-                          budget.categoryColor,
-                        ).icon
-                      }
-                      color={
-                        resolveCategoryDesign(
-                          budget.categoryName,
-                          budget.categoryIcon,
-                          budget.categoryColor,
-                        ).color
-                      }
-                      size={36}
-                      label={`Icon for ${budget.categoryName}`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {budget.categoryName}
-                      </p>
-                      <p className="text-xs text-muted-foreground uppercase tracking-tight">
-                        {budget.period}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="text-sm font-semibold text-foreground">
-                      {currencyFormatter.format(budget.amount)}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        className="h-8 px-2 text-xs"
-                        onClick={() => openModal(budget)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="h-8 px-2 text-xs text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteBudget(budget.categoryId)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+                  budget={budget}
+                  isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                  onEdit={() => openModal(budget)}
+                  onRemove={() => handleDeleteBudget(budget.categoryId)}
+                />
               ))
             )}
           </div>

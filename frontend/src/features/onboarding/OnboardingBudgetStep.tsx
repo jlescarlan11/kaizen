@@ -1,5 +1,7 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { BudgetCard } from '../budgets/components/BudgetCard'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import {
   useCompleteOnboardingMutation,
@@ -11,13 +13,8 @@ import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { typography } from '../../shared/styles/typography'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { createCategory, getCategories } from '../categories/api'
-import { CategoryBadge } from '../categories/CategoryBadge'
 import { InlineCustomCategoryFields } from '../categories/InlineCustomCategoryFields'
-import {
-  getAutoAssignedCategoryDesign,
-  type CategoryIconName,
-  resolveCategoryDesign,
-} from '../categories/designSystem'
+import { getAutoAssignedCategoryDesign, type CategoryIconName } from '../categories/designSystem'
 import type { Category } from '../categories/types'
 import {
   CUSTOM_CATEGORY_OPTION_VALUE,
@@ -26,7 +23,7 @@ import {
 import { AllocationTotalDisplay } from '../budgets/components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from '../budgets/components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from '../budgets/components/SkipBudgetTrigger'
-import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS, type BudgetPeriod } from '../budgets/constants'
+import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS } from '../budgets/constants'
 import { OnboardingErrorBlock } from './OnboardingErrorBlock'
 import { clearStoredOnboardingDraft } from './onboardingDraftStorage'
 import {
@@ -91,73 +88,6 @@ function AllocationBar({ allocated, balance, onOver }: AllocationBarProps): Reac
       balance={balance}
       onStatusChange={(status) => onOver(status === 'over')}
     />
-  )
-}
-
-interface BudgetCardProps {
-  budget: PendingBudget
-  isInvalid: boolean
-  onEdit: () => void
-  onRemove: () => void
-}
-
-const periodLabel: Record<BudgetPeriod, string> = {
-  MONTHLY: 'Monthly',
-  WEEKLY: 'Weekly',
-}
-
-import { formatCurrency } from '../../shared/lib/formatCurrency'
-
-function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): ReactElement {
-  const categoryDesign = resolveCategoryDesign(
-    budget.categoryName,
-    budget.categoryIcon,
-    budget.categoryColor,
-  )
-
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors ${
-        isInvalid
-          ? 'border-ui-danger-bg bg-ui-danger-subtle'
-          : 'border-ui-border-subtle bg-transparent'
-      }`}
-    >
-      <CategoryBadge
-        icon={categoryDesign.icon}
-        color={categoryDesign.color}
-        size={36}
-        label={`Icon for ${budget.categoryName}`}
-      />
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium leading-none text-foreground">
-          {budget.categoryName}
-        </p>
-        <p className="text-xs leading-5 text-muted-foreground tabular-nums">
-          {formatCurrency(budget.amount)} / {periodLabel[budget.period]}
-        </p>
-      </div>
-
-      <div className="flex shrink-0 gap-1">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground"
-          aria-label={`Edit ${budget.categoryName} budget`}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-foreground"
-          aria-label={`Remove ${budget.categoryName} budget`}
-        >
-          Remove
-        </button>
-      </div>
-    </div>
   )
 }
 
