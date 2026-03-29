@@ -4,28 +4,41 @@ import { AddEntryFAB } from './AddEntryFAB'
 import { render } from '../../tests/test-utils'
 
 describe('AddEntryFAB', () => {
-  it('should render the FAB with an Add icon', () => {
-    render(<AddEntryFAB onClick={() => {}} />)
+  const mockActions = {
+    onAddTransaction: vi.fn(),
+    onCreateBudget: vi.fn(),
+    onCreateGoal: vi.fn(),
+    onHoldPurchase: vi.fn(),
+  }
 
-    const fab = screen.getByRole('button', { name: /add entry/i })
+  it('should render the FAB with an Add icon', () => {
+    render(<AddEntryFAB {...mockActions} />)
+
+    const fab = screen.getByRole('button', { name: /open quick actions/i })
     expect(fab).toBeInTheDocument()
-    expect(fab).toHaveClass('rounded-full', 'bg-ui-action-bg')
   })
 
-  it('should trigger onClick when clicked', () => {
-    const handleClick = vi.fn()
-    render(<AddEntryFAB onClick={handleClick} />)
+  it('should show all 4 actions when clicked', () => {
+    render(<AddEntryFAB {...mockActions} />)
 
-    const fab = screen.getByRole('button', { name: /add entry/i })
+    const fab = screen.getByRole('button', { name: /open quick actions/i })
     fireEvent.click(fab)
 
-    expect(handleClick).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/add transaction/i)).toBeInTheDocument()
+    expect(screen.getByText(/create budget/i)).toBeInTheDocument()
+    expect(screen.getByText(/create goal/i)).toBeInTheDocument()
+    expect(screen.getByText(/hold purchase/i)).toBeInTheDocument()
   })
 
-  it('should have a shadow and be circular', () => {
-    render(<AddEntryFAB onClick={() => {}} />)
+  it('should trigger the correct handler when an action is clicked', () => {
+    render(<AddEntryFAB {...mockActions} />)
 
-    const fab = screen.getByRole('button', { name: /add entry/i })
-    expect(fab).toHaveClass('shadow-lg', 'rounded-full')
+    const fab = screen.getByRole('button', { name: /open quick actions/i })
+    fireEvent.click(fab)
+
+    const addTransactionBtn = screen.getByRole('button', { name: /add transaction/i })
+    fireEvent.click(addTransactionBtn)
+
+    expect(mockActions.onAddTransaction).toHaveBeenCalledTimes(1)
   })
 })

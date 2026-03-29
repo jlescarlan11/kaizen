@@ -11,6 +11,8 @@ import { AddEntryFAB } from '../../shared/components/AddEntryFAB'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
 import { ConnectivityIndicator } from '../../shared/components/ConnectivityIndicator'
+import { showAlert } from '../../app/store/notificationSlice'
+import { useAppDispatch } from '../../app/store/hooks'
 import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
@@ -41,6 +43,7 @@ export function AuthenticatedLayout(): ReactElement {
 
 function AuthenticatedLayoutContent(): ReactElement {
   const { user } = useAuthState()
+  const dispatch = useAppDispatch()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const isMobile = useMediaQuery('(max-width: 768px)')
   const matches = useMatches()
@@ -362,7 +365,20 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
       <ConnectivityIndicator />
-      <AddEntryFAB onClick={() => navigate('/budget/manual')} />
+      <AddEntryFAB
+        onAddTransaction={() => navigate('/transactions/add')}
+        onCreateBudget={() => navigate('/budget/manual')}
+        onCreateGoal={() => navigate('/goals')}
+        onHoldPurchase={() =>
+          void dispatch(
+            showAlert({
+              title: 'Hold Purchase',
+              message: 'This feature is coming soon!',
+              type: 'info',
+            }),
+          )
+        }
+      />
     </div>
   )
 }
