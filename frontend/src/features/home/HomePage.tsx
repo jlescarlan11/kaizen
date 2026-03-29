@@ -1,18 +1,21 @@
 import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import { useGetBudgetSummaryQuery, useGetBudgetsQuery } from '../../app/store/api/budgetApi'
 import { useGetTransactionsQuery } from '../../app/store/api/transactionApi'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { BudgetsEmptyState } from './BudgetsEmptyState'
 import { TransactionsEmptyState } from './TransactionsEmptyState'
 import { TransactionList } from '../transactions/components/TransactionList'
+import { SectionHeader } from '../../shared/components/SectionHeader'
+import { SkeletonList } from '../../shared/components/SkeletonList'
 import { Card } from '../../shared/components/Card'
-import { Button } from '../../shared/components/Button'
+import { Badge } from '../../shared/components/Badge'
 import { DashboardTour } from './DashboardTour'
 import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
 import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
-import { pageLayout } from '../../shared/styles/layout'
+import { cn } from '../../shared/lib/cn'
 
 const currencyFormatter = new Intl.NumberFormat('en-PH', {
   style: 'currency',
@@ -28,9 +31,11 @@ export function HomePage(): ReactElement {
   const balanceCardRef = useRegisterDashboardTourAnchor('balanceCard')
   const addTransactionButtonRef = useRegisterDashboardTourAnchor('addTransactionButton')
 
-  const { data: budgetSummary, isFetching: isBudgetSummaryLoading } = useGetBudgetSummaryQuery()
-  const budgetCount = budgetSummary?.budgetCount ?? 0
-  const hasBudgets = budgetCount > 0
+  const { isFetching: isBudgetSummaryLoading } = useGetBudgetSummaryQuery()
+  const { data: budgets = [], isFetching: isBudgetsLoading } = useGetBudgetsQuery()
+  const { data: categories = [] } = useGetCategoriesQuery()
+
+  const hasBudgets = budgets.length > 0
 
   const { data: transactions = [], isLoading: isTransactionsLoading } = useGetTransactionsQuery()
   const hasTransactions = transactions.length > 0
@@ -47,127 +52,134 @@ export function HomePage(): ReactElement {
 
   return (
     <>
-      <section className={pageLayout.sectionGap}>
-        <header className={pageLayout.headerGap}>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.name}. Here is your account overview.
+      <div className={cn('space-y-10 pb-32')}>
+        {/* ───────── TOTAL BALANCE ───────── */}
+        <section
+          ref={balanceCardRef}
+          className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-500"
+        >
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            Total Balance
           </p>
-        </header>
-
-        <div className={pageLayout.sectionCompactGap}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-foreground">Transactions</h2>
-            {hasTransactions && (
-              <Button
-                variant="ghost"
-                onClick={handleStartTransactions}
-                ref={addTransactionButtonRef}
-                className="text-sm font-medium"
-              >
-                Add entry
-              </Button>
-            )}
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-4xl font-black tracking-tight text-foreground">
+              {formattedBalance.replace('PHP', '').trim()}
+            </h2>
+            <span className="text-lg font-bold text-muted-foreground">PHP</span>
           </div>
+        </section>
+
+        {/* ───────── TRANSACTIONS SECTION ───────── */}
+        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-600 delay-75">
+          <SectionHeader title="Transactions" seeAllHref="/transactions" />
 
           {isTransactionsLoading ? (
-            <Card className="border border-ui-border-subtle p-6">
-              <p className="text-sm text-muted-foreground">Loading transaction history...</p>
-            </Card>
+            <SkeletonList count={3} itemHeight="h-20" />
           ) : !hasTransactions ? (
-            <>
-              <TransactionsEmptyState
-                onAddTransaction={handleStartTransactions}
-                buttonRef={addTransactionButtonRef}
-              />
-              <p className="text-xs leading-snug text-subtle-foreground">
-                No transaction history yet? Tap the button above to record your first entry.
-              </p>
-            </>
+            <TransactionsEmptyState
+              onAddTransaction={handleStartTransactions}
+              buttonRef={addTransactionButtonRef}
+            />
           ) : (
-            <div className="space-y-4">
-              <TransactionList transactions={transactions.slice(0, 5)} />
-              {transactions.length > 5 && (
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/transactions')}
-                  className="w-full text-sm font-medium text-subtle-foreground"
-                >
-                  View all transactions
-                </Button>
-              )}
-            </div>
+            <TransactionList transactions={transactions.slice(0, 5)} />
           )}
-        </div>
+        </section>
 
-        <div className={pageLayout.sectionCompactGap}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Budget summary
-              </p>
-              <p className="text-foreground text-lg font-semibold">Plan and track your budgets</p>
-            </div>
-            <Button variant="ghost" onClick={handleLaunchSetup} className="text-sm font-medium">
-              Manage budgets
-            </Button>
-          </div>
+        {/* ───────── BUDGET SECTION ───────── */}
+        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+          <SectionHeader title="Budget" seeAllHref="/budget" />
 
-          {isBudgetSummaryLoading ? (
-            <Card className="border border-ui-border-subtle p-6">
-              <p className="text-sm text-muted-foreground">Loading budget activity...</p>
-            </Card>
-          ) : hasBudgets ? (
-            <Card className="space-y-3 border border-ui-border-subtle p-6">
-              <p className="text-base font-semibold text-foreground">Budgets at a glance</p>
-              <p className="text-sm text-muted-foreground">
-                You currently have {budgetCount} budget{budgetCount === 1 ? '' : 's'} configured.
-              </p>
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Allocated
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Remaining to budget
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {currencyFormatter.format(budgetSummary?.remainingToAllocate ?? 0)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Allocation rate
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {budgetSummary?.allocationPercentage ?? 0}%
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ) : (
+          {isBudgetSummaryLoading || isBudgetsLoading ? (
+            <SkeletonList count={2} itemHeight="h-24" />
+          ) : !hasBudgets ? (
             <BudgetsEmptyState onQuickSetup={handleLaunchSetup} />
-          )}
-        </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {budgets.slice(0, 3).map((budget) => {
+                const category = categories.find((c) => c.id === budget.categoryId)
+                return (
+                  <Card
+                    key={budget.id}
+                    className="p-5 border border-ui-border-subtle hover:border-ui-border-strong transition-all group"
+                  >
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className="h-10 w-10 rounded-full flex items-center justify-center text-lg"
+                        style={{
+                          backgroundColor: (category?.color || '#000') + '15',
+                          color: category?.color,
+                        }}
+                      >
+                        {category?.icon || '💰'}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground leading-tight">
+                          {budget.categoryName}
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {budget.period}
+                        </p>
+                      </div>
+                    </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Card ref={balanceCardRef} className="space-y-3 border border-ui-border-subtle p-6">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Available balance
-            </p>
-            <p className="text-4xl font-bold tracking-tight text-foreground">{formattedBalance}</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-semibold">
+                        <span className="text-muted-foreground">Limit</span>
+                        <span className="text-foreground">
+                          {currencyFormatter.format(budget.amount)}
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                        {/* 
+                          TODO: In Phase 4, we should fetch current spending for each budget 
+                          to show accurate progress. For now, showing an empty bar or static 0.
+                        */}
+                        <div className="h-full bg-primary/40" style={{ width: '0%' }} />
+                      </div>
+                    </div>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ───────── GOAL SECTION ───────── */}
+        <section className="space-y-4 animate-in fade-in slide-in-from-bottom-5 duration-800 delay-225">
+          <SectionHeader title="Goal" seeAllHref="/goals" />
+          <Card className="p-10 border border-dashed border-ui-border-strong bg-ui-surface-muted/30 flex flex-col items-center justify-center text-center space-y-3">
+            <div className="h-12 w-12 rounded-full bg-ui-accent-subtle flex items-center justify-center">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-primary"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">Savings Goals</p>
+              <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
+                Track your progress towards big purchases or emergency funds.
+              </p>
+            </div>
+            <Badge
+              tone="neutral"
+              className="text-[10px] uppercase font-black tracking-widest px-3 py-1"
+            >
+              Coming Soon
+            </Badge>
           </Card>
-        </div>
-        {/*
-          Goals empty state content is deferred (PRD Open Question 6).
-          Keep this stub in place until the UX team confirms the required copy.
-        */}
-      </section>
+        </section>
+      </div>
       <DashboardTour />
     </>
   )

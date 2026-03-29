@@ -18,7 +18,7 @@ export function AddEntryFAB({ onClick, className }: AddEntryFABProps): ReactElem
       onClick={onClick}
       aria-label="Add entry"
       className={cn(
-        'fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ui-action-bg text-ui-action-text shadow-lg hover:bg-ui-action-bg-hover active:bg-ui-action-bg-active transition-all md:bottom-10 md:right-10',
+        'fixed bottom-24 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-ui-surface border-2 border-ui-border-strong text-foreground shadow-2xl hover:bg-ui-surface-muted active:scale-95 transition-all md:bottom-10 md:right-10',
         className,
       )}
     >

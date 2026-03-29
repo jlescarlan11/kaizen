@@ -11,6 +11,10 @@ import com.kaizen.backend.user.entity.FundingSourceType;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import com.kaizen.backend.budget.service.BudgetService;
+import com.kaizen.backend.transaction.entity.Transaction;
+import com.kaizen.backend.transaction.repository.TransactionRepository;
+import com.kaizen.backend.common.entity.TransactionType;
+import java.time.LocalDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,17 +24,20 @@ public class UserAccountService {
     private final OnboardingProgressService onboardingProgressService;
     private final BudgetService budgetService;
     private final UserFundingSourceService userFundingSourceService;
+    private final TransactionRepository transactionRepository;
 
     public UserAccountService(
         UserAccountRepository userAccountRepository,
         OnboardingProgressService onboardingProgressService,
         BudgetService budgetService,
-        UserFundingSourceService userFundingSourceService
+        UserFundingSourceService userFundingSourceService,
+        TransactionRepository transactionRepository
     ) {
         this.userAccountRepository = userAccountRepository;
         this.onboardingProgressService = onboardingProgressService;
         this.budgetService = budgetService;
         this.userFundingSourceService = userFundingSourceService;
+        this.transactionRepository = transactionRepository;
     }
 
     public UserResponse getByEmail(String email) {
@@ -53,10 +60,25 @@ public class UserAccountService {
 
         account.setBalance(request.startingFunds());
         account.setOnboardingCompleted(true);
+        account.setFirstTransactionAdded(true);
         
         UserAccount updated = userAccountRepository.save(account);
         userFundingSourceService.replaceInitialSource(updated, fundingSourceType, request.startingFunds());
         
+        // Create initial transaction for opening balance
+        Transaction openingTransaction = new Transaction(
+            updated,
+            null, // No category for opening balance
+            null, // No specific payment method yet
+            request.startingFunds(),
+            TransactionType.INCOME,
+            "Opening Balance",
+            LocalDateTime.now(),
+            null,
+            "Automatically created during onboarding"
+        );
+        transactionRepository.save(openingTransaction);
+
         if (request.budgets() != null && !request.budgets().isEmpty()) {
             budgetService.saveBudgetsForUser(updated, request.budgets());
         }
