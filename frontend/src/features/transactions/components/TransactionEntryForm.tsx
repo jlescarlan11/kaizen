@@ -261,64 +261,71 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   }
 
   return (
-    <Card className="border border-ui-border-subtle p-6 shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <Card className="border border-ui-border-subtle p-5 sm:p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-8">
         <TransactionTypeToggle value={type} onChange={setType} />
 
-        <Input
-          label="Amount"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          error={errors.amount}
-          startAdornment={<span className="text-sm font-medium text-muted-foreground">PHP</span>}
-          required
-        />
-
-        <Input
-          label="Date (Optional)"
-          type="date"
-          max={today}
-          value={transactionDate}
-          onChange={(e) => setTransactionDate(e.target.value)}
-          error={errors.transactionDate}
-          helperText={editId ? undefined : 'Captured at submission if not set.'}
-        />
-
-        {type === 'EXPENSE' && (
-          <CategorySelector
-            label="Category"
-            value={categoryId}
-            onChange={setCategoryId}
-            error={errors.categoryId}
+        <div className="space-y-6">
+          <Input
+            label="Amount"
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            error={errors.amount}
+            startAdornment={
+              <span className="text-base font-semibold text-muted-foreground">PHP</span>
+            }
+            className="h-14 text-2xl font-bold tracking-tight"
+            required
           />
-        )}
 
-        <PaymentMethodSelector
-          label="Payment Method"
-          value={paymentMethodId}
-          onChange={setPaymentMethodId}
-          error={errors.paymentMethodId}
-        />
+          <Input
+            label="Date (Optional)"
+            type="date"
+            max={today}
+            value={transactionDate}
+            onChange={(e) => setTransactionDate(e.target.value)}
+            error={errors.transactionDate}
+            helperText={editId ? undefined : 'Captured at submission if not set.'}
+          />
 
-        <Input
-          label="Description (Optional)"
-          placeholder="What was this for?"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          {type === 'EXPENSE' && (
+            <CategorySelector
+              label="Category"
+              value={categoryId}
+              onChange={setCategoryId}
+              error={errors.categoryId}
+            />
+          )}
 
-        <TextArea
-          label="Notes (Optional)"
-          placeholder="Add extra details..."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+          <PaymentMethodSelector
+            label="Payment Method"
+            value={paymentMethodId}
+            onChange={setPaymentMethodId}
+            error={errors.paymentMethodId}
+          />
+        </div>
 
-        <div className="space-y-4 rounded-lg border border-ui-border-subtle p-4 bg-ui-surface-muted/30">
+        <div className="space-y-6 pt-6 border-t border-ui-border-subtle/50">
+          <Input
+            label="Description (Optional)"
+            placeholder="What was this for?"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+
+          <TextArea
+            label="Notes (Optional)"
+            placeholder="Add extra details..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-4 rounded-xl border border-ui-border-subtle p-5 bg-ui-surface-muted/30">
           <Checkbox
             label="Recurring Transaction"
             checked={isRecurring}
@@ -363,12 +370,22 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
 
         {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
 
-        <div className="flex gap-3 pt-2">
-          <Button type="button" variant="ghost" className="flex-1" onClick={() => navigate(-1)}>
-            Cancel
-          </Button>
-          <Button type="submit" className="flex-1" isLoading={isCreating || isUpdating}>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <Button
+            type="submit"
+            className="flex-1 order-1 sm:order-2"
+            isLoading={isCreating || isUpdating}
+          >
             {editId ? 'Save Changes' : 'Save Transaction'}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            className="flex-1 order-2 sm:order-1"
+            onClick={() => navigate(-1)}
+            disabled={isCreating || isUpdating}
+          >
+            Cancel
           </Button>
         </div>
       </form>
