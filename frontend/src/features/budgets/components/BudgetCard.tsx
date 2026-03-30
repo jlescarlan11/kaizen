@@ -41,7 +41,7 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
       />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-bold leading-none text-foreground">
+        <p className="truncate text-base font-semibold leading-none text-foreground">
           {budget.categoryName}
         </p>
         <p className="mt-1 text-sm font-medium leading-none text-subtle-foreground tabular-nums">
@@ -57,9 +57,9 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
           type="button"
           onClick={onEdit}
           className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-bold text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground active:scale-95',
+            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground active:scale-95',
             fluidLayout.touchTarget,
-            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2 sm:font-semibold',
+            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}
           aria-label={`Edit ${budget.categoryName} budget`}
         >
@@ -69,9 +69,9 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
           type="button"
           onClick={onRemove}
           className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-bold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-danger active:scale-95',
+            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-danger active:scale-95',
             fluidLayout.touchTarget,
-            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2 sm:font-semibold',
+            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}
           aria-label={`Remove ${budget.categoryName} budget`}
         >

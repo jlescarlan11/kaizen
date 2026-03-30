@@ -33,9 +33,7 @@ export function BudgetPeriodSelector({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground sm:text-foreground sm:normal-case sm:tracking-normal">
-          Budget period
-        </p>
+        <p className="text-sm font-medium leading-none text-foreground">Budget period</p>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
           {periodOptions.map((option) => {
             const selected = option.value === value
@@ -45,7 +43,7 @@ export function BudgetPeriodSelector({
                 key={option.value}
                 type="button"
                 className={cn(
-                  'inline-flex items-center justify-center rounded-xl border px-5 transition text-sm font-bold sm:font-medium',
+                  'inline-flex items-center justify-center rounded-xl border px-5 transition text-sm font-semibold sm:font-medium',
                   fluidLayout.touchTarget,
                   'sm:h-9 sm:min-h-0 sm:px-4 sm:py-1.5',
                   selected

@@ -117,7 +117,7 @@ describe('BalanceSetupStep', () => {
       )
 
       const totalAmount = screen.getByText(/PHP 0\.00/)
-      expect(totalAmount).toHaveClass('text-3xl', 'md:text-4xl', 'font-display')
+      expect(totalAmount).toHaveClass('font-display', 'text-4xl', 'md:text-5xl')
     })
 
     it('verifies correct responsive spacing and layout tokens', () => {

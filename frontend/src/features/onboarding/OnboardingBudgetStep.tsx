@@ -439,15 +439,13 @@ export function OnboardingBudgetStep(): ReactElement | null {
     <>
       <div className={cn('flex flex-col pb-28 sm:pb-10', fluidLayout.sectionGap)}>
         <div className="rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8">
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-            Balance overview
-          </p>
+          <p className="mb-4 text-sm font-medium leading-none text-foreground">Balance overview</p>
           <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
         </div>
 
         <section aria-label="Your budgets" className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            <h2 className="text-sm font-medium leading-none text-foreground">
               Your budgets
               {pendingBudgets.length > 0 && (
                 <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
@@ -457,7 +455,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             </h2>
             <Button
               variant="secondary"
-              className={cn(fluidLayout.touchTarget, 'rounded-xl px-5 text-sm font-bold')}
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-5 text-sm font-semibold')}
               onClick={openAddModal}
               disabled={isLoadingCategories}
             >
@@ -541,7 +539,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
           <Button
             className={cn(
               fluidLayout.touchTarget,
-              'w-full rounded-xl text-lg font-bold sm:w-auto sm:px-8',
+              'w-full rounded-xl text-lg font-semibold sm:w-auto sm:px-8',
             )}
             onClick={handleFinishSetup}
             isLoading={isCompleting}
@@ -631,7 +629,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             step="0.01"
             endAdornment="PHP"
             value={amountInput}
-            className={cn(fluidLayout.touchTarget, 'font-bold')}
+            className={cn(fluidLayout.touchTarget, 'font-semibold')}
             onChange={(event) => {
               dispatch(
                 setBudgetEditorDraft({

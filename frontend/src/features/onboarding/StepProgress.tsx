@@ -28,7 +28,7 @@ export function StepProgress(): ReactElement | null {
       aria-label={`Onboarding progress: Step ${stepNumber} of ${totalSteps}`}
     >
       <div className="flex items-center justify-between">
-        <span className={cn(typography.label, 'text-primary')}>
+        <span className={cn(typography.label, 'text-foreground')}>
           Step {stepNumber} of {totalSteps}
         </span>
       </div>
