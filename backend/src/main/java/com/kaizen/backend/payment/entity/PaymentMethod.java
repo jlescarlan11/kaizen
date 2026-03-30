@@ -26,6 +26,9 @@ public class PaymentMethod extends BaseEntity {
     @Column(name = "is_global", nullable = false)
     private boolean global = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_account_id")
     private UserAccount userAccount;

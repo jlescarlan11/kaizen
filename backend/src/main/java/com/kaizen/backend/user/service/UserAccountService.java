@@ -13,6 +13,8 @@ import com.kaizen.backend.user.repository.UserAccountRepository;
 import com.kaizen.backend.budget.service.BudgetService;
 import com.kaizen.backend.transaction.entity.Transaction;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
+import com.kaizen.backend.payment.entity.PaymentMethod;
+import com.kaizen.backend.payment.repository.PaymentMethodRepository;
 import com.kaizen.backend.common.entity.TransactionType;
 import java.time.LocalDateTime;
 
@@ -25,19 +27,22 @@ public class UserAccountService {
     private final BudgetService budgetService;
     private final UserFundingSourceService userFundingSourceService;
     private final TransactionRepository transactionRepository;
+    private final PaymentMethodRepository paymentMethodRepository;
 
     public UserAccountService(
         UserAccountRepository userAccountRepository,
         OnboardingProgressService onboardingProgressService,
         BudgetService budgetService,
         UserFundingSourceService userFundingSourceService,
-        TransactionRepository transactionRepository
+        TransactionRepository transactionRepository,
+        PaymentMethodRepository paymentMethodRepository
     ) {
         this.userAccountRepository = userAccountRepository;
         this.onboardingProgressService = onboardingProgressService;
         this.budgetService = budgetService;
         this.userFundingSourceService = userFundingSourceService;
         this.transactionRepository = transactionRepository;
+        this.paymentMethodRepository = paymentMethodRepository;
     }
 
     public UserResponse getByEmail(String email) {
@@ -55,29 +60,69 @@ public class UserAccountService {
         UserAccount account = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
-        FundingSourceType fundingSourceType = FundingSourceType.fromValue(request.fundingSourceType())
-            .orElseThrow(() -> new IllegalArgumentException("Unsupported funding source type"));
+        BigDecimal totalBalance = BigDecimal.ZERO;
+        if (request.initialBalances() != null && !request.initialBalances().isEmpty()) {
+            totalBalance = request.initialBalances().stream()
+                .map(OnboardingRequest.InitialBalanceRequest::amount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else if (request.startingFunds() != null) {
+            totalBalance = request.startingFunds();
+        }
 
-        account.setBalance(request.startingFunds());
+        account.setBalance(totalBalance);
         account.setOnboardingCompleted(true);
         account.setFirstTransactionAdded(true);
         
         UserAccount updated = userAccountRepository.save(account);
-        userFundingSourceService.replaceInitialSource(updated, fundingSourceType, request.startingFunds());
+
+        // Handle legacy single funding source if provided
+        if (request.fundingSourceType() != null && request.startingFunds() != null) {
+            FundingSourceType fundingSourceType = FundingSourceType.fromValue(request.fundingSourceType())
+                .orElse(FundingSourceType.CASH_ON_HAND);
+            userFundingSourceService.replaceInitialSource(updated, fundingSourceType, request.startingFunds());
+        }
         
-        // Create initial transaction for opening balance
-        Transaction openingTransaction = new Transaction(
-            updated,
-            null, // No category for opening balance
-            null, // No specific payment method yet
-            request.startingFunds(),
-            TransactionType.INCOME,
-            "Opening Balance",
-            LocalDateTime.now(),
-            null,
-            "Automatically created during onboarding"
-        );
-        transactionRepository.save(openingTransaction);
+        // Create initial transactions
+        if (request.initialBalances() != null && !request.initialBalances().isEmpty()) {
+            for (OnboardingRequest.InitialBalanceRequest balanceRequest : request.initialBalances()) {
+                PaymentMethod paymentMethod = null;
+                if (balanceRequest.paymentMethodId() != null) {
+                    paymentMethod = paymentMethodRepository.findById(balanceRequest.paymentMethodId()).orElse(null);
+                }
+
+                Transaction transaction = new Transaction(
+                    updated,
+                    null, // No category for opening balance
+                    paymentMethod,
+                    balanceRequest.amount(),
+                    TransactionType.INITIAL_BALANCE,
+                    balanceRequest.description() != null ? balanceRequest.description() : "Opening Balance",
+                    balanceRequest.transactionDate() != null ? balanceRequest.transactionDate() : LocalDateTime.now(),
+                    null,
+                    balanceRequest.notes() != null ? balanceRequest.notes() : "Initial setup"
+                );
+                transactionRepository.save(transaction);
+            }
+        } else if (request.startingFunds() != null) {
+            // Handle legacy single transaction
+            PaymentMethod paymentMethod = null;
+            if (request.paymentMethodId() != null) {
+                paymentMethod = paymentMethodRepository.findById(request.paymentMethodId()).orElse(null);
+            }
+
+            Transaction openingTransaction = new Transaction(
+                updated,
+                null,
+                paymentMethod,
+                request.startingFunds(),
+                TransactionType.INITIAL_BALANCE,
+                request.description() != null ? request.description() : "Opening Balance",
+                request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now(),
+                null,
+                request.notes() != null ? request.notes() : "Initial setup"
+            );
+            transactionRepository.save(openingTransaction);
+        }
 
         if (request.budgets() != null && !request.budgets().isEmpty()) {
             budgetService.saveBudgetsForUser(updated, request.budgets());

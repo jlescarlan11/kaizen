@@ -291,6 +291,7 @@ public class TransactionService {
                         runningBalance = runningBalance.subtract(t.getAmount());
                     }
                 }
+                case INITIAL_BALANCE -> runningBalance = runningBalance.add(t.getAmount());
             }
             history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
                     t.getTransactionDate(),
@@ -468,7 +469,8 @@ public class TransactionService {
                     cat.getName(),
                     cat.isGlobal(),
                     cat.getIcon(),
-                    cat.getColor());
+                    cat.getColor(),
+                    cat.getType());
         }
 
         PaymentMethodResponse paymentMethodResponse = null;
@@ -477,7 +479,8 @@ public class TransactionService {
             paymentMethodResponse = new PaymentMethodResponse(
                     pm.getId(),
                     pm.getName(),
-                    pm.isGlobal());
+                    pm.isGlobal(),
+                    pm.getDescription());
         }
 
         Boolean remindersEnabled = null;

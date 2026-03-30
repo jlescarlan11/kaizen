@@ -212,7 +212,8 @@ public class CategoryController {
             category.getName(),
             category.isGlobal(),
             category.getIcon(),
-            category.getColor()
+            category.getColor(),
+            category.getType()
         );
     }
 }

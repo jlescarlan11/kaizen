@@ -17,11 +17,24 @@ interface User {
   remindersEnabled: boolean
 }
 
+export interface InitialBalanceRequest {
+  paymentMethodId: number
+  amount: number
+  description?: string
+  notes?: string
+  transactionDate?: string
+}
+
 export interface OnboardingProgressResponse {
   currentStep: string
   startingFunds: number | null
   fundingSourceType: FundingSourceType | null
   lastUpdatedAt: string
+  description?: string
+  notes?: string
+  paymentMethodId?: number
+  transactionDate?: string
+  initialBalances?: InitialBalanceRequest[]
 }
 
 export const authApi = baseApi.injectEndpoints({
@@ -49,6 +62,11 @@ export const authApi = baseApi.injectEndpoints({
         startingFunds: number
         fundingSourceType: FundingSourceType
         budgets?: { categoryId: number; amount: number; period: string }[]
+        description?: string
+        notes?: string
+        paymentMethodId?: number
+        transactionDate?: string
+        initialBalances?: InitialBalanceRequest[]
       }
     >({
       query: (body) => ({
@@ -184,6 +202,11 @@ export const authApi = baseApi.injectEndpoints({
         currentStep: OnboardingStep
         startingFunds?: number
         fundingSourceType?: FundingSourceType
+        description?: string
+        notes?: string
+        paymentMethodId?: number
+        transactionDate?: string
+        initialBalances?: InitialBalanceRequest[]
       }
     >({
       query: (body) => ({

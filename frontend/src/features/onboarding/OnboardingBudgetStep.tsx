@@ -33,6 +33,7 @@ import {
   selectCategoriesSeeded,
   selectFundingSourceType,
   selectPendingBudgets,
+  selectInitialBalances,
   resetBudgetEditorDraft,
   setBudgetEditorDraft,
   setPendingBudgets,
@@ -100,6 +101,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
   const pendingBudgets = useAppSelector(selectPendingBudgets)
   const categoriesSeeded = useAppSelector(selectCategoriesSeeded)
   const budgetEditorDraft = useAppSelector(selectBudgetEditorDraft)
+  const initialBalances = useAppSelector(selectInitialBalances)
 
   const balance = reduxBalance ?? user?.balance ?? 0
 
@@ -405,6 +407,13 @@ export function OnboardingBudgetStep(): ReactElement | null {
             categoryId: budget.categoryId,
             amount: budget.amount,
             period: budget.period,
+          })),
+          initialBalances: initialBalances.map((b) => ({
+            paymentMethodId: b.paymentMethodId,
+            amount: b.amount,
+            description: 'Opening Balance',
+            notes: 'Initial setup',
+            transactionDate: new Date().toISOString(),
           })),
         }).unwrap(),
       )

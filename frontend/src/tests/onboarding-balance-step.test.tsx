@@ -1,0 +1,83 @@
+import { screen, fireEvent, waitFor } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { render } from './test-utils'
+import { BalanceSetupStep } from '../features/onboarding/BalanceSetupStep'
+import { createInitialOnboardingState } from '../features/onboarding/onboardingSlice'
+
+// Mock update onboarding mutation
+const updateProgress = vi.fn().mockReturnValue({ unwrap: () => Promise.resolve() })
+vi.mock('../app/store/api/authApi', () => ({
+  useUpdateOnboardingProgressMutation: () => [updateProgress, { isLoading: false }],
+  useCompleteOnboardingMutation: () => [vi.fn(), { isLoading: false }],
+}))
+
+// Mock payment methods query
+vi.mock('../app/store/api/paymentMethodApi', () => ({
+  useGetPaymentMethodsQuery: () => ({
+    data: [
+      { id: 1, name: 'Cash', isGlobal: true, description: 'Cash description' },
+      { id: 2, name: 'Bank Account (Debit Card)', isGlobal: true, description: 'Bank description' },
+    ],
+    isLoading: false,
+  }),
+}))
+
+describe('BalanceSetupStep', () => {
+  const preloadedState = {
+    onboarding: {
+      ...createInitialOnboardingState(),
+      initialBalances: [],
+    },
+  }
+
+  it('renders minimalist UI without custom step headings', async () => {
+    render(<BalanceSetupStep />, { preloadedState })
+
+    expect(
+      screen.queryByText('Start with suggested amounts, adjust what you need'),
+    ).not.toBeInTheDocument()
+
+    expect(screen.getByText('Cash')).toBeInTheDocument()
+    expect(screen.getByText('Bank Account (Debit Card)')).toBeInTheDocument()
+  })
+
+  it('enables continue button only when at least one balance is positive', async () => {
+    render(<BalanceSetupStep />, { preloadedState })
+
+    const continueBtn = screen.getByText('Continue to budgets')
+    expect(continueBtn).toBeDisabled()
+
+    const inputs = screen.getAllByPlaceholderText('0.00')
+
+    // Type 0
+    fireEvent.change(inputs[0], { target: { value: '0' } })
+    expect(continueBtn).toBeDisabled()
+
+    // Type 100
+    fireEvent.change(inputs[0], { target: { value: '100' } })
+    expect(continueBtn).not.toBeDisabled()
+  })
+
+  it('calls updateProgress with all non-zero initialBalances on continue', async () => {
+    render(<BalanceSetupStep />, { preloadedState })
+
+    const inputs = screen.getAllByPlaceholderText('0.00')
+    fireEvent.change(inputs[0], { target: { value: '1000' } })
+
+    const continueBtn = screen.getByText('Continue to budgets')
+    fireEvent.click(continueBtn)
+
+    await waitFor(() => {
+      expect(updateProgress).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initialBalances: expect.arrayContaining([
+            expect.objectContaining({
+              paymentMethodId: 1,
+              amount: 1000,
+            }),
+          ]),
+        }),
+      )
+    })
+  })
+})

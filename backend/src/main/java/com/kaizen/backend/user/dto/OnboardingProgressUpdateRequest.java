@@ -1,6 +1,7 @@
 package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.kaizen.backend.user.entity.OnboardingStep;
@@ -12,5 +13,10 @@ public record OnboardingProgressUpdateRequest(
     OnboardingStep currentStep,
     @JsonAlias("balanceValue")
     BigDecimal startingFunds,
-    String fundingSourceType
+    String fundingSourceType,
+    String description,
+    String notes,
+    Long paymentMethodId,
+    LocalDateTime transactionDate,
+    java.util.List<OnboardingRequest.InitialBalanceRequest> initialBalances
 ) {}

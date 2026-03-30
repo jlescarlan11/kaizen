@@ -1,4 +1,5 @@
 import { baseApi } from './baseApi'
+import { type TransactionType } from './transactionApi'
 
 export interface CategoryResponse {
   id: number
@@ -6,6 +7,7 @@ export interface CategoryResponse {
   isGlobal: boolean
   icon: string
   color: string
+  type: TransactionType
 }
 
 export const categoryApi = baseApi.injectEndpoints({

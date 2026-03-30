@@ -54,6 +54,7 @@ public class OnboardingProgressController {
     }
 
     @GetMapping
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public ResponseEntity<OnboardingProgressResponse> getProgress(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             throw new ProfileNotFoundException();
@@ -80,8 +81,7 @@ public class OnboardingProgressController {
 
         OnboardingProgress progress = onboardingProgressService.upsert(
                 userAccount,
-                request.currentStep(),
-                request.startingFunds(),
+                request,
                 resolveFundingSourceType(request.fundingSourceType()));
 
         userAccountRepository.save(java.util.Objects.requireNonNull(userAccount));

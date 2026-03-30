@@ -1,5 +1,6 @@
 package com.kaizen.backend.category.dto;
 
+import com.kaizen.backend.common.entity.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -18,5 +19,6 @@ public record CategoryCreateRequest(
         regexp = "^#[0-9A-Fa-f]{6}$",
         message = "Color must be a valid 6-digit hex value prefixed with '#'."
     )
-    String color
+    String color,
+    TransactionType type
 ) {}

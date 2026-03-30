@@ -25,6 +25,20 @@ import { getErrorMessage, SystemMessages } from '../utils/errorMessages'
 
 interface TransactionEntryFormProps {
   editId?: number
+  onSuccess?: (data: {
+    amount: number
+    paymentMethodId?: number
+    categoryId?: number
+    type: TransactionType
+  }) => void
+  initialType?: TransactionType
+  lockType?: boolean
+  hideAdvancedFields?: boolean
+  noCard?: boolean
+  submitLabel?: string
+  hideCancel?: boolean
+  skipSubmit?: boolean
+  hideDescription?: boolean
 }
 
 const FREQUENCY_OPTIONS = [
@@ -34,7 +48,19 @@ const FREQUENCY_OPTIONS = [
   { value: 'YEARLY', label: 'Yearly' },
 ]
 
-export function TransactionEntryForm({ editId }: TransactionEntryFormProps): ReactElement {
+export function TransactionEntryForm({
+  editId,
+  onSuccess,
+  initialType,
+  lockType,
+  hideAdvancedFields,
+  noCard,
+  submitLabel,
+  hideCancel,
+  skipSubmit,
+  hideDescription,
+  hideDate,
+}: TransactionEntryFormProps): ReactElement {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuthState()
@@ -53,7 +79,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
   const duplicateFrom = location.state?.duplicateFrom
 
   const [amount, setAmount] = useState('')
-  const [type, setType] = useState<TransactionType>('EXPENSE')
+  const [type, setType] = useState<TransactionType>(initialType ?? 'EXPENSE')
   const [transactionDate, setTransactionDate] = useState('')
   const [description, setDescription] = useState('')
   const [notes, setNotes] = useState('')
@@ -80,7 +106,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
     if (editId && editData) {
       setAmount(editData.amount.toString())
       setType(editData.type)
-      setTransactionDate(editData.transactionDate.split('T')[0])
+      setTransactionDate(editData.transactionDate?.split('T')[0] ?? '')
       setDescription(editData.description || '')
       setNotes(editData.notes || '')
       setCategoryId(editData.category?.id.toString() || null)
@@ -110,7 +136,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       try {
         const prefs = JSON.parse(user.quickAddPreferences)
         setAmount(prefs.amount?.toString() ?? '')
-        setType(prefs.type ?? 'EXPENSE')
+        setType(initialType ?? prefs.type ?? 'EXPENSE')
         setCategoryId(prefs.categoryId?.toString() ?? null)
         setPaymentMethodId(prefs.paymentMethodId?.toString() ?? null)
         isInitialized.current = true
@@ -118,7 +144,7 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
         console.error('Failed to parse Quick Add preferences:', err)
       }
     }
-  }, [editId, editData, duplicateFrom, user])
+  }, [editId, editData, duplicateFrom, user, initialType])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,7 +157,8 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
       type,
       transactionDate: transactionDate ? `${transactionDate}T00:00:00` : new Date().toISOString(),
       description: description || undefined,
-      categoryId: type === 'EXPENSE' && categoryId ? parseInt(categoryId) : undefined,
+      categoryId:
+        (type === 'EXPENSE' || type === 'INCOME') && categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
       notes: notes || undefined,
       isRecurring,
@@ -155,60 +182,71 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
     try {
       const isOnline = navigator.onLine
 
-      if (isOnline) {
-        let savedId: number
-        if (editId) {
-          await updateTransaction({ id: editId, payload }).unwrap()
-          savedId = editId
-        } else {
-          const result = await createTransaction(payload).unwrap()
-          savedId = result.id
-        }
+      if (!skipSubmit) {
+        if (isOnline) {
+          let savedId: number
+          if (editId) {
+            await updateTransaction({ id: editId, payload }).unwrap()
+            savedId = editId
+          } else {
+            const result = await createTransaction(payload).unwrap()
+            savedId = result.id
+          }
 
-        // Handle receipt attachment
-        if (receiptFile) {
-          // If editing and already has an attachment, delete it first (Replace behavior)
-          if (editId && editData?.attachments && editData.attachments.length > 0) {
-            for (const att of editData.attachments) {
-              await deleteAttachment({ transactionId: editId, attachmentId: att.id }).unwrap()
+          // Handle receipt attachment
+          if (receiptFile) {
+            // If editing and already has an attachment, delete it first (Replace behavior)
+            if (editId && editData?.attachments && editData.attachments.length > 0) {
+              for (const att of editData.attachments) {
+                await deleteAttachment({ transactionId: editId, attachmentId: att.id }).unwrap()
+              }
+            }
+
+            try {
+              await uploadAttachment({ transactionId: savedId, file: receiptFile }).unwrap()
+            } catch (uploadErr) {
+              // Attachment failure must not block transaction save (Story 31)
+              console.error('Failed to upload receipt:', uploadErr)
             }
           }
 
-          try {
-            await uploadAttachment({ transactionId: savedId, file: receiptFile }).unwrap()
-          } catch (uploadErr) {
-            // Attachment failure must not block transaction save (Story 31)
-            console.error('Failed to upload receipt:', uploadErr)
-          }
+          dispatch(
+            showAlert({
+              ...SystemMessages.SUCCESS,
+              type: 'success',
+              dataSaved: true,
+            }),
+          )
+        } else {
+          // Instruction 5: Offline Transaction Creation
+          await db.transactions.add({
+            ...payload,
+            syncStatus: SyncStatus.PENDING,
+            clientGeneratedId: clientId,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          })
+
+          dispatch(
+            showAlert({
+              ...SystemMessages.OFFLINE_SAVE,
+              type: 'success',
+              dataSaved: true,
+            }),
+          )
         }
-
-        dispatch(
-          showAlert({
-            ...SystemMessages.SUCCESS,
-            type: 'success',
-            dataSaved: true,
-          }),
-        )
-      } else {
-        // Instruction 5: Offline Transaction Creation
-        await db.transactions.add({
-          ...payload,
-          syncStatus: SyncStatus.PENDING,
-          clientGeneratedId: clientId,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })
-
-        dispatch(
-          showAlert({
-            ...SystemMessages.OFFLINE_SAVE,
-            type: 'success',
-            dataSaved: true,
-          }),
-        )
       }
 
-      navigate('/')
+      if (onSuccess) {
+        onSuccess({
+          amount: payload.amount,
+          paymentMethodId: payload.paymentMethodId,
+          categoryId: payload.categoryId,
+          type: payload.type,
+        })
+      } else {
+        navigate('/')
+      }
     } catch (err: unknown) {
       console.error('Failed to save transaction:', err)
       const error = err as {
@@ -260,28 +298,45 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
     )
   }
 
-  return (
-    <Card className="border border-ui-border-subtle p-5 sm:p-6 shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <TransactionTypeToggle value={type} onChange={setType} />
+  const formContent = (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {!lockType && <TransactionTypeToggle value={type} onChange={setType} />}
 
-        <div className="space-y-6">
-          <Input
-            label="Amount"
-            type="number"
-            inputMode="decimal"
-            step="0.01"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            error={errors.amount}
-            startAdornment={
-              <span className="text-base font-semibold text-muted-foreground">PHP</span>
-            }
-            className="h-14 text-2xl font-bold tracking-tight"
-            required
+      <div className="space-y-6">
+        <Input
+          label="Amount"
+          type="number"
+          inputMode="decimal"
+          step="0.01"
+          placeholder="0.00"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          error={errors.amount}
+          startAdornment={
+            <span className="text-base font-semibold text-muted-foreground">PHP</span>
+          }
+          className="h-14 text-2xl font-bold tracking-tight"
+          required
+        />
+
+        {(type === 'EXPENSE' || type === 'INCOME') && (
+          <CategorySelector
+            label="Category"
+            value={categoryId}
+            onChange={setCategoryId}
+            error={errors.categoryId}
+            type={type}
           />
+        )}
 
+        <PaymentMethodSelector
+          label="Payment Method"
+          value={paymentMethodId}
+          onChange={setPaymentMethodId}
+          error={errors.paymentMethodId}
+        />
+
+        {!hideDate && (
           <Input
             label="Date (Optional)"
             type="date"
@@ -291,24 +346,10 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
             error={errors.transactionDate}
             helperText={editId ? undefined : 'Captured at submission if not set.'}
           />
+        )}
+      </div>
 
-          {type === 'EXPENSE' && (
-            <CategorySelector
-              label="Category"
-              value={categoryId}
-              onChange={setCategoryId}
-              error={errors.categoryId}
-            />
-          )}
-
-          <PaymentMethodSelector
-            label="Payment Method"
-            value={paymentMethodId}
-            onChange={setPaymentMethodId}
-            error={errors.paymentMethodId}
-          />
-        </div>
-
+      {!hideDescription && (
         <div className="space-y-6 pt-6 border-t border-ui-border-subtle/50">
           <Input
             label="Description (Optional)"
@@ -324,60 +365,66 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>
+      )}
 
-        <div className="space-y-4 rounded-xl border border-ui-border-subtle p-5 bg-ui-surface-muted/30">
-          <Checkbox
-            label="Recurring Transaction"
-            checked={isRecurring}
-            onCheckedChange={setIsRecurring}
-            helperText="Set a frequency for regular charges or income."
-          />
+      {!hideAdvancedFields && (
+        <>
+          <div className="space-y-4 rounded-xl border border-ui-border-subtle p-5 bg-ui-surface-muted/30">
+            <Checkbox
+              label="Recurring Transaction"
+              checked={isRecurring}
+              onCheckedChange={setIsRecurring}
+              helperText="Set a frequency for regular charges or income."
+            />
 
-          {isRecurring && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
-              <Select
-                label="Frequency"
-                options={FREQUENCY_OPTIONS}
-                value={frequencyUnit}
-                onChange={(v) => setFrequencyUnit(v as FrequencyUnit)}
-              />
-              <Input
-                label="Every (multiplier)"
-                type="number"
-                min="1"
-                value={frequencyMultiplier}
-                onChange={(e) => setFrequencyMultiplier(e.target.value)}
-                error={errors.frequencyMultiplier}
-                helperText="e.g., '2' for every 2 weeks."
-              />
-              <div className="sm:col-span-2 pt-2 border-t border-ui-border-subtle/50 mt-2">
-                <Checkbox
-                  label="Enable Reminders"
-                  checked={remindersEnabled}
-                  onCheckedChange={setRemindersEnabled}
-                  helperText="Get notified when the next instance is due."
+            {isRecurring && (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                <Select
+                  label="Frequency"
+                  options={FREQUENCY_OPTIONS}
+                  value={frequencyUnit}
+                  onChange={(v) => setFrequencyUnit(v as FrequencyUnit)}
                 />
+                <Input
+                  label="Every (multiplier)"
+                  type="number"
+                  min="1"
+                  value={frequencyMultiplier}
+                  onChange={(e) => setFrequencyMultiplier(e.target.value)}
+                  error={errors.frequencyMultiplier}
+                  helperText="e.g., '2' for every 2 weeks."
+                />
+                <div className="sm:col-span-2 pt-2 border-t border-ui-border-subtle/50 mt-2">
+                  <Checkbox
+                    label="Enable Reminders"
+                    checked={remindersEnabled}
+                    onCheckedChange={setRemindersEnabled}
+                    helperText="Get notified when the next instance is due."
+                  />
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        <ReceiptPicker
-          file={receiptFile}
-          onFileChange={setReceiptFile}
-          existingAttachments={editData?.attachments}
-        />
+          <ReceiptPicker
+            file={receiptFile}
+            onFileChange={setReceiptFile}
+            existingAttachments={editData?.attachments}
+          />
+        </>
+      )}
 
-        {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
+      {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
 
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <Button
-            type="submit"
-            className="flex-1 order-1 sm:order-2"
-            isLoading={isCreating || isUpdating}
-          >
-            {editId ? 'Save Changes' : 'Save Transaction'}
-          </Button>
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        <Button
+          type="submit"
+          className="flex-1 order-1 sm:order-2"
+          isLoading={isCreating || isUpdating}
+        >
+          {submitLabel || (editId ? 'Save Changes' : 'Save Transaction')}
+        </Button>
+        {!hideCancel && (
           <Button
             type="button"
             variant="ghost"
@@ -387,8 +434,14 @@ export function TransactionEntryForm({ editId }: TransactionEntryFormProps): Rea
           >
             Cancel
           </Button>
-        </div>
-      </form>
-    </Card>
+        )}
+      </div>
+    </form>
   )
+
+  if (noCard) {
+    return formContent
+  }
+
+  return <Card className="border border-ui-border-subtle p-5 sm:p-6 shadow-sm">{formContent}</Card>
 }

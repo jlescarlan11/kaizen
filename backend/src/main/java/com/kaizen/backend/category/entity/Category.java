@@ -1,9 +1,12 @@
 package com.kaizen.backend.category.entity;
 
 import com.kaizen.backend.common.entity.BaseEntity;
+import com.kaizen.backend.common.entity.TransactionType;
 import com.kaizen.backend.user.entity.UserAccount;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,6 +29,10 @@ public class Category extends BaseEntity {
     @Column(name = "is_global", nullable = false)
     private boolean global = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private TransactionType type = TransactionType.EXPENSE;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserAccount user;
@@ -37,10 +44,15 @@ public class Category extends BaseEntity {
     private String color;
 
     public Category(String name, boolean isGlobal, UserAccount user, String icon, String color) {
+        this(name, isGlobal, user, icon, color, TransactionType.EXPENSE);
+    }
+
+    public Category(String name, boolean isGlobal, UserAccount user, String icon, String color, TransactionType type) {
         this.name = name;
         this.global = isGlobal;
         this.user = user;
         this.icon = icon;
         this.color = color;
+        this.type = type != null ? type : TransactionType.EXPENSE;
     }
 }

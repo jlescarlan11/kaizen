@@ -7,6 +7,6 @@
 
 ---
 
-- [ ] **Track: Modify the onboarding step 1 to use add income transaction so that it will be consistent all through out.**
+- [x] **Track: Modify the onboarding step 1 to use add income transaction so that it will be consistent all through out.**
 *Link: [./tracks/ui_refinement_onboarding_income_20260330/](./tracks/ui_refinement_onboarding_income_20260330/)*
 

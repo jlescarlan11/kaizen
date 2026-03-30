@@ -110,7 +110,8 @@ public class CategoryService {
                             true,
                             null,
                             template.icon(),
-                            template.color()));
+                            template.color(),
+                            template.type()));
         }
     }
 
@@ -132,7 +133,7 @@ public class CategoryService {
             throw new InvalidCategoryDesignException("color", request.color());
         }
 
-        Category category = new Category(normalizedName, false, user, request.icon(), request.color());
+        Category category = new Category(normalizedName, false, user, request.icon(), request.color(), request.type());
         return categoryRepository.save(category);
     }
 

@@ -41,7 +41,7 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         return paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId()).stream()
-                .map(pm -> new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()))
+                .map(pm -> new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal(), pm.getDescription()))
                 .collect(Collectors.toList());
     }
 
@@ -62,7 +62,7 @@ public class PaymentMethodService {
             PaymentMethod pm = methodMap.get(methodId);
             if (pm != null) {
                 summaries.add(new PaymentMethodSummaryResponse(
-                        new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal()),
+                        new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal(), pm.getDescription()),
                         total));
             }
         }
@@ -100,7 +100,7 @@ public class PaymentMethodService {
         PaymentMethod pm = new PaymentMethod(name, false, account);
         PaymentMethod saved = paymentMethodRepository.save(pm);
 
-        return new PaymentMethodResponse(saved.getId(), saved.getName(), saved.isGlobal());
+        return new PaymentMethodResponse(saved.getId(), saved.getName(), saved.isGlobal(), saved.getDescription());
     }
 
     public long countTransactionsUsingMethod(String email, Long id) {

@@ -1,7 +1,8 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, useMemo } from 'react'
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { Select, type SelectOption } from '../../shared/components/Select'
 import { cn } from '../../shared/lib/cn'
+import { type TransactionType } from '../../app/store/api/transactionApi'
 
 interface CategorySelectorProps {
   value?: string | null
@@ -12,6 +13,7 @@ interface CategorySelectorProps {
   placeholder?: string
   className?: string
   id?: string
+  type?: TransactionType
 }
 
 export function CategorySelector({
@@ -23,36 +25,45 @@ export function CategorySelector({
   placeholder = 'Select a category',
   className,
   id,
+  type,
 }: CategorySelectorProps): ReactElement {
   const { data: categories = [], isLoading } = useGetCategoriesQuery()
 
-  const categoryOptions: SelectOption[] = [
-    // Null option (Uncategorized)
-    {
-      value: '',
-      label: 'None (Uncategorized)',
-      icon: (
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-[10px]">
-          —
-        </div>
-      ),
-    },
-    ...categories.map((cat) => ({
-      value: cat.id.toString(),
-      label: cat.name,
-      icon: (
-        <div
-          className="flex h-5 w-5 items-center justify-center rounded-full text-[12px]"
-          style={{
-            backgroundColor: cat.color + '22',
-            color: cat.color,
-          }}
-        >
-          {cat.icon}
-        </div>
-      ),
-    })),
-  ]
+  const filteredCategories = useMemo(() => {
+    if (!type) return categories
+    return categories.filter((cat) => cat.type === type)
+  }, [categories, type])
+
+  const categoryOptions: SelectOption[] = useMemo(
+    () => [
+      // Null option (Uncategorized)
+      {
+        value: '',
+        label: 'None (Uncategorized)',
+        icon: (
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-[10px]">
+            —
+          </div>
+        ),
+      },
+      ...filteredCategories.map((cat) => ({
+        value: cat.id.toString(),
+        label: cat.name,
+        icon: (
+          <div
+            className="flex h-5 w-5 items-center justify-center rounded-full text-[12px]"
+            style={{
+              backgroundColor: cat.color + '22',
+              color: cat.color,
+            }}
+          >
+            {cat.icon}
+          </div>
+        ),
+      })),
+    ],
+    [filteredCategories],
+  )
 
   const handleChange = (newValue: string) => {
     // If empty string (None), emit null
