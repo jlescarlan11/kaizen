@@ -139,8 +139,8 @@ export function BalanceSetupStep(): ReactElement {
 
       {/* Summary and Navigation */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8 sm:border-0 sm:bg-transparent sm:p-0">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8 sm:flex-row sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0">
+          <div className="flex flex-col gap-1">
             <p className="text-sm font-medium leading-none text-foreground">Total Starting Funds</p>
             <p className={typography.display}>{formatCurrency(totalBalance)}</p>
           </div>
