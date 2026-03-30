@@ -144,7 +144,7 @@ export function BalanceSetupStep(): ReactElement {
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-ui-border bg-ui-card sm:flex-row sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0">
           <div className="flex flex-col gap-1 p-6 sm:p-0">
             <p className="text-sm font-medium leading-none text-foreground">Total Starting Funds</p>
-            <p className={typography.display}>{formatCurrency(totalBalance)}</p>
+            <p className="text-lg font-semibold text-foreground">{formatCurrency(totalBalance)}</p>
           </div>
           <div className="px-6 pb-6 sm:p-0">
             <Button

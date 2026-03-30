@@ -111,7 +111,7 @@ describe('BalanceSetupStep', () => {
       expect(summaryContainer).toHaveClass('bg-ui-card', 'border', 'border-ui-border')
 
       const totalAmount = screen.getByText(/PHP 0\.00/)
-      expect(totalAmount).toHaveClass('font-display', 'text-4xl', 'md:text-5xl')
+      expect(totalAmount).toHaveClass('text-lg', 'font-semibold')
     })
 
     it('verifies correct responsive spacing and layout tokens', () => {
