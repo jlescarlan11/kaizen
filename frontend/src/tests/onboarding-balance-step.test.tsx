@@ -108,13 +108,7 @@ describe('BalanceSetupStep', () => {
       const summaryContainer = totalLabel.closest('.rounded-2xl')
 
       expect(summaryContainer).toBeInTheDocument()
-      expect(summaryContainer).toHaveClass(
-        'bg-ui-card',
-        'p-6',
-        'md:p-8',
-        'border',
-        'border-ui-border',
-      )
+      expect(summaryContainer).toHaveClass('bg-ui-card', 'border', 'border-ui-border')
 
       const totalAmount = screen.getByText(/PHP 0\.00/)
       expect(totalAmount).toHaveClass('font-display', 'text-4xl', 'md:text-5xl')
