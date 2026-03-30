@@ -123,9 +123,9 @@ describe('BalanceSetupStep', () => {
     it('verifies correct responsive spacing and layout tokens', () => {
       render(<BalanceSetupStep />, { preloadedState })
 
-      // Check payment method headers
-      const header = screen.getByText('Cash')
-      expect(header).toHaveClass('text-lg', 'md:text-xl')
+      // Check payment method labels
+      const label = screen.getByText('Cash')
+      expect(label).toHaveClass('text-sm', 'font-medium')
     })
   })
 })

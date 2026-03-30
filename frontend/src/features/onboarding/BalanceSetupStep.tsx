@@ -100,34 +100,32 @@ export function BalanceSetupStep(): ReactElement {
 
   return (
     <div className={cn('flex w-full flex-col pb-28 sm:pb-10', fluidLayout.sectionGap)}>
-      <div className="space-y-4 md:space-y-6">
-        {paymentMethods.map((pm, index) => {
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {paymentMethods.map((pm) => {
           const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)
           const amountValue = balance ? balance.amount.toString() : ''
 
           return (
-            <div key={pm.id} className="space-y-4 md:space-y-6">
-              {index > 0 && <hr className="border-ui-border-subtle" />}
-              <div className="flex items-center justify-between gap-4 md:gap-6 px-1">
-                <div className="flex-1">
-                  <h3 className={typography.h4}>{pm.name}</h3>
-                </div>
-
-                <div className="w-40 sm:w-48 lg:w-56">
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={amountValue}
-                    onChange={(e) => handleBalanceChange(pm.id, e.target.value)}
-                    startAdornment={
-                      <span className="text-sm font-semibold text-muted-foreground">PHP</span>
-                    }
-                    className={cn(fluidLayout.touchTarget, 'text-lg font-semibold text-right')}
-                  />
-                </div>
-              </div>
+            <div key={pm.id} className="space-y-2">
+              <label
+                htmlFor={`balance-${pm.id}`}
+                className={cn(typography.label, 'text-foreground')}
+              >
+                {pm.name}
+              </label>
+              <Input
+                id={`balance-${pm.id}`}
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                placeholder="0.00"
+                value={amountValue}
+                onChange={(e) => handleBalanceChange(pm.id, e.target.value)}
+                startAdornment={
+                  <span className="text-sm font-semibold text-muted-foreground">PHP</span>
+                }
+                className={cn(fluidLayout.touchTarget, 'text-lg font-semibold')}
+              />
             </div>
           )
         })}

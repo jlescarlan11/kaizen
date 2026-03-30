@@ -4,7 +4,6 @@ import { fluidLayout } from '../../shared/styles/layout'
 import { typography } from '../../shared/styles/typography'
 import { selectCurrentStep } from './onboardingSlice'
 import { ONBOARDING_STEP_METADATA } from './onboardingStep'
-import { StepProgress } from './StepProgress'
 import { cn } from '../../shared/lib/cn'
 
 type ActiveStep = 'BALANCE' | 'BUDGET'
@@ -26,12 +25,9 @@ export function OnboardingLayout({ children }: PropsWithChildren): ReactElement 
       )}
     >
       <div className={fluidLayout.sectionGap}>
-        <div className="space-y-6">
-          <StepProgress />
-          <div className="space-y-2">
-            <h1 className={typography.h1}>{metadata.title}</h1>
-            <p className={typography['body-sm']}>{metadata.description}</p>
-          </div>
+        <div className="space-y-2">
+          <h1 className={typography.h1}>{metadata.title}</h1>
+          <p className={typography['body-sm']}>{metadata.description}</p>
         </div>
 
         <div className="flex-1">{children}</div>
