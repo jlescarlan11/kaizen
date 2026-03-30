@@ -142,7 +142,7 @@ export function BalanceSetupStep(): ReactElement {
 
       {/* Summary and Navigation */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:border sm:border-ui-border sm:bg-ui-card sm:p-0">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
           <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
             <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
               Total Starting Funds
