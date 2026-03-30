@@ -149,6 +149,8 @@ export function TransactionList({
     }
 
     const { transaction: tx } = item
+    const isInitialBalance = tx.type === 'INITIAL_BALANCE'
+
     return (
       <div
         {...ariaAttributes}
@@ -177,7 +179,8 @@ export function TransactionList({
             'flex-1 flex items-center justify-between p-4 hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
             selectedIds.includes(tx.id) &&
               'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
-            !tx.category &&
+            !isInitialBalance &&
+              !tx.category &&
               !selectedIds.includes(tx.id) &&
               'border-amber-200 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10',
           )}
@@ -197,12 +200,12 @@ export function TransactionList({
               <div
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110',
-                  tx.type === 'INCOME'
+                  tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE'
                     ? 'bg-ui-success/10 text-ui-success'
                     : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
                 )}
               >
-                {tx.type === 'INCOME' ? (
+                {tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? (
                   <IncomeIcon />
                 ) : (
                   <span className="text-lg font-bold">?</span>
@@ -212,11 +215,15 @@ export function TransactionList({
             <div>
               <div className="flex items-center gap-1.5">
                 <SearchHighlight
-                  text={tx.description || tx.category?.name || 'Uncategorized'}
+                  text={
+                    isInitialBalance
+                      ? 'Initial Balance'
+                      : tx.description || tx.category?.name || 'Uncategorized'
+                  }
                   query={searchQuery}
                   className={cn(
                     'font-semibold transition-colors block',
-                    tx.category
+                    tx.category || isInitialBalance
                       ? 'text-foreground group-hover:text-primary'
                       : 'text-amber-700 dark:text-amber-500',
                   )}
@@ -245,7 +252,7 @@ export function TransactionList({
                     • {tx.paymentMethod.name}
                   </span>
                 )}
-                {!tx.category && (
+                {!isInitialBalance && !tx.category && (
                   <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
                     • Needs category
                   </span>
@@ -257,10 +264,10 @@ export function TransactionList({
             <p
               className={cn(
                 'font-bold',
-                tx.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
+                tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
               )}
             >
-              {tx.type === 'INCOME' ? '+' : '-'}
+              {tx.type === 'EXPENSE' ? '-' : '+'}
               <SearchHighlight
                 text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
                 query={searchQuery}
@@ -268,10 +275,10 @@ export function TransactionList({
               <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
             </p>
             <Badge
-              tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+              tone={tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? 'success' : 'neutral'}
               className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
             >
-              {tx.type}
+              {isInitialBalance ? 'Initial Balance' : tx.type}
             </Badge>
           </div>
         </Card>

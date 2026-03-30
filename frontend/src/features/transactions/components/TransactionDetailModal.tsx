@@ -135,15 +135,19 @@ export function TransactionDetailModal({
     }
   }
 
+  const isInitialBalance = transaction.type === 'INITIAL_BALANCE'
+
   const footer = (
     <div className="flex flex-col gap-3">
       <div className="flex gap-3">
         <Button variant="outline" className="flex-1" onClick={handleEdit}>
           Edit
         </Button>
-        <Button variant="outline" className="flex-1" onClick={handleDuplicate}>
-          Duplicate
-        </Button>
+        {!isInitialBalance && (
+          <Button variant="outline" className="flex-1" onClick={handleDuplicate}>
+            Duplicate
+          </Button>
+        )}
       </div>
       <Button
         variant="ghost"
@@ -155,6 +159,21 @@ export function TransactionDetailModal({
     </div>
   )
 
+  const getTypeName = (type: string) => {
+    switch (type) {
+      case 'INCOME':
+        return 'Income'
+      case 'EXPENSE':
+        return 'Expense'
+      case 'RECONCILIATION':
+        return 'Adjustment'
+      case 'INITIAL_BALANCE':
+        return 'Initial Balance'
+      default:
+        return type
+    }
+  }
+
   return (
     <>
       <ResponsiveModal open={open} onClose={onClose} title="Transaction Details" footer={footer}>
@@ -162,15 +181,15 @@ export function TransactionDetailModal({
           {/* Header/Summary */}
           <div className="flex flex-col items-center justify-center py-4 bg-ui-surface-muted rounded-2xl border border-ui-border-subtle">
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
-              {transaction.type === 'INCOME' ? 'Income' : 'Expense'}
+              {getTypeName(transaction.type)}
             </p>
             <p
               className={cn(
                 'text-4xl font-bold tracking-tight',
-                transaction.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
+                transaction.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
               )}
             >
-              {transaction.type === 'INCOME' ? '+' : '-'}{' '}
+              {transaction.type === 'EXPENSE' ? '-' : '+'}{' '}
               {currencyFormatter.format(transaction.amount)}
             </p>
           </div>
@@ -197,63 +216,66 @@ export function TransactionDetailModal({
 
             <DetailRow label="Notes" value={transaction.notes || '—'} italic={!transaction.notes} />
 
-            <DetailRow
-              label="Receipt"
-              content={
-                <div className="space-y-2">
-                  {transaction.attachments && transaction.attachments.length > 0 ? (
-                    transaction.attachments.map((att) => (
-                      <div key={att.id} className="flex flex-col gap-2">
-                        <div className="flex items-center justify-between p-3 rounded-xl border border-ui-border-subtle bg-ui-surface-muted group transition-colors hover:border-primary/30">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
-                              {att.mimeType.startsWith('image/') ? (
-                                <ImageIcon size={20} />
-                              ) : (
-                                <FileText size={20} />
-                              )}
+            {!isInitialBalance && (
+              <DetailRow
+                label="Receipt"
+                content={
+                  <div className="space-y-2">
+                    {transaction.attachments && transaction.attachments.length > 0 ? (
+                      transaction.attachments.map((att) => (
+                        <div key={att.id} className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between p-3 rounded-xl border border-ui-border-subtle bg-ui-surface-muted group transition-colors hover:border-primary/30">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                {att.mimeType.startsWith('image/') ? (
+                                  <ImageIcon size={20} />
+                                ) : (
+                                  <FileText size={20} />
+                                )}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground truncate max-w-[150px]">
+                                  {att.filename}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
+                                  {(att.fileSize / 1024).toFixed(1)} KB •{' '}
+                                  {att.mimeType.split('/')[1]}
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-foreground truncate max-w-[150px]">
-                                {att.filename}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
-                                {(att.fileSize / 1024).toFixed(1)} KB • {att.mimeType.split('/')[1]}
-                              </span>
-                            </div>
+                            <a
+                              href={`/api/transactions/attachments/${att.id}/content`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-bold text-primary hover:underline uppercase tracking-wider"
+                            >
+                              Open
+                            </a>
                           </div>
-                          <a
-                            href={`/api/transactions/attachments/${att.id}/content`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-bold text-primary hover:underline uppercase tracking-wider"
-                          >
-                            Open
-                          </a>
+                          {att.mimeType.startsWith('image/') && (
+                            <div className="rounded-xl overflow-hidden border border-ui-border-subtle bg-black/5 aspect-video flex items-center justify-center">
+                              <img
+                                src={`/api/transactions/attachments/${att.id}/content`}
+                                alt="Receipt Preview"
+                                className="max-h-full max-w-full object-contain"
+                                onError={(e) => {
+                                  // Instruction 7: Offline Fallback
+                                  e.currentTarget.style.display = 'none'
+                                  e.currentTarget.parentElement!.innerHTML =
+                                    '<div class="flex flex-col items-center gap-2 p-6 text-muted-foreground"><div class="h-10 w-10 opacity-20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg></div><span class="text-xs font-bold uppercase tracking-wider">Receipt Unavailable</span><span class="text-[10px] opacity-60">File could not be loaded</span></div>'
+                                }}
+                              />
+                            </div>
+                          )}
                         </div>
-                        {att.mimeType.startsWith('image/') && (
-                          <div className="rounded-xl overflow-hidden border border-ui-border-subtle bg-black/5 aspect-video flex items-center justify-center">
-                            <img
-                              src={`/api/transactions/attachments/${att.id}/content`}
-                              alt="Receipt Preview"
-                              className="max-h-full max-w-full object-contain"
-                              onError={(e) => {
-                                // Instruction 7: Offline Fallback
-                                e.currentTarget.style.display = 'none'
-                                e.currentTarget.parentElement!.innerHTML =
-                                  '<div class="flex flex-col items-center gap-2 p-6 text-muted-foreground"><div class="h-10 w-10 opacity-20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.58 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg></div><span class="text-xs font-bold uppercase tracking-wider">Receipt Unavailable</span><span class="text-[10px] opacity-60">File could not be loaded</span></div>'
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <span className="italic text-muted-foreground">—</span>
-                  )}
-                </div>
-              }
-            />
+                      ))
+                    ) : (
+                      <span className="italic text-muted-foreground">—</span>
+                    )}
+                  </div>
+                }
+              />
+            )}
 
             <DetailRow
               label="Payment Method"
@@ -283,48 +305,54 @@ export function TransactionDetailModal({
               }
             />
 
-            <DetailRow
-              label="Category"
-              content={
-                <div className="flex items-center justify-between">
-                  {transaction.category ? (
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="flex h-8 w-8 items-center justify-center rounded-full text-base"
-                        style={{
-                          backgroundColor: transaction.category.color + '22',
-                          color: transaction.category.color,
-                        }}
-                      >
-                        {transaction.category.icon}
+            {!isInitialBalance && (
+              <DetailRow
+                label="Category"
+                content={
+                  <div className="flex items-center justify-between">
+                    {transaction.category ? (
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-base"
+                          style={{
+                            backgroundColor: transaction.category.color + '22',
+                            color: transaction.category.color,
+                          }}
+                        >
+                          {transaction.category.icon}
+                        </div>
+                        <span className="font-medium text-foreground">
+                          {transaction.category.name}
+                        </span>
                       </div>
-                      <span className="font-medium text-foreground">
-                        {transaction.category.name}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="italic text-muted-foreground">—</span>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto p-1 text-primary hover:bg-primary/10 text-xs font-semibold"
-                    onClick={() => setIsRecategorizing(true)}
-                  >
-                    Change
-                  </Button>
-                </div>
-              }
-            />
+                    ) : (
+                      <span className="italic text-muted-foreground">—</span>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-1 text-primary hover:bg-primary/10 text-xs font-semibold"
+                      onClick={() => setIsRecategorizing(true)}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                }
+              />
+            )}
 
             <DetailRow
               label="Type"
               content={
                 <Badge
-                  tone={transaction.type === 'INCOME' ? 'success' : 'neutral'}
+                  tone={
+                    transaction.type === 'INCOME' || transaction.type === 'INITIAL_BALANCE'
+                      ? 'success'
+                      : 'neutral'
+                  }
                   className="uppercase font-bold"
                 >
-                  {transaction.type}
+                  {getTypeName(transaction.type)}
                 </Badge>
               }
             />
