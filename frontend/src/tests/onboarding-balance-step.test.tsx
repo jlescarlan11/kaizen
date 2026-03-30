@@ -80,4 +80,52 @@ describe('BalanceSetupStep', () => {
       )
     })
   })
+
+  describe('Mobile-first Responsiveness', () => {
+    it('applies fluid layout classes to root container', () => {
+      const { container } = render(<BalanceSetupStep />, { preloadedState })
+      const root = container.firstChild as HTMLElement
+      // Check for root layout classes
+      expect(root).toHaveClass('flex', 'w-full', 'flex-col', 'pb-28')
+    })
+
+    it('uses standardized touch targets (h-12) for inputs and button', () => {
+      render(<BalanceSetupStep />, { preloadedState })
+
+      const inputs = screen.getAllByPlaceholderText('0.00')
+      inputs.forEach((input) => {
+        expect(input).toHaveClass('h-12')
+      })
+
+      const continueBtn = screen.getByText('Continue to budgets')
+      expect(continueBtn).toHaveClass('h-12')
+    })
+
+    it('renders summary with prominent mobile-first styling', () => {
+      render(<BalanceSetupStep />, { preloadedState })
+
+      const totalLabel = screen.getByText('Total Starting Funds')
+      const summaryContainer = totalLabel.closest('.rounded-2xl')
+
+      expect(summaryContainer).toBeInTheDocument()
+      expect(summaryContainer).toHaveClass(
+        'bg-ui-card',
+        'p-6',
+        'md:p-8',
+        'border',
+        'border-ui-border',
+      )
+
+      const totalAmount = screen.getByText(/PHP 0\.00/)
+      expect(totalAmount).toHaveClass('text-3xl', 'md:text-4xl', 'font-display')
+    })
+
+    it('verifies correct responsive spacing and layout tokens', () => {
+      render(<BalanceSetupStep />, { preloadedState })
+
+      // Check payment method headers
+      const header = screen.getByText('Cash')
+      expect(header).toHaveClass('text-lg', 'md:text-xl')
+    })
+  })
 })

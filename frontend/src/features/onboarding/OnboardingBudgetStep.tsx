@@ -41,6 +41,8 @@ import {
 } from './onboardingSlice'
 import { type OnboardingStep } from './onboardingStep'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
+import { cn } from '../../shared/lib/cn'
+import { fluidLayout } from '../../shared/styles/layout'
 
 function roundCurrency(value: number): number {
   return Number(value.toFixed(2))
@@ -435,9 +437,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
   return (
     <>
-      <div className="flex flex-col gap-8 pb-28 sm:pb-10">
-        <div className="border-b border-ui-border-subtle pb-8 px-1">
-          <p className="mb-4 text-xs font-bold uppercase tracking-wider text-subtle-foreground">
+      <div className={cn('flex flex-col pb-28 sm:pb-10', fluidLayout.sectionGap)}>
+        <div className="rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8">
+          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-muted-foreground">
             Balance overview
           </p>
           <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
@@ -445,7 +447,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
         <section aria-label="Your budgets" className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-subtle-foreground">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Your budgets
               {pendingBudgets.length > 0 && (
                 <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
@@ -455,7 +457,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             </h2>
             <Button
               variant="secondary"
-              className="h-9 rounded-xl px-4 text-xs font-bold"
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-5 text-sm font-bold')}
               onClick={openAddModal}
               disabled={isLoadingCategories}
             >
@@ -534,10 +536,13 @@ export function OnboardingBudgetStep(): ReactElement | null {
         ) : null}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:flex-row sm:items-center">
           <Button
-            className="h-12 w-full rounded-xl text-base font-semibold sm:h-10 sm:w-auto sm:flex-none sm:rounded-md sm:px-5 sm:text-sm"
+            className={cn(
+              fluidLayout.touchTarget,
+              'w-full rounded-xl text-lg font-bold sm:w-auto sm:px-8',
+            )}
             onClick={handleFinishSetup}
             isLoading={isCompleting}
             disabled={!canFinish}
@@ -553,11 +558,16 @@ export function OnboardingBudgetStep(): ReactElement | null {
         open={isCategoryModalOpen}
         onClose={closeModal}
         footer={
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={closeModal}>
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-2">
+            <Button
+              variant="ghost"
+              className={cn(fluidLayout.touchTarget, 'w-full sm:h-10 sm:w-auto sm:px-5')}
+              onClick={closeModal}
+            >
               Cancel
             </Button>
             <Button
+              className={cn(fluidLayout.touchTarget, 'w-full sm:h-10 sm:w-auto sm:px-5')}
               onClick={() => void handleConfirmCategory()}
               isLoading={isCreatingCustomCategory}
             >
@@ -572,6 +582,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             value={selectedCategoryId ?? ''}
             disabledIds={disabledCategoryIds}
             loading={isLoadingCategories}
+            className={fluidLayout.touchTarget}
             onChange={(value) => {
               dispatch(
                 setBudgetEditorDraft({
@@ -620,6 +631,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             step="0.01"
             endAdornment="PHP"
             value={amountInput}
+            className={cn(fluidLayout.touchTarget, 'font-bold')}
             onChange={(event) => {
               dispatch(
                 setBudgetEditorDraft({

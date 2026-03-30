@@ -75,6 +75,7 @@ describe('OnboardingGuard', () => {
         amountInput: '',
         selectedPeriod: 'MONTHLY',
       },
+      initialBalances: [],
     })
 
     const router = createMemoryRouter(
@@ -123,6 +124,7 @@ describe('OnboardingGuard', () => {
         amountInput: '',
         selectedPeriod: 'MONTHLY',
       },
+      initialBalances: [],
     })
 
     const router = createMemoryRouter(

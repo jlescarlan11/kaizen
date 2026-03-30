@@ -80,6 +80,7 @@ describe('OnboardingBudgetStep', () => {
           fundingSourceType: 'E_WALLET',
           categoriesSeeded: false,
           pendingBudgets: [],
+          initialBalances: [],
           budgetEditorDraft: {
             isOpen: false,
             editingCategoryId: null,
@@ -98,6 +99,7 @@ describe('OnboardingBudgetStep', () => {
       fundingSourceType: 'E_WALLET',
       categoriesSeeded: true,
       pendingBudgets: [],
+      initialBalances: [],
       budgetEditorDraft: {
         isOpen: false,
         editingCategoryId: null,
@@ -135,5 +137,89 @@ describe('OnboardingBudgetStep', () => {
       }),
     )
     expect(localStorage.getItem('kaizen-onboarding-draft:user-1')).toBeNull()
+  })
+
+  describe('Mobile-first Responsiveness', () => {
+    it('applies fluid touch target classes to the finish setup button', async () => {
+      render(<OnboardingBudgetStep />, {
+        preloadedState: {
+          auth: {
+            isAuthenticated: true,
+            isLoading: false,
+            user: {
+              id: 'user-1',
+              name: 'Test User',
+              email: 'test@example.com',
+              onboardingCompleted: false,
+              balance: 1000,
+              budgetSetupSkipped: false,
+              tourCompleted: false,
+              firstTransactionAdded: false,
+            },
+          },
+          onboarding: {
+            currentStep: 'BUDGET',
+            startingFunds: 1000,
+            startingFundsInput: '1000',
+            fundingSourceType: 'E_WALLET',
+            categoriesSeeded: false,
+            pendingBudgets: [],
+            initialBalances: [],
+            budgetEditorDraft: {
+              isOpen: false,
+              editingCategoryId: null,
+              selectedCategoryId: null,
+              amountInput: '',
+              selectedPeriod: 'MONTHLY',
+            },
+          },
+        },
+      })
+
+      const finishButton = await screen.findByRole('button', { name: 'Finish setup' })
+      expect(finishButton).toHaveClass('h-12')
+      expect(finishButton).toHaveClass('min-h-[3rem]')
+    })
+
+    it('renders the balance overview with fluid spacing classes', async () => {
+      render(<OnboardingBudgetStep />, {
+        preloadedState: {
+          auth: {
+            isAuthenticated: true,
+            isLoading: false,
+            user: {
+              id: 'user-1',
+              name: 'Test User',
+              email: 'test@example.com',
+              onboardingCompleted: false,
+              balance: 1000,
+              budgetSetupSkipped: false,
+              tourCompleted: false,
+              firstTransactionAdded: false,
+            },
+          },
+          onboarding: {
+            currentStep: 'BUDGET',
+            startingFunds: 1000,
+            startingFundsInput: '1000',
+            fundingSourceType: 'E_WALLET',
+            categoriesSeeded: false,
+            pendingBudgets: [],
+            initialBalances: [],
+            budgetEditorDraft: {
+              isOpen: false,
+              editingCategoryId: null,
+              selectedCategoryId: null,
+              amountInput: '',
+              selectedPeriod: 'MONTHLY',
+            },
+          },
+        },
+      })
+
+      const balanceOverview = await screen.findByText(/balance overview/i)
+      const container = balanceOverview.closest('div')!.parentElement!
+      expect(container).toHaveClass('space-y-[clamp(1.5rem,6vw,2.5rem)]')
+    })
   })
 })

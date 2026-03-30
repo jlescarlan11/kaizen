@@ -3,6 +3,8 @@ import { typography } from '../../../shared/styles/typography'
 import { SMART_BUDGET_PERIOD, WEEKS_PER_MONTH_DIVISOR } from '../constants'
 import type { BudgetPeriod } from '../constants'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { cn } from '../../../shared/lib/cn'
+import { fluidLayout } from '../../../shared/styles/layout'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -29,10 +31,12 @@ export function BudgetPeriodSelector({
   const weeklyEquivalent = showWeeklyEquivalent ? sanitizedReference / WEEKS_PER_MONTH_DIVISOR : 0
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium leading-none text-foreground">Budget period</p>
-        <div className="flex gap-2">
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground sm:text-foreground sm:normal-case sm:tracking-normal">
+          Budget period
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
           {periodOptions.map((option) => {
             const selected = option.value === value
 
@@ -40,11 +44,14 @@ export function BudgetPeriodSelector({
               <button
                 key={option.value}
                 type="button"
-                className={`inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm font-medium leading-none transition ${
+                className={cn(
+                  'inline-flex items-center justify-center rounded-xl border px-5 transition text-sm font-bold sm:font-medium',
+                  fluidLayout.touchTarget,
+                  'sm:h-9 sm:min-h-0 sm:px-4 sm:py-1.5',
                   selected
-                    ? 'border-ui-border bg-ui-surface text-foreground'
-                    : 'border-ui-border-subtle bg-ui-surface-subtle text-muted-foreground'
-                }`}
+                    ? 'border-ui-border bg-ui-surface text-foreground shadow-sm'
+                    : 'border-ui-border-subtle bg-ui-surface-subtle text-muted-foreground',
+                )}
                 onClick={() => onChange(option.value)}
                 aria-pressed={selected}
               >

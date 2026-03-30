@@ -2,6 +2,8 @@ import type { ReactElement } from 'react'
 import { CategoryBadge } from '../../categories/CategoryBadge'
 import { resolveCategoryDesign } from '../../categories/designSystem'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { cn } from '../../../shared/lib/cn'
+import { fluidLayout } from '../../../shared/styles/layout'
 import type { BudgetPeriod } from '../constants'
 import type { PendingBudget } from '../../onboarding/onboardingSlice'
 
@@ -26,9 +28,10 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
 
   return (
     <div
-      className={`flex items-center gap-4 px-1 py-4 transition-colors ${
-        isInvalid ? 'bg-ui-danger-subtle/30 -mx-1 rounded-lg px-2' : 'bg-transparent'
-      }`}
+      className={cn(
+        'flex items-center gap-4 px-1 py-4 transition-colors',
+        isInvalid && 'bg-ui-danger-subtle/30 -mx-1 rounded-lg px-2',
+      )}
     >
       <CategoryBadge
         icon={categoryDesign.icon}
@@ -49,11 +52,15 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
         </p>
       </div>
 
-      <div className="flex shrink-0 gap-2">
+      <div className="flex shrink-0 items-center gap-1 sm:gap-2">
         <button
           type="button"
           onClick={onEdit}
-          className="rounded-lg px-3 py-2 text-sm font-semibold leading-none text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground active:scale-95"
+          className={cn(
+            'flex items-center justify-center rounded-xl px-4 text-sm font-bold text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground active:scale-95',
+            fluidLayout.touchTarget,
+            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2 sm:font-semibold',
+          )}
           aria-label={`Edit ${budget.categoryName} budget`}
         >
           Edit
@@ -61,7 +68,11 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
         <button
           type="button"
           onClick={onRemove}
-          className="rounded-lg px-3 py-2 text-sm font-semibold leading-none text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-danger active:scale-95"
+          className={cn(
+            'flex items-center justify-center rounded-xl px-4 text-sm font-bold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-danger active:scale-95',
+            fluidLayout.touchTarget,
+            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2 sm:font-semibold',
+          )}
           aria-label={`Remove ${budget.categoryName} budget`}
         >
           Remove

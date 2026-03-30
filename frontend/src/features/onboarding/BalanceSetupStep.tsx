@@ -15,6 +15,9 @@ import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
 import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
 import { Input, Button } from '../../shared/components'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { fluidLayout } from '../../shared/styles/layout'
+import { typography } from '../../shared/styles/typography'
+import { cn } from '../../shared/lib/cn'
 
 export function BalanceSetupStep(): ReactElement {
   const navigate = useNavigate()
@@ -96,18 +99,18 @@ export function BalanceSetupStep(): ReactElement {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 pb-28 sm:pb-10">
-      <div className="space-y-6">
+    <div className={cn('flex w-full flex-col pb-28 sm:pb-10', fluidLayout.sectionGap)}>
+      <div className="space-y-4 md:space-y-6">
         {paymentMethods.map((pm, index) => {
           const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)
           const amountValue = balance ? balance.amount.toString() : ''
 
           return (
-            <div key={pm.id} className="space-y-6">
+            <div key={pm.id} className="space-y-4 md:space-y-6">
               {index > 0 && <hr className="border-ui-border-subtle" />}
-              <div className="flex items-center justify-between gap-6 px-1">
+              <div className="flex items-center justify-between gap-4 md:gap-6 px-1">
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-foreground">{pm.name}</h3>
+                  <h3 className={cn(typography.h4, 'font-bold')}>{pm.name}</h3>
                 </div>
 
                 <div className="w-40 sm:w-48 lg:w-56">
@@ -121,7 +124,7 @@ export function BalanceSetupStep(): ReactElement {
                     startAdornment={
                       <span className="text-sm font-semibold text-muted-foreground">PHP</span>
                     }
-                    className="h-11 text-lg font-bold text-right"
+                    className={cn(fluidLayout.touchTarget, 'text-lg font-bold text-right')}
                   />
                 </div>
               </div>
@@ -131,19 +134,23 @@ export function BalanceSetupStep(): ReactElement {
       </div>
 
       {/* Summary and Navigation */}
-      <div className="mt-6 flex flex-col gap-6">
-        <div className="flex flex-col gap-6 border-t border-ui-border pt-8 px-1">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-subtle-foreground uppercase tracking-wider font-semibold">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8 sm:border-0 sm:bg-transparent sm:p-0">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground md:text-sm">
               Total Starting Funds
             </p>
-            <p className="text-2xl font-bold text-foreground tracking-tight">
+            <p className="text-3xl font-display font-bold text-foreground md:text-4xl tracking-tight">
               {formatCurrency(totalBalance)}
             </p>
           </div>
           <Button
             onClick={handleContinue}
-            className="h-12 w-full rounded-xl font-bold text-base"
+            variant="primary"
+            className={cn(
+              fluidLayout.touchTarget,
+              'w-full rounded-xl font-bold text-lg sm:w-auto sm:px-8',
+            )}
             disabled={!hasAnyBalance}
           >
             Continue to budgets
@@ -151,11 +158,13 @@ export function BalanceSetupStep(): ReactElement {
         </div>
 
         {onboardingError ? (
-          <OnboardingErrorBlock
-            error={onboardingError}
-            onRetry={retry}
-            isRetryDisabled={isRetryDisabled}
-          />
+          <div className="mt-4">
+            <OnboardingErrorBlock
+              error={onboardingError}
+              onRetry={retry}
+              isRetryDisabled={isRetryDisabled}
+            />
+          </div>
         ) : null}
       </div>
     </div>

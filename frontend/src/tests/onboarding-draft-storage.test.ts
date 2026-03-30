@@ -34,6 +34,7 @@ describe('onboardingDraftStorage', () => {
         amountInput: '500',
         selectedPeriod: 'WEEKLY',
       },
+      initialBalances: [],
     })
 
     expect(getStoredOnboardingDraft(userId)).toEqual(
@@ -70,6 +71,7 @@ describe('onboardingDraftStorage', () => {
         amountInput: '',
         selectedPeriod: 'MONTHLY',
       },
+      initialBalances: [],
     })
 
     clearStoredOnboardingDraft(userId)

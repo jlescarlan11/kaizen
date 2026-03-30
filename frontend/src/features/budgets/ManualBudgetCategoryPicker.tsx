@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import { Select } from '../../shared/components/Select'
+import { cn } from '../../shared/lib/cn'
 import { CATEGORY_ICON_COMPONENTS } from '../categories/categoryIconMap'
 import { SparklesIcon } from '../categories/categoryIcons'
 import type { CategoryIconName } from '../categories/designSystem'
@@ -14,6 +15,7 @@ interface ManualBudgetCategoryPickerProps {
   disabledIds: number[]
   loading?: boolean
   error?: string | null
+  className?: string
   onChange: (categoryId: number | '' | typeof CUSTOM_CATEGORY_OPTION_VALUE) => void
 }
 
@@ -23,6 +25,7 @@ export function ManualBudgetCategoryPicker({
   disabledIds,
   loading = false,
   error,
+  className,
   onChange,
 }: ManualBudgetCategoryPickerProps): ReactElement {
   const options = useMemo(() => {
@@ -71,7 +74,7 @@ export function ManualBudgetCategoryPicker({
       helperText={helperText}
       error={error ?? undefined}
       placeholder={loading ? 'Loading categories...' : 'Select a category'}
-      className={loading ? 'animate-pulse' : undefined}
+      className={cn(loading ? 'animate-pulse' : undefined, className)}
       name="manual-category-picker"
     />
   )
