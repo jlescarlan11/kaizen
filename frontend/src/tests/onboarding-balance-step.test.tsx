@@ -44,7 +44,7 @@ describe('BalanceSetupStep', () => {
   it('enables continue button only when at least one balance is positive', async () => {
     render(<BalanceSetupStep />, { preloadedState })
 
-    const continueBtn = screen.getByText('Continue to budgets')
+    const continueBtn = screen.getByRole('button', { name: /continue to budgets/i })
     expect(continueBtn).toBeDisabled()
 
     const inputs = screen.getAllByPlaceholderText('0.00')
@@ -64,7 +64,7 @@ describe('BalanceSetupStep', () => {
     const inputs = screen.getAllByPlaceholderText('0.00')
     fireEvent.change(inputs[0], { target: { value: '1000' } })
 
-    const continueBtn = screen.getByText('Continue to budgets')
+    const continueBtn = screen.getByRole('button', { name: /continue to budgets/i })
     fireEvent.click(continueBtn)
 
     await waitFor(() => {
@@ -97,18 +97,15 @@ describe('BalanceSetupStep', () => {
         expect(input).toHaveClass('h-12')
       })
 
-      const continueBtn = screen.getByText('Continue to budgets')
+      const continueBtn = screen.getByRole('button', { name: /continue to budgets/i })
       expect(continueBtn).toHaveClass('h-12')
     })
 
-    it('renders summary with prominent mobile-first styling', () => {
+    it('renders summary with prominent typography', () => {
       render(<BalanceSetupStep />, { preloadedState })
 
       const totalLabel = screen.getByText('Total Starting Funds')
-      const summaryContainer = totalLabel.closest('.rounded-2xl')
-
-      expect(summaryContainer).toBeInTheDocument()
-      expect(summaryContainer).toHaveClass('bg-ui-card', 'border', 'border-ui-border')
+      expect(totalLabel).toBeInTheDocument()
 
       const totalAmount = screen.getByText(/PHP 0\.00/)
       expect(totalAmount).toHaveClass('text-lg', 'font-semibold')

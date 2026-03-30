@@ -1,5 +1,6 @@
 import { type ReactElement, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ArrowRight } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { useUpdateOnboardingProgressMutation } from '../../app/store/api/authApi'
 import { ONBOARDING_STEP_ROUTE_MAP, type OnboardingStep } from './onboardingStep'
@@ -140,25 +141,28 @@ export function BalanceSetupStep(): ReactElement {
       <hr className="my-10 border-ui-border" />
 
       {/* Summary and Navigation */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 rounded-2xl border border-ui-border bg-ui-card sm:flex-row sm:items-center sm:justify-between sm:border-0 sm:bg-transparent sm:p-0">
-          <div className="flex flex-col gap-1 p-6 sm:p-0">
-            <p className="text-sm font-medium leading-none text-foreground">Total Starting Funds</p>
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:border sm:border-ui-border sm:bg-ui-card sm:p-0">
+          <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
+            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+              Total Starting Funds
+            </p>
             <p className="text-lg font-semibold text-foreground">{formatCurrency(totalBalance)}</p>
           </div>
-          <div className="px-6 pb-6 sm:p-0">
-            <Button
-              onClick={handleContinue}
-              variant="primary"
-              className={cn(
-                fluidLayout.touchTarget,
-                'w-full rounded-xl font-semibold text-lg sm:w-auto sm:px-8',
-              )}
-              disabled={!hasAnyBalance}
-            >
-              Continue to budgets
-            </Button>
-          </div>
+
+          <Button
+            onClick={handleContinue}
+            variant="primary"
+            className={cn(
+              fluidLayout.touchTarget,
+              'h-12 w-12 rounded-full p-0 sm:h-auto sm:w-auto sm:rounded-xl sm:px-8 sm:font-semibold sm:text-lg',
+            )}
+            disabled={!hasAnyBalance}
+            aria-label="Continue to budgets"
+          >
+            <span className="hidden sm:inline">Continue to budgets</span>
+            <ArrowRight className="h-6 w-6 sm:hidden" />
+          </Button>
         </div>
 
         {onboardingError ? (
