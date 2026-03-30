@@ -438,9 +438,17 @@ export function OnboardingBudgetStep(): ReactElement | null {
   return (
     <>
       <div className={cn('flex flex-col', fluidLayout.sectionGap)}>
-        <div className="rounded-2xl border border-ui-border bg-ui-card p-6 md:p-8">
-          <p className="mb-4 text-sm font-medium leading-none text-foreground">Balance overview</p>
-          <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
+        <div className="rounded-2xl border border-ui-border bg-ui-card sm:p-6 md:p-8">
+          <div className="p-6 sm:p-0">
+            <p className="mb-4 text-sm font-medium leading-none text-foreground">
+              Balance overview
+            </p>
+            <AllocationBar
+              allocated={totalAllocated}
+              balance={balance}
+              onOver={setIsOverAllocated}
+            />
+          </div>
         </div>
 
         <section aria-label="Your budgets" className="space-y-6">
