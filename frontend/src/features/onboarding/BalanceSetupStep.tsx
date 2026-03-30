@@ -6,6 +6,7 @@ import { ONBOARDING_STEP_ROUTE_MAP, type OnboardingStep } from './onboardingStep
 import {
   setCurrentStep,
   setStartingFunds,
+  setFundingSourceType,
   updateInitialBalance,
   selectInitialBalances,
 } from './onboardingSlice'
@@ -53,6 +54,7 @@ export function BalanceSetupStep(): ReactElement {
 
   const handleContinue = async (): Promise<void> => {
     dispatch(setStartingFunds(totalBalance))
+    dispatch(setFundingSourceType('CASH_ON_HAND'))
 
     const activeBalances = initialBalances.filter((b) => b.amount > 0)
 
@@ -94,7 +96,7 @@ export function BalanceSetupStep(): ReactElement {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-col gap-8 pb-28 sm:pb-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 pb-28 sm:pb-10">
       <div className="space-y-6">
         {paymentMethods.map((pm, index) => {
           const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)

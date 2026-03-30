@@ -303,20 +303,22 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             </p>
           ) : null}
 
-          <div className="space-y-3">
+          <div className="space-y-0">
             {sessionBudgets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground px-1 py-4">
                 No budgets added yet. Tap + Add Budget to begin.
               </p>
             ) : (
               sessionBudgets.map((budget, index) => (
-                <BudgetCard
-                  key={`${budget.categoryId}-${index}`}
-                  budget={budget}
-                  isInvalid={invalidBudgetIds.has(budget.categoryId)}
-                  onEdit={() => openModal(budget)}
-                  onRemove={() => handleDeleteBudget(budget.categoryId)}
-                />
+                <div key={`${budget.categoryId}-${index}`}>
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <BudgetCard
+                    budget={budget}
+                    isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                    onEdit={() => openModal(budget)}
+                    onRemove={() => handleDeleteBudget(budget.categoryId)}
+                  />
+                </div>
               ))
             )}
           </div>

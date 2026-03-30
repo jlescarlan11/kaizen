@@ -9,11 +9,17 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kaizen.backend.transaction.entity.Transaction;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Transaction t WHERE t.userAccount.id = :userAccountId")
+    void deleteByUserAccountId(@Param("userAccountId") Long userAccountId);
 
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
 

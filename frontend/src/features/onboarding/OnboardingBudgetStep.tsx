@@ -435,25 +435,27 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
   return (
     <>
-      <div className="flex flex-col gap-6 pb-28 sm:pb-10">
-        <div className="rounded-xl border border-ui-border-subtle bg-transparent px-4 py-4">
-          <p className="mb-3 text-xs leading-5 text-subtle-foreground">Balance overview</p>
+      <div className="flex flex-col gap-8 pb-28 sm:pb-10">
+        <div className="border-b border-ui-border-subtle pb-8 px-1">
+          <p className="mb-4 text-xs font-bold uppercase tracking-wider text-subtle-foreground">
+            Balance overview
+          </p>
           <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
         </div>
 
-        <section aria-label="Your budgets">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-medium leading-none text-foreground">
+        <section aria-label="Your budgets" className="space-y-6">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-subtle-foreground">
               Your budgets
               {pendingBudgets.length > 0 && (
-                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs leading-5 text-muted-foreground">
+                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
                   {pendingBudgets.length}
                 </span>
               )}
             </h2>
             <Button
               variant="secondary"
-              className="h-8 px-3 text-xs"
+              className="h-9 rounded-xl px-4 text-xs font-bold"
               onClick={openAddModal}
               disabled={isLoadingCategories}
             >
@@ -463,7 +465,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
           {categoryError ? (
             <p
-              className="mb-3 rounded-lg bg-ui-warning-subtle px-3 py-2.5 text-xs leading-5 text-muted-foreground"
+              className="rounded-xl bg-ui-warning-subtle px-4 py-3 text-sm font-medium leading-relaxed text-muted-foreground"
               role="alert"
             >
               {categoryError}
@@ -471,37 +473,47 @@ export function OnboardingBudgetStep(): ReactElement | null {
           ) : null}
 
           {isLoadingCategories ? (
-            <div className="space-y-2.5">
-              {[1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className="h-[60px] animate-pulse rounded-xl border border-ui-border-subtle bg-ui-surface-muted"
-                />
+            <div className="space-y-0 px-1">
+              {[0, 1, 2].map((index) => (
+                <div key={index}>
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <div className="h-20 flex items-center gap-4 py-4 animate-pulse">
+                    <div className="h-10 w-10 rounded-full bg-ui-surface-muted shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-24 bg-ui-surface-muted rounded" />
+                      <div className="h-3 w-32 bg-ui-surface-muted rounded" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : pendingBudgets.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-ui-border py-10 text-center">
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
               <span
-                className="text-2xl font-medium leading-none text-foreground"
+                className="text-3xl font-bold tracking-tight text-muted-foreground/30"
                 aria-hidden="true"
               >
                 PHP
               </span>
-              <p className="text-sm font-medium leading-none text-foreground">No budgets yet</p>
-              <p className="text-xs leading-5 text-subtle-foreground">
-                Add at least one to finish setup, or skip for now.
-              </p>
+              <div className="space-y-1">
+                <p className="text-base font-bold text-foreground">No budgets yet</p>
+                <p className="text-sm text-subtle-foreground">
+                  Add at least one to finish setup, or skip for now.
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-2.5">
-              {pendingBudgets.map((budget) => (
-                <BudgetCard
-                  key={budget.categoryId}
-                  budget={budget}
-                  isInvalid={invalidBudgetIds.has(budget.categoryId)}
-                  onEdit={() => openEditModal(budget.categoryId)}
-                  onRemove={() => handleRemoveBudget(budget.categoryId)}
-                />
+            <div className="space-y-0">
+              {pendingBudgets.map((budget, index) => (
+                <div key={budget.categoryId}>
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <BudgetCard
+                    budget={budget}
+                    isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                    onEdit={() => openEditModal(budget.categoryId)}
+                    onRemove={() => handleRemoveBudget(budget.categoryId)}
+                  />
+                </div>
               ))}
             </div>
           )}

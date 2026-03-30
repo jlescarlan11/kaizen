@@ -11,6 +11,7 @@ import com.kaizen.backend.user.entity.FundingSourceType;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import com.kaizen.backend.budget.service.BudgetService;
+import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.transaction.entity.Transaction;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.payment.entity.PaymentMethod;
@@ -28,6 +29,7 @@ public class UserAccountService {
     private final UserFundingSourceService userFundingSourceService;
     private final TransactionRepository transactionRepository;
     private final PaymentMethodRepository paymentMethodRepository;
+    private final CategoryRepository categoryRepository;
 
     public UserAccountService(
         UserAccountRepository userAccountRepository,
@@ -35,7 +37,8 @@ public class UserAccountService {
         BudgetService budgetService,
         UserFundingSourceService userFundingSourceService,
         TransactionRepository transactionRepository,
-        PaymentMethodRepository paymentMethodRepository
+        PaymentMethodRepository paymentMethodRepository,
+        CategoryRepository categoryRepository
     ) {
         this.userAccountRepository = userAccountRepository;
         this.onboardingProgressService = onboardingProgressService;
@@ -43,6 +46,7 @@ public class UserAccountService {
         this.userFundingSourceService = userFundingSourceService;
         this.transactionRepository = transactionRepository;
         this.paymentMethodRepository = paymentMethodRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public UserResponse getByEmail(String email) {
@@ -190,13 +194,20 @@ public class UserAccountService {
 
         // 2a. Delete persisted funding sources
         userFundingSourceService.deleteAllForUser(account);
+
+        // 2b. Delete transactions, categories, and payment methods
+        transactionRepository.deleteByUserAccountId(account.getId());
+        categoryRepository.deleteByUserId(account.getId());
+        paymentMethodRepository.deleteByUserAccountId(account.getId());
         
-        // 3. Reset user account flags
+        // 3. Reset user account fields
         account.setBalance(BigDecimal.ZERO);
         account.setOnboardingCompleted(false);
         account.setBudgetSetupSkipped(false);
         account.setTourCompleted(false);
         account.setFirstTransactionAdded(false);
+        account.setQuickAddPreferences(null);
+        account.setRemindersEnabled(true);
         
         UserAccount updated = userAccountRepository.save(account);
         
@@ -217,6 +228,10 @@ public class UserAccountService {
     }
 
     private UserResponse toUserResponse(UserAccount account) {
+        BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
+            .orElse(BigDecimal.ZERO);
+        account.setBalance(calculatedBalance);
+
         return UserResponse.builder()
             .id(account.getId())
             .name(account.getName())
@@ -233,6 +248,10 @@ public class UserAccountService {
     }
 
     private UserProfileResponse toUserProfileResponse(UserAccount account) {
+        BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
+            .orElse(BigDecimal.ZERO);
+        account.setBalance(calculatedBalance);
+
         return UserProfileResponse.builder()
             .id(account.getId())
             .name(account.getName())

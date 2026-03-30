@@ -3,7 +3,6 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { TransactionList } from './components/TransactionList'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
-import { calculateRunningBalance } from './utils/transactionUtils'
 import { cn } from '../../shared/lib/cn'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
@@ -15,6 +14,7 @@ import { History, Download, RefreshCw } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
+import { useAuthState } from '../../shared/hooks/useAuthState'
 import type { FilterState } from './types'
 import { useTransactionPagination } from './hooks/useTransactionPagination'
 
@@ -30,6 +30,7 @@ const INITIAL_FILTER: FilterState = {
 }
 
 export function TransactionListPage(): ReactElement {
+  const { user } = useAuthState()
   const [searchParams, setSearchParams] = useSearchParams()
   const { transactions, isLoading, hasMore, loadMore } = useTransactionPagination()
 
@@ -70,9 +71,8 @@ export function TransactionListPage(): ReactElement {
     sortState,
   })
 
-  // Calculate balance based on ALL visible transactions (unfiltered by search/filter)
-  // to maintain consistent "Total Balance" context.
-  const balance = calculateRunningBalance(transactions)
+  // Use user profile balance for consistency across pages.
+  const balance = user?.balance ?? 0
 
   const isSearchActive = searchQuery.trim().length > 0
   const isFilterActive = filterState.categories.length > 0 || filterState.types.length > 0
