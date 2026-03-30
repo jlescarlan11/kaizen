@@ -30,6 +30,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
+           "  WHEN t.type = 'INITIAL_BALANCE' THEN t.amount " +
            "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
            "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
            "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
