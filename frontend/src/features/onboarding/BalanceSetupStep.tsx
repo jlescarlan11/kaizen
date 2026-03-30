@@ -153,9 +153,11 @@ export function BalanceSetupStep(): ReactElement {
           <Button
             onClick={handleContinue}
             variant="primary"
+            size="lg"
             className={cn(
               fluidLayout.touchTarget,
-              'h-12 w-12 rounded-full p-0 sm:h-auto sm:w-auto sm:rounded-xl sm:px-8 sm:font-semibold sm:text-lg',
+              'rounded-full p-0 sm:rounded-xl sm:px-8 sm:font-semibold',
+              'h-12 w-12 sm:h-auto sm:w-auto',
             )}
             disabled={!hasAnyBalance}
             aria-label="Continue to budgets"

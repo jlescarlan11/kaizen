@@ -546,9 +546,10 @@ export function OnboardingBudgetStep(): ReactElement | null {
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:flex-row sm:items-center">
           <Button
+            size="lg"
             className={cn(
               fluidLayout.touchTarget,
-              'w-full rounded-xl text-lg font-semibold sm:w-auto sm:px-8',
+              'w-full rounded-xl font-semibold sm:w-auto sm:px-8',
             )}
             onClick={handleFinishSetup}
             isLoading={isCompleting}
