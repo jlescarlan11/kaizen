@@ -1,5 +1,7 @@
-# Track ui_refinement_onboarding_income_20260330 Context
+# Conductor Project Context
 
-- [Specification](./spec.md)
-- [Implementation Plan](./plan.md)
-- [Metadata](./metadata.json)
+- [Product Definition](./product.md)
+- [Tech Stack](./tech-stack.md)
+- [Workflow](./workflow.md)
+- [Product Guidelines](./product-guidelines.md)
+- [Tracks](./tracks.md)
