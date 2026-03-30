@@ -99,7 +99,7 @@ export function BalanceSetupStep(): ReactElement {
   }
 
   return (
-    <div className={cn('flex w-full flex-col pb-28 sm:pb-10', fluidLayout.sectionGap)}>
+    <div className={cn('flex w-full flex-col', fluidLayout.sectionGap)}>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {paymentMethods.map((pm) => {
           const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)

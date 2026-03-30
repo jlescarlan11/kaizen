@@ -4,7 +4,6 @@ import { fluidLayout } from '../../shared/styles/layout'
 import { typography } from '../../shared/styles/typography'
 import { selectCurrentStep } from './onboardingSlice'
 import { ONBOARDING_STEP_METADATA } from './onboardingStep'
-import { cn } from '../../shared/lib/cn'
 
 type ActiveStep = 'BALANCE' | 'BUDGET'
 
@@ -17,13 +16,7 @@ export function OnboardingLayout({ children }: PropsWithChildren): ReactElement 
   const metadata = ONBOARDING_STEP_METADATA[activeStep]
 
   return (
-    <div
-      className={cn(
-        'mx-auto flex w-full max-w-5xl flex-1 flex-col',
-        fluidLayout.shellX,
-        fluidLayout.shellY,
-      )}
-    >
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
       <div className={fluidLayout.sectionGap}>
         <div className="space-y-2">
           <h1 className={typography.h1}>{metadata.title}</h1>

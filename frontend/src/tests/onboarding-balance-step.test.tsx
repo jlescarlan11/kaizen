@@ -86,7 +86,7 @@ describe('BalanceSetupStep', () => {
       const { container } = render(<BalanceSetupStep />, { preloadedState })
       const root = container.firstChild as HTMLElement
       // Check for root layout classes
-      expect(root).toHaveClass('flex', 'w-full', 'flex-col', 'pb-28')
+      expect(root).toHaveClass('flex', 'w-full', 'flex-col')
     })
 
     it('uses standardized touch targets (h-12) for inputs and button', () => {
