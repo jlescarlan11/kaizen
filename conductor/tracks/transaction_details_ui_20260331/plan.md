@@ -1,16 +1,16 @@
 # Implementation Plan: Transaction Details UI/UX Update
 
 ## Phase 1: Research & Setup
-- [ ] Task: Audit existing Transaction Details components in `frontend/src/features/transactions/`.
-- [ ] Task: Define the "Flat UI" design system tokens (borders, typography) if not already standardized.
+- [x] Task: Audit existing Transaction Details components in `frontend/src/features/transactions/`.
+- [x] Task: Define the "Flat UI" design system tokens (borders, typography) if not already standardized.
 - [ ] Task: Conductor - User Manual Verification 'Research & Setup' (Protocol in workflow.md)
 
 ## Phase 2: Core UI Refactoring (TDD)
-- [ ] Task: Write tests for the new `TransactionDetailHeader` and `TransactionDetailInfo` components.
-- [ ] Task: Implement `TransactionDetailHeader` using high-signal typography for Amount and Date (PHP prefix).
-- [ ] Task: Implement `TransactionDetailInfo` for Category, Account, and Flow indicators (Incoming vs. Outgoing).
-- [ ] Task: Refactor the main `TransactionDetailView` to use these new components with clean borders and minimal shadows.
-- [ ] Task: Conductor - User Manual Verification 'Core UI Refactoring' (Protocol in workflow.md)
+- [x] Task: Write tests for the new `TransactionDetailHeader` and `TransactionDetailInfo` components.
+- [x] Task: Implement `TransactionDetailHeader` using high-signal typography for Amount and Date (PHP prefix).
+- [x] Task: Implement `TransactionDetailInfo` for Category, Account, and Flow indicators (Incoming vs. Outgoing).
+- [x] Task: Refactor the main `TransactionDetailView` to use these new components with clean borders and minimal shadows.
+- [x] Task: Conductor - User Manual Verification 'Core UI Refactoring' (Protocol in workflow.md) [checkpoint: 2e8d9d6]
 
 ## Phase 3: Actions & Management (TDD)
 - [ ] Task: Write tests for the `TransactionActionGroup` component (Edit, Delete, Duplicate).
