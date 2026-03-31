@@ -5,6 +5,45 @@ export interface TransactionGroup {
   transactions: TransactionResponse[]
 }
 
+export interface MoneyFlowMetrics {
+  incoming: number
+  outgoing: number
+  ratio: number
+}
+
+/**
+ * Calculates incoming and outgoing money flow metrics from a set of transactions.
+ * @param transactions Array of TransactionResponse objects.
+ * @returns MoneyFlowMetrics object.
+ */
+export function calculateMoneyFlow(transactions: TransactionResponse[]): MoneyFlowMetrics {
+  const metrics = transactions.reduce(
+    (acc, tx) => {
+      if (tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE') {
+        acc.incoming += tx.amount
+      } else if (tx.type === 'EXPENSE') {
+        acc.outgoing += tx.amount
+      } else if (tx.type === 'RECONCILIATION') {
+        if (tx.reconciliationIncrease) {
+          acc.incoming += tx.amount
+        } else {
+          acc.outgoing += tx.amount
+        }
+      }
+      return acc
+    },
+    { incoming: 0, outgoing: 0 },
+  )
+
+  const ratio =
+    metrics.incoming === 0 ? (metrics.outgoing > 0 ? 1 : 0) : metrics.outgoing / metrics.incoming
+
+  return {
+    ...metrics,
+    ratio,
+  }
+}
+
 /**
  * Groups a flat array of transactions by their calendar date (most-recent first).
  * @param transactions Array of TransactionResponse objects.
