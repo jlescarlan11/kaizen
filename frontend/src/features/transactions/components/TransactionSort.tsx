@@ -27,7 +27,6 @@ export function TransactionSort({ sort, onChange }: TransactionSortProps): React
   return (
     <div className="w-full max-w-[240px]">
       <Select
-        label="Sort by"
         options={SORT_OPTIONS}
         value={currentValue}
         onChange={handleValueChange}

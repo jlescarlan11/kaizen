@@ -69,7 +69,7 @@ export function AddEntryFAB({
   return (
     <div
       className={cn(
-        'fixed bottom-24 right-6 z-40 flex flex-col items-end gap-3 md:bottom-10 md:right-10',
+        'fixed bottom-24 right-6 z-40 flex flex-col items-end gap-3 md:bottom-10 md:right-10 pointer-events-none',
         className,
       )}
     >
@@ -78,15 +78,15 @@ export function AddEntryFAB({
         className={cn(
           'flex flex-col items-end gap-3 transition-all duration-300 origin-bottom',
           isOpen
-            ? 'opacity-100 translate-y-0 scale-100'
-            : 'opacity-0 translate-y-10 scale-50 pointer-events-none',
+            ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+            : 'opacity-0 translate-y-10 scale-50 pointer-events-none invisible',
         )}
       >
         {actions.map((action, index) => (
           <div key={index} className="flex items-center gap-3 group">
             <span
               className={cn(
-                'px-2.5 py-1 rounded-lg bg-ui-surface border border-ui-border-subtle text-foreground text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap',
+                'px-2.5 py-1 rounded-lg bg-ui-surface border border-ui-border-subtle text-foreground text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap pointer-events-auto',
                 isMobile
                   ? isOpen
                     ? 'opacity-100 translate-x-0 scale-100'
@@ -102,7 +102,7 @@ export function AddEntryFAB({
               onClick={action.onClick}
               aria-label={action.label}
               className={cn(
-                'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 shrink-0',
+                'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 shrink-0 pointer-events-auto',
                 action.color,
               )}
             >
@@ -119,7 +119,7 @@ export function AddEntryFAB({
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close quick actions' : 'Open quick actions'}
         className={cn(
-          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-ui-border-strong bg-ui-surface text-foreground shadow-2xl transition-all hover:bg-ui-surface-muted active:scale-95',
+          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-ui-border-strong bg-ui-surface text-foreground shadow-2xl transition-all hover:bg-ui-surface-muted active:scale-95 pointer-events-auto',
           isOpen && 'rotate-45 bg-ui-surface-muted',
         )}
       >

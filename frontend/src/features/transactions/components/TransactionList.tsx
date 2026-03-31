@@ -15,6 +15,7 @@ import { flattenTransactions, type FlattenedTransactionItem } from '../utils/vir
 import { DataList } from '../../../shared/components/DataList'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import type { SortState } from '../types'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
@@ -22,6 +23,7 @@ interface TransactionListProps {
   hasMore?: boolean
   onLoadMore?: () => void
   isLoading?: boolean
+  sortState?: SortState
 }
 
 const currencyFormatter = {
@@ -38,6 +40,7 @@ export function TransactionList({
   hasMore = false,
   onLoadMore,
   isLoading = false,
+  sortState,
 }: TransactionListProps): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -98,8 +101,15 @@ export function TransactionList({
   }
 
   const flattenedItems = useMemo(() => {
+    // Only apply date grouping if sorting by date.
+    // If sorting by amount or category, a flat list is more appropriate to respect the sort order.
+    if (sortState && sortState.criterion !== 'date') {
+      return visibleTransactions.map(
+        (tx): FlattenedTransactionItem => ({ type: 'transaction', transaction: tx }),
+      )
+    }
     return flattenTransactions(visibleTransactions, groupTransactionsByDate)
-  }, [visibleTransactions])
+  }, [visibleTransactions, sortState])
 
   const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
