@@ -1,9 +1,8 @@
-import { useState, useEffect, type ReactElement } from 'react'
+import { useState, useEffect, useMemo, type ReactElement } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { TransactionList } from './components/TransactionList'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
-import { cn } from '../../shared/lib/cn'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionSort } from './components/TransactionSort'
@@ -18,11 +17,8 @@ import { useAuthState } from '../../shared/hooks/useAuthState'
 import type { FilterState } from './types'
 import { useTransactionPagination } from './hooks/useTransactionPagination'
 
-import { formatCurrency } from '../../shared/lib/formatCurrency'
-
-const currencyFormatter = {
-  format: (amount: number) => formatCurrency(amount),
-}
+import { calculateMoneyFlow } from './utils/transactionUtils'
+import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 
 const INITIAL_FILTER: FilterState = {
   categories: [],
@@ -71,7 +67,13 @@ export function TransactionListPage(): ReactElement {
     sortState,
   })
 
-  // Use user profile balance for consistency across pages.
+  // Calculate money flow metrics from processed transactions
+  const moneyFlow = useMemo(
+    () => calculateMoneyFlow(processedTransactions),
+    [processedTransactions],
+  )
+
+  // Use user profile balance for reconciliation consistency
   const balance = user?.balance ?? 0
 
   const isSearchActive = searchQuery.trim().length > 0
@@ -86,64 +88,53 @@ export function TransactionListPage(): ReactElement {
 
   return (
     <div className={pageLayout.sectionGap}>
-      <header className={pageLayout.headerGap}>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+      <header className="space-y-7">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-black tracking-tight text-foreground">
               Transaction History
             </h1>
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
 
-          {/* Running Balance Card */}
-          {!isLoading && transactions.length > 0 && (
-            <div className="flex flex-col items-center md:items-end gap-2">
-              <Card className="flex flex-col items-center md:items-end justify-center px-6 py-3">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">
-                  Total Balance
-                </p>
-                <p
-                  className={cn(
-                    'text-2xl font-bold tracking-tight',
-                    balance >= 0 ? 'text-ui-success' : 'text-ui-error',
-                  )}
-                >
-                  {currencyFormatter.format(balance)}
-                </p>
-              </Card>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-                  onClick={() => setIsReconcileModalOpen(true)}
-                >
-                  <RefreshCw className="h-3 w-3" />
-                  Reconcile
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-                  onClick={() => setIsExportModalOpen(true)}
-                >
-                  <Download className="h-3.5 w-3.5" />
-                  Export
-                </Button>
-                <Link to="/transactions/history">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-                  >
-                    <History className="h-3.5 w-3.5" />
-                    View History
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+              onClick={() => setIsReconcileModalOpen(true)}
+            >
+              <RefreshCw className="h-3 w-3" />
+              Reconcile
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+              onClick={() => setIsExportModalOpen(true)}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export
+            </Button>
+            <Link to="/transactions/history">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
+              >
+                <History className="h-3.5 w-3.5" />
+                View History
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        {/* Money Flow Metrics Visualization */}
+        {!isLoading && transactions.length > 0 && (
+          <div className="animate-in fade-in slide-in-from-bottom-3 duration-600 delay-75">
+            <MoneyFlowDisplay {...moneyFlow} />
+          </div>
+        )}
 
         {/* Reconciliation Modal */}
         <ReconciliationModal
@@ -164,10 +155,10 @@ export function TransactionListPage(): ReactElement {
 
         {/* Search, Filter, and Sort Controls */}
         {!isLoading && transactions.length > 0 && (
-          <div className="mt-8 flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-2 bg-ui-surface-muted/30 border border-ui-border-subtle rounded-2xl">
               <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <TransactionFilter
                   filter={filterState}
                   onChange={setFilterState}
