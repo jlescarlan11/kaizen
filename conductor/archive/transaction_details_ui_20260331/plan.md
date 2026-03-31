@@ -27,7 +27,7 @@
 
 
 ## Phase 5: Polishing & Accessibility
-- [ ] Task: Perform a visual audit against "Flat UI Architecture" guidelines.
-- [ ] Task: Run accessibility checks (WCAG) on the new components.
-- [ ] Task: Verify responsive behavior on mobile (touch targets, scrolling).
-- [ ] Task: Conductor - User Manual Verification 'Polishing & Accessibility' (Protocol in workflow.md)
+- [x] Task: Perform a visual audit against "Flat UI Architecture" guidelines.
+- [x] Task: Run accessibility checks (WCAG) on the new components.
+- [x] Task: Verify responsive behavior on mobile (touch targets, scrolling).
+- [x] Task: Conductor - User Manual Verification 'Polishing & Accessibility' (Protocol in workflow.md) [checkpoint: polished]
