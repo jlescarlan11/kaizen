@@ -40,9 +40,9 @@ Update the main `/transactions` page to adopt the new UI and features.
 ## Phase 4: Verification & Polish
 Finalize the implementation and ensure high quality.
 
-- [ ] Task: Verify TDD workflow
-    - [ ] Ensure all new tests pass.
-    - [ ] Run linting and type checks.
+- [x] Task: Verify TDD workflow 0105d81
+    - [x] Ensure all new tests pass.
+    - [x] Run linting and type checks.
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Refinement' (Protocol in workflow.md)
     - [ ] Manual verification on desktop.
     - [ ] Manual verification on mobile (responsive layout).
