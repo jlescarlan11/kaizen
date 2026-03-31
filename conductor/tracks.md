@@ -12,5 +12,5 @@
 
 ---
 
-- [ ] **Track: Modify the UI/UX of /transactions to match the authenticated home page, remove total balance, and add money flow metrics (incoming/outgoing ratio).**
+- [x] **Track: Modify the UI/UX of /transactions to match the authenticated home page, remove total balance, and add money flow metrics (incoming/outgoing ratio).**
 *Link: [./tracks/transactions_ui_refinement_20260331/](./tracks/transactions_ui_refinement_20260331/)*
