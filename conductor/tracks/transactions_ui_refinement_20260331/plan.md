@@ -5,14 +5,14 @@ This track focuses on updating the UI/UX of the `/transactions` page to match th
 ## Phase 1: Data Logic & Calculations
 Implement the core logic for calculating money flow metrics from transaction data.
 
-- [ ] Task: Add `calculateMoneyFlow` to `frontend/src/features/transactions/utils/transactionUtils.ts`
-    - [ ] Define `MoneyFlowMetrics` interface.
-    - [ ] Implement calculation logic: `incoming` (INCOME, INITIAL_BALANCE, positive RECONCILIATION) vs. `outgoing` (EXPENSE, negative RECONCILIATION).
-    - [ ] Calculate the ratio for visualization.
-- [ ] Task: Create unit tests for `calculateMoneyFlow` in `frontend/src/features/transactions/utils/__tests__/transactionUtils.test.ts`
-    - [ ] Test with various transaction types.
-    - [ ] Test with empty transaction list.
-    - [ ] Test with only income or only expenses.
+- [x] Task: Add `calculateMoneyFlow` to `frontend/src/features/transactions/utils/transactionUtils.ts` 9b105de
+    - [x] Define `MoneyFlowMetrics` interface.
+    - [x] Implement calculation logic: `incoming` (INCOME, INITIAL_BALANCE, positive RECONCILIATION) vs. `outgoing` (EXPENSE, negative RECONCILIATION).
+    - [x] Calculate the ratio for visualization.
+- [x] Task: Create unit tests for `calculateMoneyFlow` in `frontend/src/features/transactions/utils/__tests__/transactionUtils.test.ts` 9b105de
+    - [x] Test with various transaction types.
+    - [x] Test with empty transaction list.
+    - [x] Test with only income or only expenses.
 
 ## Phase 2: Money Flow Components
 Create the visual components for displaying the money flow metrics.
