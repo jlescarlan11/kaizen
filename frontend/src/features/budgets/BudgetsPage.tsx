@@ -101,7 +101,7 @@ export function BudgetsPage(): ReactElement {
               tabIndex={0}
               onClick={() => navigate(`/budget/${budget.id}`)}
               onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
-              className="group flex items-center justify-between p-4 hover:bg-ui-surface-hover transition-colors cursor-pointer"
+              className="group flex items-center justify-between px-4 py-3.5 hover:bg-ui-surface-hover transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div

@@ -160,7 +160,7 @@ export function TransactionList({
           onTouchStart={() => handleLongPressStart(tx.id)}
           onTouchEnd={handleLongPressEnd}
           className={cn(
-            'flex-1 flex items-center justify-between p-4 hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
+            'flex-1 flex items-center justify-between px-4 py-3.5 hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
             selectedIds.includes(tx.id) &&
               'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
             !isInitialBalance &&

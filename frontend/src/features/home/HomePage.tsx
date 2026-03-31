@@ -124,7 +124,7 @@ const BudgetRow = ({
       tabIndex={0}
       onClick={() => navigate(`/budget/${budget.id}`)}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
-      className="flex items-center justify-between p-5 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
+      className="flex items-center justify-between px-4 py-3.5 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
     >
       <div className="flex items-center gap-4">
         <div
