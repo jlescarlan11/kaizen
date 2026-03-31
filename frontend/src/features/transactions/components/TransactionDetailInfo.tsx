@@ -11,8 +11,6 @@ interface TransactionDetailInfoProps {
   paymentMethod?: {
     name: string
   }
-  description?: string | null
-  notes?: string | null
   type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
   className?: string
 }
@@ -20,8 +18,6 @@ interface TransactionDetailInfoProps {
 export function TransactionDetailInfo({
   category,
   paymentMethod,
-  description,
-  notes,
   type,
   className,
 }: TransactionDetailInfoProps): ReactElement {
@@ -70,7 +66,7 @@ export function TransactionDetailInfo({
       </div>
 
       {/* Main Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2 border-b border-ui-border-subtle">
         <InfoBlock label="Category">
           {category ? (
             <div className="flex items-center gap-3">
@@ -102,28 +98,6 @@ export function TransactionDetailInfo({
             <span className="italic text-muted-foreground">No Payment Method</span>
           )}
         </InfoBlock>
-
-        <InfoBlock label="Description" fullWidth>
-          <p
-            className={cn(
-              'text-lg text-foreground leading-relaxed',
-              !description && 'italic text-muted-foreground',
-            )}
-          >
-            {description || '—'}
-          </p>
-        </InfoBlock>
-
-        <InfoBlock label="Notes" fullWidth>
-          <p
-            className={cn(
-              'text-lg text-foreground leading-relaxed',
-              !notes && 'italic text-muted-foreground',
-            )}
-          >
-            {notes || '—'}
-          </p>
-        </InfoBlock>
       </div>
     </div>
   )
@@ -137,12 +111,7 @@ interface InfoBlockProps {
 
 function InfoBlock({ label, children, fullWidth }: InfoBlockProps) {
   return (
-    <div
-      className={cn(
-        'flex flex-col gap-2 border-b border-ui-border-subtle pb-4',
-        fullWidth ? 'md:col-span-2' : '',
-      )}
-    >
+    <div className={cn('flex flex-col gap-2', fullWidth ? 'md:col-span-2' : '')}>
       <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </p>

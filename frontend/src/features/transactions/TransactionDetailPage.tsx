@@ -1,9 +1,10 @@
-import { useState, type ReactElement } from 'react'
+import { useState, useMemo, type ReactElement } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   useGetTransactionQuery,
   useDeleteTransactionMutation,
   useCreateTransactionMutation,
+  useGetTransactionsQuery,
   type TransactionRequest,
 } from '../../app/store/api/transactionApi'
 import { Button } from '../../shared/components/Button'
@@ -13,15 +14,32 @@ import { cn } from '../../shared/lib/cn'
 import { TransactionDetailHeader } from './components/TransactionDetailHeader'
 import { TransactionDetailInfo } from './components/TransactionDetailInfo'
 import { TransactionActionGroup } from './components/TransactionActionGroup'
+import { TransactionNoteSection } from './components/TransactionNoteSection'
+import { AttachmentViewer } from './components/AttachmentViewer'
+import { RelatedTransactionsList } from './components/RelatedTransactionsList'
 
 export function TransactionDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data: transaction, isLoading, error } = useGetTransactionQuery(Number(id))
+  const transactionId = Number(id)
+
+  const { data: transaction, isLoading, error } = useGetTransactionQuery(transactionId)
+  const { data: allTransactions, isLoading: isLoadingAll } = useGetTransactionsQuery({
+    pageSize: 50,
+  })
+
   const [deleteTransaction, { isLoading: isDeleting }] = useDeleteTransactionMutation()
   const [createTransaction, { isLoading: isDuplicating }] = useCreateTransactionMutation()
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  // Filter related transactions (same category, excluding current one)
+  const relatedTransactions = useMemo(() => {
+    if (!transaction || !allTransactions) return []
+    return allTransactions
+      .filter((t) => t.id !== transaction.id && t.category?.id === transaction.category?.id)
+      .slice(0, 3) // Only show top 3
+  }, [transaction, allTransactions])
 
   if (isLoading) {
     return (
@@ -89,7 +107,7 @@ export function TransactionDetailPage(): ReactElement {
 
   return (
     <div className={cn(pageLayout.sectionGap, 'pt-4 md:pt-8')}>
-      <div className="mx-auto max-w-3xl w-full space-y-12 pb-20">
+      <div className="mx-auto max-w-3xl w-full space-y-12 pb-24">
         <div className="space-y-1">
           <h1 className="text-4xl font-black tracking-tight text-foreground">
             Transaction Details
@@ -109,13 +127,42 @@ export function TransactionDetailPage(): ReactElement {
           isProcessing={isDeleting || isDuplicating}
         />
 
-        <TransactionDetailInfo
-          category={transaction.category}
-          paymentMethod={transaction.paymentMethod}
-          description={transaction.description}
-          notes={transaction.notes}
-          type={transaction.type}
-        />
+        <div className="space-y-12">
+          <section>
+            <TransactionDetailInfo
+              category={transaction.category}
+              paymentMethod={transaction.paymentMethod}
+              type={transaction.type}
+            />
+          </section>
+
+          {(transaction.description || transaction.notes) && (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <TransactionNoteSection
+                description={transaction.description}
+                notes={transaction.notes}
+              />
+            </section>
+          )}
+
+          {transaction.attachments && transaction.attachments.length > 0 && (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-600">
+              <AttachmentViewer attachments={transaction.attachments} />
+            </section>
+          )}
+
+          <section className="pt-4 border-t border-ui-border-subtle animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                History & Related
+              </h3>
+              <span className="text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full uppercase tracking-wider">
+                Same Category
+              </span>
+            </div>
+            <RelatedTransactionsList transactions={relatedTransactions} isLoading={isLoadingAll} />
+          </section>
+        </div>
       </div>
 
       <Modal

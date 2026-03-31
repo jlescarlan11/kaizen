@@ -6,6 +6,7 @@ import {
   useGetTransactionQuery,
   useDeleteTransactionMutation,
   useCreateTransactionMutation,
+  useGetTransactionsQuery,
 } from '../../app/store/api/transactionApi'
 
 // Mock the API hook
@@ -13,13 +14,14 @@ vi.mock('../../app/store/api/transactionApi', () => ({
   useGetTransactionQuery: vi.fn(),
   useDeleteTransactionMutation: vi.fn(),
   useCreateTransactionMutation: vi.fn(),
+  useGetTransactionsQuery: vi.fn(),
 }))
 
 describe('TransactionDetailPage', () => {
   const mockTransaction = {
     id: 1,
     amount: 1500.5,
-    type: 'EXPENSE',
+    type: 'EXPENSE' as const,
     transactionDate: '2026-03-31T10:00:00Z',
     description: 'Dinner at Jollibee',
     notes: 'Very delicious',
@@ -33,6 +35,7 @@ describe('TransactionDetailPage', () => {
       id: 1,
       name: 'Cash',
     },
+    attachments: [],
   }
 
   const mockDelete = vi.fn().mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) })
@@ -48,6 +51,10 @@ describe('TransactionDetailPage', () => {
       mockCreate,
       { isLoading: false },
     ] as unknown as ReturnType<typeof useCreateTransactionMutation>)
+    vi.mocked(useGetTransactionsQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as unknown as ReturnType<typeof useGetTransactionsQuery>)
   })
 
   it('renders the transaction details correctly', () => {
