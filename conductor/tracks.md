@@ -10,3 +10,8 @@
 - [ ] **Track: Authenticated Home UI Refactor & Navigation Update**
 *Link: [./tracks/auth_home_ui_refactor_20260330/](./tracks/auth_home_ui_refactor_20260330/)*
 
+---
+
+- [ ] **Track: Update the UI/UX of transaction details to be consistent with the app and user-centered.**
+*Link: [./tracks/transaction_details_ui_20260331/](./tracks/transaction_details_ui_20260331/)*
+
