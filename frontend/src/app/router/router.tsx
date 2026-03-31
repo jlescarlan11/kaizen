@@ -83,6 +83,21 @@ const InsightsPage = lazy(() =>
     default: m.InsightsPage,
   })),
 )
+const TransactionDetailPage = lazy(() =>
+  import('../../features/transactions/TransactionDetailPage').then((m) => ({
+    default: m.TransactionDetailPage,
+  })),
+)
+const BudgetDetailPage = lazy(() =>
+  import('../../features/budgets/BudgetDetailPage').then((m) => ({
+    default: m.BudgetDetailPage,
+  })),
+)
+const GoalDetailPage = lazy(() =>
+  import('../../features/goals/GoalDetailPage').then((m) => ({
+    default: m.GoalDetailPage,
+  })),
+)
 
 export const router = createBrowserRouter([
   {
@@ -177,6 +192,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'transactions/:id',
+            element: <TransactionDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+            },
+          },
+          {
             path: 'transactions/reminder/:id',
             element: <ReminderRedirectHandler />,
           },
@@ -221,6 +246,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'budget/:id',
+            element: <BudgetDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/budget',
+              },
+            },
+          },
+          {
             path: 'budget',
             element: <BudgetsPage />,
             handle: {
@@ -237,6 +272,16 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Back',
                 fallbackPath: '/budget',
+              },
+            },
+          },
+          {
+            path: 'goals/:id',
+            element: <GoalDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
               },
             },
           },

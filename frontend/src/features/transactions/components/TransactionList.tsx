@@ -1,19 +1,20 @@
 import type { ReactElement } from 'react'
 import { useState, useRef, useMemo } from 'react'
-import { List, type ListImperativeAPI, type RowComponentProps } from 'react-window'
+import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Card } from '../../../shared/components/Card'
 import { Badge } from '../../../shared/components/Badge'
 import { Checkbox } from '../../../shared/components/Checkbox'
 import { Button } from '../../../shared/components/Button'
 import { groupTransactionsByDate, formatGroupDate } from '../utils/transactionUtils'
-import { TransactionDetailModal } from './TransactionDetailModal'
 import { SearchHighlight } from './SearchHighlight'
 import { cn } from '../../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../../app/store/hooks'
 import { selectPendingDeletes, triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
-import { TRANSACTION_OVERSCAN_BUFFER } from '../constants'
-import { flattenTransactions, ITEM_HEIGHTS } from '../utils/virtualizationUtils'
+import { flattenTransactions, type FlattenedTransactionItem } from '../utils/virtualizationUtils'
+import { DataList } from '../../../shared/components/DataList'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
@@ -22,8 +23,6 @@ interface TransactionListProps {
   onLoadMore?: () => void
   isLoading?: boolean
 }
-
-import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -40,9 +39,8 @@ export function TransactionList({
   onLoadMore,
   isLoading = false,
 }: TransactionListProps): ReactElement {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const [selectedTx, setSelectedTx] = useState<TransactionResponse | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Selection Mode State
   const [isSelectionMode, setIsSelectionMode] = useState(false)
@@ -58,8 +56,7 @@ export function TransactionList({
     if (isSelectionMode) {
       toggleSelection(tx.id)
     } else {
-      setSelectedTx(tx)
-      setIsModalOpen(true)
+      navigate(`/transactions/${tx.id}`)
     }
   }
 
@@ -104,19 +101,10 @@ export function TransactionList({
     return flattenTransactions(visibleTransactions, groupTransactionsByDate)
   }, [visibleTransactions])
 
-  const getItemSize = (index: number) => {
-    const item = flattenedItems[index]
-    return item.type === 'header' ? ITEM_HEIGHTS.header : ITEM_HEIGHTS.transaction
-  }
-
-  const listRef = useRef<ListImperativeAPI>(null)
-
-  const Row = ({ index, style, ariaAttributes }: RowComponentProps) => {
-    const item = flattenedItems[index]
-
+  const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
       return (
-        <div {...ariaAttributes} style={style} className="px-1 flex items-center justify-between">
+        <div className="px-1 py-3 flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
             {formatGroupDate(item.date)}
           </h2>
@@ -152,11 +140,7 @@ export function TransactionList({
     const isInitialBalance = tx.type === 'INITIAL_BALANCE'
 
     return (
-      <div
-        {...ariaAttributes}
-        style={{ ...style, height: style.height ? (style.height as number) - 12 : style.height }}
-        className="relative flex items-center gap-3"
-      >
+      <div className="relative flex items-center gap-3 py-1.5">
         {isSelectionMode && (
           <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200">
             <Checkbox
@@ -188,13 +172,13 @@ export function TransactionList({
           <div className="flex items-center gap-4">
             {tx.category ? (
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-full text-xl transition-transform group-hover:scale-110"
+                className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110"
                 style={{
                   backgroundColor: tx.category.color + '22',
                   color: tx.category.color,
                 }}
               >
-                {tx.category.icon}
+                <SharedIcon type="category" name={tx.category.icon} size={20} />
               </div>
             ) : (
               <div
@@ -206,7 +190,7 @@ export function TransactionList({
                 )}
               >
                 {tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? (
-                  <IncomeIcon />
+                  <SharedIcon type="ui" name="income" size={20} />
                 ) : (
                   <span className="text-lg font-bold">?</span>
                 )}
@@ -230,12 +214,12 @@ export function TransactionList({
                 />
                 {tx.notes && (
                   <div title="Contains notes" className="text-muted-foreground/60 shrink-0">
-                    <NoteIcon />
+                    <SharedIcon type="ui" name="note" size={14} />
                   </div>
                 )}
                 {tx.isRecurring && (
                   <div title="Recurring transaction" className="text-primary/70 shrink-0">
-                    <RecurringIcon />
+                    <SharedIcon type="ui" name="recurring" size={14} />
                   </div>
                 )}
                 {/* Instruction 6: Merge local pending transactions */}
@@ -286,21 +270,6 @@ export function TransactionList({
     )
   }
 
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    if (!onLoadMore || isFetchingMore || !hasMore) return
-
-    const scrollOffset = event.currentTarget.scrollTop
-
-    // Simple check if we're near the bottom
-    const totalHeight = flattenedItems.reduce((acc, _, i) => acc + getItemSize(i), 0)
-    if (scrollOffset + 800 > totalHeight) {
-      onLoadMore()
-    }
-  }
-
-  // Add dummy state for isFetchingMore if not provided
-  const isFetchingMore = false
-
   if (isLoading && transactions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -311,7 +280,7 @@ export function TransactionList({
   }
 
   return (
-    <div className="h-[600px] w-full pb-24">
+    <div className="w-full pb-24">
       {/* Selection Mode Toolbar */}
       {isSelectionMode && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg">
@@ -320,10 +289,10 @@ export function TransactionList({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 rounded-full hover:bg-white/10"
+                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white"
                 onClick={exitSelectionMode}
               >
-                <CloseIcon />
+                <SharedIcon type="ui" name="close" size={18} />
               </Button>
               <p className="font-semibold text-white">{selectedIds.length} Selected</p>
             </div>
@@ -349,103 +318,30 @@ export function TransactionList({
         </div>
       )}
 
-      <List
-        listRef={listRef}
-        rowCount={flattenedItems.length}
-        rowHeight={getItemSize}
-        style={{ height: 600, width: '100%' }}
-        overscanCount={TRANSACTION_OVERSCAN_BUFFER}
-        onScroll={handleScroll}
-        rowComponent={Row}
-        rowProps={{} as Record<string, never>}
+      <DataList
+        data={flattenedItems}
+        renderItem={renderItem}
+        emptyState={
+          !isLoading && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-muted-foreground">No transactions found</p>
+            </div>
+          )
+        }
       />
 
-      {!isSelectionMode && (
-        <TransactionDetailModal
-          transaction={selectedTx}
-          open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-        />
+      {hasMore && (
+        <div className="mt-8 flex justify-center">
+          <Button
+            variant="ghost"
+            onClick={onLoadMore}
+            isLoading={isLoading}
+            className="text-muted-foreground hover:text-primary"
+          >
+            Load more transactions
+          </Button>
+        </div>
       )}
     </div>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
-  )
-}
-
-function IncomeIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M7 10l5-5 5 5" />
-      <path d="M12 5v14" />
-    </svg>
-  )
-}
-
-function NoteIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3Z" />
-      <path d="M15 3v6h6" />
-      <path d="M9 13h6" />
-      <path d="M9 17h3" />
-    </svg>
-  )
-}
-
-function RecurringIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-      <path d="M16 16h5v5" />
-    </svg>
   )
 }

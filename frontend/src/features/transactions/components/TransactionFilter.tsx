@@ -6,6 +6,7 @@ import { Checkbox } from '../../../shared/components/Checkbox'
 import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
 import type { FilterState } from '../types'
 import { cn } from '../../../shared/lib/cn'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 
 interface TransactionFilterProps {
   filter: FilterState
@@ -47,7 +48,7 @@ export function TransactionFilter({
             hasActiveFilters && 'border-primary bg-primary/5 text-primary',
           )}
         >
-          <FilterIcon />
+          <SharedIcon type="ui" name="filter" size={18} />
           <span>Filter</span>
           {hasActiveFilters && (
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
@@ -125,13 +126,13 @@ export function TransactionFilter({
                         onCheckedChange={() => toggleCategory(category.id)}
                       />
                       <div
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-xs"
+                        className="flex h-6 w-6 items-center justify-center rounded-full"
                         style={{
                           backgroundColor: category.color + '22',
                           color: category.color,
                         }}
                       >
-                        {category.icon}
+                        <SharedIcon type="category" name={category.icon} size={14} />
                       </div>
                       <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                         {category.name}
@@ -145,23 +146,5 @@ export function TransactionFilter({
         </PopoverPanel>
       </Transition>
     </Popover>
-  )
-}
-
-function FilterIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-    </svg>
   )
 }

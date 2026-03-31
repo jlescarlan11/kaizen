@@ -1,5 +1,6 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Check } from 'lucide-react'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { BudgetCard } from '../budgets/components/BudgetCard'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
@@ -438,19 +439,11 @@ export function OnboardingBudgetStep(): ReactElement | null {
   return (
     <>
       <div className={cn('flex flex-col', fluidLayout.sectionGap)}>
-        <div className="rounded-2xl border border-ui-border bg-ui-card sm:border-0 sm:p-6 md:p-8">
-          <div className="p-6 sm:p-0">
-            <p className="mb-4 text-sm font-medium leading-none text-foreground">
-              Balance overview
-            </p>
+        <section aria-label="Balance overview" className="space-y-4 px-1">
+          <p className="text-sm font-medium leading-none text-foreground">Balance overview</p>
 
-            <AllocationBar
-              allocated={totalAllocated}
-              balance={balance}
-              onOver={setIsOverAllocated}
-            />
-          </div>
-        </div>
+          <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
+        </section>
 
         <section aria-label="Your budgets" className="space-y-6">
           <div className="flex items-center justify-between px-1">
@@ -482,9 +475,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
           ) : null}
 
           {isLoadingCategories ? (
-            <div className="space-y-0 px-1">
+            <div className="space-y-6 px-1">
               {[0, 1, 2].map((index) => (
-                <div key={index}>
+                <div key={index} className="space-y-6">
                   {index > 0 && <hr className="border-ui-border-subtle" />}
                   <div className="h-20 flex items-center gap-4 py-4 animate-pulse">
                     <div className="h-10 w-10 rounded-full bg-ui-surface-muted shrink-0" />
@@ -512,9 +505,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
               </div>
             </div>
           ) : (
-            <div className="space-y-0">
+            <div className="space-y-6">
               {pendingBudgets.map((budget, index) => (
-                <div key={budget.categoryId}>
+                <div key={budget.categoryId} className="space-y-6">
                   {index > 0 && <hr className="border-ui-border-subtle" />}
                   <BudgetCard
                     budget={budget}
@@ -528,14 +521,6 @@ export function OnboardingBudgetStep(): ReactElement | null {
           )}
         </section>
 
-        {onboardingError ? (
-          <OnboardingErrorBlock
-            error={onboardingError}
-            onRetry={retry}
-            isRetryDisabled={isRetryDisabled}
-          />
-        ) : null}
-
         {submissionError ? (
           <p className={typography['body-sm']} role="alert">
             {submissionError}
@@ -543,17 +528,52 @@ export function OnboardingBudgetStep(): ReactElement | null {
         ) : null}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-6 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:flex-row sm:items-center">
-          <Button
-            className={cn(fluidLayout.touchTarget, 'w-full rounded-xl sm:w-auto sm:px-8')}
-            onClick={handleFinishSetup}
-            isLoading={isCompleting}
-            disabled={!canFinish}
-          >
-            Finish setup
-          </Button>
-          <SkipBudgetTrigger className="text-center sm:text-left" />
+      <hr className="my-10 border-ui-border" />
+
+      {/* Summary and Navigation */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
+          <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
+            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+              Total Starting Funds
+            </p>
+            <p className="text-lg font-semibold text-foreground">
+              {formatCurrency(totalAllocated)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <SkipBudgetTrigger className="hidden sm:inline-block" />
+            <Button
+              variant="primary"
+              onClick={handleFinishSetup}
+              className={cn(
+                fluidLayout.touchTarget,
+                'rounded-full p-0 sm:rounded-xl sm:px-8',
+                'h-12 w-12 sm:h-auto sm:w-auto',
+              )}
+              isLoading={isCompleting}
+              disabled={!canFinish}
+              aria-label="Finish setup"
+            >
+              <span className="hidden sm:inline">Finish setup</span>
+              <Check className="h-6 w-6 sm:hidden" />
+            </Button>
+          </div>
+        </div>
+
+        {onboardingError ? (
+          <div className="mt-4">
+            <OnboardingErrorBlock
+              error={onboardingError}
+              onRetry={retry}
+              isRetryDisabled={isRetryDisabled}
+            />
+          </div>
+        ) : null}
+
+        <div className="mt-4 sm:hidden">
+          <SkipBudgetTrigger className="w-full text-center" />
         </div>
       </div>
 
@@ -633,9 +653,11 @@ export function OnboardingBudgetStep(): ReactElement | null {
             inputMode="decimal"
             min="1"
             step="0.01"
-            endAdornment="PHP"
+            startAdornment={
+              <span className="text-sm font-semibold text-muted-foreground">PHP</span>
+            }
             value={amountInput}
-            className={cn(fluidLayout.touchTarget, 'font-semibold')}
+            className={cn(fluidLayout.touchTarget, 'font-semibold text-right')}
             onChange={(event) => {
               dispatch(
                 setBudgetEditorDraft({
