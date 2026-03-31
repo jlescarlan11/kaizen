@@ -12,6 +12,6 @@
 
 ---
 
-- [ ] **Track: Update the UI/UX of transaction details to be consistent with the app and user-centered.**
+- [x] **Track: Update the UI/UX of transaction details to be consistent with the app and user-centered.**
 *Link: [./tracks/transaction_details_ui_20260331/](./tracks/transaction_details_ui_20260331/)*
 
