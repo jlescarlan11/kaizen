@@ -11,6 +11,7 @@ Initial monorepo scaffold for backend and frontend development.
 - **User Authentication & RBAC:** Spring Security, JWT/OAuth2, and user management.
 - **Real-time Data Processing & Storage:** Spring Data JPA, PostgreSQL, and Redis caching.
 - **Interactive Frontend Dashboard:** Vite, Redux Toolkit, and Tailwind for responsive UI.
+- **Money Flow Analysis:** Dynamic tracking of incoming vs. outgoing funds with visual ratio indicators and date-grouped records.
 - **Speed Dial Navigation:** Persistent, multi-action Speed Dial FAB for rapid entry creation (Transactions, Budgets, Goals).
 
 ## Success Metrics
