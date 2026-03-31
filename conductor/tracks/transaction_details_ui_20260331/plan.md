@@ -13,10 +13,10 @@
 - [x] Task: Conductor - User Manual Verification 'Core UI Refactoring' (Protocol in workflow.md) [checkpoint: 2e8d9d6]
 
 ## Phase 3: Actions & Management (TDD)
-- [ ] Task: Write tests for the `TransactionActionGroup` component (Edit, Delete, Duplicate).
-- [ ] Task: Implement `TransactionActionGroup` with high-visibility buttons or icons.
-- [ ] Task: Ensure all actions are properly wired to existing Redux thunks or services.
-- [ ] Task: Conductor - User Manual Verification 'Actions & Management' (Protocol in workflow.md)
+- [x] Task: Write tests for the `TransactionActionGroup` component (Edit, Delete, Duplicate).
+- [x] Task: Implement `TransactionActionGroup` with high-visibility buttons or icons.
+- [x] Task: Ensure all actions are properly wired to existing Redux thunks or services.
+- [x] Task: Conductor - User Manual Verification 'Actions & Management' (Protocol in workflow.md) [checkpoint: 3bf324e]
 
 ## Phase 4: History & Context (TDD)
 - [ ] Task: Write tests for the `RelatedTransactionsList` component.
