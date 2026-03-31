@@ -101,15 +101,15 @@ export function BalanceSetupStep(): ReactElement {
 
   return (
     <div className={cn('flex w-full flex-col', fluidLayout.sectionGap)}>
-      <div className="space-y-6">
+      <div className="">
         {paymentMethods.map((pm, index) => {
           const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)
           const amountValue = balance ? balance.amount.toString() : ''
 
           return (
-            <div key={pm.id} className="space-y-6">
+            <div key={pm.id} className="">
               {index > 0 && <hr className="border-ui-border-subtle" />}
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6 px-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6 px-4 py-3.5">
                 <label
                   htmlFor={`balance-${pm.id}`}
                   className={cn(typography.label, 'text-foreground')}

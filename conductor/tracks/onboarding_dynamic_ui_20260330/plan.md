@@ -1,9 +1,9 @@
 # Implementation Plan: Dynamic Onboarding UI Improvement
 
 #### Phase 1: Preparation and Environment Setup
-- [ ] Task: Review existing onboarding tests to understand the current coverage and testing strategy.
-- [ ] Task: Verify the "Flat Out" design tokens in `shared/styles/layout.ts` and `shared/styles/typography.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
+- [x] Task: Review existing onboarding tests to understand the current coverage and testing strategy. [f56e599]
+- [x] Task: Verify the "Flat Out" design tokens in `shared/styles/layout.ts` and `shared/styles/typography.ts`. [f56e599]
+- [~] Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)
 
 #### Phase 2: Refactor Onboarding Layout and Step Progress
 - [ ] Task: TDD: Create a new test file `frontend/src/tests/onboarding-progress.test.tsx` to define the expected progress indicator behavior.

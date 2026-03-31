@@ -29,8 +29,8 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
   return (
     <div
       className={cn(
-        'flex items-center gap-4 px-1 py-4 transition-colors',
-        isInvalid && 'bg-ui-danger-subtle/30 -mx-1 rounded-lg px-2',
+        'flex items-center gap-4 px-4 py-3.5 transition-colors',
+        isInvalid && 'bg-ui-danger-subtle/30 -mx-4 rounded-lg px-2',
       )}
     >
       <CategoryBadge

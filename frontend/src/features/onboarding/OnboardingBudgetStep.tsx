@@ -439,14 +439,20 @@ export function OnboardingBudgetStep(): ReactElement | null {
   return (
     <>
       <div className={cn('flex flex-col', fluidLayout.sectionGap)}>
-        <section aria-label="Balance overview" className="space-y-4 px-1">
+        <section aria-label="Balance overview" className="space-y-4">
           <p className="text-sm font-medium leading-none text-foreground">Balance overview</p>
 
-          <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
+          <div className="">
+            <AllocationBar
+              allocated={totalAllocated}
+              balance={balance}
+              onOver={setIsOverAllocated}
+            />
+          </div>
         </section>
 
-        <section aria-label="Your budgets" className="space-y-6">
-          <div className="flex items-center justify-between px-1">
+        <section aria-label="Your budgets" className="">
+          <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium leading-none text-foreground">
               Your budgets
               {pendingBudgets.length > 0 && (
@@ -475,9 +481,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
           ) : null}
 
           {isLoadingCategories ? (
-            <div className="space-y-6 px-1">
+            <div className="px-4 py-3.5">
               {[0, 1, 2].map((index) => (
-                <div key={index} className="space-y-6">
+                <div key={index} className="">
                   {index > 0 && <hr className="border-ui-border-subtle" />}
                   <div className="h-20 flex items-center gap-4 py-4 animate-pulse">
                     <div className="h-10 w-10 rounded-full bg-ui-surface-muted shrink-0" />
@@ -505,9 +511,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="">
               {pendingBudgets.map((budget, index) => (
-                <div key={budget.categoryId} className="space-y-6">
+                <div key={budget.categoryId} className="">
                   {index > 0 && <hr className="border-ui-border-subtle" />}
                   <BudgetCard
                     budget={budget}

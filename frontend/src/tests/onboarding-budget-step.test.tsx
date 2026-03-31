@@ -218,7 +218,7 @@ describe('OnboardingBudgetStep', () => {
       })
 
       const balanceOverview = await screen.findByText(/balance overview/i)
-      const container = balanceOverview.closest('div')!.parentElement!.parentElement!
+      const container = balanceOverview.closest('div')!
       expect(container).toHaveClass('space-y-[clamp(1.5rem,6vw,2.5rem)]')
     })
   })

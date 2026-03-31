@@ -70,6 +70,6 @@ describe('BudgetCard', () => {
       />,
     )
 
-    expect(container.firstChild).toHaveClass('border-ui-danger-bg')
+    expect(container.firstChild).toHaveClass('bg-ui-danger-subtle/30')
   })
 })
