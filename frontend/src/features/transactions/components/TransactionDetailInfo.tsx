@@ -1,0 +1,152 @@
+import { type ReactElement } from 'react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { cn } from '../../../shared/lib/cn'
+
+interface TransactionDetailInfoProps {
+  category?: {
+    name: string
+    icon: string
+    color: string
+  }
+  paymentMethod?: {
+    name: string
+  }
+  description?: string | null
+  notes?: string | null
+  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  className?: string
+}
+
+export function TransactionDetailInfo({
+  category,
+  paymentMethod,
+  description,
+  notes,
+  type,
+  className,
+}: TransactionDetailInfoProps): ReactElement {
+  const isExpense = type === 'EXPENSE'
+  const isIncome = type === 'INCOME'
+
+  return (
+    <div className={cn('space-y-8', className)}>
+      {/* Flow Indicator Card */}
+      <div className="flex items-center justify-between p-4 bg-ui-surface border border-ui-border-subtle rounded-2xl">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              'flex h-10 w-10 items-center justify-center rounded-full',
+              isIncome ? 'bg-ui-success/10 text-ui-success' : 'bg-ui-surface-muted text-foreground',
+            )}
+          >
+            <SharedIcon
+              type="category"
+              name={isIncome ? 'trending-up' : isExpense ? 'trending-down' : 'refresh-cw'}
+              size={20}
+            />
+          </div>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Money Flow
+            </p>
+            <p className="text-sm font-semibold text-foreground">
+              {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            Type
+          </p>
+          <p
+            className={cn(
+              'text-xs font-bold uppercase tracking-wider',
+              isIncome ? 'text-ui-success' : 'text-foreground',
+            )}
+          >
+            {isIncome ? 'Incoming' : isExpense ? 'Outgoing' : 'Neutral'}
+          </p>
+        </div>
+      </div>
+
+      {/* Main Details Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <InfoBlock label="Category">
+          {category ? (
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-full text-xl"
+                style={{
+                  backgroundColor: category.color + '15',
+                  color: category.color,
+                }}
+              >
+                <SharedIcon type="category" name={category.icon} size={20} />
+              </div>
+              <span className="text-lg font-medium text-foreground">{category.name}</span>
+            </div>
+          ) : (
+            <span className="italic text-muted-foreground">No Category</span>
+          )}
+        </InfoBlock>
+
+        <InfoBlock label="Payment Method">
+          {paymentMethod ? (
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-bold border border-ui-border">
+                {paymentMethod.name.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-lg font-medium text-foreground">{paymentMethod.name}</span>
+            </div>
+          ) : (
+            <span className="italic text-muted-foreground">No Payment Method</span>
+          )}
+        </InfoBlock>
+
+        <InfoBlock label="Description" fullWidth>
+          <p
+            className={cn(
+              'text-lg text-foreground leading-relaxed',
+              !description && 'italic text-muted-foreground',
+            )}
+          >
+            {description || '—'}
+          </p>
+        </InfoBlock>
+
+        <InfoBlock label="Notes" fullWidth>
+          <p
+            className={cn(
+              'text-lg text-foreground leading-relaxed',
+              !notes && 'italic text-muted-foreground',
+            )}
+          >
+            {notes || '—'}
+          </p>
+        </InfoBlock>
+      </div>
+    </div>
+  )
+}
+
+interface InfoBlockProps {
+  label: string
+  children: React.ReactNode
+  fullWidth?: boolean
+}
+
+function InfoBlock({ label, children, fullWidth }: InfoBlockProps) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2 border-b border-ui-border-subtle pb-4',
+        fullWidth ? 'md:col-span-2' : '',
+      )}
+    >
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+        {label}
+      </p>
+      {children}
+    </div>
+  )
+}

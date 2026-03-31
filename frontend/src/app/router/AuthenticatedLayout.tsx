@@ -24,6 +24,7 @@ interface RouteHandle {
     label: string
     fallbackPath: string
   }
+  actions?: ReactElement
   hideHeader?: boolean
 }
 
@@ -265,6 +266,7 @@ function AuthenticatedLayoutContent(): ReactElement {
               </div>
 
               <div className="flex items-center gap-3 md:gap-5">
+                {handle?.actions}
                 {!isSecondDegree && (
                   <>
                     <button

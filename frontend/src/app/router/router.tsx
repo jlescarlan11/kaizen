@@ -99,6 +99,8 @@ const GoalDetailPage = lazy(() =>
   })),
 )
 
+import { TransactionDetailActions } from '../../features/transactions/components/TransactionDetailActions'
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -199,6 +201,7 @@ export const router = createBrowserRouter([
                 label: 'Back',
                 fallbackPath: '/transactions',
               },
+              actions: <TransactionDetailActions />,
             },
           },
           {
