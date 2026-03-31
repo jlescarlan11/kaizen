@@ -27,15 +27,15 @@ Create the visual components for displaying the money flow metrics.
 ## Phase 3: Transaction List Page Refactoring
 Update the main `/transactions` page to adopt the new UI and features.
 
-- [ ] Task: Modify `frontend/src/features/transactions/TransactionListPage.tsx`
-    - [ ] Remove the current "Total Balance" card and associated logic.
-    - [ ] Update the header to mirror the `HomePage.tsx` style (vertical stack, large typography).
-    - [ ] Integrate the `MoneyFlowDisplay` component, passing it the `processedTransactions` from the pipeline.
-    - [ ] Refine the layout spacing (using `space-y-7` or similar as seen in `HomePage.tsx`).
-    - [ ] Ensure the "Reconcile", "Export", and "View History" buttons are repositioned/styled appropriately for the new header.
-- [ ] Task: Refine Search/Filter/Sort UI
-    - [ ] Adjust the positioning and styling of `TransactionSearch`, `TransactionFilter`, and `TransactionSort` to be more integrated and less cluttered.
-    - [ ] Match the "flat" card style for the controls if applicable.
+- [x] Task: Modify `frontend/src/features/transactions/TransactionListPage.tsx` aff84ac
+    - [x] Remove the current "Total Balance" card and associated logic.
+    - [x] Update the header to mirror the `HomePage.tsx` style (vertical stack, large typography).
+    - [x] Integrate the `MoneyFlowDisplay` component, passing it the `processedTransactions` from the pipeline.
+    - [x] Refine the layout spacing (using `space-y-7` or similar as seen in `HomePage.tsx`).
+    - [x] Ensure the "Reconcile", "Export", and "View History" buttons are repositioned/styled appropriately for the new header.
+- [x] Task: Refine Search/Filter/Sort UI aff84ac
+    - [x] Adjust the positioning and styling of `TransactionSearch`, `TransactionFilter`, and `TransactionSort` to be more integrated and less cluttered.
+    - [x] Match the "flat" card style for the controls if applicable.
 
 ## Phase 4: Verification & Polish
 Finalize the implementation and ensure high quality.
