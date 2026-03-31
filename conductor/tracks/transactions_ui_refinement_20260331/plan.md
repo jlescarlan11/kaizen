@@ -17,12 +17,12 @@ Implement the core logic for calculating money flow metrics from transaction dat
 ## Phase 2: Money Flow Components
 Create the visual components for displaying the money flow metrics.
 
-- [ ] Task: Create `MoneyFlowDisplay` component in `frontend/src/features/transactions/components/MoneyFlowDisplay.tsx`
-    - [ ] Display "Incoming" and "Outgoing" totals using `formatCurrency`.
-    - [ ] Implement a horizontal progress bar showing the ratio of incoming vs. outgoing.
-    - [ ] Style it to match the "flat" design system (neutral colors, clean lines).
-    - [ ] Ensure mobile responsiveness.
-- [ ] Task: Create `MoneyFlowDisplay.test.tsx` to verify rendering and ratio calculation.
+- [x] Task: Create `MoneyFlowDisplay` component in `frontend/src/features/transactions/components/MoneyFlowDisplay.tsx` ff80f77
+    - [x] Display "Incoming" and "Outgoing" totals using `formatCurrency`.
+    - [x] Implement a horizontal progress bar showing the ratio of incoming vs. outgoing.
+    - [x] Style it to match the "flat" design system (neutral colors, clean lines).
+    - [x] Ensure mobile responsiveness.
+- [x] Task: Create `MoneyFlowDisplay.test.tsx` to verify rendering and ratio calculation. ff80f77
 
 ## Phase 3: Transaction List Page Refactoring
 Update the main `/transactions` page to adopt the new UI and features.
