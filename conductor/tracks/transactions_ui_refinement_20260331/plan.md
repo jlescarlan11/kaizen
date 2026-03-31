@@ -48,4 +48,4 @@ Finalize the implementation and ensure high quality.
     - [ ] Manual verification on mobile (responsive layout).
     - [ ] Verify search/filter correctly updates the money flow metrics.
 
-[checkpoint: <sha>]
+[checkpoint: a13e5eb]
