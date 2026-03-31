@@ -19,11 +19,12 @@
 - [x] Task: Conductor - User Manual Verification 'Actions & Management' (Protocol in workflow.md) [checkpoint: 3bf324e]
 
 ## Phase 4: History & Context (TDD)
-- [ ] Task: Write tests for the `RelatedTransactionsList` component.
-- [ ] Task: Implement `RelatedTransactionsList` to fetch and display transactions from the same category or merchant.
-- [ ] Task: Implement `TransactionNoteSection` and `AttachmentViewer` for better scannability.
-- [ ] Task: Integrate history and notes into the main detail view.
-- [ ] Task: Conductor - User Manual Verification 'History & Context' (Protocol in workflow.md)
+- [x] Task: Write tests for the `RelatedTransactionsList` component.
+- [x] Task: Implement `RelatedTransactionsList` to fetch and display transactions from the same category or merchant.
+- [x] Task: Implement `TransactionNoteSection` and `AttachmentViewer` for better scannability.
+- [x] Task: Integrate history and notes into the main detail view.
+- [x] Task: Conductor - User Manual Verification 'History & Context' (Protocol in workflow.md) [checkpoint: b720ea7]
+
 
 ## Phase 5: Polishing & Accessibility
 - [ ] Task: Perform a visual audit against "Flat UI Architecture" guidelines.
