@@ -1,5 +1,11 @@
-import { describe, it, expect } from 'vitest'
-import { calculateMoneyFlow } from '../transactionUtils'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  calculateMoneyFlow,
+  groupTransactionsByDate,
+  formatGroupDate,
+  calculateRunningBalance,
+  formatFrequency,
+} from '../transactionUtils'
 import type { TransactionResponse } from '../../../../app/store/api/transactionApi'
 
 const MOCK_TRANSACTIONS: TransactionResponse[] = [
@@ -99,6 +105,99 @@ describe('transactionUtils', () => {
       const result = calculateMoneyFlow(txs)
       // 200 / 100 = 2
       expect(result.ratio).toBe(2)
+    })
+  })
+
+  describe('groupTransactionsByDate', () => {
+    it('groups transactions by calendar date and sorts them descending', () => {
+      const txs: TransactionResponse[] = [
+        {
+          id: 1,
+          amount: 10,
+          type: 'EXPENSE',
+          transactionDate: '2026-03-01T10:00:00Z',
+          description: 'a',
+        },
+        {
+          id: 2,
+          amount: 20,
+          type: 'EXPENSE',
+          transactionDate: '2026-03-01T15:00:00Z',
+          description: 'b',
+        },
+        {
+          id: 3,
+          amount: 30,
+          type: 'EXPENSE',
+          transactionDate: '2026-03-02T10:00:00Z',
+          description: 'c',
+        },
+      ]
+
+      const groups = groupTransactionsByDate(txs)
+      expect(groups).toHaveLength(2)
+      expect(groups[0].date).toBe('2026-03-02')
+      expect(groups[0].transactions).toHaveLength(1)
+      expect(groups[1].date).toBe('2026-03-01')
+      expect(groups[1].transactions).toHaveLength(2)
+    })
+  })
+
+  describe('formatGroupDate', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      // Set "today" to March 15, 2026
+      vi.setSystemTime(new Date('2026-03-15T12:00:00Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('returns "Today" for today\'s date', () => {
+      expect(formatGroupDate('2026-03-15')).toBe('Today')
+    })
+
+    it('returns "Yesterday" for yesterday\'s date', () => {
+      expect(formatGroupDate('2026-03-14')).toBe('Yesterday')
+    })
+
+    it('returns a formatted date for other dates', () => {
+      const formatted = formatGroupDate('2026-03-13')
+      expect(formatted).toMatch(/March 13, 2026/)
+    })
+  })
+
+  describe('calculateRunningBalance', () => {
+    it('calculates correctly based on INCOME, EXPENSE and RECONCILIATION', () => {
+      const balance = calculateRunningBalance(MOCK_TRANSACTIONS)
+      // 500 (income) - 100 (expense) + 50 (rec inc) - 30 (rec dec) = 420
+      expect(balance).toBe(420)
+    })
+  })
+
+  describe('formatFrequency', () => {
+    it('returns "-" for missing unit or multiplier', () => {
+      expect(formatFrequency()).toBe('—')
+      expect(formatFrequency('DAILY')).toBe('—')
+    })
+
+    it('formats singular frequencies correctly', () => {
+      expect(formatFrequency('DAILY', 1)).toBe('Daily')
+      expect(formatFrequency('WEEKLY', 1)).toBe('Weekly')
+      expect(formatFrequency('MONTHLY', 1)).toBe('Monthly')
+      expect(formatFrequency('YEARLY', 1)).toBe('Yearly')
+    })
+
+    it('formats plural frequencies correctly', () => {
+      expect(formatFrequency('DAILY', 2)).toBe('Every 2 days')
+      expect(formatFrequency('WEEKLY', 3)).toBe('Every 3 weeks')
+      expect(formatFrequency('MONTHLY', 6)).toBe('Every 6 months')
+    })
+
+    it('handles custom units correctly', () => {
+      expect(formatFrequency('CUSTOM', 1)).toBe('Custom')
+      expect(formatFrequency('CUSTOM', 2)).toBe('Every 2 customs')
     })
   })
 })
