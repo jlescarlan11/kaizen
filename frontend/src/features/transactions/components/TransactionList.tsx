@@ -2,7 +2,6 @@ import type { ReactElement } from 'react'
 import { useState, useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
-import { Card } from '../../../shared/components/Card'
 import { Badge } from '../../../shared/components/Badge'
 import { Checkbox } from '../../../shared/components/Checkbox'
 import { Button } from '../../../shared/components/Button'
@@ -15,7 +14,8 @@ import { flattenTransactions, type FlattenedTransactionItem } from '../utils/vir
 import { DataList } from '../../../shared/components/DataList'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
-import type { SortState } from '../types'
+import { formatTransactionDate } from '../utils/transactionUtils'
+import { Card } from '../../../shared/components/Card'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
@@ -23,16 +23,11 @@ interface TransactionListProps {
   hasMore?: boolean
   onLoadMore?: () => void
   isLoading?: boolean
-  sortState?: SortState
 }
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
 }
-
-const timeFormatter = new Intl.DateTimeFormat('en-PH', {
-  timeStyle: 'short',
-})
 
 export function TransactionList({
   transactions,
@@ -40,7 +35,6 @@ export function TransactionList({
   hasMore = false,
   onLoadMore,
   isLoading = false,
-  sortState,
 }: TransactionListProps): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -101,21 +95,16 @@ export function TransactionList({
   }
 
   const flattenedItems = useMemo(() => {
-    // Only apply date grouping if sorting by date.
-    // If sorting by amount or category, a flat list is more appropriate to respect the sort order.
-    if (sortState && sortState.criterion !== 'date') {
-      return visibleTransactions.map(
-        (tx): FlattenedTransactionItem => ({ type: 'transaction', transaction: tx }),
-      )
-    }
+    // Always group transactions by date to maintain a clear visual hierarchy.
     return flattenTransactions(visibleTransactions, groupTransactionsByDate)
-  }, [visibleTransactions, sortState])
+  }, [visibleTransactions])
 
   const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
       return (
-        <div className="px-1 py-3 flex items-center justify-between bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-          <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+        <div className="pt-8 pb-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b-2 border-ui-border-strong/60 flex items-center justify-between pr-4">
+          <h2 className="px-4 text-[11px] font-black text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-2">
+            <span className="h-px w-6 bg-ui-border-strong/50 inline-block" />
             {formatGroupDate(item.date)}
           </h2>
           {isSelectionMode && (
@@ -124,7 +113,6 @@ export function TransactionList({
               size="sm"
               className="h-auto p-0 text-xs font-semibold text-primary hover:bg-transparent"
               onClick={() => {
-                // Find all transaction IDs in this date group
                 const groupItems: number[] = []
                 for (let i = index + 1; i < flattenedItems.length; i++) {
                   const subItem = flattenedItems[i]
@@ -148,18 +136,25 @@ export function TransactionList({
 
     const { transaction: tx } = item
     const isInitialBalance = tx.type === 'INITIAL_BALANCE'
+    const prevItem = index > 0 ? flattenedItems[index - 1] : null
+    const showTopBorder = prevItem?.type === 'transaction'
 
     return (
-      <div className="relative flex items-center gap-3 py-1.5">
+      <div
+        className={cn(
+          'relative flex items-center gap-3',
+          showTopBorder && 'border-t border-ui-border-subtle',
+        )}
+      >
         {isSelectionMode && (
-          <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200">
+          <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200 ml-2">
             <Checkbox
               checked={selectedIds.includes(tx.id)}
               onCheckedChange={() => toggleSelection(tx.id)}
             />
           </div>
         )}
-        <Card
+        <div
           role="button"
           tabIndex={0}
           onClick={() => handleRowClick(tx)}
@@ -170,44 +165,45 @@ export function TransactionList({
           onTouchStart={() => handleLongPressStart(tx.id)}
           onTouchEnd={handleLongPressEnd}
           className={cn(
-            'flex-1 flex items-center justify-between px-4 py-3.5 hover:border-primary/50 transition-all cursor-pointer group active:scale-[0.98]',
-            selectedIds.includes(tx.id) &&
-              'border-primary bg-primary/5 ring-1 ring-primary/20 shadow-md',
+            'flex-1 flex items-center justify-between px-4 py-3.5 transition-all cursor-pointer group active:scale-[0.98] border-l-4 border-transparent',
+            selectedIds.includes(tx.id)
+              ? 'bg-primary/5 border-primary ring-1 ring-primary/10'
+              : 'hover:bg-ui-accent-subtle/30',
             !isInitialBalance &&
               !tx.category &&
               !selectedIds.includes(tx.id) &&
-              'border-amber-200 bg-amber-50/30 dark:border-amber-900/30 dark:bg-amber-950/10',
+              'border-amber-400 bg-amber-50/20 dark:bg-amber-950/5',
           )}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
             {tx.category ? (
               <div
-                className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110"
+                className="flex h-12 w-12 items-center justify-center rounded-full transition-transform group-hover:scale-110"
                 style={{
                   backgroundColor: tx.category.color + '22',
                   color: tx.category.color,
                 }}
               >
-                <SharedIcon type="category" name={tx.category.icon} size={20} />
+                <SharedIcon type="category" name={tx.category.icon} size={24} />
               </div>
             ) : (
               <div
                 className={cn(
-                  'flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110',
+                  'flex h-12 w-12 items-center justify-center rounded-full transition-transform group-hover:scale-110',
                   tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE'
                     ? 'bg-ui-success/10 text-ui-success'
                     : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
                 )}
               >
                 {tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? (
-                  <SharedIcon type="ui" name="income" size={20} />
+                  <SharedIcon type="ui" name="income" size={24} />
                 ) : (
-                  <span className="text-lg font-bold">?</span>
+                  <span className="text-xl font-bold">?</span>
                 )}
               </div>
             )}
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <SearchHighlight
                   text={
                     isInitialBalance
@@ -216,7 +212,7 @@ export function TransactionList({
                   }
                   query={searchQuery}
                   className={cn(
-                    'font-semibold transition-colors block',
+                    'text-base font-bold transition-colors block leading-tight',
                     tx.category || isInitialBalance
                       ? 'text-foreground group-hover:text-primary'
                       : 'text-amber-700 dark:text-amber-500',
@@ -224,31 +220,33 @@ export function TransactionList({
                 />
                 {tx.notes && (
                   <div title="Contains notes" className="text-muted-foreground/60 shrink-0">
-                    <SharedIcon type="ui" name="note" size={14} />
+                    <SharedIcon type="ui" name="note" size={16} />
                   </div>
                 )}
                 {tx.isRecurring && (
                   <div title="Recurring transaction" className="text-primary/70 shrink-0">
-                    <SharedIcon type="ui" name="recurring" size={14} />
+                    <SharedIcon type="ui" name="recurring" size={16} />
                   </div>
                 )}
-                {/* Instruction 6: Merge local pending transactions */}
                 {tx.id === -1 && (
-                  <Badge tone="warning" className="text-[8px] animate-pulse">
+                  <Badge
+                    tone="warning"
+                    className="text-[9px] animate-pulse font-black uppercase tracking-widest px-1.5"
+                  >
                     Syncing
                   </Badge>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {timeFormatter.format(new Date(tx.transactionDate))}
+              <p className="text-xs text-muted-foreground mt-1">
+                {formatTransactionDate(tx.transactionDate)}
                 {tx.paymentMethod && (
                   <span className="ml-2 font-medium text-foreground/70">
                     • {tx.paymentMethod.name}
                   </span>
                 )}
                 {!isInitialBalance && !tx.category && (
-                  <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-medium">
-                    • Needs category
+                  <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-bold uppercase tracking-wide">
+                    • Missing category
                   </span>
                 )}
               </p>
@@ -257,7 +255,7 @@ export function TransactionList({
           <div className="text-right">
             <p
               className={cn(
-                'font-bold',
+                'text-lg font-black tracking-tight',
                 tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
               )}
             >
@@ -266,16 +264,18 @@ export function TransactionList({
                 text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
                 query={searchQuery}
               />
-              <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+              <span className="ml-1 text-[11px] text-muted-foreground font-black uppercase tracking-wider">
+                PHP
+              </span>
             </p>
             <Badge
               tone={tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? 'success' : 'neutral'}
-              className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
+              className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 mt-2"
             >
               {isInitialBalance ? 'Initial Balance' : tx.type}
             </Badge>
           </div>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -331,6 +331,7 @@ export function TransactionList({
       <DataList
         data={flattenedItems}
         renderItem={renderItem}
+        hideBorders={true}
         emptyState={
           !isLoading && (
             <div className="flex flex-col items-center justify-center py-20 text-center">

@@ -25,14 +25,14 @@ public class OnboardingProgressService {
 
     @Transactional(readOnly = true)
     public Optional<OnboardingProgress> findForUser(UserAccount userAccount) {
-        Optional<OnboardingProgress> progress = onboardingProgressRepository.findByUserAccountId(userAccount.getId());
-        progress.ifPresent(p -> {
-            // Force initialization of lazy collection
-            if (p.getInitialBalances() != null) {
-                p.getInitialBalances().size();
-            }
-        });
-        return progress;
+        return onboardingProgressRepository.findByUserAccountId(userAccount.getId())
+            .map(progress -> {
+                // Force initialization of lazy collection
+                if (progress.getInitialBalances() != null) {
+                    progress.getInitialBalances().size();
+                }
+                return progress;
+            });
     }
 
     @Transactional

@@ -30,7 +30,7 @@ public class PersistentSessionService {
      */
     @Transactional
     public String createSession(String email) {
-        UserAccount userAccount = userAccountRepository.findByEmail(email)
+        UserAccount userAccount = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new IllegalStateException("User account not found for email: " + email));
 
         String rawToken = SessionTokenUtil.generateToken();

@@ -70,6 +70,32 @@ export function groupTransactionsByDate(transactions: TransactionResponse[]): Tr
 }
 
 /**
+ * Formats a transaction date based on whether it is today or not.
+ * If today: show time (short)
+ * If not today: show date (short)
+ */
+export function formatTransactionDate(dateStr: string): string {
+  const date = new Date(dateStr)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const targetDate = new Date(date)
+  targetDate.setHours(0, 0, 0, 0)
+
+  if (targetDate.getTime() === today.getTime()) {
+    return new Intl.DateTimeFormat('en-PH', {
+      timeStyle: 'short',
+    }).format(date)
+  }
+
+  return new Intl.DateTimeFormat('en-PH', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
+}
+
+/**
  * Formats a raw calendar date string (YYYY-MM-DD) into a human-readable label.
  * NOTE: Implements "Today", "Yesterday", and "Month DD, YYYY" per PRD Instruction 3 constraints.
  * @param dateStr Raw calendar date string.

@@ -111,11 +111,14 @@ export function Select({
                   disabled={option.disabled}
                   className={({ focus, selected }) =>
                     cn(
-                      'relative cursor-pointer select-none rounded-lg py-3 pl-12 pr-4 transition-colors',
-                      option.disabled && 'cursor-not-allowed opacity-50',
-                      focus ? 'bg-ui-surface-muted' : '',
-                      selected ? 'bg-ui-surface-subtle font-semibold' : 'font-normal',
-                      'text-foreground',
+                      'relative select-none transition-colors',
+                      option.disabled
+                        ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground'
+                        : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
+                      !option.disabled && focus ? 'bg-ui-surface-muted' : '',
+                      !option.disabled && selected
+                        ? 'bg-ui-surface-subtle font-semibold'
+                        : 'font-normal',
                     )
                   }
                 >
@@ -126,7 +129,7 @@ export function Select({
                       >
                         {option.label}
                       </span>
-                      {selected || option.icon ? (
+                      {!option.disabled && (selected || option.icon) ? (
                         <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-foreground">
                           <span className="flex h-[18px] w-[18px] items-center justify-center">
                             {selected ? <CheckIcon /> : option.icon}

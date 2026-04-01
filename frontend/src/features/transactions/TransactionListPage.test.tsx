@@ -9,8 +9,20 @@ const mockLoadMore = vi.fn()
 vi.mock('./hooks/useTransactionPagination', () => ({
   useTransactionPagination: vi.fn(() => ({
     transactions: [
-      { id: 1, amount: 100, type: 'EXPENSE', transactionDate: '2026-03-01T10:00:00Z', description: 'Coffee' },
-      { id: 2, amount: 500, type: 'INCOME', transactionDate: '2026-03-02T10:00:00Z', description: 'Salary' },
+      {
+        id: 1,
+        amount: 100,
+        type: 'EXPENSE',
+        transactionDate: '2026-03-01T10:00:00Z',
+        description: 'Coffee',
+      },
+      {
+        id: 2,
+        amount: 500,
+        type: 'INCOME',
+        transactionDate: '2026-03-02T10:00:00Z',
+        description: 'Salary',
+      },
     ],
     isLoading: false,
     hasMore: true,
@@ -32,7 +44,7 @@ describe('TransactionListPage', () => {
 
   it('renders the new header and removes Total Balance card', () => {
     render(<TransactionListPage />)
-    expect(screen.getByText('Transaction History')).toBeInTheDocument()
+    expect(screen.getByText('All Transactions')).toBeInTheDocument()
     expect(screen.queryByText(/^Total Balance$/i)).not.toBeInTheDocument()
   })
 
@@ -75,7 +87,7 @@ describe('TransactionListPage', () => {
       hasMore: false,
       loadMore: vi.fn(),
     })
-    
+
     render(<TransactionListPage />)
     expect(screen.getByText(/No transactions recorded yet/i)).toBeInTheDocument()
   })

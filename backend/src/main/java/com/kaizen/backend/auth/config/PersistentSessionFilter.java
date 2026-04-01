@@ -69,7 +69,10 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
             
             // Check structural integrity (malformed check)
             if (token.length() < 10) { // Arbitrary check for demonstration
-                handleAuthenticationFailure(request, response, new BadCredentialsException("Malformed session token"), "MALFORMED_TOKEN");
+                log.debug("Malformed session token - treating as anonymous");
+                request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
+                request.setAttribute(AUTH_FAILURE_REASON_ATTR, "MALFORMED_TOKEN");
+                filterChain.doFilter(request, response);
                 return;
             }
 
@@ -83,22 +86,29 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
                     if (session.getExpiresAt().isAfter(Instant.now())) {
                         restoreSecurityContext(session, request);
                     } else {
-                        handleAuthenticationFailure(request, response, new CredentialsExpiredException("Persistent session expired"), "EXPIRED_SESSION");
-                        return;
+                        log.debug("Expired session token - treating as anonymous");
+                        request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
+                        request.setAttribute(AUTH_FAILURE_REASON_ATTR, "EXPIRED_SESSION");
                     }
                 } else {
-                    handleAuthenticationFailure(request, response, new BadCredentialsException("Invalid session token"), "INVALID_TOKEN");
-                    return;
+                    log.debug("Invalid session token - treating as anonymous");
+                    request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
+                    request.setAttribute(AUTH_FAILURE_REASON_ATTR, "INVALID_TOKEN");
                 }
             } catch (AuthenticationException | IllegalStateException | DataAccessException e) {
                 log.error("Error during authentication validation", e);
-                handleAuthenticationFailure(request, response, new BadCredentialsException("Authentication system error"), "SYSTEM_ERROR");
-                return;
+                request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
+                request.setAttribute(AUTH_FAILURE_REASON_ATTR, "SYSTEM_ERROR");
+            } catch (Exception e) {
+                log.error("Unexpected error during persistent session validation", e);
+                request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
+                request.setAttribute(AUTH_FAILURE_REASON_ATTR, "UNEXPECTED_ERROR");
             }
         }
 
-        // If no credentials are provided, we continue.
-        // Spring Security's AuthorizationFilter will block access to protected endpoints.
+        // If no credentials are provided or they were invalid, we continue.
+        // Spring Security's AuthorizationFilter will block access to protected endpoints,
+        // and SecurityErrorHandler will use the failure reason set above.
         filterChain.doFilter(request, response);
     }
 
@@ -124,7 +134,10 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         
         // Ensure the Spring Session picks up the new authentication
-        request.getSession(true).setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+        request.getSession(true).setAttribute(
+            org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, 
+            SecurityContextHolder.getContext()
+        );
         
         request.setAttribute("KZN_AUTH_STATUS", "SUCCESS");
     }

@@ -122,14 +122,19 @@ private void revokeTokenAtProvider(String token) {
             userInfoResponse.email(), userInfoResponse.name(), userInfoResponse.picture());
 
         String email = Objects.requireNonNull(userInfoResponse.email(), "email must not be null");
+        String providerUserId = userInfoResponse.subject();
+        
         Role userRole = roleRepository.findByName(DEFAULT_ROLE_NAME)
             .orElseGet(() -> roleRepository.save(new Role(DEFAULT_ROLE_NAME)));
 
-        UserAccount userAccount = userAccountRepository.findByEmailIgnoreCase(email)
+        // Try to find by provider identity first (robust against email changes)
+        UserAccount userAccount = userAccountRepository.findByProviderNameAndProviderUserId(GOOGLE_PROVIDER_NAME, providerUserId)
+            .or(() -> userAccountRepository.findByEmailIgnoreCase(email))
             .map(existing -> {
                 // Update existing user with latest social info
+                existing.setEmail(email); // Keep email in sync
                 existing.setProviderName(GOOGLE_PROVIDER_NAME);
-                existing.setProviderUserId(userInfoResponse.subject());
+                existing.setProviderUserId(providerUserId);
                 existing.setPictureUrl(userInfoResponse.picture());
                 existing.setEncryptedAccessToken(oAuthTokenCipher.encrypt(
                     Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
@@ -148,7 +153,7 @@ private void revokeTokenAtProvider(String token) {
                     userInfoResponse.name(),
                     email,
                     GOOGLE_PROVIDER_NAME,
-                    userInfoResponse.subject(),
+                    providerUserId,
                     null,
                     userInfoResponse.picture(),
                     oAuthTokenCipher.encrypt(

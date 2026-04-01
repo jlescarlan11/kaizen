@@ -232,6 +232,9 @@ public class GoogleOAuthController {
         } catch (RestClientException | IllegalStateException e) {
             log.error("Google OAuth provider error or token exchange/userinfo fetch failure.", e);
             return redirectToAuthWithError("PROVIDER_UNAVAILABLE", dynamicBaseUri);
+        } catch (Exception e) {
+            log.error("Unexpected error during Google OAuth callback processing", e);
+            return redirectToAuthWithError("UNEXPECTED_ERROR", dynamicBaseUri);
         } finally {
             // Cleanup the session attribute after processing
             session.removeAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);

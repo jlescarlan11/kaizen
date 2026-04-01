@@ -24,14 +24,11 @@ import { cn } from '../../shared/lib/cn'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { formatTransactionDate } from '../transactions/utils/transactionUtils'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
 }
-
-const timeFormatter = new Intl.DateTimeFormat('en-PH', {
-  timeStyle: 'short',
-})
 
 // --- Helper Components ---
 
@@ -45,7 +42,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
       tabIndex={0}
       onClick={() => navigate(`/transactions/${tx.id}`)}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/transactions/${tx.id}`)}
-      className="flex items-center justify-between p-4 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
+      className="flex items-center justify-between px-4 py-3.5 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
     >
       <div className="flex items-center gap-4">
         <div
@@ -81,7 +78,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
               : tx.description || tx.category?.name || 'Uncategorized'}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
-            {timeFormatter.format(new Date(tx.transactionDate))}
+            {formatTransactionDate(tx.transactionDate)}
             {tx.paymentMethod && (
               <>
                 <span className="text-muted-foreground/50 mx-1">•</span>

@@ -228,9 +228,11 @@ public class UserAccountService {
     }
 
     private UserResponse toUserResponse(UserAccount account) {
-        BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
-            .orElse(BigDecimal.ZERO);
-        account.setBalance(calculatedBalance);
+        if (account.isOnboardingCompleted()) {
+            BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
+                .orElse(BigDecimal.ZERO);
+            account.setBalance(calculatedBalance);
+        }
 
         return UserResponse.builder()
             .id(account.getId())
@@ -248,9 +250,11 @@ public class UserAccountService {
     }
 
     private UserProfileResponse toUserProfileResponse(UserAccount account) {
-        BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
-            .orElse(BigDecimal.ZERO);
-        account.setBalance(calculatedBalance);
+        if (account.isOnboardingCompleted()) {
+            BigDecimal calculatedBalance = transactionRepository.calculateNetTransactionAmount(account.getId())
+                .orElse(BigDecimal.ZERO);
+            account.setBalance(calculatedBalance);
+        }
 
         return UserProfileResponse.builder()
             .id(account.getId())

@@ -15,6 +15,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
+
 @Configuration(proxyBeanMethods = false)
 @Profile("dev")
 public class DevDataSourceConfiguration {
@@ -25,19 +28,43 @@ public class DevDataSourceConfiguration {
     @Bean
     @Primary
     public DataSource dataSource(Environment environment) {
-        boolean useEmbedded = getBoolean(environment, "DB_USE_EMBEDDED", true);
+        boolean useEmbedded = getBoolean(environment, "DB_USE_EMBEDDED", false);
         if (useEmbedded) {
             DataSource embedded = tryBuildEmbedded(environment);
             if (embedded != null) {
+                log.info("********************************************************************************");
+                log.info("RUNNING WITH EMBEDDED POSTGRES (TESTCONTAINERS)");
+                log.info("");
+                log.info("Your data is being stored in a temporary container.");
+                log.info("ALL DATA WILL BE WIPED ON APP RESTART.");
+                log.info("");
+                log.info("To persist data, set DB_USE_EMBEDDED=false and run:");
+                log.info("   docker compose up -d");
+                log.info("********************************************************************************");
                 return embedded;
             }
-            boolean fallbackToH2 = getBoolean(environment, "DB_FALLBACK_TO_H2", true);
+
+            boolean fallbackToH2 = getBoolean(environment, "DB_FALLBACK_TO_H2", false);
             if (fallbackToH2) {
                 log.info("Embedded Postgres container could not start; falling back to H2 in-memory database.");
                 return buildH2DataSource();
             }
-            log.warn(
-                    "Embedded Postgres container failed and H2 fallback is disabled; attempting configured JDBC data source.");
+
+            log.error("********************************************************************************");
+            log.error("ERROR: DOCKER IS NOT RUNNING OR UNAVAILABLE");
+            log.error("");
+            log.error("The Kaizen backend requires Docker to run PostgreSQL.");
+            log.error("Since Docker is not running, the application cannot start a persistent database.");
+            log.error("Falling back to an in-memory database would cause all your data to be wiped on restart.");
+            log.error("");
+            log.error("To fix this:");
+            log.error("1. Ensure Docker Desktop (or your Docker engine) is started.");
+            log.error("2. Run the following command from the backend directory:");
+            log.error("   docker compose up -d");
+            log.error("********************************************************************************");
+
+            throw new RuntimeException("Docker is required for the application to start with a persistent database. " +
+                    "Please start Docker and run 'docker compose up -d' in the backend directory.");
         }
         return buildJdbcDataSource(environment);
     }
@@ -83,12 +110,18 @@ public class DevDataSourceConfiguration {
 
     private DataSource buildJdbcDataSource(Environment environment) {
         String url = environment.getProperty("DB_URL", "");
+        String host = Objects.requireNonNullElse(environment.getProperty("DB_HOST", "localhost"), "localhost");
+        String port = Objects.requireNonNullElse(environment.getProperty("DB_PORT", "55432"), "55432");
+        String database = Objects.requireNonNullElse(environment.getProperty("DB_NAME", "kaizen"), "kaizen");
+
         if (!StringUtils.hasText(url)) {
-            String host = Objects.requireNonNullElse(environment.getProperty("DB_HOST", "localhost"), "localhost");
-            String port = Objects.requireNonNullElse(environment.getProperty("DB_PORT", "55432"), "55432");
-            String database = Objects.requireNonNullElse(environment.getProperty("DB_NAME", "kaizen"), "kaizen");
             url = String.format("jdbc:postgresql://%s:%s/%s", host, port, database);
         }
+
+        if (host.equals("localhost") || host.equals("127.0.0.1")) {
+            checkDatabaseReachability(host, port);
+        }
+
         return DataSourceBuilder.create()
                 .type(HikariDataSource.class)
                 .driverClassName(environment.getProperty("DB_DRIVER", "org.postgresql.Driver"))
@@ -96,6 +129,26 @@ public class DevDataSourceConfiguration {
                 .username(Objects.requireNonNullElse(environment.getProperty("DB_USER", "kaizen"), "kaizen"))
                 .password(Objects.requireNonNullElse(environment.getProperty("DB_PASSWORD", "kaizen"), "kaizen"))
                 .build();
+    }
+
+    private void checkDatabaseReachability(String host, String port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, Integer.parseInt(port)), 1000);
+        } catch (Exception ex) {
+            log.error("********************************************************************************");
+            log.error("ERROR: DATABASE NOT REACHABLE ON {}:{}", host, port);
+            log.error("");
+            log.error("The Kaizen backend requires PostgreSQL to be running.");
+            log.error("It seems Docker is not running or the database container is not started.");
+            log.error("");
+            log.error("To fix this:");
+            log.error("1. Ensure Docker Desktop (or your Docker engine) is started.");
+            log.error("2. Run the following command from the backend directory:");
+            log.error("   docker compose up -d");
+            log.error("********************************************************************************");
+
+            throw new RuntimeException("PostgreSQL is required on port " + port + ". Please start Docker and run 'docker compose up -d'.", ex);
+        }
     }
 
     @SuppressWarnings("null")

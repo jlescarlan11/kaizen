@@ -1,15 +1,13 @@
 import { useState, useEffect, useMemo, type ReactElement } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { TransactionList } from './components/TransactionList'
 import { pageLayout } from '../../shared/styles/layout'
-import { Card } from '../../shared/components/Card'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
-import { TransactionSort } from './components/TransactionSort'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
 import { ReconciliationModal } from './components/ReconciliationModal'
 import { ExportModal } from './components/ExportModal'
-import { History, Download, RefreshCw } from 'lucide-react'
+import { Download, RefreshCw } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
@@ -46,7 +44,7 @@ export function TransactionListPage(): ReactElement {
       types: types.filter((t) => ['INCOME', 'EXPENSE'].includes(t)),
     }
   })
-  const [sortState, setSortState] = useSortPersistence()
+  const [sortState] = useSortPersistence()
 
   // Sync URL when filters change
   useEffect(() => {
@@ -91,9 +89,7 @@ export function TransactionListPage(): ReactElement {
       <header className="space-y-7">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tight text-foreground">
-              Transaction History
-            </h1>
+            <h1 className="text-4xl font-black tracking-tight text-foreground">All Transactions</h1>
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
 
@@ -107,25 +103,6 @@ export function TransactionListPage(): ReactElement {
               <RefreshCw className="h-3 w-3" />
               Reconcile
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-              onClick={() => setIsExportModalOpen(true)}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Export
-            </Button>
-            <Link to="/transactions/history">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-              >
-                <History className="h-3.5 w-3.5" />
-                View History
-              </Button>
-            </Link>
           </div>
         </div>
 
@@ -153,7 +130,7 @@ export function TransactionListPage(): ReactElement {
           initialSort={sortState}
         />
 
-        {/* Search, Filter, and Sort Controls */}
+        {/* Search, Filter, and Export Controls */}
         {!isLoading && transactions.length > 0 && (
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -164,7 +141,14 @@ export function TransactionListPage(): ReactElement {
                   onChange={setFilterState}
                   onClear={handleClearFilter}
                 />
-                <TransactionSort sort={sortState} onChange={setSortState} />
+                <Button
+                  variant="ghost"
+                  className="h-10 px-4 border border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30"
+                  onClick={() => setIsExportModalOpen(true)}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
               </div>
             </div>
 
@@ -212,11 +196,11 @@ export function TransactionListPage(): ReactElement {
         )}
       </header>
 
-      <div className="mx-auto max-w-3xl w-full">
+      <div className="w-full">
         {isLoading ? (
-          <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
+          <div className="p-12 flex justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </Card>
+          </div>
         ) : processedTransactions.length === 0 ? (
           <TransactionEmptyState
             isSearchActive={isSearchActive}
@@ -232,7 +216,6 @@ export function TransactionListPage(): ReactElement {
             hasMore={hasMore}
             onLoadMore={loadMore}
             isLoading={isLoading}
-            sortState={sortState}
           />
         )}
       </div>
