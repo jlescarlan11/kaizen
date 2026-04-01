@@ -45,6 +45,18 @@ class GoogleOAuthControllerTest {
     @MockitoBean
     private PersistentSessionService persistentSessionService;
 
+    @MockitoBean
+    private com.kaizen.backend.auth.repository.PersistentSessionRepository persistentSessionRepository;
+
+    @MockitoBean
+    private org.springframework.security.web.AuthenticationEntryPoint authenticationEntryPoint;
+
+    @MockitoBean
+    private com.kaizen.backend.auth.config.SessionProperties sessionProperties;
+
+    @MockitoBean
+    private com.kaizen.backend.common.logging.SecurityAuditLogger securityAuditLogger;
+
     @Test
     @SuppressWarnings("null")
     void authorizeRedirectsToGoogleConsentScreen() throws Exception {
@@ -75,11 +87,20 @@ class GoogleOAuthControllerTest {
         when(authFlowProperties.postAuthRedirectUri())
                 .thenReturn(Objects.requireNonNull("http://localhost:5173/app"));
 
+        when(sessionProperties.cookieName())
+                .thenReturn("kzn_pst");
+
         when(googleOAuthService.handleGoogleCallback("auth-code"))
                 .thenReturn(Objects.requireNonNull(email));
 
         when(userDetailsService.loadUserByUsername(Objects.requireNonNull(email)))
                 .thenReturn(userDetails);
+
+        when(persistentSessionService.createSession(any()))
+                .thenReturn("test-token");
+
+        when(persistentSessionService.getSessionExpirySeconds())
+                .thenReturn(3600);
 
         mockMvc.perform(get("/api/auth/google/callback")
                 .param("code", "auth-code")
