@@ -1,0 +1,8 @@
+{
+  "track_id": "user_account_schema_fix_20260401",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-04-01T10:30:00Z",
+  "updated_at": "2026-04-01T10:30:00Z",
+  "description": "UserAccount entity includes a new field (budgetSetupSkipped) that maps to a database column (budget_setup_skipped) which does not exist in your PostgreSQL user_account table, causing a SQL error during authentication."
+}
