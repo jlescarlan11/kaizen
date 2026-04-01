@@ -20,7 +20,6 @@ CREATE TABLE user_account (
     encrypted_refresh_token TEXT,
     onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
     tour_completed BOOLEAN NOT NULL DEFAULT FALSE,
-    budget_setup_skipped BOOLEAN NOT NULL DEFAULT FALSE,
     first_transaction_added BOOLEAN NOT NULL DEFAULT FALSE,
     balance NUMERIC(15,2) DEFAULT 0.00,
     quick_add_preferences TEXT,
