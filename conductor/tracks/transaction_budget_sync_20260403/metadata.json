@@ -1,0 +1,8 @@
+{
+  "track_id": "transaction_budget_sync_20260403",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-04-03T10:00:00Z",
+  "updated_at": "2026-04-03T10:00:00Z",
+  "description": "I have an issue where if I create a transaction spending it is not listing in my transactions, it deducts my balance tho, also i have a budget, but the expense on that budget is not adding if i create expense transaction. help me fix the issue so that it can automatic modify"
+}
