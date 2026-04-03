@@ -23,7 +23,7 @@
 - [x] Task: Conductor - User Manual Verification 'Frontend Implementation' (Protocol in workflow.md) [01a7c54]
 
 ## Phase 4: Integration & Final Verification
-- [ ] Task: Run full end-to-end flow manually (Create spending transaction -> check list -> check budget).
-- [ ] Task: Ensure all tests pass in the CI pipeline (Backend & Frontend).
-- [ ] Task: Final code review and cleanup.
-- [ ] Task: Conductor - User Manual Verification 'Integration & Final Verification' (Protocol in workflow.md)
+- [x] Task: Run full end-to-end flow manually (Create spending transaction -> check list -> check budget). [7f785b9]
+- [x] Task: Ensure all tests pass in the CI pipeline (Backend & Frontend). [7f785b9]
+- [x] Task: Final code review and cleanup. [7f785b9]
+- [x] Task: Conductor - User Manual Verification 'Integration & Final Verification' (Protocol in workflow.md) [7f785b9]
