@@ -1,6 +1,6 @@
 # Implementation Plan: Transaction and Budget Update Fix
 
-## Phase 1: Research & Reproduction
+## Phase 1: Research & Reproduction [checkpoint: 680a92d]
 - [x] Task: Investigate backend persistence of 'spending' transactions in `TransactionRepository` and `TransactionService`. [7f785b9]
 - [x] Task: Verify the API endpoint for transaction listing (`GET /api/v1/transactions`) returns 'spending' transactions. [7f785b9]
 - [x] Task: Audit the frontend `TransactionList` component and Redux `transactions` slice to see if 'spending' transactions are filtered out. [7f785b9]
