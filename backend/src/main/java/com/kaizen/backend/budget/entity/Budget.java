@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,10 +40,18 @@ public class Budget extends BaseEntity {
     @Column(nullable = false, length = 20)
     private BudgetPeriod period;
 
+    @Column(name = "start_date", nullable = false)
+    private LocalDate startDate;
+
     public Budget(UserAccount user, Category category, BigDecimal amount, BudgetPeriod period) {
+        this(user, category, amount, period, LocalDate.now());
+    }
+
+    public Budget(UserAccount user, Category category, BigDecimal amount, BudgetPeriod period, LocalDate startDate) {
         this.user = user;
         this.category = category;
         this.amount = amount;
         this.period = period;
+        this.startDate = startDate;
     }
 }

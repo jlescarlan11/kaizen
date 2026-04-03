@@ -62,7 +62,7 @@ public class OnboardingProgress extends BaseEntity {
     @Column(name = "initial_transaction_date")
     private java.time.LocalDateTime initialTransactionDate;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "onboarding_initial_balance", joinColumns = @JoinColumn(name = "onboarding_progress_id"))
     private List<OnboardingInitialBalance> initialBalances = new ArrayList<>();
 
