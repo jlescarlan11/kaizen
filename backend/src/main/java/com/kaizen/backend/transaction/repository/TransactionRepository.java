@@ -24,7 +24,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
 
     @Query("SELECT t FROM Transaction t WHERE t.userAccount.id = :userId AND " +
-           "(:lastDate IS NULL OR t.transactionDate < :lastDate OR " +
+           "(CAST(:lastDate AS timestamp) IS NULL OR t.transactionDate < :lastDate OR " +
            "(t.transactionDate = :lastDate AND t.id < :lastId)) " +
            "ORDER BY t.transactionDate DESC, t.id DESC")
     List<Transaction> findByUserAccountIdPaginated(
