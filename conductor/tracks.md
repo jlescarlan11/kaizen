@@ -7,6 +7,6 @@
 
 ---
 
-- [~] **Track: Fix missing spending transactions and budget expense update sync.**
+- [x] **Track: Fix missing spending transactions and budget expense update sync.**
 *Link: [./tracks/transaction_budget_sync_20260403/](./tracks/transaction_budget_sync_20260403/)*
 
