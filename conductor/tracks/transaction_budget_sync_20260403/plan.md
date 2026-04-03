@@ -22,7 +22,7 @@
 - [x] Task: Verify frontend code coverage > 80% for the changed modules. [01a7c54]
 - [x] Task: Conductor - User Manual Verification 'Frontend Implementation' (Protocol in workflow.md) [01a7c54]
 
-## Phase 4: Integration & Final Verification
+## Phase 4: Integration & Final Verification [checkpoint: aceb40f]
 - [x] Task: Run full end-to-end flow manually (Create spending transaction -> check list -> check budget). [7f785b9]
 - [x] Task: Ensure all tests pass in the CI pipeline (Backend & Frontend). [7f785b9]
 - [x] Task: Final code review and cleanup. [7f785b9]
