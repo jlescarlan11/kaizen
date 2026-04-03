@@ -10,6 +10,7 @@ public record BudgetResponse(
     Long categoryId,
     String categoryName,
     BigDecimal amount,
+    BigDecimal expense,
     BudgetPeriod period,
     Instant createdAt,
     Instant updatedAt

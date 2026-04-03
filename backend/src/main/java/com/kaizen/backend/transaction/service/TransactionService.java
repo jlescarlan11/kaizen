@@ -39,6 +39,7 @@ public class TransactionService {
     private final ReceiptAttachmentService attachmentService;
     private final ReminderSchedulerService reminderSchedulerService;
     private final com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository;
+    private final com.kaizen.backend.budget.repository.BudgetRepository budgetRepository;
 
     public TransactionService(
             TransactionRepository transactionRepository,
@@ -47,7 +48,8 @@ public class TransactionService {
             PaymentMethodRepository paymentMethodRepository,
             ReceiptAttachmentService attachmentService,
             ReminderSchedulerService reminderSchedulerService,
-            com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository) {
+            com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository,
+            com.kaizen.backend.budget.repository.BudgetRepository budgetRepository) {
         this.transactionRepository = transactionRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
@@ -55,6 +57,7 @@ public class TransactionService {
         this.attachmentService = attachmentService;
         this.reminderSchedulerService = reminderSchedulerService;
         this.reminderScheduleRepository = reminderScheduleRepository;
+        this.budgetRepository = budgetRepository;
     }
 
     @Transactional
@@ -132,6 +135,9 @@ public class TransactionService {
         }
 
         recalculateUserBalance(account);
+        if (saved.getCategory() != null) {
+            recalculateBudgetExpenses(account, saved.getCategory());
+        }
         if (!account.isFirstTransactionAdded()) {
             account.setFirstTransactionAdded(true);
         }
@@ -230,6 +236,9 @@ public class TransactionService {
         }
 
         recalculateUserBalance(account);
+        if (saved.getCategory() != null) {
+            recalculateBudgetExpenses(account, saved.getCategory());
+        }
         saveAccount(account);
 
         return mapToResponse(saved);
@@ -240,10 +249,14 @@ public class TransactionService {
         UserAccount account = requireAccount(email);
         Transaction transaction = requireTransaction(id);
         validateTransactionOwnership(account, transaction);
+        Category category = transaction.getCategory();
         attachmentService.deleteAttachmentsForTransaction(id);
         reminderSchedulerService.rescheduleOnFrequencyChange(transaction);
         transactionRepository.delete(transaction);
         recalculateUserBalance(account);
+        if (category != null) {
+            recalculateBudgetExpenses(account, category);
+        }
         saveAccount(account);
     }
 
@@ -254,11 +267,16 @@ public class TransactionService {
             return;
         }
         List<Transaction> transactions = transactionRepository.findAllById(ids);
+        java.util.Set<Category> affectedCategories = new java.util.HashSet<>();
+
         for (Transaction transaction : transactions) {
             if (transaction == null) {
                 continue;
             }
             validateTransactionOwnership(account, transaction);
+            if (transaction.getCategory() != null) {
+                affectedCategories.add(transaction.getCategory());
+            }
             Long transactionId = transaction.getId();
             if (transactionId != null) {
                 attachmentService.deleteAttachmentsForTransaction(transactionId);
@@ -267,7 +285,27 @@ public class TransactionService {
         }
         transactionRepository.deleteAll(transactions);
         recalculateUserBalance(account);
+        for (Category category : affectedCategories) {
+            recalculateBudgetExpenses(account, category);
+        }
         saveAccount(account);
+    }
+
+    @Transactional
+    public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
+        budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
+            .ifPresent(budget -> {
+                java.math.BigDecimal totalExpense = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId())
+                    .stream()
+                    .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(category.getId()))
+                    .filter(t -> t.getType() == TransactionType.EXPENSE || 
+                                (t.getType() == TransactionType.RECONCILIATION && Boolean.FALSE.equals(t.getReconciliationIncrease())))
+                    .map(com.kaizen.backend.transaction.entity.Transaction::getAmount)
+                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                
+                budget.setExpense(totalExpense);
+                budgetRepository.save(budget);
+            });
     }
 
     public BalanceHistoryResponse getBalanceHistory(String email) {

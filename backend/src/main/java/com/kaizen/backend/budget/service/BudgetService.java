@@ -130,6 +130,9 @@ public class BudgetService {
         BigDecimal totalAllocated = budgets.stream()
             .map(Budget::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalSpent = budgets.stream()
+            .map(Budget::getExpense)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal remainingToAllocate = balance.subtract(totalAllocated).max(BigDecimal.ZERO);
         int allocationPercentage = balance.compareTo(BigDecimal.ZERO) > 0
             ? totalAllocated
@@ -141,6 +144,7 @@ public class BudgetService {
         return new BudgetSummaryResponse(
             balance,
             totalAllocated,
+            totalSpent,
             remainingToAllocate,
             allocationPercentage,
             budgets.size()

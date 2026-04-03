@@ -43,6 +43,9 @@ public class Budget extends BaseEntity {
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal expense = BigDecimal.ZERO;
+
     public Budget(UserAccount user, Category category, BigDecimal amount, BudgetPeriod period) {
         this(user, category, amount, period, LocalDate.now());
     }

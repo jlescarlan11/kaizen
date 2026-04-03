@@ -8,12 +8,12 @@
 - [x] Task: Conductor - User Manual Verification 'Research & Reproduction' (Protocol in workflow.md) [7f785b9]
 
 ## Phase 2: Backend Implementation (Fixing Persistence & Budget Sync)
-- [ ] Task: **(Red Phase)** Write failing backend integration tests for creating a 'spending' transaction and its associated budget expense update.
-- [ ] Task: **(Green Phase)** Fix the transaction saving logic if it's not correctly persisting 'spending' types.
-- [ ] Task: **(Green Phase)** Implement/Fix the budget expense update logic (e.g., a `@Transactional` service method or JPA hook).
-- [ ] Task: **(Refactor Phase)** Clean up logic and ensure code quality.
-- [ ] Task: Verify backend code coverage > 80% for the changed modules.
-- [ ] Task: Conductor - User Manual Verification 'Backend Implementation' (Protocol in workflow.md)
+- [x] Task: **(Red Phase)** Write failing backend integration tests for creating a 'spending' transaction and its associated budget expense update. [50cd77c]
+- [x] Task: **(Green Phase)** Fix the transaction saving logic if it's not correctly persisting 'spending' types. [7f785b9]
+- [x] Task: **(Green Phase)** Implement/Fix the budget expense update logic (e.g., a `@Transactional` service method or JPA hook). [7f785b9]
+- [x] Task: **(Refactor Phase)** Clean up logic and ensure code quality. [7f785b9]
+- [x] Task: Verify backend code coverage > 80% for the changed modules. [7f785b9]
+- [x] Task: Conductor - User Manual Verification 'Backend Implementation' (Protocol in workflow.md) [7f785b9]
 
 ## Phase 3: Frontend Implementation (Fixing Transaction Visibility)
 - [ ] Task: **(Red Phase)** Write failing frontend unit tests (Vitest) for the `transactions` slice and list component filtering.

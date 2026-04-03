@@ -19,5 +19,7 @@ public interface BudgetRepository extends BaseRepository<Budget, Long> {
 
     boolean existsByUserIdAndCategoryId(Long userId, Long categoryId);
 
+    java.util.Optional<Budget> findByUserIdAndCategoryId(Long userId, Long categoryId);
+
     void deleteByUserId(Long userId);
 }
