@@ -15,7 +15,7 @@
 - [x] Task: Verify backend code coverage > 80% for the changed modules. [7f785b9]
 - [x] Task: Conductor - User Manual Verification 'Backend Implementation' (Protocol in workflow.md) [7f785b9]
 
-## Phase 3: Frontend Implementation (Fixing Transaction Visibility)
+## Phase 3: Frontend Implementation (Fixing Transaction Visibility) [checkpoint: f38ff6c]
 - [x] Task: **(Red Phase)** Write failing frontend unit tests (Vitest) for the `transactions` slice and list component filtering. [01a7c54]
 - [x] Task: **(Green Phase)** Fix the Redux slice or component logic to correctly include and render 'spending' transactions. [01a7c54]
 - [x] Task: **(Refactor Phase)** Ensure UI consistency with the 'Flat UI' design system. [01a7c54]
