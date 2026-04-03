@@ -7,7 +7,7 @@
 - [x] Task: Examine the budget update logic (trigger/hook) on transaction creation. [7f785b9]
 - [x] Task: Conductor - User Manual Verification 'Research & Reproduction' (Protocol in workflow.md) [7f785b9]
 
-## Phase 2: Backend Implementation (Fixing Persistence & Budget Sync)
+## Phase 2: Backend Implementation (Fixing Persistence & Budget Sync) [checkpoint: 8b303ca]
 - [x] Task: **(Red Phase)** Write failing backend integration tests for creating a 'spending' transaction and its associated budget expense update. [50cd77c]
 - [x] Task: **(Green Phase)** Fix the transaction saving logic if it's not correctly persisting 'spending' types. [7f785b9]
 - [x] Task: **(Green Phase)** Implement/Fix the budget expense update logic (e.g., a `@Transactional` service method or JPA hook). [7f785b9]
