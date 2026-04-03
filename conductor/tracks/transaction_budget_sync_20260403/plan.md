@@ -16,11 +16,11 @@
 - [x] Task: Conductor - User Manual Verification 'Backend Implementation' (Protocol in workflow.md) [7f785b9]
 
 ## Phase 3: Frontend Implementation (Fixing Transaction Visibility)
-- [ ] Task: **(Red Phase)** Write failing frontend unit tests (Vitest) for the `transactions` slice and list component filtering.
-- [ ] Task: **(Green Phase)** Fix the Redux slice or component logic to correctly include and render 'spending' transactions.
-- [ ] Task: **(Refactor Phase)** Ensure UI consistency with the 'Flat UI' design system.
-- [ ] Task: Verify frontend code coverage > 80% for the changed modules.
-- [ ] Task: Conductor - User Manual Verification 'Frontend Implementation' (Protocol in workflow.md)
+- [x] Task: **(Red Phase)** Write failing frontend unit tests (Vitest) for the `transactions` slice and list component filtering. [01a7c54]
+- [x] Task: **(Green Phase)** Fix the Redux slice or component logic to correctly include and render 'spending' transactions. [01a7c54]
+- [x] Task: **(Refactor Phase)** Ensure UI consistency with the 'Flat UI' design system. [01a7c54]
+- [x] Task: Verify frontend code coverage > 80% for the changed modules. [01a7c54]
+- [x] Task: Conductor - User Manual Verification 'Frontend Implementation' (Protocol in workflow.md) [01a7c54]
 
 ## Phase 4: Integration & Final Verification
 - [ ] Task: Run full end-to-end flow manually (Create spending transaction -> check list -> check budget).

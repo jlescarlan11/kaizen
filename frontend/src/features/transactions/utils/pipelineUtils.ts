@@ -42,11 +42,11 @@ export function applySearch(
   const normalizedQuery = query.toLowerCase().trim()
 
   return transactions.filter((tx) => {
-    const descriptionMatch = tx.description?.toLowerCase().includes(normalizedQuery)
-    const categoryMatch = tx.category?.name.toLowerCase().includes(normalizedQuery)
+    const descriptionMatch = tx.description?.toLowerCase()?.includes(normalizedQuery)
+    const categoryMatch = tx.category?.name?.toLowerCase()?.includes(normalizedQuery)
     const amountMatch = tx.amount.toString().includes(normalizedQuery)
 
-    return descriptionMatch || categoryMatch || amountMatch
+    return !!(descriptionMatch || categoryMatch || amountMatch)
   })
 }
 
