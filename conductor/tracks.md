@@ -9,3 +9,8 @@
 
 - [x] **Track: Fix missing spending transactions and budget expense update sync.**
 *Link: [./tracks/transaction_budget_sync_20260403/](./tracks/transaction_budget_sync_20260403/)*
+
+---
+
+- [ ] **Track: Clickable account breakdown to filtered transaction page.**
+*Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
