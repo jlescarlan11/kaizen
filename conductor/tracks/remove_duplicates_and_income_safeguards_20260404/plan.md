@@ -27,11 +27,11 @@
     - [x] Implement balance validation logic in `createTransaction` and `updateTransaction`.
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md) 732a215
 
-## Phase 4: Frontend Implementation (Safeguards & UI Feedback)
-- [ ] Task: Update Transaction UI for Mandatory Payment Method and Balance Feedback.
-    - [ ] Update `TransactionEntryForm.tsx` to require Payment Method and show real-time "Available Balance".
-    - [ ] Add frontend validation to block saves that exceed available balance.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: Frontend Implementation' (Protocol in workflow.md)
+## Phase 4: Frontend Implementation (Safeguards & UI Feedback) [checkpoint: 9cfcc2c]
+- [x] Task: Update Transaction UI for Mandatory Payment Method and Balance Feedback. c703df2
+    - [x] Update `TransactionEntryForm.tsx` to require Payment Method and show real-time "Available Balance".
+    - [x] Add frontend validation to block saves that exceed available balance.
+- [x] Task: Conductor - User Manual Verification 'Phase 4: Frontend Implementation' (Protocol in workflow.md) 9cfcc2c
 
 ## Phase 5: Final Cleanup & Push
 - [ ] Task: Run all tests and linting.
