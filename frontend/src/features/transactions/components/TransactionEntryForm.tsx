@@ -13,6 +13,7 @@ import {
 } from '../../../app/store/api/transactionApi'
 import { CategorySelector } from '../../categories'
 import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
+import { useGetPaymentMethodSummaryQuery } from '../../../app/store/api/paymentMethodApi'
 import { ReceiptPicker } from './ReceiptPicker'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 import { Checkbox, Select } from '../../../shared/components'
@@ -76,6 +77,9 @@ export function TransactionEntryForm({
     skip: !editId,
   })
 
+  // Fetch balances for safeguard
+  const { data: balanceSummaries } = useGetPaymentMethodSummaryQuery()
+
   // Handle pre-fill from location state (e.g. from reminders)
   const prefill = location.state?.prefill
 
@@ -96,6 +100,23 @@ export function TransactionEntryForm({
   const [remindersEnabled, setRemindersEnabled] = useState(true)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const isInitialized = useRef(false)
+
+  // Calculate available balance for selected method
+  const selectedMethodSummary = balanceSummaries?.find(
+    (s) => s.paymentMethod?.id.toString() === paymentMethodId,
+  )
+  const rawBalance = selectedMethodSummary?.totalAmount ?? 0
+
+  // If editing, the current transaction's amount is already subtracted from the balance summary,
+  // so we add it back to see the "true" available balance before this edit.
+  const availableBalance =
+    editId &&
+    editData?.paymentMethod?.id.toString() === paymentMethodId &&
+    editData.type === 'EXPENSE'
+      ? rawBalance + editData.amount
+      : rawBalance
+
+  const insufficientBalance = type === 'EXPENSE' && parseFloat(amount) > availableBalance
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -164,11 +185,16 @@ export function TransactionEntryForm({
     }
 
     const validationResult = validationGate(payload)
-    if (!validationResult.valid) {
+    if (!validationResult.valid || (type === 'EXPENSE' && insufficientBalance)) {
       const newErrors: Record<string, string> = {}
       validationResult.errors.forEach((err) => {
         newErrors[err.field] = getErrorMessage(err.code, err.field)
       })
+
+      if (type === 'EXPENSE' && insufficientBalance) {
+        newErrors.amount = `Insufficient balance. Available: PHP ${availableBalance.toFixed(2)}`
+      }
+
       setErrors(newErrors)
       return
     }
@@ -329,6 +355,19 @@ export function TransactionEntryForm({
           onChange={setPaymentMethodId}
           error={errors.paymentMethodId}
         />
+
+        {paymentMethodId && type === 'EXPENSE' && (
+          <div
+            className={`flex items-center justify-between p-3 rounded-lg border ${
+              insufficientBalance
+                ? 'bg-error/5 border-error/20 text-error'
+                : 'bg-primary/5 border-primary/20 text-primary'
+            } animate-in fade-in zoom-in-95 duration-200`}
+          >
+            <span className="text-sm font-medium">Available Balance</span>
+            <span className="text-sm font-bold">PHP {availableBalance.toLocaleString()}</span>
+          </div>
+        )}
 
         {!hideDate && (
           <Input
