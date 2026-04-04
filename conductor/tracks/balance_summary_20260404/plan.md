@@ -15,13 +15,13 @@
 - [x] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
 
 ## Phase 3: Balance Summary Widgets
-- [ ] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`).
-- [ ] Task: Write tests for `AccountBreakdownWidget` (data rendering, empty states).
-- [ ] Task: Implement `IncomeVsExpenseWidget` using monthly totals from `transactions` state.
-- [ ] Task: Write tests for `IncomeVsExpenseWidget` (comparison logic, rendering).
-- [ ] Task: Implement `PeriodComparisonWidget` for month-over-month trend.
-- [ ] Task: Write tests for `PeriodComparisonWidget` (trend calculation, rendering).
-- [ ] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
+- [x] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`). [228163f]
+- [x] Task: Write tests for `AccountBreakdownWidget` (data rendering, empty states). [228163f]
+- [x] Task: Implement `IncomeVsExpenseWidget` using monthly totals from `transactions` state. [228163f]
+- [x] Task: Write tests for `IncomeVsExpenseWidget` (comparison logic, rendering). [228163f]
+- [x] Task: Implement `PeriodComparisonWidget` for month-over-month trend. [228163f]
+- [x] Task: Write tests for `PeriodComparisonWidget` (trend calculation, rendering). [228163f]
+- [~] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
 
 ## Phase 4: Final Refinement & Polishing
 - [ ] Task: Apply "Flat UI" styling and "Minimalist" theme across the summary page.
