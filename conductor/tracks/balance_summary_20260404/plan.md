@@ -14,7 +14,7 @@
 - [x] Task: Write tests for `BalanceSummaryPage` (routing, basic structure, navigation back). [468b217]
 - [x] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
 
-## Phase 3: Balance Summary Widgets
+## Phase 3: Balance Summary Widgets [checkpoint: ed22d18]
 - [x] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`). [228163f]
 - [x] Task: Write tests for `AccountBreakdownWidget` (data rendering, empty states). [228163f]
 - [x] Task: Implement `IncomeVsExpenseWidget` using monthly totals from `transactions` state. [228163f]
