@@ -5,6 +5,7 @@ import {
   Book,
   Car,
   ChevronRight,
+  ChartBar,
   CreditCard,
   Dumbbell,
   Film,
@@ -66,6 +67,7 @@ export const UI_ICONS: Record<string, LucideIcon> = {
   note: FileText,
   recurring: Repeat,
   'chevron-right': ChevronRight,
+  'chart-bar': ChartBar,
   filter: Filter,
   image: ImageIcon,
 }

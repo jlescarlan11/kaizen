@@ -11,6 +11,7 @@ import {
 } from '../../app/store/api/transactionApi'
 import { useGetCategoriesQuery, type CategoryResponse } from '../../app/store/api/categoryApi'
 import { useAuthState } from '../../shared/hooks/useAuthState'
+import { BalanceSummaryIcon } from './components/BalanceSummaryIcon'
 import { BudgetsEmptyState } from './BudgetsEmptyState'
 import { TransactionsEmptyState } from './TransactionsEmptyState'
 import { SectionHeader } from '../../shared/components/SectionHeader'
@@ -115,48 +116,61 @@ const BudgetRow = ({
   category?: CategoryResponse
 }) => {
   const navigate = useNavigate()
+  const usagePercent = Math.min(Math.round((budget.expense / budget.amount) * 100), 100)
+  const isOverBudget = budget.expense > budget.amount
+
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={() => navigate(`/budget/${budget.id}`)}
       onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
-      className="flex items-center justify-between px-4 py-3.5 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
+      className="flex flex-col px-4 py-4 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group border-b border-ui-border-subtle last:border-0"
     >
-      <div className="flex items-center gap-4">
-        <div
-          className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
-          style={{
-            backgroundColor: (category?.color || '#000') + '15',
-            color: category?.color,
-          }}
-        >
-          <SharedIcon type="category" name={category?.icon || 'banknote'} size={20} />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-4">
+          <div
+            className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+            style={{
+              backgroundColor: (category?.color || '#000') + '15',
+              color: category?.color,
+            }}
+          >
+            <SharedIcon type="category" name={category?.icon || 'banknote'} size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
+              {budget.categoryName}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              {budget.period}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
-            {budget.categoryName}
-          </p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            {budget.period}
-          </p>
+
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-sm font-bold text-foreground">
+              {currencyFormatter.format(budget.expense)}
+            </p>
+            <p className={`text-[10px] font-bold uppercase tracking-wider ${isOverBudget ? 'text-ui-danger' : 'text-primary'}`}>
+              {usagePercent}% used
+            </p>
+          </div>
+          <div className="text-muted-foreground/30 group-hover:text-primary transition-colors">
+            <ChevronRightIcon size={20} />
+          </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="hidden sm:block w-32">
-          <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
-            <div className="h-full bg-primary/40" style={{ width: '0%' }} />
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-sm font-bold text-foreground">
-            {currencyFormatter.format(budget.amount)}
-          </p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-            Limit
-          </p>
-        </div>
+      <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
+        <div 
+          className={cn(
+            "h-full transition-all duration-500 ease-out",
+            isOverBudget ? "bg-ui-danger" : "bg-primary"
+          )}
+          style={{ width: `${usagePercent}%` }} 
+        />
       </div>
     </div>
   )
@@ -185,6 +199,23 @@ const GoalPlaceholderRow = () => {
         Coming Soon
       </Badge>
     </div>
+  )
+}
+
+function ChevronRightIcon({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
   )
 }
 
@@ -230,6 +261,7 @@ export function HomePage(): ReactElement {
             <h2 className="text-4xl font-black tracking-tight text-foreground">
               {formattedBalance.replace('PHP', '').trim()}
             </h2>
+            <BalanceSummaryIcon />
           </div>
         </section>
 
