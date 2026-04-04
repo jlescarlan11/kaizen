@@ -21,7 +21,7 @@
 - [x] Task: Write tests for `IncomeVsExpenseWidget` (comparison logic, rendering). [228163f]
 - [x] Task: Implement `PeriodComparisonWidget` for month-over-month trend. [228163f]
 - [x] Task: Write tests for `PeriodComparisonWidget` (trend calculation, rendering). [228163f]
-- [~] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
 
 ## Phase 4: Final Refinement & Polishing
 - [ ] Task: Apply "Flat UI" styling and "Minimalist" theme across the summary page.
