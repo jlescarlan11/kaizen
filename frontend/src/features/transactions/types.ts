@@ -3,6 +3,7 @@ import type { TransactionResponse, TransactionType } from '../../app/store/api/t
 export interface FilterState {
   categories: number[] // IDs of selected categories
   types: TransactionType[] // 'INCOME' or 'EXPENSE'
+  paymentMethods: number[] // IDs of selected payment methods
 }
 
 export type SortCriterion = 'date' | 'amount' | 'category'

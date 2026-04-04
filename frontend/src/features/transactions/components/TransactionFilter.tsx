@@ -4,6 +4,7 @@ import { Fragment } from 'react'
 import { Button } from '../../../shared/components/Button'
 import { Checkbox } from '../../../shared/components/Checkbox'
 import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
+import { useGetPaymentMethodsQuery } from '../../../app/store/api/paymentMethodApi'
 import type { FilterState } from '../types'
 import { cn } from '../../../shared/lib/cn'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
@@ -20,14 +21,23 @@ export function TransactionFilter({
   onClear,
 }: TransactionFilterProps): ReactElement {
   const { data: categories = [] } = useGetCategoriesQuery()
+  const { data: paymentMethods = [] } = useGetPaymentMethodsQuery()
 
-  const hasActiveFilters = filter.categories.length > 0 || filter.types.length > 0
+  const hasActiveFilters =
+    filter.categories.length > 0 || filter.types.length > 0 || filter.paymentMethods.length > 0
 
   const toggleCategory = (id: number) => {
     const newCategories = filter.categories.includes(id)
       ? filter.categories.filter((c) => c !== id)
       : [...filter.categories, id]
     onChange({ ...filter, categories: newCategories })
+  }
+
+  const togglePaymentMethod = (id: number) => {
+    const newPaymentMethods = filter.paymentMethods.includes(id)
+      ? filter.paymentMethods.filter((pm) => pm !== id)
+      : [...filter.paymentMethods, id]
+    onChange({ ...filter, paymentMethods: newPaymentMethods })
   }
 
   const toggleType = (type: 'INCOME' | 'EXPENSE') => {
@@ -52,7 +62,7 @@ export function TransactionFilter({
           <span>Filter</span>
           {hasActiveFilters && (
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-              {filter.categories.length + filter.types.length}
+              {filter.categories.length + filter.types.length + filter.paymentMethods.length}
             </span>
           )}
         </Button>
@@ -109,7 +119,7 @@ export function TransactionFilter({
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 Categories
               </p>
-              <div className="max-h-48 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+              <div className="max-h-40 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
                 {categories.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-2 text-center italic">
                     No categories found
@@ -136,6 +146,39 @@ export function TransactionFilter({
                       </div>
                       <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                         {category.name}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Payment Methods Filter */}
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Payment Methods
+              </p>
+              <div className="max-h-40 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+                {paymentMethods.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2 text-center italic">
+                    No payment methods found
+                  </p>
+                ) : (
+                  paymentMethods.map((pm) => (
+                    <div
+                      key={pm.id}
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-ui-surface-muted transition-colors cursor-pointer group"
+                      onClick={() => togglePaymentMethod(pm.id)}
+                    >
+                      <Checkbox
+                        checked={filter.paymentMethods.includes(pm.id)}
+                        onCheckedChange={() => togglePaymentMethod(pm.id)}
+                      />
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-bold text-[10px]">
+                        {pm.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        {pm.name}
                       </span>
                     </div>
                   ))

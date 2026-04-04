@@ -6,6 +6,7 @@ import { serializeToCSV } from '../export/exportSerializer'
 import { deliverExportFile } from '../export/exportDelivery'
 import { constructFilterMetadata, generateFilenameSuffix } from '../export/exportMetadata'
 import { useGetCategoriesQuery } from '../../../app/store/api/categoryApi'
+import { useGetPaymentMethodsQuery } from '../../../app/store/api/paymentMethodApi'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import type { FilterState, SortState } from '../types'
 import { TransactionFilter } from './TransactionFilter'
@@ -33,11 +34,12 @@ export function ExportModal({
   isOpen,
   onClose,
   transactions,
-  initialFilter = { categories: [], types: [] },
+  initialFilter = { categories: [], types: [], paymentMethods: [] },
   initialSearch = '',
   initialSort = { criterion: 'date', direction: 'desc' },
 }: ExportModalProps): ReactElement {
   const { data: categories = [] } = useGetCategoriesQuery()
+  const { data: paymentMethods = [] } = useGetPaymentMethodsQuery()
 
   const [exportType, setExportType] = useState<'FULL' | 'FILTERED'>('FULL')
   const [filterState, setFilterState] = useState<FilterState>(initialFilter)
@@ -61,7 +63,7 @@ export function ExportModal({
     // 2. Metadata Recording (Instruction 8)
     // Recorded in file if filtered (Open Question 7: implementing both)
     if (exportType === 'FILTERED') {
-      const metadata = constructFilterMetadata(filterState, searchQuery, categories)
+      const metadata = constructFilterMetadata(filterState, searchQuery, categories, paymentMethods)
       csvContent = `Export Filter: ${metadata}\n\n${csvContent}`
     }
 
@@ -76,7 +78,7 @@ export function ExportModal({
   }
 
   const handleClearFilters = () => {
-    setFilterState({ categories: [], types: [] })
+    setFilterState({ categories: [], types: [], paymentMethods: [] })
     setSearchQuery('')
   }
 
@@ -118,6 +120,7 @@ export function ExportModal({
               </p>
               {(filterState.categories.length > 0 ||
                 filterState.types.length > 0 ||
+                filterState.paymentMethods.length > 0 ||
                 searchQuery) && (
                 <button
                   onClick={handleClearFilters}
@@ -132,7 +135,7 @@ export function ExportModal({
             <TransactionFilter
               filter={filterState}
               onChange={setFilterState}
-              onClear={() => setFilterState({ categories: [], types: [] })}
+              onClear={() => setFilterState({ categories: [], types: [], paymentMethods: [] })}
             />
           </div>
         )}

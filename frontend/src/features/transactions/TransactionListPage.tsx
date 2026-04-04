@@ -21,6 +21,7 @@ import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 const INITIAL_FILTER: FilterState = {
   categories: [],
   types: [],
+  paymentMethods: [],
 }
 
 export function TransactionListPage(): ReactElement {
@@ -38,9 +39,14 @@ export function TransactionListPage(): ReactElement {
       .getAll('category')
       .map(Number)
       .filter((id) => !isNaN(id))
+    const paymentMethods = searchParams
+      .getAll('paymentMethod')
+      .map(Number)
+      .filter((id) => !isNaN(id))
     const types = searchParams.getAll('type') as ('INCOME' | 'EXPENSE')[]
     return {
       categories,
+      paymentMethods,
       types: types.filter((t) => ['INCOME', 'EXPENSE'].includes(t)),
     }
   })
@@ -51,8 +57,10 @@ export function TransactionListPage(): ReactElement {
     const newParams = new URLSearchParams(searchParams)
     newParams.delete('category')
     newParams.delete('type')
+    newParams.delete('paymentMethod')
     filterState.categories.forEach((c) => newParams.append('category', String(c)))
     filterState.types.forEach((t) => newParams.append('type', t))
+    filterState.paymentMethods.forEach((pm) => newParams.append('paymentMethod', String(pm)))
     setSearchParams(newParams, { replace: true })
   }, [filterState, setSearchParams, searchParams])
 
@@ -75,7 +83,10 @@ export function TransactionListPage(): ReactElement {
   const balance = user?.balance ?? 0
 
   const isSearchActive = searchQuery.trim().length > 0
-  const isFilterActive = filterState.categories.length > 0 || filterState.types.length > 0
+  const isFilterActive =
+    filterState.categories.length > 0 ||
+    filterState.types.length > 0 ||
+    filterState.paymentMethods.length > 0
 
   const handleClearSearch = () => setSearchQuery('')
   const handleClearFilter = () => setFilterState(INITIAL_FILTER)
@@ -184,6 +195,17 @@ export function TransactionListPage(): ReactElement {
                     {filterState.categories.length} Categories
                     <button
                       onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
+                      className="hover:text-primary-hover"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                )}
+                {filterState.paymentMethods.length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                    {filterState.paymentMethods.length} Accounts
+                    <button
+                      onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}
                       className="hover:text-primary-hover"
                     >
                       <CloseIcon />

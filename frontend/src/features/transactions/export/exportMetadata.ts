@@ -1,5 +1,6 @@
 import type { FilterState } from '../types'
 import type { CategoryResponse } from '../../../app/store/api/categoryApi'
+import type { PaymentMethod } from '../../payment-methods/types'
 
 /**
  * Instruction 8: Export Filter Metadata
@@ -19,6 +20,7 @@ export function constructFilterMetadata(
   filterState: FilterState,
   searchQuery: string,
   categories: CategoryResponse[],
+  paymentMethods: PaymentMethod[],
 ): string {
   const parts: string[] = []
 
@@ -38,6 +40,14 @@ export function constructFilterMetadata(
       .map((id) => categories.find((c) => c.id === id)?.name || `ID:${id}`)
       .join(', ')
     parts.push(`Categories: ${categoryNames}`)
+  }
+
+  // 4. Payment Methods
+  if (filterState.paymentMethods.length > 0) {
+    const pmNames = filterState.paymentMethods
+      .map((id) => paymentMethods.find((pm) => pm.id === id)?.name || `ID:${id}`)
+      .join(', ')
+    parts.push(`Accounts: ${pmNames}`)
   }
 
   return parts.length > 0 ? parts.join(' | ') : 'All Transactions'

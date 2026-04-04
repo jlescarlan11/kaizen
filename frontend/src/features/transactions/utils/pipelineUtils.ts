@@ -9,9 +9,9 @@ export function applyFilter(
   transactions: TransactionResponse[],
   filter: FilterState,
 ): TransactionResponse[] {
-  const { categories, types } = filter
+  const { categories, types, paymentMethods } = filter
 
-  if (categories.length === 0 && types.length === 0) {
+  if (categories.length === 0 && types.length === 0 && paymentMethods.length === 0) {
     return transactions
   }
 
@@ -21,8 +21,11 @@ export function applyFilter(
       categories.length === 0 || (tx.category && categories.includes(tx.category.id))
     // Type match
     const typeMatch = types.length === 0 || types.includes(tx.type)
+    // Payment method match
+    const paymentMethodMatch =
+      paymentMethods.length === 0 || (tx.paymentMethod && paymentMethods.includes(tx.paymentMethod.id))
 
-    return categoryMatch && typeMatch
+    return categoryMatch && typeMatch && paymentMethodMatch
   })
 }
 
