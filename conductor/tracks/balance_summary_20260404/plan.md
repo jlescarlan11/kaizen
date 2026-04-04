@@ -1,0 +1,30 @@
+# Implementation Plan: Balance Summary Icon & Page (balance_summary_20260404)
+
+## Phase 1: Home Screen Icon Integration
+- [ ] Task: Create `BalanceSummaryIcon` component in `frontend/src/features/home/components/`.
+- [ ] Task: Write unit tests for `BalanceSummaryIcon` (rendering, click handling, navigation).
+- [ ] Task: Integrate `BalanceSummaryIcon` into the `Home` screen's total balance display.
+- [ ] Task: Ensure accessibility (aria-label, tab index) and minimalist styling.
+- [ ] Task: Conductor - User Manual Verification 'Home Screen Icon Integration' (Protocol in workflow.md)
+
+## Phase 2: Balance Summary Route & Basic Page
+- [ ] Task: Define the `/balance-summary` route in `frontend/src/app/router/router.tsx`.
+- [ ] Task: Create `BalanceSummaryPage` component in `frontend/src/features/insights/pages/` (or similar).
+- [ ] Task: Implement "Back" button to return to the Home screen.
+- [ ] Task: Write tests for `BalanceSummaryPage` (routing, basic structure, navigation back).
+- [ ] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
+
+## Phase 3: Balance Summary Widgets
+- [ ] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`).
+- [ ] Task: Write tests for `AccountBreakdownWidget` (data rendering, empty states).
+- [ ] Task: Implement `IncomeVsExpenseWidget` using monthly totals from `transactions` state.
+- [ ] Task: Write tests for `IncomeVsExpenseWidget` (comparison logic, rendering).
+- [ ] Task: Implement `PeriodComparisonWidget` for month-over-month trend.
+- [ ] Task: Write tests for `PeriodComparisonWidget` (trend calculation, rendering).
+- [ ] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
+
+## Phase 4: Final Refinement & Polishing
+- [ ] Task: Apply "Flat UI" styling and "Minimalist" theme across the summary page.
+- [ ] Task: Verify responsiveness on mobile (iPhone size) and desktop.
+- [ ] Task: Ensure 80% test coverage across the new components and features.
+- [ ] Task: Conductor - User Manual Verification 'Final Refinement & Polishing' (Protocol in workflow.md)
