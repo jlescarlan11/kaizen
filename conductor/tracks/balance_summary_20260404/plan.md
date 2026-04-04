@@ -1,6 +1,6 @@
 # Implementation Plan: Balance Summary Icon & Page (balance_summary_20260404)
 
-## Phase 1: Home Screen Icon Integration
+## Phase 1: Home Screen Icon Integration [checkpoint: 7248331]
 - [x] Task: Create `BalanceSummaryIcon` component in `frontend/src/features/home/components/`. [e0ca30e]
 - [x] Task: Write unit tests for `BalanceSummaryIcon` (rendering, click handling, navigation). [e0ca30e]
 - [x] Task: Integrate `BalanceSummaryIcon` into the `Home` screen's total balance display. [e0ca30e]
