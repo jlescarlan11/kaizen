@@ -4,11 +4,11 @@
 - [x] Task: Remove "Duplicate" feature from the Backend. 23809f8
     - [x] Identify and delete any duplication-related logic in `TransactionService.java` (if any).
     - [x] Remove any tests specifically verifying duplication.
-- [~] Task: Remove "Duplicate" feature from the Frontend.
-    - [ ] Modify `TransactionDetailPage.tsx` to remove `handleDuplicate`.
-    - [ ] Update `TransactionActionGroup.tsx` and its tests to remove the `onDuplicate` prop and button.
-    - [ ] Update `TransactionEntryForm.tsx` to remove `duplicateFrom` logic.
-    - [ ] Update `ReminderRedirectHandler.tsx` to remove `duplicateFrom` usage.
+- [x] Task: Remove "Duplicate" feature from the Frontend. c3016bc
+    - [x] Modify `TransactionDetailPage.tsx` to remove `handleDuplicate`.
+    - [x] Update `TransactionActionGroup.tsx` and its tests to remove the `onDuplicate` prop and button.
+    - [x] Update `TransactionEntryForm.tsx` to remove `duplicateFrom` logic.
+    - [x] Update `ReminderRedirectHandler.tsx` to remove `duplicateFrom` usage.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Cleanup & Removal' (Protocol in workflow.md)
 
 ## Phase 2: Database Migration Merge
