@@ -7,7 +7,7 @@
 - [x] Task: Ensure accessibility (aria-label, tab index) and minimalist styling. [e0ca30e]
 - [x] Task: Conductor - User Manual Verification 'Home Screen Icon Integration' (Protocol in workflow.md)
 
-## Phase 2: Balance Summary Route & Basic Page
+## Phase 2: Balance Summary Route & Basic Page [checkpoint: 7ba95c3]
 - [x] Task: Define the `/balance-summary` route in `frontend/src/app/router/router.tsx`. [468b217]
 - [x] Task: Create `BalanceSummaryPage` component in `frontend/src/features/insights/pages/` (or similar). [468b217]
 - [x] Task: Implement "Back" button to return to the Home screen. [468b217]
