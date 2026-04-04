@@ -23,7 +23,7 @@
 - [x] Task: Write tests for `PeriodComparisonWidget` (trend calculation, rendering). [228163f]
 - [x] Task: Conductor - User Manual Verification 'Balance Summary Widgets' (Protocol in workflow.md)
 
-## Phase 4: Final Refinement & Polishing
+## Phase 4: Final Refinement & Polishing [checkpoint: bb6c4c2]
 - [x] Task: Apply "Flat UI" styling and "Minimalist" theme across the summary page. [d23d244]
 - [x] Task: Verify responsiveness on mobile (iPhone size) and desktop. [d23d244]
 - [x] Task: Ensure 80% test coverage across the new components and features. [d23d244]
