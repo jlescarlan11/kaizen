@@ -15,7 +15,4 @@
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
 
----
 
-- [x] **Track: Transaction Filter Enhancement (Date Range & Inflow/Outflow)**
-*Link: [./tracks/transaction_filter_enhancement_20260404/](./tracks/transaction_filter_enhancement_20260404/)*

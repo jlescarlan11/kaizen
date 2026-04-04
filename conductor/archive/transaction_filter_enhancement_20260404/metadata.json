@@ -1,0 +1,8 @@
+{
+  "track_id": "transaction_filter_enhancement_20260404",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-04T12:00:00Z",
+  "updated_at": "2026-04-04T12:00:00Z",
+  "description": "in our transaction filter, let's modify our transaction filter in transaction page to add a data range filter, also let's modify the transaction type into inflow and outflow. since have initial balance, and filtering income doesn't filter intial balance"
+}
