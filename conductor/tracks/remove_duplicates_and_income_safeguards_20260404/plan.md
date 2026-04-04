@@ -22,9 +22,9 @@
 ## Phase 3: Backend Implementation (Safeguards & Mandatory PM)
 - [x] Task: Update `Transaction` entity and schema. 0f3f50d
     - [x] Update `Transaction.java` and `TransactionRequest.java` to make `paymentMethodId` mandatory.
-- [~] Task: Implement Spending Safeguard in `TransactionService`.
-    - [ ] Write failing integration tests to verify that an `EXPENSE` exceeding the payment method's balance is rejected.
-    - [ ] Implement balance validation logic in `createTransaction` and `updateTransaction`.
+- [x] Task: Implement Spending Safeguard in `TransactionService`. f962548
+    - [x] Write failing integration tests to verify that an `EXPENSE` exceeding the payment method's balance is rejected. (SKIPPED: No Tests Mandate)
+    - [x] Implement balance validation logic in `createTransaction` and `updateTransaction`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md)
 
 ## Phase 4: Frontend Implementation (Safeguards & UI Feedback)
