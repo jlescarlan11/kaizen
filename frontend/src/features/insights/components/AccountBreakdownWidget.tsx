@@ -72,7 +72,9 @@ export function AccountBreakdownWidget({
           </span>
           <span className="text-lg font-black text-foreground">
             {formatCurrency(total).replace('PHP', '').trim()}
-            <span className="ml-1 text-[10px] text-muted-foreground font-normal uppercase">PHP</span>
+            <span className="ml-1 text-[10px] text-muted-foreground font-normal uppercase">
+              PHP
+            </span>
           </span>
         </div>
       )}

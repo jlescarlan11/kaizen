@@ -101,7 +101,7 @@ export function TransactionListPage(): ReactElement {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="space-y-1">
             <h1 className="text-4xl font-black tracking-tight text-foreground">All Transactions</h1>
-            <p className="text-muted-foreground">A complete record of your income and expenses.</p>
+            <p className="text-muted-foreground">A complete record of your inflows and outflows.</p>
           </div>
 
           <div className="flex items-center gap-1">
@@ -174,7 +174,7 @@ export function TransactionListPage(): ReactElement {
                     key={type}
                     className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase"
                   >
-                    {type}
+                    {type === 'INCOME' ? 'Inflow' : 'Outflow'}
                     <button
                       onClick={() =>
                         setFilterState((prev) => ({

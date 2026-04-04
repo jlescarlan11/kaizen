@@ -153,7 +153,9 @@ const BudgetRow = ({
             <p className="text-sm font-bold text-foreground">
               {currencyFormatter.format(budget.expense)}
             </p>
-            <p className={`text-[10px] font-bold uppercase tracking-wider ${isOverBudget ? 'text-ui-danger' : 'text-primary'}`}>
+            <p
+              className={`text-[10px] font-bold uppercase tracking-wider ${isOverBudget ? 'text-ui-danger' : 'text-primary'}`}
+            >
               {usagePercent}% used
             </p>
           </div>
@@ -164,12 +166,12 @@ const BudgetRow = ({
       </div>
 
       <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
-        <div 
+        <div
           className={cn(
-            "h-full transition-all duration-500 ease-out",
-            isOverBudget ? "bg-ui-danger" : "bg-primary"
+            'h-full transition-all duration-500 ease-out',
+            isOverBudget ? 'bg-ui-danger' : 'bg-primary',
           )}
-          style={{ width: `${usagePercent}%` }} 
+          style={{ width: `${usagePercent}%` }}
         />
       </div>
     </div>

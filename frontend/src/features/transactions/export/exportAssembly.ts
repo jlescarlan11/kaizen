@@ -65,7 +65,7 @@ export function assembleExportData({
     const paymentMethodName = tx.paymentMethod?.name || 'None'
 
     // Format Type Label
-    const typeLabel = tx.type === 'INCOME' ? 'Income' : 'Expense'
+    const typeLabel = tx.type === 'INCOME' ? 'Inflow' : 'Outflow'
 
     // Format Date (ISO 8601: YYYY-MM-DD)
     const formattedDate = new Date(tx.transactionDate).toISOString().split('T')[0]

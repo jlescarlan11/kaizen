@@ -359,9 +359,7 @@ export function TransactionEntryForm({
         {paymentMethodId && type === 'EXPENSE' && (
           <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
             <span
-              className={`text-xs font-bold ${
-                insufficientBalance ? 'text-error' : 'text-primary'
-              }`}
+              className={`text-xs font-bold ${insufficientBalance ? 'text-error' : 'text-primary'}`}
             >
               Balance: PHP {availableBalance.toLocaleString()}
             </span>
@@ -406,7 +404,7 @@ export function TransactionEntryForm({
               label="Recurring Transaction"
               checked={isRecurring}
               onCheckedChange={setIsRecurring}
-              helperText="Set a frequency for regular charges or income."
+              helperText="Set a frequency for regular charges or inflow."
             />
 
             {isRecurring && (

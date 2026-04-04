@@ -272,7 +272,7 @@ export function TransactionList({
               tone={tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? 'success' : 'neutral'}
               className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 mt-2"
             >
-              {isInitialBalance ? 'Initial Balance' : tx.type}
+              {isInitialBalance ? 'Initial Balance' : tx.type === 'INCOME' ? 'Inflow' : 'Outflow'}
             </Badge>
           </div>
         </div>

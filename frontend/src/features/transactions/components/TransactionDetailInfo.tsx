@@ -46,7 +46,7 @@ export function TransactionDetailInfo({
               Money Flow
             </p>
             <p className="text-sm font-semibold text-foreground">
-              {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
+              {isIncome ? 'Inflow' : isExpense ? 'Outflow' : 'Adjustment'}
             </p>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function TransactionDetailInfo({
               isIncome ? 'text-ui-success' : 'text-foreground',
             )}
           >
-            {isIncome ? 'Incoming' : isExpense ? 'Outgoing' : 'Neutral'}
+            {isIncome ? 'Inflow' : isExpense ? 'Outflow' : 'Neutral'}
           </p>
         </div>
       </div>

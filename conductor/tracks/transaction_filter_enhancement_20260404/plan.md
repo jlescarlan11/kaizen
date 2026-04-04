@@ -10,12 +10,12 @@ This plan outlines the steps to enhance the transaction filtering system, includ
 ## Phase 1: Foundation & Terminology
 Focuses on updating the UI labels and preparing the filter state for "Inflow/Outflow".
 
-- [ ] Task: Update "Income" to "Inflow" and "Expense" to "Outflow" in Filter UI components.
-    - [ ] Write tests for label rendering in Filter components.
-    - [ ] Update labels in `TransactionFilter` and `TransactionList` components.
-- [ ] Task: Update Transaction List item labels.
-    - [ ] Write tests to ensure list items display "Inflow" or "Outflow" based on type.
-    - [ ] Update `TransactionItem` or equivalent component.
+- [x] Task: Update "Income" to "Inflow" and "Expense" to "Outflow" in Filter UI components.
+    - [x] Write tests for label rendering in Filter components. (Skipped: Project is test-free per foundational mandate)
+    - [x] Update labels in `TransactionFilter` and `TransactionList` components.
+- [x] Task: Update Transaction List item labels.
+    - [x] Write tests to ensure list items display "Inflow" or "Outflow" based on type. (Skipped: Project is test-free per foundational mandate)
+    - [x] Update `TransactionItem` or equivalent component.
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Terminology' (Protocol in workflow.md)
 
 ## Phase 2: Date Range Filter

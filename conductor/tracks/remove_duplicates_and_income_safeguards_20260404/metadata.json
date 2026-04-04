@@ -1,8 +1,0 @@
-{
-  "track_id": "remove_duplicates_and_income_safeguards_20260404",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-04-04T00:00:00Z",
-  "updated_at": "2026-04-04T00:00:00Z",
-  "description": "Remove completely our duplicate feature in the transaction both backend, frontend let's remove all our tests. lastly, let's merge our our migration files into one. I am thinking to add a income breakdown so that the user can track the limit of their payment method properly. like how much income they add in cash, debit card etc, that way we have safeguard that they can't spend more than their income if they chose a payment method.... after that, commit and push."
-}

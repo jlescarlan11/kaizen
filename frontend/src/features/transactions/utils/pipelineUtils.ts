@@ -23,7 +23,8 @@ export function applyFilter(
     const typeMatch = types.length === 0 || types.includes(tx.type)
     // Payment method match
     const paymentMethodMatch =
-      paymentMethods.length === 0 || (tx.paymentMethod && paymentMethods.includes(tx.paymentMethod.id))
+      paymentMethods.length === 0 ||
+      (tx.paymentMethod && paymentMethods.includes(tx.paymentMethod.id))
 
     return categoryMatch && typeMatch && paymentMethodMatch
   })

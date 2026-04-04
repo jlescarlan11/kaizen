@@ -108,7 +108,7 @@ export function TransactionFilter({
                         : 'border-ui-border-subtle bg-ui-surface-muted text-muted-foreground hover:border-ui-border',
                     )}
                   >
-                    {type.charAt(0) + type.slice(1).toLowerCase()}
+                    {type === 'INCOME' ? 'Inflow' : 'Outflow'}
                   </button>
                 ))}
               </div>

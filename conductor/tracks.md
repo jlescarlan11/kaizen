@@ -17,5 +17,5 @@
 
 ---
 
-- [ ] **Track: Transaction Filter Enhancement (Date Range & Inflow/Outflow)**
+- [~] **Track: Transaction Filter Enhancement (Date Range & Inflow/Outflow)**
 *Link: [./tracks/transaction_filter_enhancement_20260404/](./tracks/transaction_filter_enhancement_20260404/)*

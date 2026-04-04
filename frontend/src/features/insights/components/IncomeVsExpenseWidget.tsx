@@ -66,9 +66,7 @@ export function IncomeVsExpenseWidget({
         <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
           Net Flow
         </span>
-        <span
-          className={`text-lg font-black ${netBalance >= 0 ? 'text-income' : 'text-expense'}`}
-        >
+        <span className={`text-lg font-black ${netBalance >= 0 ? 'text-income' : 'text-expense'}`}>
           {netBalance >= 0 ? '+' : ''}
           {formatCurrency(netBalance).replace('PHP', '').trim()}
           <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
