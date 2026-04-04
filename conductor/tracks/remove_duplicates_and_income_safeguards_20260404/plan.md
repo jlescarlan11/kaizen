@@ -1,6 +1,6 @@
 # Track Plan: remove_duplicates_and_income_safeguards_20260404
 
-## Phase 1: Cleanup & Removal (Duplicate Feature)
+## Phase 1: Cleanup & Removal (Duplicate Feature) [checkpoint: 3e25276]
 - [x] Task: Remove "Duplicate" feature from the Backend. 23809f8
     - [x] Identify and delete any duplication-related logic in `TransactionService.java` (if any).
     - [x] Remove any tests specifically verifying duplication.
@@ -9,7 +9,7 @@
     - [x] Update `TransactionActionGroup.tsx` and its tests to remove the `onDuplicate` prop and button.
     - [x] Update `TransactionEntryForm.tsx` to remove `duplicateFrom` logic.
     - [x] Update `ReminderRedirectHandler.tsx` to remove `duplicateFrom` usage.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Cleanup & Removal' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Cleanup & Removal' (Protocol in workflow.md)
 
 ## Phase 2: Database Migration Merge
 - [ ] Task: Consolidate Flyway migrations.
