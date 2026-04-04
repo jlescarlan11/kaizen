@@ -12,7 +12,7 @@
 - [x] Task: Create `BalanceSummaryPage` component in `frontend/src/features/insights/pages/` (or similar). [468b217]
 - [x] Task: Implement "Back" button to return to the Home screen. [468b217]
 - [x] Task: Write tests for `BalanceSummaryPage` (routing, basic structure, navigation back). [468b217]
-- [~] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
 
 ## Phase 3: Balance Summary Widgets
 - [ ] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`).
