@@ -5,7 +5,7 @@
 - **Spring Boot 3.5.13:** Standard framework for production-ready services.
 - **Spring Security:** Comprehensive authentication and authorization.
 - **Spring Data JPA & PostgreSQL:** Robust data persistence and querying.
-- **Flyway:** Version-controlled database schema migrations.
+- **Flyway:** Consolidated baseline migrations for consistent schema management.
 - **Spring Data Redis:** High-performance caching and messaging.
 - **Maven:** Standard dependency management and build tool.
 - **Testcontainers:** Reproducible integration tests for database and Redis.

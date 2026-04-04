@@ -13,7 +13,8 @@ Initial monorepo scaffold for backend and frontend development.
 - **Interactive Frontend Dashboard:** Vite, Redux Toolkit, and Tailwind for responsive UI.
 - **Money Flow Analysis:** Dynamic tracking of incoming vs. outgoing funds with visual ratio indicators, date-grouped records, and integrated budget expense tracking.
 - **Comprehensive Balance Summary:** Detailed financial analysis page with account breakdowns, monthly cash flow visualization (Income vs. Expense), and month-over-month trend comparison.
-- **High-Signal Transaction Details:** Enhanced detail views with clean "Flat UI" design, high-signal typography, flow indicators, and quick management actions (Edit, Delete, Duplicate).
+- **High-Signal Transaction Details:** Enhanced detail views with clean "Flat UI" design, high-signal typography, flow indicators, and quick management actions (Edit, Delete).
+- **Spending Safeguard:** Real-time "Available Balance" tracking per payment method with automated prevention of overspending on expense transactions.
 - **Speed Dial Navigation:** Persistent, multi-action Speed Dial FAB for rapid entry creation (Transactions, Budgets, Goals).
 
 ## Success Metrics
