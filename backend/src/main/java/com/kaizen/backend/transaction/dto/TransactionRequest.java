@@ -25,6 +25,7 @@ public record TransactionRequest(
 
     Long categoryId,
 
+    @NotNull(message = "Payment method is required.")
     Long paymentMethodId,
 
     String notes,
