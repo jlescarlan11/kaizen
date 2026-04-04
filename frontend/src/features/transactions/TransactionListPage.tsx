@@ -22,6 +22,8 @@ const INITIAL_FILTER: FilterState = {
   categories: [],
   types: [],
   paymentMethods: [],
+  startDate: undefined,
+  endDate: undefined,
 }
 
 export function TransactionListPage(): ReactElement {
@@ -44,10 +46,14 @@ export function TransactionListPage(): ReactElement {
       .map(Number)
       .filter((id) => !isNaN(id))
     const types = searchParams.getAll('type') as ('INCOME' | 'EXPENSE')[]
+    const startDate = searchParams.get('startDate') || undefined
+    const endDate = searchParams.get('endDate') || undefined
     return {
       categories,
       paymentMethods,
       types: types.filter((t) => ['INCOME', 'EXPENSE'].includes(t)),
+      startDate,
+      endDate,
     }
   })
   const [sortState] = useSortPersistence()
@@ -58,9 +64,16 @@ export function TransactionListPage(): ReactElement {
     newParams.delete('category')
     newParams.delete('type')
     newParams.delete('paymentMethod')
+    newParams.delete('startDate')
+    newParams.delete('endDate')
+
     filterState.categories.forEach((c) => newParams.append('category', String(c)))
     filterState.types.forEach((t) => newParams.append('type', t))
     filterState.paymentMethods.forEach((pm) => newParams.append('paymentMethod', String(pm)))
+
+    if (filterState.startDate) newParams.set('startDate', filterState.startDate)
+    if (filterState.endDate) newParams.set('endDate', filterState.endDate)
+
     setSearchParams(newParams, { replace: true })
   }, [filterState, setSearchParams, searchParams])
 
@@ -188,6 +201,28 @@ export function TransactionListPage(): ReactElement {
                     </button>
                   </span>
                 ))}
+                {filterState.startDate && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                    From: {filterState.startDate}
+                    <button
+                      onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
+                      className="hover:text-primary-hover"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                )}
+                {filterState.endDate && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                    To: {filterState.endDate}
+                    <button
+                      onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
+                      className="hover:text-primary-hover"
+                    >
+                      <CloseIcon />
+                    </button>
+                  </span>
+                )}
                 {/* Note: Showing category names would require mapping IDs to categories, 
                     leaving as simple indicator for now to keep focus on pipeline */}
                 {filterState.categories.length > 0 && (

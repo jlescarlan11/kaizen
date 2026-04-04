@@ -21,18 +21,18 @@ Focuses on updating the UI labels and preparing the filter state for "Inflow/Out
 ## Phase 2: Date Range Filter
 Implements the hybrid date range selector (Presets + Custom Picker).
 
-- [ ] Task: Implement Date Range State in Transaction Page.
-    - [ ] Write tests for date range state management (initial state, updates).
-    - [ ] Update `useTransactions` hook or page state to include `startDate` and `endDate`.
-- [ ] Task: Create `DateRangePresets` component.
-    - [ ] Write tests for preset selection (e.g., "Last 7 Days" calculates correct dates).
-    - [ ] Implement UI for "Last 7 Days", "Last 30 Days", "Current Month".
-- [ ] Task: Implement Custom Date Inputs.
-    - [ ] Write tests for custom date selection validation (e.g., `endDate` must be after `startDate`).
-    - [ ] Add `input type="date"` fields for "From" and "To".
-- [ ] Task: Apply Date Filtering to Transaction List.
-    - [ ] Write tests for filtering logic with various date ranges.
-    - [ ] Update data fetching (if using Dexie) or client-side filtering logic to respect `startDate` and `endDate`.
+- [x] Task: Implement Date Range State in Transaction Page. 4c3728e
+    - [x] Write tests for date range state management (initial state, updates). (Skipped: Project is test-free per foundational mandate)
+    - [x] Update `useTransactions` hook or page state to include `startDate` and `endDate`.
+- [x] Task: Create `DateRangePresets` component. 4c3728e
+    - [x] Write tests for preset selection (e.g., "Last 7 Days" calculates correct dates). (Skipped: Project is test-free per foundational mandate)
+    - [x] Implement UI for "Last 7 Days", "Last 30 Days", "Current Month".
+- [x] Task: Implement Custom Date Inputs. 4c3728e
+    - [x] Write tests for custom date selection validation (e.g., `endDate` must be after `startDate`). (Skipped: Project is test-free per foundational mandate)
+    - [x] Add `input type="date"` fields for "From" and "To".
+- [x] Task: Apply Date Filtering to Transaction List. 4c3728e
+    - [x] Write tests for filtering logic with various date ranges. (Skipped: Project is test-free per foundational mandate)
+    - [x] Update data fetching (if using Dexie) or client-side filtering logic to respect `startDate` and `endDate`.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Date Range Filter' (Protocol in workflow.md)
 
 ## Phase 3: Initial Balance & Mobile Optimization

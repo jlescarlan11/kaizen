@@ -24,7 +24,11 @@ export function TransactionFilter({
   const { data: paymentMethods = [] } = useGetPaymentMethodsQuery()
 
   const hasActiveFilters =
-    filter.categories.length > 0 || filter.types.length > 0 || filter.paymentMethods.length > 0
+    filter.categories.length > 0 ||
+    filter.types.length > 0 ||
+    filter.paymentMethods.length > 0 ||
+    !!filter.startDate ||
+    !!filter.endDate
 
   const toggleCategory = (id: number) => {
     const newCategories = filter.categories.includes(id)
@@ -47,6 +51,33 @@ export function TransactionFilter({
     onChange({ ...filter, types: newTypes })
   }
 
+  const setDateRange = (startDate?: string, endDate?: string) => {
+    onChange({ ...filter, startDate, endDate })
+  }
+
+  const applyPreset = (preset: '7d' | '30d' | 'month' | 'all') => {
+    const end = new Date()
+    const start = new Date()
+
+    switch (preset) {
+      case '7d':
+        start.setDate(end.getDate() - 7)
+        setDateRange(start.toISOString().split('T')[0], end.toISOString().split('T')[0])
+        break
+      case '30d':
+        start.setDate(end.getDate() - 30)
+        setDateRange(start.toISOString().split('T')[0], end.toISOString().split('T')[0])
+        break
+      case 'month':
+        start.setDate(1)
+        setDateRange(start.toISOString().split('T')[0], end.toISOString().split('T')[0])
+        break
+      case 'all':
+        setDateRange(undefined, undefined)
+        break
+    }
+  }
+
   return (
     <Popover className="relative">
       <PopoverButton as={Fragment}>
@@ -62,7 +93,10 @@ export function TransactionFilter({
           <span>Filter</span>
           {hasActiveFilters && (
             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-              {filter.categories.length + filter.types.length + filter.paymentMethods.length}
+              {filter.categories.length +
+                filter.types.length +
+                filter.paymentMethods.length +
+                (filter.startDate || filter.endDate ? 1 : 0)}
             </span>
           )}
         </Button>
@@ -77,7 +111,7 @@ export function TransactionFilter({
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <PopoverPanel className="absolute left-0 z-50 mt-2 w-72 origin-top-left rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-2xl focus:outline-none">
+        <PopoverPanel className="absolute left-0 z-50 mt-2 w-80 origin-top-left rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-2xl focus:outline-none">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-foreground">Filters</h3>
@@ -89,6 +123,55 @@ export function TransactionFilter({
                   Clear all
                 </button>
               )}
+            </div>
+
+            {/* Date Range Presets */}
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Date Range
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Last 7 Days', value: '7d' },
+                  { label: 'Last 30 Days', value: '30d' },
+                  { label: 'This Month', value: 'month' },
+                  { label: 'Clear Range', value: 'all' },
+                ].map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => applyPreset(preset.value as any)}
+                    className="flex items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:border-ui-border transition-all"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom Date Inputs */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">
+                    From
+                  </label>
+                  <input
+                    type="date"
+                    value={filter.startDate || ''}
+                    onChange={(e) => setDateRange(e.target.value || undefined, filter.endDate)}
+                    className="w-full bg-ui-surface-muted border border-ui-border-subtle rounded-lg px-2 py-1.5 text-xs font-medium text-foreground focus:outline-none focus:border-primary transition-colors"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">
+                    To
+                  </label>
+                  <input
+                    type="date"
+                    value={filter.endDate || ''}
+                    onChange={(e) => setDateRange(filter.startDate, e.target.value || undefined)}
+                    className="w-full bg-ui-surface-muted border border-ui-border-subtle rounded-lg px-2 py-1.5 text-xs font-medium text-foreground focus:outline-none focus:border-primary transition-colors"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Transaction Type Filter */}

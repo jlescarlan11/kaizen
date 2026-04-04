@@ -4,6 +4,8 @@ export interface FilterState {
   categories: number[] // IDs of selected categories
   types: TransactionType[] // 'INCOME' or 'EXPENSE'
   paymentMethods: number[] // IDs of selected payment methods
+  startDate?: string // ISO date string (YYYY-MM-DD)
+  endDate?: string // ISO date string (YYYY-MM-DD)
 }
 
 export type SortCriterion = 'date' | 'amount' | 'category'

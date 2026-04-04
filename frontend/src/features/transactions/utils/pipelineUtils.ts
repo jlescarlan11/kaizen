@@ -9,9 +9,15 @@ export function applyFilter(
   transactions: TransactionResponse[],
   filter: FilterState,
 ): TransactionResponse[] {
-  const { categories, types, paymentMethods } = filter
+  const { categories, types, paymentMethods, startDate, endDate } = filter
 
-  if (categories.length === 0 && types.length === 0 && paymentMethods.length === 0) {
+  if (
+    categories.length === 0 &&
+    types.length === 0 &&
+    paymentMethods.length === 0 &&
+    !startDate &&
+    !endDate
+  ) {
     return transactions
   }
 
@@ -26,7 +32,12 @@ export function applyFilter(
       paymentMethods.length === 0 ||
       (tx.paymentMethod && paymentMethods.includes(tx.paymentMethod.id))
 
-    return categoryMatch && typeMatch && paymentMethodMatch
+    // Date range match
+    const txDate = tx.transactionDate.split('T')[0] // Get YYYY-MM-DD
+    const startMatch = !startDate || txDate >= startDate
+    const endMatch = !endDate || txDate <= endDate
+
+    return categoryMatch && typeMatch && paymentMethodMatch && startMatch && endMatch
   })
 }
 
