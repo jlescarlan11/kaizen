@@ -3,9 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   useGetTransactionQuery,
   useDeleteTransactionMutation,
-  useCreateTransactionMutation,
   useGetTransactionsQuery,
-  type TransactionRequest,
 } from '../../app/store/api/transactionApi'
 import { Button } from '../../shared/components/Button'
 import { Modal } from '../../shared/components/Modal'
@@ -29,7 +27,6 @@ export function TransactionDetailPage(): ReactElement {
   })
 
   const [deleteTransaction, { isLoading: isDeleting }] = useDeleteTransactionMutation()
-  const [createTransaction, { isLoading: isDuplicating }] = useCreateTransactionMutation()
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
@@ -69,42 +66,6 @@ export function TransactionDetailPage(): ReactElement {
     }
   }
 
-  const handleDuplicate = async () => {
-    try {
-      const {
-        category,
-        paymentMethod,
-        amount,
-        type,
-        description,
-        notes,
-        isRecurring,
-        frequencyUnit,
-        frequencyMultiplier,
-        remindersEnabled,
-      } = transaction
-
-      const payload: TransactionRequest = {
-        amount,
-        type,
-        description,
-        notes,
-        isRecurring,
-        frequencyUnit,
-        frequencyMultiplier,
-        remindersEnabled,
-        categoryId: category?.id,
-        paymentMethodId: paymentMethod?.id,
-        transactionDate: new Date().toISOString(),
-      }
-
-      await createTransaction(payload).unwrap()
-      navigate('/transactions')
-    } catch (err) {
-      console.error('Failed to duplicate transaction:', err)
-    }
-  }
-
   return (
     <div className={cn(pageLayout.sectionGap, 'pt-4 md:pt-8')}>
       <div className="mx-auto max-w-3xl w-full space-y-12 pb-24">
@@ -123,8 +84,7 @@ export function TransactionDetailPage(): ReactElement {
 
         <TransactionActionGroup
           onDelete={() => setIsDeleteModalOpen(true)}
-          onDuplicate={handleDuplicate}
-          isProcessing={isDeleting || isDuplicating}
+          isProcessing={isDeleting}
         />
 
         <div className="space-y-12">

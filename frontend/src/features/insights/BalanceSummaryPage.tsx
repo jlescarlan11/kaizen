@@ -9,33 +9,23 @@ export function BalanceSummaryPage(): ReactElement {
   const { data: accountSummaries = [], isLoading: isAccountsLoading } =
     useGetPaymentMethodSummaryQuery()
 
-  const { currentRange, previousRange } = useMemo(() => {
+  const { currentRange } = useMemo(() => {
     const now = new Date()
     const currentStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const currentEnd = new Date()
 
-    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
-
     return {
       currentRange: { start: currentStart.toISOString(), end: currentEnd.toISOString() },
-      previousRange: { start: prevStart.toISOString(), end: prevEnd.toISOString() },
     }
   }, [])
 
-  const { data: currentSummary, isLoading: isCurrentSummaryLoading } = useGetSpendingSummaryQuery(
-    currentRange,
-  )
-  const { data: previousSummary, isLoading: isPreviousSummaryLoading } = useGetSpendingSummaryQuery(
-    previousRange,
-  )
-
-  const isSummaryLoading = isCurrentSummaryLoading || isPreviousSummaryLoading
+  const { data: currentSummary, isLoading: isCurrentSummaryLoading } =
+    useGetSpendingSummaryQuery(currentRange)
 
   // Calculate current total balance from account summaries
   const currentBalance = accountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
 
-  // For previous balance, we can approximate it by taking current balance 
+  // For previous balance, we can approximate it by taking current balance
   // and subtracting current month's net flow.
   // Note: This is an approximation if there were manual adjustments or deletions.
   const currentNetFlow = currentSummary?.netBalance ?? 0
@@ -52,13 +42,10 @@ export function BalanceSummaryPage(): ReactElement {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <AccountBreakdownWidget summaries={accountSummaries} isLoading={isAccountsLoading} />
-        
-        <IncomeVsExpenseWidget 
-          summary={currentSummary} 
-          isLoading={isCurrentSummaryLoading} 
-        />
 
-        <PeriodComparisonWidget 
+        <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
+
+        <PeriodComparisonWidget
           currentBalance={currentBalance}
           previousBalance={previousBalance}
           isLoading={isAccountsLoading || isCurrentSummaryLoading}

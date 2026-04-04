@@ -5,7 +5,6 @@ import { TransactionDetailPage } from './TransactionDetailPage'
 import {
   useGetTransactionQuery,
   useDeleteTransactionMutation,
-  useCreateTransactionMutation,
   useGetTransactionsQuery,
 } from '../../app/store/api/transactionApi'
 
@@ -13,7 +12,6 @@ import {
 vi.mock('../../app/store/api/transactionApi', () => ({
   useGetTransactionQuery: vi.fn(),
   useDeleteTransactionMutation: vi.fn(),
-  useCreateTransactionMutation: vi.fn(),
   useGetTransactionsQuery: vi.fn(),
 }))
 
@@ -39,7 +37,6 @@ describe('TransactionDetailPage', () => {
   }
 
   const mockDelete = vi.fn().mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) })
-  const mockCreate = vi.fn().mockReturnValue({ unwrap: vi.fn().mockResolvedValue({}) })
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -47,10 +44,6 @@ describe('TransactionDetailPage', () => {
       mockDelete,
       { isLoading: false },
     ] as unknown as ReturnType<typeof useDeleteTransactionMutation>)
-    vi.mocked(useCreateTransactionMutation).mockReturnValue([
-      mockCreate,
-      { isLoading: false },
-    ] as unknown as ReturnType<typeof useCreateTransactionMutation>)
     vi.mocked(useGetTransactionsQuery).mockReturnValue({
       data: [],
       isLoading: false,
@@ -105,22 +98,6 @@ describe('TransactionDetailPage', () => {
 
     await waitFor(() => {
       expect(mockDelete).toHaveBeenCalledWith(mockTransaction.id)
-    })
-  })
-
-  it('calls create mutation for duplication', async () => {
-    vi.mocked(useGetTransactionQuery).mockReturnValue({
-      data: mockTransaction,
-      isLoading: false,
-      error: null,
-    } as unknown as ReturnType<typeof useGetTransactionQuery>)
-
-    render(<TransactionDetailPage />)
-
-    fireEvent.click(screen.getByRole('button', { name: /Duplicate/i }))
-
-    await waitFor(() => {
-      expect(mockCreate).toHaveBeenCalled()
     })
   })
 

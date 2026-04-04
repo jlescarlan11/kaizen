@@ -39,6 +39,7 @@ interface TransactionEntryFormProps {
   hideCancel?: boolean
   skipSubmit?: boolean
   hideDescription?: boolean
+  hideDate?: boolean
 }
 
 const FREQUENCY_OPTIONS = [
@@ -75,8 +76,8 @@ export function TransactionEntryForm({
     skip: !editId,
   })
 
-  // Story 13: Duplicate pre-population
-  const duplicateFrom = location.state?.duplicateFrom
+  // Handle pre-fill from location state (e.g. from reminders)
+  const prefill = location.state?.prefill
 
   const [amount, setAmount] = useState('')
   const [type, setType] = useState<TransactionType>(initialType ?? 'EXPENSE')
@@ -116,20 +117,13 @@ export function TransactionEntryForm({
       setFrequencyMultiplier(editData.frequencyMultiplier?.toString() || '1')
       setRemindersEnabled(editData.remindersEnabled ?? true)
       isInitialized.current = true
-    } else if (duplicateFrom) {
-      setAmount(duplicateFrom.amount.toString())
-      setType(duplicateFrom.type)
-      // Story 13: Date defaults to current date for duplicate
-      setTransactionDate('')
-      setDescription(duplicateFrom.description || '')
-      setNotes(duplicateFrom.notes || '')
-      setCategoryId(duplicateFrom.categoryId?.toString() || null)
-      setPaymentMethodId(duplicateFrom.paymentMethodId?.toString() || null)
-      setIsRecurring(duplicateFrom.isRecurring || false)
-      setFrequencyUnit(duplicateFrom.frequencyUnit || 'MONTHLY')
-      setFrequencyMultiplier(duplicateFrom.frequencyMultiplier?.toString() || '1')
-      setParentRecurringTransactionId(duplicateFrom.parentRecurringTransactionId || null)
-      setRemindersEnabled(duplicateFrom.remindersEnabled ?? true)
+    } else if (prefill) {
+      setAmount(prefill.amount?.toString() ?? '')
+      setType(prefill.type ?? type)
+      setDescription(prefill.description || '')
+      setCategoryId(prefill.categoryId?.toString() || null)
+      setPaymentMethodId(prefill.paymentMethodId?.toString() || null)
+      setParentRecurringTransactionId(prefill.parentRecurringTransactionId || null)
       isInitialized.current = true
     } else if (user?.quickAddPreferences) {
       // Instruction 8: Quick Add Pre-fill
@@ -144,7 +138,7 @@ export function TransactionEntryForm({
         console.error('Failed to parse Quick Add preferences:', err)
       }
     }
-  }, [editId, editData, duplicateFrom, user, initialType])
+  }, [editId, editData, prefill, user, initialType, type])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -167,8 +167,8 @@ class SecurityIntegrationTest extends AbstractPostgresContainerIntegrationTest {
     }
 
     private ResultActions performRequest(EndpointInfo endpoint, String token) throws Exception {
-        // Simple heuristic to expand common path variables for security testing
-        String path = endpoint.path().replace("{id}", "1");
+        // Simple heuristic to expand all path variables for security testing
+        String path = endpoint.path().replaceAll("\\{.*?\\}", "1");
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
                 .request(Objects.requireNonNull(endpoint.method()), Objects.requireNonNull(path))

@@ -36,10 +36,12 @@ public class CategoryService {
     public CategoryService(
             CategoryRepository categoryRepository,
             UserAccountRepository userAccountRepository,
-            com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository) {
+            com.kaizen.backend.transaction.repository.TransactionRepository transactionRepository,
+            EntityManager entityManager) {
         this.categoryRepository = categoryRepository;
         this.userAccountRepository = userAccountRepository;
         this.transactionRepository = transactionRepository;
+        this.entityManager = entityManager;
     }
 
     public List<Category> getVisibleCategories(Long userId) {

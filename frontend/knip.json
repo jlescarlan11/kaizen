@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/main.tsx"],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": ["src/**/*.test.{ts,tsx}", "src/tests/**/*"],
+  "ignoreDependencies": [],
+  "rules": {
+    "files": "warn",
+    "dependencies": "warn",
+    "unlisted": "warn",
+    "binaries": "warn",
+    "unresolved": "warn",
+    "exports": "warn",
+    "types": "warn",
+    "enumMembers": "warn",
+    "classMembers": "warn"
+  }
+}

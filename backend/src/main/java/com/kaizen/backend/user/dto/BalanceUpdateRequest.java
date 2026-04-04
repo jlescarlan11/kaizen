@@ -11,7 +11,7 @@ import com.kaizen.backend.common.constants.ValidationConstants;
  */
 public record BalanceUpdateRequest(
     @NotNull(message = "Balance is required.")
-    @DecimalMin(value = "0.0", message = ValidationConstants.BALANCE_NEGATIVE_ERROR)
-    @DecimalMax(value = ValidationConstants.MAX_BALANCE_LIMIT_STR, message = ValidationConstants.BALANCE_MAX_LIMIT_ERROR)
+    @DecimalMin(value = "0.0", message = "Balance cannot be negative.")
+    @DecimalMax(value = ValidationConstants.MAX_BALANCE_VALUE, message = ValidationConstants.BALANCE_MAX_LIMIT_ERROR)
     BigDecimal openingBalance
 ) {}

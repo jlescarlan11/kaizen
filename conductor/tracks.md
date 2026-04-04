@@ -12,5 +12,5 @@
 
 ---
 
-- [ ] **Track: Remove duplicates, merge migrations, and add income breakdown with spending safeguards.**
+- [~] **Track: Remove duplicates, merge migrations, and add income breakdown with spending safeguards.**
 *Link: [./tracks/remove_duplicates_and_income_safeguards_20260404/](./tracks/remove_duplicates_and_income_safeguards_20260404/)*

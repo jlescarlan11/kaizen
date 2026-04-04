@@ -1,4 +1,4 @@
-# Track balance_summary_20260404 Context
+# Track remove_duplicates_and_income_safeguards_20260404 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)

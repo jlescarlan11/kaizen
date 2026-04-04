@@ -24,11 +24,11 @@ describe('BalanceSummaryPage', () => {
     vi.mocked(paymentMethodApi.useGetPaymentMethodSummaryQuery).mockReturnValue({
       data: [],
       isLoading: true,
-    } as any)
+    } as unknown as ReturnType<typeof paymentMethodApi.useGetPaymentMethodSummaryQuery>)
     vi.mocked(insightsApi.useGetSpendingSummaryQuery).mockReturnValue({
       data: undefined,
       isLoading: true,
-    } as any)
+    } as unknown as ReturnType<typeof insightsApi.useGetSpendingSummaryQuery>)
 
     render(<BalanceSummaryPage />)
     const pulses = document.querySelectorAll('.animate-pulse')
@@ -37,13 +37,19 @@ describe('BalanceSummaryPage', () => {
 
   it('renders widgets when data is loaded', () => {
     vi.mocked(paymentMethodApi.useGetPaymentMethodSummaryQuery).mockReturnValue({
-      data: [{ paymentMethod: { id: 1, name: 'Cash' }, totalAmount: 1000 }],
+      data: [{ paymentMethodId: 1, paymentMethodName: 'Cash', totalAmount: 1000, percentage: 100 }],
       isLoading: false,
-    } as any)
+    } as unknown as ReturnType<typeof paymentMethodApi.useGetPaymentMethodSummaryQuery>)
     vi.mocked(insightsApi.useGetSpendingSummaryQuery).mockReturnValue({
-      data: { totalIncome: 500, totalExpenses: 200, netBalance: 300 },
+      data: {
+        totalIncome: 500,
+        totalExpenses: 200,
+        netBalance: 300,
+        incomeByCategory: [],
+        expenseByCategory: [],
+      },
       isLoading: false,
-    } as any)
+    } as unknown as ReturnType<typeof insightsApi.useGetSpendingSummaryQuery>)
 
     render(<BalanceSummaryPage />)
     expect(screen.getByText('Account Breakdown')).toBeInTheDocument()

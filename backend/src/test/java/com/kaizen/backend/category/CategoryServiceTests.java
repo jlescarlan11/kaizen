@@ -24,6 +24,7 @@ import com.kaizen.backend.category.service.CategoryService;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+import jakarta.persistence.EntityManager;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -38,6 +39,9 @@ public class CategoryServiceTests {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     private CategoryService categoryService;
 
     private UserAccount user;
@@ -46,7 +50,7 @@ public class CategoryServiceTests {
 
     @BeforeEach
     void setUp() {
-        categoryService = new CategoryService(categoryRepository, userAccountRepository, transactionRepository);
+        categoryService = new CategoryService(categoryRepository, userAccountRepository, transactionRepository, entityManager);
         user = mock(UserAccount.class);
         when(user.getId()).thenReturn(1L);
 

@@ -18,7 +18,7 @@ export function ReminderRedirectHandler(): ReactElement {
     if (transaction) {
       navigate('/transactions/add', {
         state: {
-          duplicateFrom: {
+          prefill: {
             amount: transaction.amount,
             type: transaction.type,
             description: transaction.description,

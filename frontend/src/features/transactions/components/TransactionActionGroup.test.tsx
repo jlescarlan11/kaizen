@@ -6,14 +6,13 @@ import { TransactionActionGroup } from './TransactionActionGroup'
 describe('TransactionActionGroup', () => {
   const mockHandlers = {
     onDelete: vi.fn(),
-    onDuplicate: vi.fn(),
   }
 
-  it('renders all management actions', () => {
+  it('renders management actions', () => {
     render(<TransactionActionGroup {...mockHandlers} />)
 
     expect(screen.getByText(/Delete/i)).toBeInTheDocument()
-    expect(screen.getByText(/Duplicate/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Duplicate/i)).not.toBeInTheDocument()
   })
 
   it('calls onDelete when Delete button is clicked', () => {
@@ -23,17 +22,9 @@ describe('TransactionActionGroup', () => {
     expect(mockHandlers.onDelete).toHaveBeenCalled()
   })
 
-  it('calls onDuplicate when Duplicate button is clicked', () => {
-    render(<TransactionActionGroup {...mockHandlers} />)
-
-    fireEvent.click(screen.getByText(/Duplicate/i))
-    expect(mockHandlers.onDuplicate).toHaveBeenCalled()
-  })
-
   it('is disabled when isProcessing is true', () => {
     render(<TransactionActionGroup {...mockHandlers} isProcessing={true} />)
 
     expect(screen.getByRole('button', { name: /Delete/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Duplicate/i })).toBeDisabled()
   })
 })
