@@ -24,6 +24,7 @@ import {
   ShoppingBag,
   Smartphone,
   Sparkles,
+  TrendingDown,
   TrendingUp,
   Users,
   Utensils,
@@ -64,6 +65,7 @@ export const PAYMENT_METHOD_ICONS: Record<string, LucideIcon> = {
 export const UI_ICONS: Record<string, LucideIcon> = {
   close: X,
   income: TrendingUp,
+  expense: TrendingDown,
   note: FileText,
   recurring: Repeat,
   'chevron-right': ChevronRight,

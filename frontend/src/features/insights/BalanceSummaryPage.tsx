@@ -1,8 +1,48 @@
-import type { ReactElement } from 'react'
+import { useMemo, type ReactElement } from 'react'
+import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
+import { useGetSpendingSummaryQuery } from '../../app/store/api/insightsApi'
+import { AccountBreakdownWidget } from './components/AccountBreakdownWidget'
+import { IncomeVsExpenseWidget } from './components/IncomeVsExpenseWidget'
+import { PeriodComparisonWidget } from './components/PeriodComparisonWidget'
 
 export function BalanceSummaryPage(): ReactElement {
+  const { data: accountSummaries = [], isLoading: isAccountsLoading } =
+    useGetPaymentMethodSummaryQuery()
+
+  const { currentRange, previousRange } = useMemo(() => {
+    const now = new Date()
+    const currentStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const currentEnd = new Date()
+
+    const prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const prevEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
+
+    return {
+      currentRange: { start: currentStart.toISOString(), end: currentEnd.toISOString() },
+      previousRange: { start: prevStart.toISOString(), end: prevEnd.toISOString() },
+    }
+  }, [])
+
+  const { data: currentSummary, isLoading: isCurrentSummaryLoading } = useGetSpendingSummaryQuery(
+    currentRange,
+  )
+  const { data: previousSummary, isLoading: isPreviousSummaryLoading } = useGetSpendingSummaryQuery(
+    previousRange,
+  )
+
+  const isSummaryLoading = isCurrentSummaryLoading || isPreviousSummaryLoading
+
+  // Calculate current total balance from account summaries
+  const currentBalance = accountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
+
+  // For previous balance, we can approximate it by taking current balance 
+  // and subtracting current month's net flow.
+  // Note: This is an approximation if there were manual adjustments or deletions.
+  const currentNetFlow = currentSummary?.netBalance ?? 0
+  const previousBalance = currentBalance - currentNetFlow
+
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10">
       <div className="space-y-1">
         <h1 className="text-3xl font-black tracking-tight text-foreground">Balance Summary</h1>
         <p className="text-muted-foreground text-sm">
@@ -11,10 +51,18 @@ export function BalanceSummaryPage(): ReactElement {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Placeholders for widgets in Phase 3 */}
-        <div className="h-48 rounded-2xl bg-black/5 animate-pulse" />
-        <div className="h-48 rounded-2xl bg-black/5 animate-pulse" />
-        <div className="h-48 rounded-2xl bg-black/5 animate-pulse" />
+        <AccountBreakdownWidget summaries={accountSummaries} isLoading={isAccountsLoading} />
+        
+        <IncomeVsExpenseWidget 
+          summary={currentSummary} 
+          isLoading={isCurrentSummaryLoading} 
+        />
+
+        <PeriodComparisonWidget 
+          currentBalance={currentBalance}
+          previousBalance={previousBalance}
+          isLoading={isAccountsLoading || isCurrentSummaryLoading}
+        />
       </div>
     </div>
   )
