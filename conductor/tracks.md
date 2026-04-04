@@ -10,9 +10,4 @@
 - [x] **Track: Fix missing spending transactions and budget expense update sync.**
 *Link: [./tracks/transaction_budget_sync_20260403/](./tracks/transaction_budget_sync_20260403/)*
 
----
-
-- [x] **Track: Balance Summary Icon & Page**
-*Link: [./tracks/balance_summary_20260404/](./tracks/balance_summary_20260404/)*
-
 
