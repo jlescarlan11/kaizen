@@ -42,7 +42,7 @@ export function BalanceSummaryPage(): ReactElement {
   const previousBalance = currentBalance - currentNetFlow
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10">
+    <div className="p-6 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10">
       <div className="space-y-1">
         <h1 className="text-3xl font-black tracking-tight text-foreground">Balance Summary</h1>
         <p className="text-muted-foreground text-sm">

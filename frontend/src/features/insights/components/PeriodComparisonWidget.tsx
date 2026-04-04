@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import { Card } from '../../../shared/components/Card'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { Badge } from '../../../shared/components/Badge'
 
 interface PeriodComparisonWidgetProps {
   currentBalance: number
@@ -29,15 +30,15 @@ export function PeriodComparisonWidget({
         <p className="text-xs text-muted-foreground">Month-over-month trend</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center py-4 space-y-2">
-        <div
-          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold ${
-            isPositive ? 'bg-income/10 text-income' : 'bg-expense/10 text-expense'
-          }`}
+      <div className="flex flex-col items-center justify-center py-4 space-y-3">
+        <Badge
+          tone={isPositive ? 'success' : 'error'}
+          emphasis="soft"
+          className="px-4 py-1.5 gap-2"
         >
           <SharedIcon type="ui" name={isPositive ? 'income' : 'expense'} size={16} />
-          <span>{Math.abs(percentage).toFixed(1)}%</span>
-        </div>
+          <span className="font-bold text-sm">{Math.abs(percentage).toFixed(1)}%</span>
+        </Badge>
 
         <div className="text-center">
           <p className="text-2xl font-black text-foreground">
