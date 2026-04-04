@@ -9,8 +9,3 @@
 
 - [x] **Track: Fix missing spending transactions and budget expense update sync.**
 *Link: [./tracks/transaction_budget_sync_20260403/](./tracks/transaction_budget_sync_20260403/)*
-
----
-
-- [x] **Track: Remove duplicates, merge migrations, and add income breakdown with spending safeguards.**
-*Link: [./tracks/remove_duplicates_and_income_safeguards_20260404/](./tracks/remove_duplicates_and_income_safeguards_20260404/)*
