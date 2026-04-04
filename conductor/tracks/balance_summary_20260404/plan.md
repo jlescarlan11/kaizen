@@ -5,7 +5,7 @@
 - [x] Task: Write unit tests for `BalanceSummaryIcon` (rendering, click handling, navigation). [e0ca30e]
 - [x] Task: Integrate `BalanceSummaryIcon` into the `Home` screen's total balance display. [e0ca30e]
 - [x] Task: Ensure accessibility (aria-label, tab index) and minimalist styling. [e0ca30e]
-- [~] Task: Conductor - User Manual Verification 'Home Screen Icon Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Home Screen Icon Integration' (Protocol in workflow.md)
 
 ## Phase 2: Balance Summary Route & Basic Page
 - [ ] Task: Define the `/balance-summary` route in `frontend/src/app/router/router.tsx`.
