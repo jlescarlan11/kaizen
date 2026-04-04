@@ -25,7 +25,7 @@
 - [x] Task: Implement Spending Safeguard in `TransactionService`. f962548
     - [x] Write failing integration tests to verify that an `EXPENSE` exceeding the payment method's balance is rejected. (SKIPPED: No Tests Mandate)
     - [x] Implement balance validation logic in `createTransaction` and `updateTransaction`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md)
 
 ## Phase 4: Frontend Implementation (Safeguards & UI Feedback)
 - [ ] Task: Update Transaction UI for Mandatory Payment Method and Balance Feedback.
