@@ -83,6 +83,11 @@ const InsightsPage = lazy(() =>
     default: m.InsightsPage,
   })),
 )
+const BalanceSummaryPage = lazy(() =>
+  import('../../features/insights/BalanceSummaryPage').then((m) => ({
+    default: m.BalanceSummaryPage,
+  })),
+)
 const TransactionDetailPage = lazy(() =>
   import('../../features/transactions/TransactionDetailPage').then((m) => ({
     default: m.TransactionDetailPage,
@@ -291,6 +296,16 @@ export const router = createBrowserRouter([
           {
             path: 'insights',
             element: <InsightsPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'balance-summary',
+            element: <BalanceSummaryPage />,
             handle: {
               backButton: {
                 label: 'Back',
