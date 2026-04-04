@@ -8,11 +8,11 @@
 - [x] Task: Conductor - User Manual Verification 'Home Screen Icon Integration' (Protocol in workflow.md)
 
 ## Phase 2: Balance Summary Route & Basic Page
-- [ ] Task: Define the `/balance-summary` route in `frontend/src/app/router/router.tsx`.
-- [ ] Task: Create `BalanceSummaryPage` component in `frontend/src/features/insights/pages/` (or similar).
-- [ ] Task: Implement "Back" button to return to the Home screen.
-- [ ] Task: Write tests for `BalanceSummaryPage` (routing, basic structure, navigation back).
-- [ ] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
+- [x] Task: Define the `/balance-summary` route in `frontend/src/app/router/router.tsx`. [468b217]
+- [x] Task: Create `BalanceSummaryPage` component in `frontend/src/features/insights/pages/` (or similar). [468b217]
+- [x] Task: Implement "Back" button to return to the Home screen. [468b217]
+- [x] Task: Write tests for `BalanceSummaryPage` (routing, basic structure, navigation back). [468b217]
+- [~] Task: Conductor - User Manual Verification 'Balance Summary Route & Basic Page' (Protocol in workflow.md)
 
 ## Phase 3: Balance Summary Widgets
 - [ ] Task: Implement `AccountBreakdownWidget` with data from existing Redux state (e.g., `accounts` or `balance`).
