@@ -31,24 +31,15 @@ export function AccountBreakdownWidget({
           <p className="text-sm text-muted-foreground italic py-4">No account data available.</p>
         ) : (
           sortedSummaries.map((s) => {
-            const percentage = total > 0 ? (s.totalAmount / total) * 100 : 0
             return (
-              <div key={s.paymentMethod?.id ?? 'unknown'} className="space-y-1.5">
-                <div className="flex justify-between items-baseline text-sm">
-                  <span className="font-medium text-foreground/80 truncate pr-2">
-                    {s.paymentMethod?.name ?? 'Unknown'}
-                  </span>
-                  <span className="font-bold whitespace-nowrap">
-                    {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
-                    <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
-                  </span>
-                </div>
-                <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-700 ease-out"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
+              <div key={s.paymentMethod?.id ?? 'unknown'} className="flex justify-between items-baseline py-1">
+                <span className="text-sm font-medium text-foreground/80 truncate pr-2">
+                  {s.paymentMethod?.name ?? 'Unknown'}
+                </span>
+                <span className="font-bold whitespace-nowrap text-sm">
+                  {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
+                  <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+                </span>
               </div>
             )
           })

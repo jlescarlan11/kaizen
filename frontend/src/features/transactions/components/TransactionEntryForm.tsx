@@ -357,15 +357,14 @@ export function TransactionEntryForm({
         />
 
         {paymentMethodId && type === 'EXPENSE' && (
-          <div
-            className={`flex items-center justify-between p-3 rounded-lg border ${
-              insufficientBalance
-                ? 'bg-error/5 border-error/20 text-error'
-                : 'bg-primary/5 border-primary/20 text-primary'
-            } animate-in fade-in zoom-in-95 duration-200`}
-          >
-            <span className="text-sm font-medium">Available Balance</span>
-            <span className="text-sm font-bold">PHP {availableBalance.toLocaleString()}</span>
+          <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
+            <span
+              className={`text-xs font-bold ${
+                insufficientBalance ? 'text-error' : 'text-primary'
+              }`}
+            >
+              Balance: PHP {availableBalance.toLocaleString()}
+            </span>
           </div>
         )}
 
