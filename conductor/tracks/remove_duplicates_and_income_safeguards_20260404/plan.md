@@ -19,13 +19,13 @@
     - [x] Update `transaction` table in `V1` to make `payment_method_id` NOT NULL.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Database Migration Merge' (Protocol in workflow.md)
 
-## Phase 3: Backend Implementation (Safeguards & Mandatory PM)
+## Phase 3: Backend Implementation (Safeguards & Mandatory PM) [checkpoint: 732a215]
 - [x] Task: Update `Transaction` entity and schema. 0f3f50d
     - [x] Update `Transaction.java` and `TransactionRequest.java` to make `paymentMethodId` mandatory.
 - [x] Task: Implement Spending Safeguard in `TransactionService`. f962548
     - [x] Write failing integration tests to verify that an `EXPENSE` exceeding the payment method's balance is rejected. (SKIPPED: No Tests Mandate)
     - [x] Implement balance validation logic in `createTransaction` and `updateTransaction`.
-- [~] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Backend Implementation' (Protocol in workflow.md) 732a215
 
 ## Phase 4: Frontend Implementation (Safeguards & UI Feedback)
 - [ ] Task: Update Transaction UI for Mandatory Payment Method and Balance Feedback.
