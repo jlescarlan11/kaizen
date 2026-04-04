@@ -80,6 +80,11 @@ public class TransactionService {
 
         Category category = fetchCategory(request.categoryId());
         PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
+
+        if (request.type() == TransactionType.EXPENSE) {
+            validatePaymentMethodBalance(account, paymentMethod, request.amount(), null);
+        }
+
         String notes = (request.notes() == null || request.notes().isBlank()) ? null : request.notes();
         boolean isRecurring = request.isRecurring() != null && request.isRecurring();
 
@@ -204,6 +209,10 @@ public class TransactionService {
 
         PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
         transaction.setPaymentMethod(paymentMethod);
+
+        if (request.type() == TransactionType.EXPENSE) {
+            validatePaymentMethodBalance(account, paymentMethod, request.amount(), id);
+        }
 
         if (request.transactionDate() != null) {
             transaction.setTransactionDate(request.transactionDate());
@@ -551,5 +560,25 @@ public class TransactionService {
                                 a.getStorageReference()))
                         .collect(Collectors.toList()),
                 transaction.getClientGeneratedId());
+    }
+
+    private void validatePaymentMethodBalance(UserAccount account, PaymentMethod paymentMethod, java.math.BigDecimal amount, Long transactionId) {
+        if (paymentMethod == null) {
+            throw new IllegalArgumentException("Payment method is required.");
+        }
+
+        java.math.BigDecimal currentBalance = transactionRepository.calculateNetTransactionAmountByPaymentMethod(account.getId(), paymentMethod.getId())
+            .orElse(java.math.BigDecimal.ZERO);
+
+        if (transactionId != null) {
+            Transaction existing = transactionRepository.findById(transactionId).orElse(null);
+            if (existing != null && existing.getPaymentMethod().getId().equals(paymentMethod.getId()) && existing.getType() == TransactionType.EXPENSE) {
+                currentBalance = currentBalance.add(existing.getAmount());
+            }
+        }
+
+        if (currentBalance.compareTo(amount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance in " + paymentMethod.getName() + ". Available: " + currentBalance);
+        }
     }
 }
