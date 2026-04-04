@@ -50,27 +50,15 @@ public class PaymentMethodService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
 
         List<PaymentMethod> allMethods = paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId());
-        Map<Long, PaymentMethod> methodMap = allMethods.stream()
-                .collect(Collectors.toMap(PaymentMethod::getId, pm -> pm));
-
-        List<Object[]> groupedResults = transactionRepository.getExpenseSummaryGroupedByPaymentMethod(account.getId());
         List<PaymentMethodSummaryResponse> summaries = new ArrayList<>();
 
-        for (Object[] result : groupedResults) {
-            Long methodId = (Long) result[0];
-            BigDecimal total = (BigDecimal) result[1];
-            PaymentMethod pm = methodMap.get(methodId);
-            if (pm != null) {
-                summaries.add(new PaymentMethodSummaryResponse(
-                        new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal(), pm.getDescription()),
-                        total));
-            }
-        }
-
-        // Add "Unspecified" if exists
-        BigDecimal unspecifiedTotal = transactionRepository.getUnspecifiedExpenseSummary(account.getId());
-        if (unspecifiedTotal != null && unspecifiedTotal.compareTo(BigDecimal.ZERO) > 0) {
-            summaries.add(new PaymentMethodSummaryResponse(null, unspecifiedTotal));
+        for (PaymentMethod pm : allMethods) {
+            BigDecimal balance = transactionRepository.calculateNetTransactionAmountByPaymentMethod(account.getId(), pm.getId())
+                    .orElse(BigDecimal.ZERO);
+            
+            summaries.add(new PaymentMethodSummaryResponse(
+                    new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal(), pm.getDescription()),
+                    balance));
         }
 
         return summaries;
