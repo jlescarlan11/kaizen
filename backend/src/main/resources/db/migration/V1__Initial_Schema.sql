@@ -1,4 +1,4 @@
--- Initial Schema
+-- Initial Schema Consolidated (V1 to V5)
 
 CREATE TABLE role (
     id BIGSERIAL PRIMARY KEY,
@@ -10,13 +10,13 @@ CREATE TABLE role (
 
 CREATE TABLE user_account (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255),
-    email VARCHAR(320) UNIQUE,
-    provider_name VARCHAR(50),
-    provider_user_id VARCHAR(255),
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(320) NOT NULL UNIQUE,
+    provider_name VARCHAR(50) NOT NULL,
+    provider_user_id VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255),
     picture_url TEXT,
-    encrypted_access_token TEXT,
+    encrypted_access_token TEXT NOT NULL,
     encrypted_refresh_token TEXT,
     onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
     tour_completed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -28,6 +28,9 @@ CREATE TABLE user_account (
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
+
+-- Case-insensitive unique index for email
+CREATE UNIQUE INDEX idx_user_account_email_lower ON user_account (LOWER(email));
 
 CREATE TABLE user_role (
     user_account_id BIGINT NOT NULL REFERENCES user_account(id),
@@ -52,6 +55,7 @@ CREATE TABLE budget (
     user_id BIGINT NOT NULL REFERENCES user_account(id),
     category_id BIGINT NOT NULL REFERENCES category(id),
     amount NUMERIC(15,2) NOT NULL,
+    expense NUMERIC(15,2) NOT NULL DEFAULT 0.00,
     period VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -71,8 +75,8 @@ CREATE TABLE payment_method (
 CREATE TABLE transaction (
     id BIGSERIAL PRIMARY KEY,
     user_account_id BIGINT NOT NULL REFERENCES user_account(id),
-    category_id BIGINT NOT NULL REFERENCES category(id),
-    payment_method_id BIGINT REFERENCES payment_method(id),
+    category_id BIGINT REFERENCES category(id),
+    payment_method_id BIGINT NOT NULL REFERENCES payment_method(id),
     amount NUMERIC(15,2) NOT NULL,
     type VARCHAR(50) NOT NULL,
     description VARCHAR(255),
