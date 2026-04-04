@@ -3,20 +3,20 @@
 This plan outlines the steps to enhance the transaction filtering system, including a hybrid date range filter, "Inflow/Outflow" terminology updates, and "Initial Balance" integration.
 
 ## User Review & Approval Gate
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Terminology' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Terminology' (Protocol in workflow.md) 76c8120
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Date Range Filter' (Protocol in workflow.md)
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Initial Balance & Mobile Optimization' (Protocol in workflow.md)
 
-## Phase 1: Foundation & Terminology
+## Phase 1: Foundation & Terminology [checkpoint: 76c8120]
 Focuses on updating the UI labels and preparing the filter state for "Inflow/Outflow".
 
-- [x] Task: Update "Income" to "Inflow" and "Expense" to "Outflow" in Filter UI components.
+- [x] Task: Update "Income" to "Inflow" and "Expense" to "Outflow" in Filter UI components. 4c3728e
     - [x] Write tests for label rendering in Filter components. (Skipped: Project is test-free per foundational mandate)
     - [x] Update labels in `TransactionFilter` and `TransactionList` components.
-- [x] Task: Update Transaction List item labels.
+- [x] Task: Update Transaction List item labels. 4c3728e
     - [x] Write tests to ensure list items display "Inflow" or "Outflow" based on type. (Skipped: Project is test-free per foundational mandate)
     - [x] Update `TransactionItem` or equivalent component.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Terminology' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & Terminology' (Protocol in workflow.md) 76c8120
 
 ## Phase 2: Date Range Filter
 Implements the hybrid date range selector (Presets + Custom Picker).
