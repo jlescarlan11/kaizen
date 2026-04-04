@@ -83,6 +83,7 @@ export function TransactionDetailPage(): ReactElement {
         />
 
         <TransactionActionGroup
+          onEdit={() => navigate(`/transactions/edit/${transaction.id}`)}
           onDelete={() => setIsDeleteModalOpen(true)}
           isProcessing={isDeleting}
         />
