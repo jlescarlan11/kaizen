@@ -18,12 +18,12 @@ This plan outlines the steps to implement an interactive line graph in the Balan
     - [x] Implement the `GET /api/v1/insights/balance-trends` endpoint in `InsightsController`.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend - Balance Trend API' (Protocol in workflow.md)
 
-### Phase 2: Frontend - API and Types
-- [ ] Task: Define Frontend Types
-    - [ ] Add `BalanceTrendEntry` and `BalanceTrendSeries` types to `frontend/src/features/insights/types.ts`.
-- [ ] Task: Update insightsApi
-    - [ ] Add `getBalanceTrends` query to `frontend/src/app/store/api/insightsApi.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend - API and Types' (Protocol in workflow.md)
+### Phase 2: Frontend - API and Types [checkpoint: b7ee13f]
+- [x] Task: Define Frontend Types 4ab2a83
+    - [x] Add `BalanceTrendEntry` and `BalanceTrendSeries` types to `frontend/src/features/insights/types.ts`.
+- [x] Task: Update insightsApi 4ab2a83
+    - [x] Add `getBalanceTrends` query to `frontend/src/app/store/api/insightsApi.ts`.
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Frontend - API and Types' (Protocol in workflow.md)
 
 ### Phase 3: Frontend - UI Components
 - [ ] Task: TDD - BalanceTrendChart Component
