@@ -17,7 +17,7 @@
 
 ---
 
-- [ ] **Track: In our balance summary let's make our income and expenses into a line graph just like the way in our playground.**
+- [x] **Track: In our balance summary let's make our income and expenses into a line graph just like the way in our playground.**
 *Link: [./tracks/balance_summary_line_graph_20260408/](./tracks/balance_summary_line_graph_20260408/)*
 
 
