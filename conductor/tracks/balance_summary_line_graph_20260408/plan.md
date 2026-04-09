@@ -9,15 +9,14 @@ This plan outlines the steps to implement an interactive line graph in the Balan
 
 ## Proposed Phases
 
-### Phase 1: Backend - Balance Trend API
-- [ ] Task: TDD - Balance Trend DTOs and Logic
-    - [ ] Write unit tests for `InsightsService.getBalanceTrends` in `InsightsServiceTest.java`.
-    - [ ] Create `BalanceTrendResponse` record in `com.kaizen.backend.insights.dto`.
-    - [ ] Implement `InsightsService.getBalanceTrends` to handle `DAILY` and `MONTHLY` aggregation of both Inflows and Outflows.
-- [ ] Task: TDD - Balance Trend Controller
-    - [ ] Write integration tests for `GET /api/v1/insights/balance-trends` in `InsightsControllerTest.java`.
-    - [ ] Implement the endpoint in `InsightsController`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend - Balance Trend API' (Protocol in workflow.md)
+### Phase 1: Backend - Balance Trend API [checkpoint: a530d19]
+- [x] Task: Balance Trend DTOs and Logic 27ef1fb
+    - [x] Create `BalanceTrendResponse` record in `com.kaizen.backend.insights.dto`.
+    - [x] Update `TransactionRepository` with enhanced trend data query.
+    - [x] Implement `InsightsService.getBalanceTrends` to handle `DAILY` and `MONTHLY` aggregation of Inflows, Outflows, and Net Balance.
+- [x] Task: Balance Trend Controller 27ef1fb
+    - [x] Implement the `GET /api/v1/insights/balance-trends` endpoint in `InsightsController`.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Backend - Balance Trend API' (Protocol in workflow.md)
 
 ### Phase 2: Frontend - API and Types
 - [ ] Task: Define Frontend Types
