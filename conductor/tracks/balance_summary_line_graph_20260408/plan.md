@@ -25,16 +25,16 @@ This plan outlines the steps to implement an interactive line graph in the Balan
     - [x] Add `getBalanceTrends` query to `frontend/src/app/store/api/insightsApi.ts`.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Frontend - API and Types' (Protocol in workflow.md)
 
-### Phase 3: Frontend - UI Components
-- [ ] Task: TDD - BalanceTrendChart Component
-    - [ ] Create `frontend/src/features/insights/components/BalanceTrendChart.tsx`.
-    - [ ] Implement the chart using **Recharts** with three lines (Income, Expenses, Net Balance).
-    - [ ] Add Granularity Toggle (Daily/Monthly) to the chart container.
-    - [ ] Implement interactive tooltips with detailed formatting.
-- [ ] Task: Integration - Balance Summary Page
-    - [ ] Integrate `BalanceTrendChart` into `frontend/src/features/insights/BalanceSummaryPage.tsx`.
-    - [ ] Ensure the chart uses the "Current Year" as the default range.
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Frontend - UI Components' (Protocol in workflow.md)
+### Phase 3: Frontend - UI Components [checkpoint: 6004099]
+- [x] Task: TDD - BalanceTrendChart Component f5eb713
+    - [x] Create `frontend/src/features/insights/components/BalanceTrendChart.tsx`.
+    - [x] Implement the chart using **Recharts** with three lines (Income, Expenses, Net Balance).
+    - [x] Add Granularity Toggle (Daily/Monthly) to the chart container.
+    - [x] Implement interactive tooltips with detailed formatting.
+- [x] Task: Integration - Balance Summary Page f5eb713
+    - [x] Integrate `BalanceTrendChart` into `frontend/src/features/insights/BalanceSummaryPage.tsx`.
+    - [x] Ensure the chart uses the "Current Year" as the default range.
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Frontend - UI Components' (Protocol in workflow.md)
 
 ### Phase 4: Refinement and Polish
 - [ ] Task: Responsive Design & Style
