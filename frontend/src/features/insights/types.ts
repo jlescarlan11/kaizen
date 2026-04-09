@@ -25,6 +25,17 @@ export interface TrendSeries {
   series: TrendEntry[]
 }
 
-export type Granularity = 'WEEKLY' | 'MONTHLY'
+export interface BalanceTrendEntry {
+  periodStart: string
+  income: number
+  expenses: number
+  netBalance: number
+}
+
+export interface BalanceTrendSeries {
+  series: BalanceTrendEntry[]
+}
+
+export type Granularity = 'DAILY' | 'WEEKLY' | 'MONTHLY'
 
 export type PeriodOption = 'CURRENT_MONTH' | 'LAST_MONTH' | 'LAST_3_MONTHS' | 'ALL_TIME'
