@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.insights.dto.BalanceTrendResponse;
 import com.kaizen.backend.insights.dto.CategoryBreakdownResponse;
 import com.kaizen.backend.insights.dto.SpendingSummaryResponse;
 import com.kaizen.backend.insights.dto.TrendSeriesResponse;
@@ -122,6 +123,73 @@ public class InsightsService {
         }
 
         return new TrendSeriesResponse(series);
+    }
+
+    public BalanceTrendResponse getBalanceTrends(String email, LocalDateTime start, LocalDateTime end,
+            String granularity) {
+        UserAccount account = getUserByEmail(email);
+
+        List<Object[]> rawData = transactionRepository.getRawBalanceTrendData(account.getId(), start, end);
+
+        // Map to store Income and Expenses per period
+        Map<LocalDate, BigDecimal[]> groupedData = new TreeMap<>();
+
+        for (Object[] row : rawData) {
+            LocalDateTime date = (LocalDateTime) row[0];
+            BigDecimal amount = (BigDecimal) row[1];
+            TransactionType type = (TransactionType) row[2];
+            Boolean reconIncrease = (Boolean) row[3];
+
+            LocalDate periodStart;
+            if ("DAILY".equalsIgnoreCase(granularity)) {
+                periodStart = date.toLocalDate();
+            } else {
+                periodStart = date.toLocalDate().with(TemporalAdjusters.firstDayOfMonth());
+            }
+
+            BigDecimal[] values = groupedData.computeIfAbsent(periodStart, k -> new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
+
+            boolean isIncome = type == TransactionType.INCOME || type == TransactionType.INITIAL_BALANCE ||
+                    (type == TransactionType.RECONCILIATION && Boolean.TRUE.equals(reconIncrease));
+
+            boolean isExpense = type == TransactionType.EXPENSE ||
+                    (type == TransactionType.RECONCILIATION && Boolean.FALSE.equals(reconIncrease));
+
+            if (isIncome) {
+                values[0] = values[0].add(amount);
+            } else if (isExpense) {
+                values[1] = values[1].add(amount);
+            }
+        }
+
+        // Zero-filling
+        List<BalanceTrendResponse.TrendEntry> series = new ArrayList<>();
+        LocalDate current = start.toLocalDate();
+        if (!"DAILY".equalsIgnoreCase(granularity)) {
+            current = current.with(TemporalAdjusters.firstDayOfMonth());
+        }
+
+        LocalDate last = end.toLocalDate();
+        if (!"DAILY".equalsIgnoreCase(granularity)) {
+            last = last.with(TemporalAdjusters.firstDayOfMonth());
+        }
+
+        while (!current.isAfter(last)) {
+            BigDecimal[] values = groupedData.getOrDefault(current, new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
+            BigDecimal income = values[0];
+            BigDecimal expenses = values[1];
+            BigDecimal netBalance = income.subtract(expenses);
+
+            series.add(new BalanceTrendResponse.TrendEntry(current, income, expenses, netBalance));
+
+            if ("DAILY".equalsIgnoreCase(granularity)) {
+                current = current.plusDays(1);
+            } else {
+                current = current.plusMonths(1);
+            }
+        }
+
+        return new BalanceTrendResponse(series);
     }
 
     private UserAccount getUserByEmail(String email) {

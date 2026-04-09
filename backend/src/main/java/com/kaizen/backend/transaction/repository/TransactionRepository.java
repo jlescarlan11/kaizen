@@ -100,6 +100,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Param("end") java.time.LocalDateTime end
     );
 
+    @Query("SELECT t.transactionDate, t.amount, t.type, t.reconciliationIncrease FROM Transaction t WHERE t.userAccount.id = :userId AND t.transactionDate >= :start AND t.transactionDate <= :end ORDER BY t.transactionDate ASC")
+    List<Object[]> getRawBalanceTrendData(
+        @Param("userId") Long userId,
+        @Param("start") java.time.LocalDateTime start,
+        @Param("end") java.time.LocalDateTime end
+    );
+
     Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);
 
     boolean existsByClientGeneratedId(String clientGeneratedId);

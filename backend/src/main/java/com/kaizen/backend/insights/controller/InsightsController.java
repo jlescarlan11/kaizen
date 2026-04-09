@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.insights.dto.BalanceTrendResponse;
 import com.kaizen.backend.insights.dto.CategoryBreakdownResponse;
 import com.kaizen.backend.insights.dto.SpendingSummaryResponse;
 import com.kaizen.backend.insights.dto.TrendSeriesResponse;
@@ -59,5 +60,16 @@ public class InsightsController {
         @RequestParam(defaultValue = "MONTHLY") String granularity
     ) {
         return ResponseEntity.ok(insightsService.getSpendingTrends(userDetails.getUsername(), start, end, granularity));
+    }
+
+    @GetMapping("/balance-trends")
+    @Operation(summary = "Get income vs expense vs net balance trends for a date range")
+    public ResponseEntity<BalanceTrendResponse> getBalanceTrends(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam(defaultValue = "MONTHLY") String granularity
+    ) {
+        return ResponseEntity.ok(insightsService.getBalanceTrends(userDetails.getUsername(), start, end, granularity));
     }
 }
