@@ -1,26 +1,43 @@
-import { useMemo, type ReactElement } from 'react'
+import { useMemo, useState, type ReactElement } from 'react'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
-import { useGetSpendingSummaryQuery } from '../../app/store/api/insightsApi'
+import {
+  useGetSpendingSummaryQuery,
+  useGetBalanceTrendsQuery,
+} from '../../app/store/api/insightsApi'
 import { AccountBreakdownWidget } from './components/AccountBreakdownWidget'
 import { IncomeVsExpenseWidget } from './components/IncomeVsExpenseWidget'
 import { PeriodComparisonWidget } from './components/PeriodComparisonWidget'
+import { BalanceTrendChart } from './components/BalanceTrendChart'
+import type { Granularity } from './types'
 
 export function BalanceSummaryPage(): ReactElement {
+  const [granularity, setGranularity] = useState<Granularity>('MONTHLY')
+
   const { data: accountSummaries = [], isLoading: isAccountsLoading } =
     useGetPaymentMethodSummaryQuery()
 
-  const { currentRange } = useMemo(() => {
+  const { currentRange, yearRange } = useMemo(() => {
     const now = new Date()
     const currentStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const currentEnd = new Date()
 
+    const yearStart = new Date(now.getFullYear(), 0, 1)
+    const yearEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59)
+
     return {
       currentRange: { start: currentStart.toISOString(), end: currentEnd.toISOString() },
+      yearRange: { start: yearStart.toISOString(), end: yearEnd.toISOString() },
     }
   }, [])
 
   const { data: currentSummary, isLoading: isCurrentSummaryLoading } =
     useGetSpendingSummaryQuery(currentRange)
+
+  const { data: balanceTrends = { series: [] }, isLoading: isTrendsLoading } =
+    useGetBalanceTrendsQuery({
+      ...yearRange,
+      granularity,
+    })
 
   // Calculate current total balance from account summaries
   const currentBalance = accountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
@@ -39,6 +56,13 @@ export function BalanceSummaryPage(): ReactElement {
           A detailed breakdown of your current financial status.
         </p>
       </div>
+
+      <BalanceTrendChart
+        trends={balanceTrends}
+        granularity={granularity}
+        onGranularityChange={setGranularity}
+        isLoading={isTrendsLoading}
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <AccountBreakdownWidget summaries={accountSummaries} isLoading={isAccountsLoading} />
