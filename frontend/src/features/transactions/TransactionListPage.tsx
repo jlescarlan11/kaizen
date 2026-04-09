@@ -157,8 +157,10 @@ export function TransactionListPage(): ReactElement {
         {/* Search, Filter, and Export Controls */}
         {!isLoading && transactions.length > 0 && (
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex-1 min-w-[280px]">
+                <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
+              </div>
               <div className="flex items-center gap-2">
                 <TransactionFilter
                   filter={filterState}

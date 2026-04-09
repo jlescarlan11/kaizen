@@ -130,17 +130,17 @@ export function TransactionFilter({
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 Date Range
               </p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
                 {[
-                  { label: 'Last 7 Days', value: '7d' },
-                  { label: 'Last 30 Days', value: '30d' },
-                  { label: 'This Month', value: 'month' },
-                  { label: 'Clear Range', value: 'all' },
+                  { label: '7 Days', value: '7d' as const },
+                  { label: '30 Days', value: '30d' as const },
+                  { label: 'Month', value: 'month' as const },
+                  { label: 'Clear', value: 'all' as const },
                 ].map((preset) => (
                   <button
                     key={preset.value}
-                    onClick={() => applyPreset(preset.value as any)}
-                    className="flex items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:border-ui-border transition-all"
+                    onClick={() => applyPreset(preset.value)}
+                    className="flex-none flex items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-ui-border transition-all whitespace-nowrap"
                   >
                     {preset.label}
                   </button>
