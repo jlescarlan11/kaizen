@@ -1,14 +1,14 @@
 package com.kaizen.backend.transaction.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public record BalanceHistoryResponse(
     List<BalanceHistoryEntry> history
 ) {
     public record BalanceHistoryEntry(
-        LocalDateTime date,
+        OffsetDateTime date,
         BigDecimal balance,
         String eventDescription,
         Long transactionId,

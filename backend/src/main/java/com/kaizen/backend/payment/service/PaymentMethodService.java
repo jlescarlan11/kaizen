@@ -2,7 +2,7 @@ package com.kaizen.backend.payment.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class PaymentMethodService {
         List<PaymentMethod> allMethods = paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId());
         List<PaymentMethodSummaryResponse> summaries = new ArrayList<>();
 
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        OffsetDateTime sevenDaysAgo = OffsetDateTime.now().minusDays(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         for (PaymentMethod pm : allMethods) {
             BigDecimal currentBalance = transactionRepository.calculateNetTransactionAmountByPaymentMethod(account.getId(), pm.getId())

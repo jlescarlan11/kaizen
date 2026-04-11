@@ -1,6 +1,6 @@
 package com.kaizen.backend.user.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -38,7 +38,7 @@ public record OnboardingRequest(
     Long paymentMethodId,
 
     @Schema(description = "Optional date for the initial balance transaction.")
-    LocalDateTime transactionDate,
+    OffsetDateTime transactionDate,
 
     @Valid
     @Schema(description = "List of initial balances for different payment methods.")
@@ -49,6 +49,6 @@ public record OnboardingRequest(
         BigDecimal amount,
         String description,
         String notes,
-        LocalDateTime transactionDate
+        OffsetDateTime transactionDate
     ) {}
 }

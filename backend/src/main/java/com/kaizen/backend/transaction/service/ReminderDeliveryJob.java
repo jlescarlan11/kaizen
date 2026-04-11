@@ -1,6 +1,6 @@
 package com.kaizen.backend.transaction.service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,9 +31,9 @@ public class ReminderDeliveryJob {
     public void processReminders() {
         log.info("Starting reminder delivery job...");
         
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         // Retry threshold: don't retry more than once every 24 hours
-        LocalDateTime retryThreshold = now.minusHours(24);
+        OffsetDateTime retryThreshold = now.minusHours(24);
 
         List<ReminderSchedule> dueReminders = reminderScheduleRepository.findDueReminders(now, retryThreshold);
         log.info("Found {} reminders to process", dueReminders.size());

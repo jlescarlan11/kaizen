@@ -1,6 +1,6 @@
 package com.kaizen.backend.transaction.entity;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import com.kaizen.backend.common.entity.BaseEntity;
 
@@ -27,7 +27,7 @@ public class ReminderSchedule extends BaseEntity {
     private Transaction transaction;
 
     @Column(name = "next_reminder_timestamp")
-    private LocalDateTime nextReminderTimestamp;
+    private OffsetDateTime nextReminderTimestamp;
 
     @Column(name = "is_enabled", nullable = false)
     private Boolean isEnabled = true;
@@ -38,9 +38,9 @@ public class ReminderSchedule extends BaseEntity {
     private Integer retryCount = 0;
 
     @Column(name = "last_retry_timestamp")
-    private LocalDateTime lastRetryTimestamp;
+    private OffsetDateTime lastRetryTimestamp;
 
-    public ReminderSchedule(Transaction transaction, LocalDateTime nextReminderTimestamp) {
+    public ReminderSchedule(Transaction transaction, OffsetDateTime nextReminderTimestamp) {
         this.transaction = transaction;
         this.nextReminderTimestamp = nextReminderTimestamp;
         this.isEnabled = true;

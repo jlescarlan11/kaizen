@@ -28,3 +28,6 @@
 - [ ] Task: Correct the Z-index and positioning of the dropdown filters on `/transactions`.
 - [ ] Task: Verify responsiveness and layout on desktop resolutions.
 - [ ] Task: Conductor - User Manual Verification 'UI/UX Fixes' (Protocol in workflow.md)
+
+## Phase: Review Fixes
+- [~] Task: Apply review suggestions

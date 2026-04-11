@@ -1,6 +1,6 @@
 package com.kaizen.backend.insights.controller;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,8 +36,8 @@ public class InsightsController {
     @Operation(summary = "Get spending summary for a date range")
     public ResponseEntity<SpendingSummaryResponse> getSpendingSummary(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end,
         @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
         return ResponseEntity.ok(insightsService.getSpendingSummary(userDetails.getUsername(), start, end, paymentMethodIds));
@@ -47,8 +47,8 @@ public class InsightsController {
     @Operation(summary = "Get expense breakdown by category for a date range")
     public ResponseEntity<CategoryBreakdownResponse> getCategoryBreakdown(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end,
         @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
         return ResponseEntity.ok(insightsService.getCategoryBreakdown(userDetails.getUsername(), start, end, paymentMethodIds));
@@ -58,8 +58,8 @@ public class InsightsController {
     @Operation(summary = "Get spending trends for a date range")
     public ResponseEntity<TrendSeriesResponse> getSpendingTrends(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end,
         @RequestParam(defaultValue = "MONTHLY") String granularity,
         @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
@@ -70,8 +70,8 @@ public class InsightsController {
     @Operation(summary = "Get income vs expense vs net balance trends for a date range")
     public ResponseEntity<BalanceTrendResponse> getBalanceTrends(
         @AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime start,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime end,
         @RequestParam(defaultValue = "MONTHLY") String granularity,
         @RequestParam(required = false) List<Long> paymentMethodIds
     ) {

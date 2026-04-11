@@ -3,7 +3,7 @@ package com.kaizen.backend.insights.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +37,7 @@ public class InsightsService {
         this.userAccountRepository = userAccountRepository;
     }
 
-    public SpendingSummaryResponse getSpendingSummary(String email, LocalDateTime start, LocalDateTime end, List<Long> paymentMethodIds) {
+    public SpendingSummaryResponse getSpendingSummary(String email, OffsetDateTime start, OffsetDateTime end, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
         BigDecimal totalIncome = transactionRepository.sumAmountByTypeDateRangeAndPaymentMethods(account.getId(),
@@ -52,7 +52,7 @@ public class InsightsService {
         return new SpendingSummaryResponse(totalIncome, totalExpenses, netBalance);
     }
 
-    public CategoryBreakdownResponse getCategoryBreakdown(String email, LocalDateTime start, LocalDateTime end, List<Long> paymentMethodIds) {
+    public CategoryBreakdownResponse getCategoryBreakdown(String email, OffsetDateTime start, OffsetDateTime end, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
         List<Object[]> results = transactionRepository.getCategoryBreakdownWithPaymentMethods(account.getId(), start, end, paymentMethodIds);
@@ -79,7 +79,7 @@ public class InsightsService {
         return new CategoryBreakdownResponse(entries);
     }
 
-    public TrendSeriesResponse getSpendingTrends(String email, LocalDateTime start, LocalDateTime end,
+    public TrendSeriesResponse getSpendingTrends(String email, OffsetDateTime start, OffsetDateTime end,
             String granularity, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
@@ -88,7 +88,7 @@ public class InsightsService {
         Map<LocalDate, BigDecimal> groupedData = new TreeMap<>();
 
         for (Object[] row : rawData) {
-            LocalDateTime date = (LocalDateTime) row[0];
+            OffsetDateTime date = (OffsetDateTime) row[0];
             BigDecimal amount = (BigDecimal) row[1];
 
             LocalDate periodStart;
@@ -129,7 +129,7 @@ public class InsightsService {
         return new TrendSeriesResponse(series);
     }
 
-    public BalanceTrendResponse getBalanceTrends(String email, LocalDateTime start, LocalDateTime end,
+    public BalanceTrendResponse getBalanceTrends(String email, OffsetDateTime start, OffsetDateTime end,
             String granularity, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
@@ -139,7 +139,7 @@ public class InsightsService {
         Map<LocalDate, BigDecimal[]> groupedData = new TreeMap<>();
 
         for (Object[] row : rawData) {
-            LocalDateTime date = (LocalDateTime) row[0];
+            OffsetDateTime date = (OffsetDateTime) row[0];
             BigDecimal amount = (BigDecimal) row[1];
             TransactionType type = (TransactionType) row[2];
             Boolean reconIncrease = (Boolean) row[3];

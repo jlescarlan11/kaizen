@@ -1,6 +1,6 @@
 package com.kaizen.backend.transaction.service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class ReminderSchedulerService {
     /**
      * Computes the next reminder timestamp based on anchor date and frequency.
      */
-    public LocalDateTime calculateNextReminderDate(LocalDateTime anchorDate, FrequencyUnit unit, Integer multiplier) {
+    public OffsetDateTime calculateNextReminderDate(OffsetDateTime anchorDate, FrequencyUnit unit, Integer multiplier) {
         if (anchorDate == null || unit == null || multiplier == null || multiplier <= 0) {
             return null;
         }
@@ -60,7 +60,7 @@ public class ReminderSchedulerService {
             return;
         }
 
-        LocalDateTime nextReminder = calculateNextReminderDate(
+        OffsetDateTime nextReminder = calculateNextReminderDate(
             transaction.getTransactionDate(),
             transaction.getFrequencyUnit(),
             transaction.getFrequencyMultiplier()
@@ -82,7 +82,7 @@ public class ReminderSchedulerService {
         }
 
         reminderScheduleRepository.findByTransactionId(parent.getId()).ifPresent(schedule -> {
-            LocalDateTime nextReminder = calculateNextReminderDate(
+            OffsetDateTime nextReminder = calculateNextReminderDate(
                 instance.getTransactionDate(),
                 parent.getFrequencyUnit(),
                 parent.getFrequencyMultiplier()
@@ -108,7 +108,7 @@ public class ReminderSchedulerService {
 
         reminderScheduleRepository.findByTransactionId(transaction.getId()).ifPresentOrElse(
             schedule -> {
-                LocalDateTime nextReminder = calculateNextReminderDate(
+                OffsetDateTime nextReminder = calculateNextReminderDate(
                     transaction.getTransactionDate(),
                     transaction.getFrequencyUnit(),
                     transaction.getFrequencyMultiplier()

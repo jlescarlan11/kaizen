@@ -57,7 +57,7 @@ public class TransactionController {
     @GetMapping
     public List<TransactionResponse> getTransactions(
         @AuthenticationPrincipal UserDetails userDetails,
-        @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime lastDate,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.OffsetDateTime lastDate,
         @org.springframework.web.bind.annotation.RequestParam(required = false) Long lastId,
         @org.springframework.web.bind.annotation.RequestParam(defaultValue = "25") int pageSize
     ) {

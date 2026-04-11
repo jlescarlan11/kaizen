@@ -1,7 +1,7 @@
 package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.kaizen.backend.user.entity.OnboardingStep;
@@ -17,6 +17,6 @@ public record OnboardingProgressUpdateRequest(
     String description,
     String notes,
     Long paymentMethodId,
-    LocalDateTime transactionDate,
+    OffsetDateTime transactionDate,
     java.util.List<OnboardingRequest.InitialBalanceRequest> initialBalances
 ) {}

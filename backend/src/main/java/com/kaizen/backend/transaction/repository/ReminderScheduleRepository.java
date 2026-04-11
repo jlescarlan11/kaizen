@@ -2,7 +2,7 @@ package com.kaizen.backend.transaction.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,5 +23,5 @@ public interface ReminderScheduleRepository extends JpaRepository<ReminderSchedu
            "AND rs.nextReminderTimestamp <= :now " +
            "AND (rs.lastRetryTimestamp IS NULL OR rs.lastRetryTimestamp <= :retryThreshold) " +
            "AND rs.retryCount < 3")
-    List<ReminderSchedule> findDueReminders(LocalDateTime now, LocalDateTime retryThreshold);
+    List<ReminderSchedule> findDueReminders(OffsetDateTime now, OffsetDateTime retryThreshold);
 }

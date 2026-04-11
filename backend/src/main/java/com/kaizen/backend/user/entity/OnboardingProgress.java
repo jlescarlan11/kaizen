@@ -60,7 +60,7 @@ public class OnboardingProgress extends BaseEntity {
     private Long initialTransactionPaymentMethodId;
 
     @Column(name = "initial_transaction_date")
-    private java.time.LocalDateTime initialTransactionDate;
+    private java.time.OffsetDateTime initialTransactionDate;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "onboarding_initial_balance", joinColumns = @JoinColumn(name = "onboarding_progress_id"))
@@ -89,6 +89,6 @@ public class OnboardingProgress extends BaseEntity {
         private String notes;
         
         @Column(name = "transaction_date")
-        private java.time.LocalDateTime transactionDate;
+        private java.time.OffsetDateTime transactionDate;
     }
 }

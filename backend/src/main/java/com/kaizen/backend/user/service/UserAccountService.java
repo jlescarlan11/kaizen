@@ -17,7 +17,7 @@ import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.payment.entity.PaymentMethod;
 import com.kaizen.backend.payment.repository.PaymentMethodRepository;
 import com.kaizen.backend.common.entity.TransactionType;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Service
 @Transactional(readOnly = true)
@@ -106,7 +106,7 @@ public class UserAccountService {
                     balanceRequest.amount(),
                     TransactionType.INCOME,
                     balanceRequest.description() != null ? balanceRequest.description() : "Opening Balance",
-                    balanceRequest.transactionDate() != null ? balanceRequest.transactionDate() : LocalDateTime.now(),
+                    balanceRequest.transactionDate() != null ? balanceRequest.transactionDate() : OffsetDateTime.now(),
                     null,
                     balanceRequest.notes() != null ? balanceRequest.notes() : "Initial setup"
                 );
@@ -126,7 +126,7 @@ public class UserAccountService {
                 request.startingFunds(),
                 TransactionType.INCOME,
                 request.description() != null ? request.description() : "Opening Balance",
-                request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now(),
+                request.transactionDate() != null ? request.transactionDate() : OffsetDateTime.now(),
                 null,
                 request.notes() != null ? request.notes() : "Initial setup"
             );

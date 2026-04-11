@@ -1,7 +1,7 @@
 package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import com.kaizen.backend.user.entity.OnboardingProgress;
 import com.kaizen.backend.user.entity.OnboardingStep;
@@ -14,7 +14,7 @@ public record OnboardingProgressResponse(
     String description,
     String notes,
     Long paymentMethodId,
-    LocalDateTime transactionDate,
+    OffsetDateTime transactionDate,
     java.util.List<OnboardingRequest.InitialBalanceRequest> initialBalances
 ) {
 
