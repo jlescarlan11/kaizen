@@ -9,14 +9,20 @@ import type {
 
 export const insightsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSpendingSummary: builder.query<SpendingSummary, { start: string; end: string }>({
+    getSpendingSummary: builder.query<
+      SpendingSummary,
+      { start: string; end: string; paymentMethodIds?: number[] }
+    >({
       query: (params) => ({
         url: '/insights/summary',
         params,
       }),
       providesTags: ['Insights'],
     }),
-    getCategoryBreakdown: builder.query<CategoryBreakdown, { start: string; end: string }>({
+    getCategoryBreakdown: builder.query<
+      CategoryBreakdown,
+      { start: string; end: string; paymentMethodIds?: number[] }
+    >({
       query: (params) => ({
         url: '/insights/category-breakdown',
         params,
@@ -25,7 +31,7 @@ export const insightsApi = baseApi.injectEndpoints({
     }),
     getSpendingTrends: builder.query<
       TrendSeries,
-      { start: string; end: string; granularity: Granularity }
+      { start: string; end: string; granularity: Granularity; paymentMethodIds?: number[] }
     >({
       query: (params) => ({
         url: '/insights/trends',
@@ -35,7 +41,7 @@ export const insightsApi = baseApi.injectEndpoints({
     }),
     getBalanceTrends: builder.query<
       BalanceTrendSeries,
-      { start: string; end: string; granularity: Granularity }
+      { start: string; end: string; granularity: Granularity; paymentMethodIds?: number[] }
     >({
       query: (params) => ({
         url: '/insights/balance-trends',

@@ -36,9 +36,10 @@ public class InsightsController {
     public ResponseEntity<SpendingSummaryResponse> getSpendingSummary(
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
-        return ResponseEntity.ok(insightsService.getSpendingSummary(userDetails.getUsername(), start, end));
+        return ResponseEntity.ok(insightsService.getSpendingSummary(userDetails.getUsername(), start, end, paymentMethodIds));
     }
 
     @GetMapping("/category-breakdown")
@@ -46,9 +47,10 @@ public class InsightsController {
     public ResponseEntity<CategoryBreakdownResponse> getCategoryBreakdown(
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+        @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
-        return ResponseEntity.ok(insightsService.getCategoryBreakdown(userDetails.getUsername(), start, end));
+        return ResponseEntity.ok(insightsService.getCategoryBreakdown(userDetails.getUsername(), start, end, paymentMethodIds));
     }
 
     @GetMapping("/trends")
@@ -57,9 +59,10 @@ public class InsightsController {
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
-        @RequestParam(defaultValue = "MONTHLY") String granularity
+        @RequestParam(defaultValue = "MONTHLY") String granularity,
+        @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
-        return ResponseEntity.ok(insightsService.getSpendingTrends(userDetails.getUsername(), start, end, granularity));
+        return ResponseEntity.ok(insightsService.getSpendingTrends(userDetails.getUsername(), start, end, granularity, paymentMethodIds));
     }
 
     @GetMapping("/balance-trends")
@@ -68,8 +71,9 @@ public class InsightsController {
         @AuthenticationPrincipal UserDetails userDetails,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
-        @RequestParam(defaultValue = "MONTHLY") String granularity
+        @RequestParam(defaultValue = "MONTHLY") String granularity,
+        @RequestParam(required = false) List<Long> paymentMethodIds
     ) {
-        return ResponseEntity.ok(insightsService.getBalanceTrends(userDetails.getUsername(), start, end, granularity));
+        return ResponseEntity.ok(insightsService.getBalanceTrends(userDetails.getUsername(), start, end, granularity, paymentMethodIds));
     }
 }

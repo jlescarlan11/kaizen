@@ -3,15 +3,14 @@
 ## Phase 1: Global Filter System & Layout Foundation
 **Goal:** Implement a persistent, high-signal filter bar to control the date range and account scope for the entire summary page.
 
-- [x] **Task: Define Filter State in Redux** (1b25786)
-    - [ ] Create `balanceSummarySlice.ts` to manage `dateRange` (start/end) and `selectedAccountIds`.
-    - [ ] Add pre-defined range constants (This Month, Last Month, YTD, 1Y).
-- [x] **Task: Create `SummaryFilterBar` Component** (e2b557a)
-    - [ ] Implement a clean, flat-design filter bar with a dropdown for date presets and a multi-select for accounts.
-    - [ ] **TDD:** Write tests to ensure state updates correctly on user selection.
-- [x] **Task: Integrate Filter Bar into `BalanceSummaryPage`** (12a4fd5)
-    - [ ] Replace hardcoded `currentRange` and `yearRange` with state from Redux.
-    - [ ] Implement the "Split View" (Desktop) vs "Vertical Stack" (Mobile) layout logic.
+- [x] **Task: Define Filter State in Redux** (4d28708)
+    - [x] Create `balanceSummarySlice.ts` to manage `selectedAccountIds` and `granularity`.
+- [x] **Task: Create `SummaryFilterBar` Component** (4d28708)
+    - [x] Implement a clean, flat-design filter bar for account selection.
+    - [x] **TDD:** Write tests to ensure state updates correctly on user selection.
+- [x] **Task: Integrate Filter Bar into `BalanceSummaryPage`** (4d28708)
+    - [x] Implement the single-column vertical stack layout.
+    - [x] Update query params for trends based on granularity.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
 
 ## Phase 2: Chronological Charting Overhaul

@@ -37,13 +37,13 @@ public class InsightsService {
         this.userAccountRepository = userAccountRepository;
     }
 
-    public SpendingSummaryResponse getSpendingSummary(String email, LocalDateTime start, LocalDateTime end) {
+    public SpendingSummaryResponse getSpendingSummary(String email, LocalDateTime start, LocalDateTime end, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
-        BigDecimal totalIncome = transactionRepository.sumAmountByTypeAndDateRange(account.getId(),
-                TransactionType.INCOME, start, end);
-        BigDecimal totalExpenses = transactionRepository.sumAmountByTypeAndDateRange(account.getId(),
-                TransactionType.EXPENSE, start, end);
+        BigDecimal totalIncome = transactionRepository.sumAmountByTypeDateRangeAndPaymentMethods(account.getId(),
+                TransactionType.INCOME, start, end, paymentMethodIds);
+        BigDecimal totalExpenses = transactionRepository.sumAmountByTypeDateRangeAndPaymentMethods(account.getId(),
+                TransactionType.EXPENSE, start, end, paymentMethodIds);
 
         totalIncome = totalIncome != null ? totalIncome : BigDecimal.ZERO;
         totalExpenses = totalExpenses != null ? totalExpenses : BigDecimal.ZERO;
@@ -52,10 +52,10 @@ public class InsightsService {
         return new SpendingSummaryResponse(totalIncome, totalExpenses, netBalance);
     }
 
-    public CategoryBreakdownResponse getCategoryBreakdown(String email, LocalDateTime start, LocalDateTime end) {
+    public CategoryBreakdownResponse getCategoryBreakdown(String email, LocalDateTime start, LocalDateTime end, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
-        List<Object[]> results = transactionRepository.getCategoryBreakdown(account.getId(), start, end);
+        List<Object[]> results = transactionRepository.getCategoryBreakdownWithPaymentMethods(account.getId(), start, end, paymentMethodIds);
 
         BigDecimal totalExpenses = results.stream()
                 .map(r -> (BigDecimal) r[2])
@@ -80,10 +80,10 @@ public class InsightsService {
     }
 
     public TrendSeriesResponse getSpendingTrends(String email, LocalDateTime start, LocalDateTime end,
-            String granularity) {
+            String granularity, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
-        List<Object[]> rawData = transactionRepository.getRawTrendData(account.getId(), start, end);
+        List<Object[]> rawData = transactionRepository.getRawTrendDataWithPaymentMethods(account.getId(), start, end, paymentMethodIds);
 
         Map<LocalDate, BigDecimal> groupedData = new TreeMap<>();
 
@@ -94,6 +94,8 @@ public class InsightsService {
             LocalDate periodStart;
             if ("WEEKLY".equalsIgnoreCase(granularity)) {
                 periodStart = date.toLocalDate().with(java.time.DayOfWeek.MONDAY);
+            } else if ("DAILY".equalsIgnoreCase(granularity)) {
+                periodStart = date.toLocalDate();
             } else {
                 periodStart = date.toLocalDate().with(TemporalAdjusters.firstDayOfMonth());
             }
@@ -106,7 +108,7 @@ public class InsightsService {
         LocalDate current = start.toLocalDate();
         if ("WEEKLY".equalsIgnoreCase(granularity)) {
             current = current.with(java.time.DayOfWeek.MONDAY);
-        } else {
+        } else if ("MONTHLY".equalsIgnoreCase(granularity)) {
             current = current.with(TemporalAdjusters.firstDayOfMonth());
         }
 
@@ -117,6 +119,8 @@ public class InsightsService {
 
             if ("WEEKLY".equalsIgnoreCase(granularity)) {
                 current = current.plusWeeks(1);
+            } else if ("DAILY".equalsIgnoreCase(granularity)) {
+                current = current.plusDays(1);
             } else {
                 current = current.plusMonths(1);
             }
@@ -126,10 +130,10 @@ public class InsightsService {
     }
 
     public BalanceTrendResponse getBalanceTrends(String email, LocalDateTime start, LocalDateTime end,
-            String granularity) {
+            String granularity, List<Long> paymentMethodIds) {
         UserAccount account = getUserByEmail(email);
 
-        List<Object[]> rawData = transactionRepository.getRawBalanceTrendData(account.getId(), start, end);
+        List<Object[]> rawData = transactionRepository.getRawBalanceTrendDataWithPaymentMethods(account.getId(), start, end, paymentMethodIds);
 
         // Map to store Income and Expenses per period
         Map<LocalDate, BigDecimal[]> groupedData = new TreeMap<>();
@@ -143,6 +147,8 @@ public class InsightsService {
             LocalDate periodStart;
             if ("DAILY".equalsIgnoreCase(granularity)) {
                 periodStart = date.toLocalDate();
+            } else if ("WEEKLY".equalsIgnoreCase(granularity)) {
+                periodStart = date.toLocalDate().with(java.time.DayOfWeek.MONDAY);
             } else {
                 periodStart = date.toLocalDate().with(TemporalAdjusters.firstDayOfMonth());
             }
@@ -165,13 +171,17 @@ public class InsightsService {
         // Zero-filling
         List<BalanceTrendResponse.TrendEntry> series = new ArrayList<>();
         LocalDate current = start.toLocalDate();
-        if (!"DAILY".equalsIgnoreCase(granularity)) {
+        if ("WEEKLY".equalsIgnoreCase(granularity)) {
+            current = current.with(java.time.DayOfWeek.MONDAY);
+        } else if ("MONTHLY".equalsIgnoreCase(granularity)) {
             current = current.with(TemporalAdjusters.firstDayOfMonth());
         }
 
         LocalDate last = end.toLocalDate();
-        if (!"DAILY".equalsIgnoreCase(granularity)) {
+        if ("MONTHLY".equalsIgnoreCase(granularity)) {
             last = last.with(TemporalAdjusters.firstDayOfMonth());
+        } else if ("WEEKLY".equalsIgnoreCase(granularity)) {
+            last = last.with(java.time.DayOfWeek.MONDAY);
         }
 
         while (!current.isAfter(last)) {
@@ -184,6 +194,8 @@ public class InsightsService {
 
             if ("DAILY".equalsIgnoreCase(granularity)) {
                 current = current.plusDays(1);
+            } else if ("WEEKLY".equalsIgnoreCase(granularity)) {
+                current = current.plusWeeks(1);
             } else {
                 current = current.plusMonths(1);
             }

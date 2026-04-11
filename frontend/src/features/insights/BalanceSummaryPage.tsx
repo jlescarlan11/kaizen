@@ -51,18 +51,22 @@ export function BalanceSummaryPage(): ReactElement {
       .filter((a) => a.id !== 0)
   }, [accountSummaries])
 
+  const apiParams = useMemo(
+    () => ({
+      ...dateRange,
+      paymentMethodIds: selectedAccountIds.length > 0 ? selectedAccountIds : undefined,
+    }),
+    [dateRange, selectedAccountIds],
+  )
+
   const { data: currentSummary, isLoading: isCurrentSummaryLoading } =
-    useGetSpendingSummaryQuery(dateRange)
+    useGetSpendingSummaryQuery(apiParams)
 
   const { data: balanceTrends = { series: [] }, isLoading: isTrendsLoading } =
     useGetBalanceTrendsQuery({
-      ...dateRange,
+      ...apiParams,
       granularity,
     })
-
-  const currentBalance = accountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
-  const currentNetFlow = currentSummary?.netBalance ?? 0
-  const previousBalance = currentBalance - currentNetFlow
 
   const filteredAccountSummaries = useMemo(() => {
     if (selectedAccountIds.length === 0) return accountSummaries
@@ -70,6 +74,10 @@ export function BalanceSummaryPage(): ReactElement {
       (s) => s.paymentMethod?.id && selectedAccountIds.includes(s.paymentMethod.id),
     )
   }, [accountSummaries, selectedAccountIds])
+
+  const currentBalance = filteredAccountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
+  const currentNetFlow = currentSummary?.netBalance ?? 0
+  const previousBalance = currentBalance - currentNetFlow
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
