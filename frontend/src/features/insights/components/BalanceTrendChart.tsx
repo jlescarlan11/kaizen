@@ -19,6 +19,26 @@ interface BalanceTrendChartProps {
   isLoading: boolean
 }
 
+const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
+  { label: 'Daily', value: 'DAILY' },
+  { label: 'Weekly', value: 'WEEKLY' },
+  { label: 'Monthly', value: 'MONTHLY' },
+]
+
+function formatPeriodLabel(date: Date, granularity: Granularity): string {
+  if (granularity === 'MONTHLY') {
+    return date.toLocaleDateString(undefined, { month: 'short' })
+  }
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
+
+function formatFullDate(date: Date, granularity: Granularity): string {
+  if (granularity === 'MONTHLY') {
+    return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long' })
+  }
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 export function BalanceTrendChart({
   trends,
   granularity,
@@ -39,6 +59,29 @@ export function BalanceTrendChart({
   if (!trends.series || trends.series.length === 0) {
     return (
       <Card className="h-[400px] flex items-center justify-center">
+        <div className="flex items-center justify-between w-full px-6 absolute top-6">
+          <div>
+            <h3 className="text-lg font-black tracking-tight text-foreground">Balance Trends</h3>
+            <p className="text-xs text-muted-foreground">
+              Income, Expenses, and Net Flow over time
+            </p>
+          </div>
+          <div className="flex bg-ui-surface-muted p-1 rounded-lg border border-ui-border-subtle">
+            {GRANULARITY_OPTIONS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => onGranularityChange(value)}
+                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
+                  granularity === value
+                    ? 'bg-ui-surface text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
         <p className="text-muted-foreground italic">No trend data available for this period.</p>
       </Card>
     )
@@ -46,24 +89,12 @@ export function BalanceTrendChart({
 
   const chartData = trends.series.map((t) => {
     const date = new Date(t.periodStart)
-    let name: string
-
-    if (granularity === 'DAILY') {
-      name = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-    } else {
-      name = date.toLocaleDateString(undefined, { month: 'short' })
-    }
-
     return {
-      name,
+      name: formatPeriodLabel(date, granularity),
       income: t.income,
       expenses: t.expenses,
       netBalance: t.netBalance,
-      fullDate: date.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: granularity === 'DAILY' ? 'numeric' : undefined,
-      }),
+      fullDate: formatFullDate(date, granularity),
     }
   })
 
@@ -75,26 +106,19 @@ export function BalanceTrendChart({
           <p className="text-xs text-muted-foreground">Income, Expenses, and Net Flow over time</p>
         </div>
         <div className="flex bg-ui-surface-muted p-1 rounded-lg border border-ui-border-subtle">
-          <button
-            onClick={() => onGranularityChange('DAILY')}
-            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
-              granularity === 'DAILY'
-                ? 'bg-ui-surface text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Daily
-          </button>
-          <button
-            onClick={() => onGranularityChange('MONTHLY')}
-            className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
-              granularity === 'MONTHLY'
-                ? 'bg-ui-surface text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Monthly
-          </button>
+          {GRANULARITY_OPTIONS.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => onGranularityChange(value)}
+              className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
+                granularity === value
+                  ? 'bg-ui-surface text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -180,7 +204,7 @@ export function BalanceTrendChart({
               type="monotone"
               dataKey="income"
               name="Income"
-              stroke="#10b981" // emerald-500
+              stroke="var(--color-income)"
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 0 }}
@@ -189,7 +213,7 @@ export function BalanceTrendChart({
               type="monotone"
               dataKey="expenses"
               name="Expenses"
-              stroke="#f43f5e" // rose-500
+              stroke="var(--color-expense)"
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 0 }}
@@ -198,7 +222,7 @@ export function BalanceTrendChart({
               type="monotone"
               dataKey="netBalance"
               name="Net Balance"
-              stroke="#6366f1" // indigo-500
+              stroke="var(--color-text-secondary)"
               strokeWidth={2.5}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 0 }}
