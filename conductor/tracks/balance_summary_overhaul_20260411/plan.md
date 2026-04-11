@@ -18,7 +18,7 @@
 ## Phase 2: Chronological Charting Overhaul
 **Goal:** Ensure charts follow a strict L-to-R chronological flow ending with the present date/month.
 
-- [ ] **Task: Refactor `BalanceTrendChart` Chronology**
+- [~] **Task: Refactor `BalanceTrendChart` Chronology**
     - [ ] Modify the chart rendering logic to ensure the X-axis always ends with the most recent data point.
     - [ ] **TDD:** Write tests with mock data from various date ranges to verify chronological sort order.
 - [ ] **Task: Implement Smart Granularity Scoping**
