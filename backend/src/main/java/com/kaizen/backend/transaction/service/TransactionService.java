@@ -192,11 +192,6 @@ public class TransactionService {
         validateTransactionOwnership(account, transaction);
         validateRequest(request);
 
-        if (request.transactionDate() != null
-                && request.transactionDate().isAfter(OffsetDateTime.now().plusMinutes(10))) {
-            throw new IllegalArgumentException("Transactions cannot be set in the future.");
-        }
-
         Category category = fetchCategory(request.categoryId());
         transaction.setAmount(request.amount());
         transaction.setType(request.type());

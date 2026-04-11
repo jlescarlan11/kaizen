@@ -66,14 +66,6 @@ export function validateTransaction(transaction: Partial<TransactionRequest>): V
     }
   }
 
-  if (transaction.transactionDate) {
-    const today = new Date().toISOString().split('T')[0]
-    const transactionDay = transaction.transactionDate.split('T')[0]
-    if (transactionDay > today) {
-      errors.push({ field: 'transactionDate', code: ErrorCode.FUTURE_DATE_REJECT })
-    }
-  }
-
   if (transaction.type && !['INCOME', 'EXPENSE', 'RECONCILIATION'].includes(transaction.type)) {
     errors.push({ field: 'type', code: ErrorCode.TYPE_INVALID })
   }

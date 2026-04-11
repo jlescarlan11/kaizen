@@ -117,8 +117,6 @@ export function TransactionEntryForm({
 
   const insufficientBalance = type === 'EXPENSE' && parseFloat(amount) > availableBalance
 
-  const today = toLocalISOString(new Date()).split('T')[0]
-
   // Initialize form
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -367,12 +365,10 @@ export function TransactionEntryForm({
             </span>
           </div>
         )}
-
         {!hideDate && (
           <Input
             label="Date (Optional)"
             type="date"
-            max={today}
             value={transactionDate}
             onChange={(e) => setTransactionDate(e.target.value)}
             error={errors.transactionDate}
