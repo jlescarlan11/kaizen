@@ -31,3 +31,4 @@
 
 ## Phase: Review Fixes
 - [x] Task: Apply review suggestions 8bebc3e
+- [x] Task: Fix missing timezone offset in frontend submissions 0401314
