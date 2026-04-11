@@ -15,5 +15,10 @@
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
 
+---
+
+- [ ] **Track: Balance Summary UI/UX Overhaul**
+*Link: [./tracks/balance_summary_overhaul_20260411/](./tracks/balance_summary_overhaul_20260411/)*
+
 
 
