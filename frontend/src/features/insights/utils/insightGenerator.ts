@@ -12,7 +12,16 @@ export function generateInsights(series: BalanceTrendEntry[]): Insight[] {
   const current = series[series.length - 1]
   const previous = series[series.length - 2]
 
-  // 1. Detect Negative Net Balance (Anomaly)
+  // 1. Overall Period Summary
+  const totalNet = series.reduce((acc, s) => acc + s.netBalance, 0)
+  if (totalNet !== 0) {
+    insights.push({
+      type: totalNet > 0 ? 'success' : 'anomaly',
+      message: `Total ${totalNet > 0 ? 'savings' : 'deficit'} for this period is ₱${Math.abs(totalNet).toLocaleString()}.`,
+    })
+  }
+
+  // 2. Detect Negative Net Balance (Recent Anomaly)
   if (current.netBalance < 0) {
     insights.push({
       type: 'anomaly',
@@ -20,23 +29,30 @@ export function generateInsights(series: BalanceTrendEntry[]): Insight[] {
     })
   }
 
-  // 2. Detect Income Change
-  const incomeDiff = current.income - previous.income
-  if (incomeDiff !== 0) {
-    const percentage = ((incomeDiff / Math.max(previous.income, 1)) * 100).toFixed(1)
+  // 3. Peak Expense Detection
+  const maxExpense = Math.max(...series.map((s) => s.expenses))
+  if (maxExpense > 0 && current.expenses === maxExpense && series.length > 3) {
     insights.push({
-      type: incomeDiff > 0 ? 'success' : 'trend',
-      message: `Income ${incomeDiff > 0 ? 'increased' : 'decreased'} by ${Math.abs(Number(percentage))}% compared to the previous period.`,
+      type: 'anomaly',
+      message: `Highest spending recorded in the most recent period (₱${maxExpense.toLocaleString()}).`,
     })
   }
 
-  // 3. Detect Expense Change
-  const expenseDiff = current.expenses - previous.expenses
-  if (expenseDiff !== 0) {
-    const percentage = ((expenseDiff / Math.max(previous.expenses, 1)) * 100).toFixed(1)
+  // 4. Detect Income Change (Robust)
+  if (previous.income > 0) {
+    const incomeDiff = current.income - previous.income
+    if (Math.abs(incomeDiff) / previous.income > 0.05) {
+      // Only show if > 5% change
+      const percentage = ((incomeDiff / previous.income) * 100).toFixed(1)
+      insights.push({
+        type: incomeDiff > 0 ? 'success' : 'trend',
+        message: `Income ${incomeDiff > 0 ? 'increased' : 'decreased'} by ${Math.abs(Number(percentage))}% compared to the previous period.`,
+      })
+    }
+  } else if (current.income > 0) {
     insights.push({
-      type: expenseDiff > 0 ? 'anomaly' : 'success',
-      message: `Expenses ${expenseDiff > 0 ? 'rose' : 'fell'} by ${Math.abs(Number(percentage))}% compared to the previous period.`,
+      type: 'success',
+      message: `New income stream detected in the most recent period (₱${current.income.toLocaleString()}).`,
     })
   }
 

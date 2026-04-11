@@ -18,9 +18,9 @@ export function CompactAccountList({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-12 w-full animate-pulse rounded-xl bg-ui-surface-muted" />
+      <div className="space-y-4 py-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="h-14 w-full animate-pulse rounded-2xl bg-ui-surface-muted" />
         ))}
       </div>
     )
@@ -37,7 +37,7 @@ export function CompactAccountList({
   }
 
   return (
-    <div className="bg-ui-surface rounded-2xl border border-ui-border-subtle overflow-hidden shadow-sm divide-y divide-ui-border-subtle/30">
+    <div className="py-4 space-y-1">
       {sortedSummaries.length === 0 ? (
         <p className="text-sm text-muted-foreground italic py-8 text-center">
           No account data available.
@@ -47,39 +47,41 @@ export function CompactAccountList({
           <div
             key={s.paymentMethod?.id ?? 'unknown'}
             onClick={() => handleAccountClick(s.paymentMethod?.id)}
-            className="group flex items-center justify-between p-4 hover:bg-ui-surface-muted/50 transition-all cursor-pointer"
+            className="group flex items-center justify-between p-4 rounded-2xl hover:bg-ui-surface-muted transition-all cursor-pointer border border-transparent hover:border-ui-border-subtle"
           >
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-black text-xs shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-black text-xs shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
                 {(s.paymentMethod?.name ?? 'U').charAt(0).toUpperCase()}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                <p className="font-black text-sm text-foreground truncate group-hover:text-primary transition-colors">
                   {s.paymentMethod?.name ?? 'Unknown'}
                 </p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground leading-none">
+                <div className="flex items-center gap-2.5 mt-0.5">
+                  <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground leading-none">
                     Asset
                   </p>
-                  <div className="h-3 w-px bg-ui-border-subtle" />
-                  <div className="w-12 h-3 opacity-40 group-hover:opacity-100 transition-opacity">
+                  <div className="h-2 w-px bg-ui-border-subtle" />
+                  <div className="w-16 h-4 opacity-40 group-hover:opacity-100 transition-opacity">
                     <Sparkline data={s.last7Days} />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 ml-4">
+            <div className="flex items-center gap-6 ml-4">
               <div className="text-right">
-                <p className="text-sm font-black text-foreground tabular-nums leading-none">
+                <p className="text-base font-black text-foreground tabular-nums leading-none">
                   {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
                 </p>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase text-right mt-1">
-                  PHP
+                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest text-right mt-1.5">
+                  PHP CURRENCY
                 </p>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground/20 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+              <div className="p-1 rounded-full bg-ui-surface-muted group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                <ChevronRight className="h-3 w-3" />
+              </div>
             </div>
           </div>
         ))
@@ -102,7 +104,7 @@ function Sparkline({ data }: { data: number[] }) {
           type="monotone"
           dataKey="value"
           stroke={isPositive ? 'var(--color-income)' : 'var(--color-expense)'}
-          strokeWidth={2}
+          strokeWidth={2.5}
           dot={false}
           isAnimationActive={false}
         />

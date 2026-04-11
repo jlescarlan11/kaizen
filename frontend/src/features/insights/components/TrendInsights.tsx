@@ -11,9 +11,9 @@ interface TrendInsightsProps {
 export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactElement {
   if (isLoading) {
     return (
-      <div className="p-4 rounded-2xl bg-ui-surface-muted/30 animate-pulse space-y-3">
-        <div className="h-4 w-32 rounded bg-black/5" />
-        <div className="h-3 w-full rounded bg-black/5" />
+      <div className="py-4 space-y-3 animate-pulse">
+        <div className="h-3 w-24 rounded bg-black/5" />
+        <div className="h-8 w-full rounded bg-black/5" />
       </div>
     )
   }
@@ -22,22 +22,24 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
 
   if (insights.length === 0) {
     return (
-      <div className="p-4 rounded-2xl border border-dashed border-ui-border-subtle bg-ui-surface/20 flex items-center justify-center">
-        <p className="text-xs text-muted-foreground italic">No significant trends detected.</p>
+      <div className="py-6 border-y border-ui-border-subtle flex items-center justify-center">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic">
+          Monitoring trends...
+        </p>
       </div>
     )
   }
 
   return (
-    <div className="p-4 rounded-2xl border border-ui-border-subtle bg-ui-surface shadow-sm space-y-4">
+    <div className="py-6 border-y border-ui-border-subtle space-y-5">
       <div className="flex items-center gap-2 px-1">
-        <SharedIcon type="ui" name="insight" size={14} className="text-primary" />
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-          Key Observations
+        <SharedIcon type="ui" name="insight" size={12} className="text-primary" />
+        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          Intelligent Observations
         </h3>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {insights.map((insight, index) => (
           <InsightItem key={index} insight={insight} />
         ))}
@@ -48,17 +50,15 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
 
 function InsightItem({ insight }: { insight: Insight }) {
   const config = {
-    trend: { icon: 'trend', color: 'text-blue-500', bg: 'bg-blue-500/5' },
-    anomaly: { icon: 'expense', color: 'text-error', bg: 'bg-error/5' },
-    success: { icon: 'income', color: 'text-success', bg: 'bg-success/5' },
+    trend: { icon: 'trend', color: 'text-blue-500' },
+    anomaly: { icon: 'expense', color: 'text-error' },
+    success: { icon: 'income', color: 'text-success' },
   }[insight.type]
 
   return (
-    <div
-      className={`flex gap-3 p-3 rounded-xl ${config.bg} border border-transparent hover:border-ui-border-subtle transition-all duration-300 animate-in fade-in slide-in-from-bottom-1`}
-    >
+    <div className="flex gap-4 items-start group">
       <div
-        className={`p-1.5 rounded-lg bg-ui-surface shadow-sm shrink-0 flex items-center justify-center h-7 w-7`}
+        className={`p-2 rounded-full bg-ui-surface-muted group-hover:bg-ui-surface-hover transition-colors shrink-0`}
       >
         <SharedIcon
           type="ui"
@@ -67,7 +67,14 @@ function InsightItem({ insight }: { insight: Insight }) {
           className={config.color}
         />
       </div>
-      <p className="text-xs font-semibold text-foreground/90 leading-snug">{insight.message}</p>
+      <div className="space-y-0.5">
+        <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40 leading-none">
+          {insight.type}
+        </p>
+        <p className="text-xs font-bold text-foreground/80 leading-relaxed pt-0.5">
+          {insight.message}
+        </p>
+      </div>
     </div>
   )
 }

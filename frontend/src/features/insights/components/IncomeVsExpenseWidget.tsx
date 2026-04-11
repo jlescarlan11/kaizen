@@ -1,5 +1,4 @@
 import type { ReactElement } from 'react'
-import { Card } from '../../../shared/components/Card'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import type { SpendingSummary } from '../types'
 
@@ -22,22 +21,25 @@ export function IncomeVsExpenseWidget({
   const expensePercentage = totalFlow > 0 ? (totalExpenses / totalFlow) * 100 : 0
 
   return (
-    <Card className="space-y-4">
-      <div className="space-y-1">
-        <h3 className="text-lg font-bold text-foreground">Income vs Expenses</h3>
-        <p className="text-xs text-muted-foreground">Monthly cash flow</p>
+    <div className="py-6 space-y-6">
+      <div className="space-y-1 px-1">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          Cash Flow Metrics
+        </h3>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-1.5">
+      <div className="space-y-6">
+        <div className="space-y-2 px-1">
           <div className="flex justify-between items-baseline text-sm">
-            <span className="font-medium text-income">Income</span>
-            <span className="font-bold text-income">
+            <span className="font-black text-income uppercase tracking-wider text-[11px]">
+              Income
+            </span>
+            <span className="font-black text-income text-base tabular-nums">
               +{formatCurrency(totalIncome).replace('PHP', '').trim()}
               <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
             </span>
           </div>
-          <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-ui-surface-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-income transition-all duration-700 ease-out"
               style={{ width: `${incomePercentage}%` }}
@@ -45,15 +47,17 @@ export function IncomeVsExpenseWidget({
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2 px-1">
           <div className="flex justify-between items-baseline text-sm">
-            <span className="font-medium text-expense">Expenses</span>
-            <span className="font-bold text-expense">
+            <span className="font-black text-expense uppercase tracking-wider text-[11px]">
+              Expenses
+            </span>
+            <span className="font-black text-expense text-base tabular-nums">
               -{formatCurrency(totalExpenses).replace('PHP', '').trim()}
               <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
             </span>
           </div>
-          <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-ui-surface-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-expense transition-all duration-700 ease-out"
               style={{ width: `${expensePercentage}%` }}
@@ -62,16 +66,22 @@ export function IncomeVsExpenseWidget({
         </div>
       </div>
 
-      <div className="pt-3 border-t border-ui-border-subtle flex justify-between items-baseline">
-        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-          Net Flow
+      <div className="pt-6 border-t border-ui-border-subtle flex justify-between items-center px-1">
+        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+          Net Flow Result
         </span>
-        <span className={`text-lg font-black ${netBalance >= 0 ? 'text-income' : 'text-expense'}`}>
-          {netBalance >= 0 ? '+' : ''}
-          {formatCurrency(netBalance).replace('PHP', '').trim()}
-          <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
-        </span>
+        <div className="text-right">
+          <span
+            className={`text-xl font-black ${netBalance >= 0 ? 'text-income' : 'text-expense'} tabular-nums`}
+          >
+            {netBalance >= 0 ? '+' : ''}
+            {formatCurrency(netBalance).replace('PHP', '').trim()}
+          </span>
+          <span className="ml-1 text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+            PHP
+          </span>
+        </div>
       </div>
-    </Card>
+    </div>
   )
 }
