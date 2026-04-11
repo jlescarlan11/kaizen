@@ -8,7 +8,7 @@
 - [x] **Task: Create `SummaryFilterBar` Component** (289df38)
     - [x] Implement a clean, flat-design filter bar for account selection.
     - [x] **TDD:** Write tests to ensure state updates correctly on user selection.
-- [x] **Task: Integrate Filter Bar into `BalanceSummaryPage` & Backend** (289df38)
+- [x] **Task: Integrate Filter Bar into `BalanceSummaryPage` & Backend** (26be40a)
     - [x] Update backend `InsightsController`, `InsightsService`, and `TransactionRepository` to support `paymentMethodIds`.
     - [x] Support `WEEKLY` granularity in backend `getBalanceTrends`.
     - [x] Update frontend API and Page to filter entire dashboard by account.
