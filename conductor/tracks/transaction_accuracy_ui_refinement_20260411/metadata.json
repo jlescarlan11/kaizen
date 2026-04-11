@@ -1,0 +1,8 @@
+{
+  "track_id": "transaction_accuracy_ui_refinement_20260411",
+  "type": "bug_fix_refinement",
+  "status": "new",
+  "created_at": "2026-04-11T22:30:00Z",
+  "updated_at": "2026-04-11T22:30:00Z",
+  "description": "I have issue with my add transaction, if I add one the time is not accurate...also in /transactions, it would be better to just say income and expense instead of outflow and inflow also the dropdown filter is overlapping in the page in /transactions"
+}

@@ -15,6 +15,11 @@
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
 
+---
+
+- [ ] **Track: Transaction Accuracy & Global UI Refinement**
+*Link: [./tracks/transaction_accuracy_ui_refinement_20260411/](./tracks/transaction_accuracy_ui_refinement_20260411/)*
+
 
 
 
