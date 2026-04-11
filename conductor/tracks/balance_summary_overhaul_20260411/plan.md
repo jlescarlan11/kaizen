@@ -27,7 +27,7 @@
     - [x] Enhance tooltips to show percentage change from the previous period (PHP values + % deltas).
 - [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)** (f630b3f)
 
-## Phase 3: Streamlined Account Breakdowns & Insights
+## Phase 3: Streamlined Account Breakdowns & Insights [checkpoint: 97785d2]
 **Goal:** Replace bulky widgets with a data-dense, interactive list and trend insights.
 
 - [x] **Task: Create `CompactAccountList` Component** (3208e01)
@@ -39,7 +39,7 @@
 - [x] **Task: Implement Integrated Layout with Progressive Disclosure** (3208e01)
     - [x] `IncomeVsExpenseWidget` acts as a trigger to reveal account breakdown.
     - [x] Strictly single-column vertical stack with deliberate spacing and no cards.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)** (97785d2)
 
 ## Phase 4: Goal Integration & Export
 **Goal:** Add progress context and data portability actions.
