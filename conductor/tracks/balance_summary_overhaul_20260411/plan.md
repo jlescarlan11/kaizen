@@ -15,7 +15,7 @@
     - [x] Implement single-column vertical stack layout.
 - [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)** (69e64a7)
 
-## Phase 2: Chronological Charting Overhaul
+## Phase 2: Chronological Charting Overhaul [checkpoint: f630b3f]
 **Goal:** Ensure charts follow a strict L-to-R chronological flow ending with the present date/month.
 
 - [x] **Task: Refactor `BalanceTrendChart` Chronology** (9dbc8bc)
@@ -25,7 +25,7 @@
     - [x] Add toggleable datasets (Income, Expense, Net) to the chart legend.
 - [x] **Task: Implement Interactive Tooltips** (9dbc8bc)
     - [x] Enhance tooltips to show percentage change from the previous period (PHP values + % deltas).
-- [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)** (f630b3f)
 
 ## Phase 3: Streamlined Account Breakdowns & Insights
 **Goal:** Replace bulky widgets with a data-dense, interactive list and trend insights.
