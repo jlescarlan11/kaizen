@@ -44,7 +44,7 @@
 ## Phase 4: Goal Integration & Export
 **Goal:** Add progress context and data portability actions.
 
-- [ ] **Task: Integrate Goal Progress Indicators**
+- [~] **Task: Integrate Goal Progress Indicators**
     - [ ] Add a small goal progress bar to the net balance visualization or insights section.
 - [ ] **Task: Implement Export Actions**
     - [ ] Add "Export to CSV" and "Export to PDF" actions to the summary page.

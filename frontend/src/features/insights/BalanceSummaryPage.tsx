@@ -12,7 +12,8 @@ import { SummaryFilterBar } from './components/SummaryFilterBar'
 import { TrendInsights } from './components/TrendInsights'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Download } from 'lucide-react'
+import { deliverExportFile } from '../transactions/export/exportDelivery'
 
 export function BalanceSummaryPage(): ReactElement {
   const dispatch = useAppDispatch()
@@ -82,6 +83,23 @@ export function BalanceSummaryPage(): ReactElement {
   const currentNetFlow = currentSummary?.netBalance ?? 0
   const previousBalance = currentBalance - currentNetFlow
 
+  const handleExportCSV = () => {
+    if (!balanceTrends.series.length) return
+
+    const headers = ['Date', 'Income', 'Expenses', 'Net Balance']
+    const rows = balanceTrends.series.map((t) => [
+      new Date(t.periodStart).toLocaleDateString(),
+      t.income.toString(),
+      t.expenses.toString(),
+      t.netBalance.toString(),
+    ])
+
+    const csvContent = [headers, ...rows].map((r) => r.join(',')).join('\n')
+    const filename = `balance_summary_${granularity.toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`
+
+    deliverExportFile(csvContent, filename)
+  }
+
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32">
       {/* Header Section */}
@@ -91,12 +109,20 @@ export function BalanceSummaryPage(): ReactElement {
           previousBalance={previousBalance}
           isLoading={isAccountsLoading || isCurrentSummaryLoading}
         />
-        <div className="w-full md:w-auto md:min-w-[260px]">
+        <div className="flex flex-col gap-4 w-full md:w-auto md:min-w-[260px]">
           <SummaryFilterBar
             selectedAccountIds={selectedAccountIds}
             onAccountSelectionChange={(ids) => dispatch(setSelectedAccountIds(ids))}
             accounts={accounts}
           />
+          <button
+            onClick={handleExportCSV}
+            disabled={isTrendsLoading || !balanceTrends.series.length}
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm"
+          >
+            <Download size={12} />
+            Export Data (CSV)
+          </button>
         </div>
       </div>
 
