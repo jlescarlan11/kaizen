@@ -44,6 +44,8 @@ public interface CategoryRepository extends BaseRepository<Category, Long> {
         @Param("name") String name
     );
 
+    Optional<Category> findByNameIgnoreCaseAndGlobalTrue(String name);
+
     Optional<Category> findByIdAndUserId(Long id, Long userId);
 
     boolean existsByUserIdAndNameIgnoreCase(Long userId, String name);

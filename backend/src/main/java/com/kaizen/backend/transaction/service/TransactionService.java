@@ -338,6 +338,7 @@ public class TransactionService {
                         runningBalance = runningBalance.subtract(t.getAmount());
                     }
                 }
+                default -> throw new IllegalStateException("Unhandled TransactionType: " + t.getType());
             }
             history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
                     t.getTransactionDate(),

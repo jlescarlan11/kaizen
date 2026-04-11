@@ -88,11 +88,8 @@ public class UserAccountService {
         
         // Look up the global "Initial Balance" category once for all onboarding transactions
         com.kaizen.backend.category.entity.Category initialBalanceCategory = categoryRepository
-            .findAll()
-            .stream()
-            .filter(c -> c.isGlobal() && "Initial Balance".equalsIgnoreCase(c.getName()))
-            .findFirst()
-            .orElse(null);
+            .findByNameIgnoreCaseAndGlobalTrue("Initial Balance")
+            .orElseThrow(() -> new IllegalStateException("Global 'Initial Balance' category not found. Ensure V2 migration has been applied."));
 
         // Create initial transactions
         if (request.initialBalances() != null && !request.initialBalances().isEmpty()) {
