@@ -86,6 +86,14 @@ public class UserAccountService {
             userFundingSourceService.replaceInitialSource(updated, fundingSourceType, request.startingFunds());
         }
         
+        // Look up the global "Initial Balance" category once for all onboarding transactions
+        com.kaizen.backend.category.entity.Category initialBalanceCategory = categoryRepository
+            .findAll()
+            .stream()
+            .filter(c -> c.isGlobal() && "Initial Balance".equalsIgnoreCase(c.getName()))
+            .findFirst()
+            .orElse(null);
+
         // Create initial transactions
         if (request.initialBalances() != null && !request.initialBalances().isEmpty()) {
             for (OnboardingRequest.InitialBalanceRequest balanceRequest : request.initialBalances()) {
@@ -96,10 +104,10 @@ public class UserAccountService {
 
                 Transaction transaction = new Transaction(
                     updated,
-                    null, // No category for opening balance
+                    initialBalanceCategory,
                     paymentMethod,
                     balanceRequest.amount(),
-                    TransactionType.INITIAL_BALANCE,
+                    TransactionType.INCOME,
                     balanceRequest.description() != null ? balanceRequest.description() : "Opening Balance",
                     balanceRequest.transactionDate() != null ? balanceRequest.transactionDate() : LocalDateTime.now(),
                     null,
@@ -116,10 +124,10 @@ public class UserAccountService {
 
             Transaction openingTransaction = new Transaction(
                 updated,
-                null,
+                initialBalanceCategory,
                 paymentMethod,
                 request.startingFunds(),
-                TransactionType.INITIAL_BALANCE,
+                TransactionType.INCOME,
                 request.description() != null ? request.description() : "Opening Balance",
                 request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now(),
                 null,

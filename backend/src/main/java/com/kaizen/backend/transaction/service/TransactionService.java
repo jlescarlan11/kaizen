@@ -330,7 +330,6 @@ public class TransactionService {
         for (Transaction t : chronological) {
             switch (t.getType()) {
                 case INCOME -> runningBalance = runningBalance.add(t.getAmount());
-                case INITIAL_BALANCE -> runningBalance = runningBalance.add(t.getAmount());
                 case EXPENSE -> runningBalance = runningBalance.subtract(t.getAmount());
                 case RECONCILIATION -> {
                     if (Boolean.TRUE.equals(t.getReconciliationIncrease())) {

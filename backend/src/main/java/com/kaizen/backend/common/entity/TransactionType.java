@@ -3,6 +3,5 @@ package com.kaizen.backend.common.entity;
 public enum TransactionType {
     INCOME,
     EXPENSE,
-    RECONCILIATION,
-    INITIAL_BALANCE
+    RECONCILIATION
 }
