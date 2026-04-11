@@ -1,6 +1,6 @@
 package com.kaizen.backend.transaction.repository;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +29,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "ORDER BY t.transactionDate DESC, t.id DESC")
     List<Transaction> findByUserAccountIdPaginated(
         @Param("userId") Long userId,
-        @Param("lastDate") LocalDateTime lastDate,
+        @Param("lastDate") OffsetDateTime lastDate,
         @Param("lastId") Long lastId,
         org.springframework.data.domain.Pageable pageable
     );
@@ -77,8 +77,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     java.math.BigDecimal sumAmountByTypeDateRangeAndPaymentMethods(
         @Param("userId") Long userId,
         @Param("type") com.kaizen.backend.common.entity.TransactionType type,
-        @Param("start") java.time.LocalDateTime start,
-        @Param("end") java.time.LocalDateTime end,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end,
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
@@ -90,8 +90,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "ORDER BY SUM(t.amount) DESC")
     List<Object[]> getCategoryBreakdownWithPaymentMethods(
         @Param("userId") Long userId,
-        @Param("start") java.time.LocalDateTime start,
-        @Param("end") java.time.LocalDateTime end,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end,
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
@@ -100,8 +100,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "ORDER BY t.transactionDate ASC")
     List<Object[]> getRawTrendDataWithPaymentMethods(
         @Param("userId") Long userId,
-        @Param("start") java.time.LocalDateTime start,
-        @Param("end") java.time.LocalDateTime end,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end,
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
@@ -110,8 +110,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "ORDER BY t.transactionDate ASC")
     List<Object[]> getRawBalanceTrendDataWithPaymentMethods(
         @Param("userId") Long userId,
-        @Param("start") java.time.LocalDateTime start,
-        @Param("end") java.time.LocalDateTime end,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end,
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
@@ -130,7 +130,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Object[]> getDailyBalanceChangesByPaymentMethod(
         @Param("userId") Long userId,
         @Param("paymentMethodId") Long paymentMethodId,
-        @Param("start") java.time.LocalDateTime start
+        @Param("start") OffsetDateTime start
     );
 
     Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);

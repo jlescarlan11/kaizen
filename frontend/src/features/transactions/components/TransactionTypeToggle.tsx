@@ -27,7 +27,7 @@ export function TransactionTypeToggle({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          Outflow
+          Expense
         </button>
         <button
           type="button"
@@ -39,7 +39,7 @@ export function TransactionTypeToggle({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          Inflow
+          Income
         </button>
       </div>
       {error && <p className="text-xs text-error">{error}</p>}

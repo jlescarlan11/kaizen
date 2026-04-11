@@ -1,7 +1,7 @@
 package com.kaizen.backend.transaction.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import com.kaizen.backend.common.entity.TransactionType;
 
@@ -19,7 +19,7 @@ public record TransactionRequest(
     TransactionType type,
 
     @jakarta.validation.constraints.PastOrPresent(message = "Transactions cannot be set in the future.")
-    LocalDateTime transactionDate,
+    OffsetDateTime transactionDate,
 
     String description,
 

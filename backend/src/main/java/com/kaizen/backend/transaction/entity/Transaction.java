@@ -1,7 +1,7 @@
 package com.kaizen.backend.transaction.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import org.springframework.lang.NonNull;
 
@@ -55,7 +55,7 @@ public class Transaction extends BaseEntity {
     private String description;
 
     @Column(name = "transaction_date", nullable = false)
-    private LocalDateTime transactionDate;
+    private OffsetDateTime transactionDate;
 
     @Column(name = "is_recurring", nullable = false)
     private Boolean isRecurring = false;
@@ -87,7 +87,7 @@ public class Transaction extends BaseEntity {
             BigDecimal amount,
             TransactionType type,
             String description,
-            LocalDateTime transactionDate) {
+            OffsetDateTime transactionDate) {
         this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null, null);
     }
 
@@ -98,7 +98,7 @@ public class Transaction extends BaseEntity {
             BigDecimal amount,
             TransactionType type,
             String description,
-            LocalDateTime transactionDate,
+            OffsetDateTime transactionDate,
             Boolean reconciliationIncrease) {
         this(userAccount, category, paymentMethod, amount, type, description, transactionDate, reconciliationIncrease,
                 null);
@@ -111,7 +111,7 @@ public class Transaction extends BaseEntity {
             BigDecimal amount,
             TransactionType type,
             String description,
-            LocalDateTime transactionDate,
+            OffsetDateTime transactionDate,
             Boolean reconciliationIncrease,
             String notes) {
         this.userAccount = userAccount;

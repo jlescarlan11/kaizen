@@ -1,6 +1,6 @@
 package com.kaizen.backend.transaction.service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -73,8 +73,8 @@ public class TransactionService {
         UserAccount account = requireAccount(email);
         validateRequest(request);
 
-        LocalDateTime date = request.transactionDate() != null ? request.transactionDate() : LocalDateTime.now();
-        if (date.isAfter(LocalDateTime.now().plusMinutes(1))) {
+        OffsetDateTime date = request.transactionDate() != null ? request.transactionDate() : OffsetDateTime.now();
+        if (date.isAfter(OffsetDateTime.now().plusMinutes(1))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
@@ -170,7 +170,7 @@ public class TransactionService {
 
     public List<TransactionResponse> getTransactionsPaginated(
             String email,
-            LocalDateTime lastDate,
+            OffsetDateTime lastDate,
             Long lastId,
             int pageSize) {
         UserAccount account = requireAccount(email);
@@ -196,7 +196,7 @@ public class TransactionService {
         validateRequest(request);
 
         if (request.transactionDate() != null
-                && request.transactionDate().isAfter(LocalDateTime.now().plusMinutes(1))) {
+                && request.transactionDate().isAfter(OffsetDateTime.now().plusMinutes(1))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
@@ -373,7 +373,7 @@ public class TransactionService {
                 absoluteDifference,
                 TransactionType.RECONCILIATION,
                 description != null ? description : "Balance Reconciliation Adjustment",
-                LocalDateTime.now(),
+                OffsetDateTime.now(),
                 increase);
 
         Transaction saved = Objects.requireNonNull(

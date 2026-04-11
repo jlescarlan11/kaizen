@@ -20,7 +20,7 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Inflow
+            Income
           </p>
           <div className="flex items-baseline gap-1.5">
             <span className="text-xs font-bold text-muted-foreground">PHP</span>
@@ -31,7 +31,7 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
         </div>
         <div className="space-y-1 text-right">
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Outflow
+            Expense
           </p>
           <div className="flex items-baseline justify-end gap-1.5">
             <span className="text-xs font-bold text-muted-foreground">PHP</span>

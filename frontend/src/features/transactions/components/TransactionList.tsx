@@ -266,7 +266,7 @@ export function TransactionList({
               tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
               className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 mt-2"
             >
-              {tx.type === 'INCOME' ? 'Inflow' : 'Outflow'}
+              {tx.type === 'INCOME' ? 'Income' : 'Expense'}{' '}
             </Badge>
           </div>
         </div>

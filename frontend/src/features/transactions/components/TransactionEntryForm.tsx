@@ -167,10 +167,35 @@ export function TransactionEntryForm({
     setErrors({})
 
     const clientId = generateClientId()
+    const toLocalISOString = (date: Date) => {
+      const tzo = -date.getTimezoneOffset()
+      const dif = tzo >= 0 ? '+' : '-'
+      const pad = (num: number) => (num < 10 ? '0' : '') + num
+      return (
+        date.getFullYear() +
+        '-' +
+        pad(date.getMonth() + 1) +
+        '-' +
+        pad(date.getDate()) +
+        'T' +
+        pad(date.getHours()) +
+        ':' +
+        pad(date.getMinutes()) +
+        ':' +
+        pad(date.getSeconds()) +
+        dif +
+        pad(Math.floor(Math.abs(tzo) / 60)) +
+        ':' +
+        pad(Math.abs(tzo) % 60)
+      )
+    }
+
     const payload = {
       amount: parseFloat(amount),
       type,
-      transactionDate: transactionDate ? `${transactionDate}T00:00:00` : new Date().toISOString(),
+      transactionDate: transactionDate
+        ? `${transactionDate}T00:00:00`
+        : toLocalISOString(new Date()),
       description: description || undefined,
       categoryId:
         (type === 'EXPENSE' || type === 'INCOME') && categoryId ? parseInt(categoryId) : undefined,
@@ -404,7 +429,7 @@ export function TransactionEntryForm({
               label="Recurring Transaction"
               checked={isRecurring}
               onCheckedChange={setIsRecurring}
-              helperText="Set a frequency for regular charges or inflow."
+              helperText="Set a frequency for regular charges or income."
             />
 
             {isRecurring && (

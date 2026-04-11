@@ -16,7 +16,7 @@ export function TransactionEntryPage(): ReactElement {
         <p className="text-muted-foreground">
           {editId
             ? 'Update the details of your recorded transaction.'
-            : 'Record a new outflow or inflow to keep your balance up to date.'}
+            : 'Record a new expense or income to keep your balance up to date.'}
         </p>
       </header>
 

@@ -111,7 +111,7 @@ export function TransactionFilter({
         leaveFrom="opacity-100 translate-y-0"
         leaveTo="opacity-0 translate-y-1"
       >
-        <PopoverPanel className="absolute left-0 z-50 mt-2 w-80 origin-top-left rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-2xl focus:outline-none">
+        <PopoverPanel className="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-2xl focus:outline-none">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-foreground">Filters</h3>
@@ -191,7 +191,7 @@ export function TransactionFilter({
                         : 'border-ui-border-subtle bg-ui-surface-muted text-muted-foreground hover:border-ui-border',
                     )}
                   >
-                    {type === 'INCOME' ? 'Inflow' : 'Outflow'}
+                    {type === 'INCOME' ? 'Income' : 'Expense'}
                   </button>
                 ))}
               </div>

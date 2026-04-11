@@ -91,8 +91,8 @@ export function BalanceHistoryPage(): ReactElement {
                         (entry.transactionType === 'RECONCILIATION'
                           ? 'Reconciliation Adjustment'
                           : entry.transactionType === 'INCOME'
-                            ? 'Inflow'
-                            : 'Outflow')}
+                            ? 'Income'
+                            : 'Expense')}
                     </p>
                     <p className="text-xs text-subtle-foreground">
                       {dateFormatter.format(new Date(entry.date))}
