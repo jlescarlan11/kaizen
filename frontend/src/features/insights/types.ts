@@ -53,8 +53,6 @@ export interface DateRange {
 }
 
 export interface BalanceSummaryState {
-  dateRange: DateRange
   selectedAccountIds: number[]
   granularity: Granularity
-  periodPreset: PeriodOption
 }

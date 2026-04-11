@@ -3,13 +3,13 @@
 ## Phase 1: Global Filter System & Layout Foundation
 **Goal:** Implement a persistent, high-signal filter bar to control the date range and account scope for the entire summary page.
 
-- [ ] **Task: Define Filter State in Redux**
+- [x] **Task: Define Filter State in Redux** (1b25786)
     - [ ] Create `balanceSummarySlice.ts` to manage `dateRange` (start/end) and `selectedAccountIds`.
     - [ ] Add pre-defined range constants (This Month, Last Month, YTD, 1Y).
-- [ ] **Task: Create `SummaryFilterBar` Component**
+- [x] **Task: Create `SummaryFilterBar` Component** (e2b557a)
     - [ ] Implement a clean, flat-design filter bar with a dropdown for date presets and a multi-select for accounts.
     - [ ] **TDD:** Write tests to ensure state updates correctly on user selection.
-- [ ] **Task: Integrate Filter Bar into `BalanceSummaryPage`**
+- [x] **Task: Integrate Filter Bar into `BalanceSummaryPage`** (12a4fd5)
     - [ ] Replace hardcoded `currentRange` and `yearRange` with state from Redux.
     - [ ] Implement the "Split View" (Desktop) vs "Vertical Stack" (Mobile) layout logic.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**

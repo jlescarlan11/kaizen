@@ -10,20 +10,34 @@ import { BalanceTrendChart } from './components/BalanceTrendChart'
 import { BalanceSummaryHero } from './components/BalanceSummaryHero'
 import { SummaryFilterBar } from './components/SummaryFilterBar'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
-import {
-  setDateRange,
-  setGranularity,
-  setPeriodPreset,
-  setSelectedAccountIds,
-} from './balanceSummarySlice'
-import { getPeriodRange } from './constants'
-import type { PeriodOption } from './types'
+import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
 
 export function BalanceSummaryPage(): ReactElement {
   const dispatch = useAppDispatch()
-  const { dateRange, selectedAccountIds, granularity, periodPreset } = useAppSelector(
-    (state) => state.balanceSummary,
-  )
+  const { selectedAccountIds, granularity } = useAppSelector((state) => state.balanceSummary)
+
+  const dateRange = useMemo(() => {
+    const now = new Date()
+    const start = new Date()
+    const end = new Date()
+
+    switch (granularity) {
+      case 'DAILY':
+        start.setDate(now.getDate() - 30)
+        break
+      case 'WEEKLY':
+        start.setDate(now.getDate() - 28) // 4 weeks
+        break
+      case 'MONTHLY':
+        start.setFullYear(now.getFullYear() - 1) // 12 months
+        break
+    }
+
+    return {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    }
+  }, [granularity])
 
   const { data: accountSummaries = [], isLoading: isAccountsLoading } =
     useGetPaymentMethodSummaryQuery()
@@ -50,13 +64,6 @@ export function BalanceSummaryPage(): ReactElement {
   const currentNetFlow = currentSummary?.netBalance ?? 0
   const previousBalance = currentBalance - currentNetFlow
 
-  const handlePeriodPresetChange = (preset: PeriodOption) => {
-    dispatch(setPeriodPreset(preset))
-    if (preset !== 'CUSTOM') {
-      dispatch(setDateRange(getPeriodRange(preset)))
-    }
-  }
-
   const filteredAccountSummaries = useMemo(() => {
     if (selectedAccountIds.length === 0) return accountSummaries
     return accountSummaries.filter(
@@ -65,39 +72,32 @@ export function BalanceSummaryPage(): ReactElement {
   }, [accountSummaries, selectedAccountIds])
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <div className="flex-1 space-y-6">
-          <BalanceSummaryHero
-            currentBalance={currentBalance}
-            previousBalance={previousBalance}
-            isLoading={isAccountsLoading || isCurrentSummaryLoading}
-          />
-
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <BalanceSummaryHero
+          currentBalance={currentBalance}
+          previousBalance={previousBalance}
+          isLoading={isAccountsLoading || isCurrentSummaryLoading}
+        />
+        <div className="w-full md:w-auto md:min-w-[240px]">
           <SummaryFilterBar
-            periodPreset={periodPreset}
-            onPeriodPresetChange={handlePeriodPresetChange}
             selectedAccountIds={selectedAccountIds}
             onAccountSelectionChange={(ids) => dispatch(setSelectedAccountIds(ids))}
             accounts={accounts}
           />
-
-          <BalanceTrendChart
-            trends={balanceTrends}
-            granularity={granularity}
-            onGranularityChange={(g) => dispatch(setGranularity(g))}
-            isLoading={isTrendsLoading}
-          />
-        </div>
-
-        <div className="lg:w-80 space-y-6 shrink-0">
-          <AccountBreakdownWidget
-            summaries={filteredAccountSummaries}
-            isLoading={isAccountsLoading}
-          />
-          <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
         </div>
       </div>
+
+      <BalanceTrendChart
+        trends={balanceTrends}
+        granularity={granularity}
+        onGranularityChange={(g) => dispatch(setGranularity(g))}
+        isLoading={isTrendsLoading}
+      />
+
+      <AccountBreakdownWidget summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
+
+      <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
     </div>
   )
 }
