@@ -7,7 +7,7 @@ import { cn } from '../../../shared/lib/cn'
 interface RelatedTransaction {
   id: number
   amount: number
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
   transactionDate: string
   description: string
   category?: {

@@ -19,7 +19,7 @@ export interface MoneyFlowMetrics {
 export function calculateMoneyFlow(transactions: TransactionResponse[]): MoneyFlowMetrics {
   const metrics = transactions.reduce(
     (acc, tx) => {
-      if (tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE') {
+      if (tx.type === 'INCOME') {
         acc.incoming += tx.amount
       } else if (tx.type === 'EXPENSE') {
         acc.outgoing += tx.amount

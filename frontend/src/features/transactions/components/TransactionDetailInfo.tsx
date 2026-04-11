@@ -11,7 +11,7 @@ interface TransactionDetailInfoProps {
   paymentMethod?: {
     name: string
   }
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
   className?: string
 }
 

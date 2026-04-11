@@ -4,7 +4,7 @@ import { cn } from '../../../shared/lib/cn'
 
 interface TransactionDetailHeaderProps {
   amount: number
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
   date: string
   className?: string
 }

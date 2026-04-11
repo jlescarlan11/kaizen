@@ -26,10 +26,7 @@ export function applyFilter(
     const categoryMatch =
       categories.length === 0 || (tx.category && categories.includes(tx.category.id))
     // Type match
-    const typeMatch =
-      types.length === 0 ||
-      (types as string[]).includes(tx.type) ||
-      (types.includes('INCOME') && tx.type === 'INITIAL_BALANCE')
+    const typeMatch = types.length === 0 || (types as string[]).includes(tx.type)
     // Payment method match
     const paymentMethodMatch =
       paymentMethods.length === 0 ||

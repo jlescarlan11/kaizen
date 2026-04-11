@@ -135,7 +135,6 @@ export function TransactionList({
     }
 
     const { transaction: tx } = item
-    const isInitialBalance = tx.type === 'INITIAL_BALANCE'
     const prevItem = index > 0 ? flattenedItems[index - 1] : null
     const showTopBorder = prevItem?.type === 'transaction'
 
@@ -169,8 +168,7 @@ export function TransactionList({
             selectedIds.includes(tx.id)
               ? 'bg-primary/5 border-primary ring-1 ring-primary/10'
               : 'hover:bg-ui-accent-subtle/30',
-            !isInitialBalance &&
-              !tx.category &&
+            !tx.category &&
               !selectedIds.includes(tx.id) &&
               'border-amber-400 bg-amber-50/20 dark:bg-amber-950/5',
           )}
@@ -190,12 +188,12 @@ export function TransactionList({
               <div
                 className={cn(
                   'flex h-12 w-12 items-center justify-center rounded-full transition-transform group-hover:scale-110',
-                  tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE'
+                  tx.type === 'INCOME'
                     ? 'bg-ui-success/10 text-ui-success'
                     : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
                 )}
               >
-                {tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? (
+                {tx.type === 'INCOME' ? (
                   <SharedIcon type="ui" name="income" size={24} />
                 ) : (
                   <span className="text-xl font-bold">?</span>
@@ -205,15 +203,11 @@ export function TransactionList({
             <div>
               <div className="flex items-center gap-2">
                 <SearchHighlight
-                  text={
-                    isInitialBalance
-                      ? 'Initial Balance'
-                      : tx.description || tx.category?.name || 'Uncategorized'
-                  }
+                  text={tx.description || tx.category?.name || 'Uncategorized'}
                   query={searchQuery}
                   className={cn(
                     'text-base font-bold transition-colors block leading-tight',
-                    tx.category || isInitialBalance
+                    tx.category
                       ? 'text-foreground group-hover:text-primary'
                       : 'text-amber-700 dark:text-amber-500',
                   )}
@@ -244,7 +238,7 @@ export function TransactionList({
                     • {tx.paymentMethod.name}
                   </span>
                 )}
-                {!isInitialBalance && !tx.category && (
+                {!tx.category && (
                   <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-bold uppercase tracking-wide">
                     • Missing category
                   </span>
@@ -269,10 +263,10 @@ export function TransactionList({
               </span>
             </p>
             <Badge
-              tone={tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? 'success' : 'neutral'}
+              tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
               className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 mt-2"
             >
-              {isInitialBalance ? 'Initial Balance' : tx.type === 'INCOME' ? 'Inflow' : 'Outflow'}
+              {tx.type === 'INCOME' ? 'Inflow' : 'Outflow'}
             </Badge>
           </div>
         </div>

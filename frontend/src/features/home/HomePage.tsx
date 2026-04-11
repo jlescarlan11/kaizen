@@ -35,8 +35,6 @@ const currencyFormatter = {
 
 const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse }) => {
   const navigate = useNavigate()
-  const isInitialBalance = tx.type === 'INITIAL_BALANCE'
-
   return (
     <div
       role="button"
@@ -59,12 +57,12 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
             <div
               className={cn(
                 'flex h-full w-full items-center justify-center rounded-full',
-                tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE'
+                tx.type === 'INCOME'
                   ? 'bg-ui-success/10 text-ui-success'
                   : 'bg-ui-error/10 text-ui-error',
               )}
             >
-              {tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? (
+              {tx.type === 'INCOME' ? (
                 <SharedIcon type="category" name="banknote" size={20} />
               ) : (
                 <span className="text-lg font-bold">?</span>
@@ -74,9 +72,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
         </div>
         <div>
           <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-            {isInitialBalance
-              ? 'Initial Balance'
-              : tx.description || tx.category?.name || 'Uncategorized'}
+            {tx.description || tx.category?.name || 'Uncategorized'}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             {formatTransactionDate(tx.transactionDate)}
@@ -98,10 +94,10 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
           <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
         </p>
         <Badge
-          tone={tx.type === 'INCOME' || tx.type === 'INITIAL_BALANCE' ? 'success' : 'neutral'}
+          tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
           className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
         >
-          {isInitialBalance ? 'Initial Balance' : tx.type}
+          {tx.type}
         </Badge>
       </div>
     </div>
