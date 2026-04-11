@@ -1,4 +1,4 @@
-import { useMemo, type ReactElement } from 'react'
+import { useMemo, useState, type ReactElement } from 'react'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
 import {
   useGetSpendingSummaryQuery,
@@ -12,10 +12,12 @@ import { SummaryFilterBar } from './components/SummaryFilterBar'
 import { TrendInsights } from './components/TrendInsights'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export function BalanceSummaryPage(): ReactElement {
   const dispatch = useAppDispatch()
   const { selectedAccountIds, granularity } = useAppSelector((state) => state.balanceSummary)
+  const [showAccountBreakdown, setShowAccountBreakdown] = useState(false)
 
   const dateRange = useMemo(() => {
     const now = new Date()
@@ -97,11 +99,38 @@ export function BalanceSummaryPage(): ReactElement {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
-          Your Accounts
-        </h2>
-        <CompactAccountList summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
+      <TrendInsights trends={balanceTrends} isLoading={isTrendsLoading} />
+
+      <div className="space-y-4">
+        <div
+          className="cursor-pointer group transition-all"
+          onClick={() => setShowAccountBreakdown(!showAccountBreakdown)}
+        >
+          <div className="flex items-center justify-between mb-2 px-1">
+            <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+              Cash Flow Summary
+            </h2>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+              {showAccountBreakdown ? 'Hide Breakdown' : 'Show Account Breakdown'}
+              {showAccountBreakdown ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+            </div>
+          </div>
+          <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
+        </div>
+
+        {showAccountBreakdown && (
+          <div className="animate-in slide-in-from-top-4 duration-300">
+            <div className="px-1 mb-3">
+              <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Account Breakdown
+              </h2>
+            </div>
+            <CompactAccountList
+              summaries={filteredAccountSummaries}
+              isLoading={isAccountsLoading}
+            />
+          </div>
+        )}
       </div>
 
       <BalanceTrendChart
@@ -110,11 +139,6 @@ export function BalanceSummaryPage(): ReactElement {
         onGranularityChange={(g) => dispatch(setGranularity(g))}
         isLoading={isTrendsLoading}
       />
-
-      <div className="space-y-6">
-        <TrendInsights trends={balanceTrends} isLoading={isTrendsLoading} />
-        <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
-      </div>
     </div>
   )
 }
