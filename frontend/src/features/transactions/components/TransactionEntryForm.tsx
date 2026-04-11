@@ -18,6 +18,7 @@ import { ReceiptPicker } from './ReceiptPicker'
 import { useAuthState } from '../../../shared/hooks/useAuthState'
 import { Checkbox, Select } from '../../../shared/components'
 import { db, SyncStatus, generateClientId } from '../lib/localStore'
+import { toLocalISOString } from '../../../shared/lib/dateUtils'
 
 import { useAppDispatch } from '../../../app/store/hooks'
 import { showAlert } from '../../../app/store/notificationSlice'
@@ -110,15 +111,13 @@ export function TransactionEntryForm({
   // If editing, the current transaction's amount is already subtracted from the balance summary,
   // so we add it back to see the "true" available balance before this edit.
   const availableBalance =
-    editId &&
-    editData?.paymentMethod?.id.toString() === paymentMethodId &&
-    editData.type === 'EXPENSE'
+    editData?.paymentMethod?.id.toString() === paymentMethodId && editData.type === 'EXPENSE'
       ? rawBalance + editData.amount
       : rawBalance
 
   const insufficientBalance = type === 'EXPENSE' && parseFloat(amount) > availableBalance
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = toLocalISOString(new Date()).split('T')[0]
 
   // Initialize form
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -167,34 +166,12 @@ export function TransactionEntryForm({
     setErrors({})
 
     const clientId = generateClientId()
-    const toLocalISOString = (date: Date) => {
-      const tzo = -date.getTimezoneOffset()
-      const dif = tzo >= 0 ? '+' : '-'
-      const pad = (num: number) => (num < 10 ? '0' : '') + num
-      return (
-        date.getFullYear() +
-        '-' +
-        pad(date.getMonth() + 1) +
-        '-' +
-        pad(date.getDate()) +
-        'T' +
-        pad(date.getHours()) +
-        ':' +
-        pad(date.getMinutes()) +
-        ':' +
-        pad(date.getSeconds()) +
-        dif +
-        pad(Math.floor(Math.abs(tzo) / 60)) +
-        ':' +
-        pad(Math.abs(tzo) % 60)
-      )
-    }
 
     const payload = {
       amount: parseFloat(amount),
       type,
       transactionDate: transactionDate
-        ? `${transactionDate}T00:00:00`
+        ? toLocalISOString(transactionDate)
         : toLocalISOString(new Date()),
       description: description || undefined,
       categoryId:

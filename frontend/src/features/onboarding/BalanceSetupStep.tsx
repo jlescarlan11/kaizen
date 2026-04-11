@@ -20,6 +20,8 @@ import { fluidLayout } from '../../shared/styles/layout'
 import { typography } from '../../shared/styles/typography'
 import { cn } from '../../shared/lib/cn'
 
+import { toLocalISOString } from '../../shared/lib/dateUtils'
+
 export function BalanceSetupStep(): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -67,7 +69,7 @@ export function BalanceSetupStep(): ReactElement {
       amount: b.amount,
       description: 'Opening Balance',
       notes: 'Initial setup',
-      transactionDate: new Date().toISOString(),
+      transactionDate: toLocalISOString(new Date()),
     }))
 
     try {

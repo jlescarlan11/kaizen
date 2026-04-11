@@ -27,6 +27,7 @@ import { SkipBudgetTrigger } from '../budgets/components/SkipBudgetTrigger'
 import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS } from '../budgets/constants'
 import { OnboardingErrorBlock } from './OnboardingErrorBlock'
 import { clearStoredOnboardingDraft } from './onboardingDraftStorage'
+import { toLocalISOString } from '../../shared/lib/dateUtils'
 import {
   markCategoriesSeeded,
   selectBalanceValue,
@@ -416,7 +417,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             amount: b.amount,
             description: 'Opening Balance',
             notes: 'Initial setup',
-            transactionDate: new Date().toISOString(),
+            transactionDate: toLocalISOString(new Date()),
           })),
         }).unwrap(),
       )
