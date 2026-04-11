@@ -38,4 +38,23 @@ export interface BalanceTrendSeries {
 
 export type Granularity = 'DAILY' | 'WEEKLY' | 'MONTHLY'
 
-export type PeriodOption = 'CURRENT_MONTH' | 'LAST_MONTH' | 'LAST_3_MONTHS' | 'ALL_TIME'
+export type PeriodOption =
+  | 'CURRENT_MONTH'
+  | 'LAST_MONTH'
+  | 'LAST_3_MONTHS'
+  | 'ALL_TIME'
+  | 'YTD'
+  | 'LAST_12_MONTHS'
+  | 'CUSTOM'
+
+export interface DateRange {
+  start: string
+  end: string
+}
+
+export interface BalanceSummaryState {
+  dateRange: DateRange
+  selectedAccountIds: number[]
+  granularity: Granularity
+  periodPreset: PeriodOption
+}
