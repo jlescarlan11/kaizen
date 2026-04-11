@@ -178,11 +178,6 @@ public class InsightsService {
         }
 
         LocalDate last = end.toLocalDate();
-        if ("MONTHLY".equalsIgnoreCase(granularity)) {
-            last = last.with(TemporalAdjusters.firstDayOfMonth());
-        } else if ("WEEKLY".equalsIgnoreCase(granularity)) {
-            last = last.with(java.time.DayOfWeek.MONDAY);
-        }
 
         while (!current.isAfter(last)) {
             BigDecimal[] values = groupedData.getOrDefault(current, new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });

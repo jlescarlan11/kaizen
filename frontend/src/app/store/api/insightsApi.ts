@@ -13,9 +13,12 @@ export const insightsApi = baseApi.injectEndpoints({
       SpendingSummary,
       { start: string; end: string; paymentMethodIds?: number[] }
     >({
-      query: (params) => ({
+      query: ({ paymentMethodIds, ...params }) => ({
         url: '/insights/summary',
-        params,
+        params: {
+          ...params,
+          paymentMethodIds: paymentMethodIds?.join(','),
+        },
       }),
       providesTags: ['Insights'],
     }),
@@ -23,9 +26,12 @@ export const insightsApi = baseApi.injectEndpoints({
       CategoryBreakdown,
       { start: string; end: string; paymentMethodIds?: number[] }
     >({
-      query: (params) => ({
+      query: ({ paymentMethodIds, ...params }) => ({
         url: '/insights/category-breakdown',
-        params,
+        params: {
+          ...params,
+          paymentMethodIds: paymentMethodIds?.join(','),
+        },
       }),
       providesTags: ['Insights'],
     }),
@@ -33,9 +39,12 @@ export const insightsApi = baseApi.injectEndpoints({
       TrendSeries,
       { start: string; end: string; granularity: Granularity; paymentMethodIds?: number[] }
     >({
-      query: (params) => ({
+      query: ({ paymentMethodIds, ...params }) => ({
         url: '/insights/trends',
-        params,
+        params: {
+          ...params,
+          paymentMethodIds: paymentMethodIds?.join(','),
+        },
       }),
       providesTags: ['Insights'],
     }),
@@ -43,9 +52,12 @@ export const insightsApi = baseApi.injectEndpoints({
       BalanceTrendSeries,
       { start: string; end: string; granularity: Granularity; paymentMethodIds?: number[] }
     >({
-      query: (params) => ({
+      query: ({ paymentMethodIds, ...params }) => ({
         url: '/insights/balance-trends',
-        params,
+        params: {
+          ...params,
+          paymentMethodIds: paymentMethodIds?.join(','),
+        },
       }),
       providesTags: ['Insights'],
     }),
