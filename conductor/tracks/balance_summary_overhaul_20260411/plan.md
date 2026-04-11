@@ -30,14 +30,15 @@
 ## Phase 3: Streamlined Account Breakdowns & Insights
 **Goal:** Replace bulky widgets with a data-dense, interactive list and trend insights.
 
-- [x] **Task: Create `CompactAccountList` Component** (629f0d8)
-    - [x] Implement a list-based view with mini-sparklines (7-day trend) for each account.
-    - [x] Use "Flat Out" styling (Integrated list, no separate cards).
-- [x] **Task: Implement `TrendInsights` Widget** (629f0d8)
-    - [x] Create a "Key Observations" widget that parses summary data and highlights anomalies or trend shifts.
-    - [x] Position at the top of the dashboard for immediate value.
-- [x] **Task: Implement Progressive Disclosure for Accounts** (629f0d8)
-    - [x] Clicking `IncomeVsExpenseWidget` toggle reveals the `CompactAccountList`.
+- [x] **Task: Create `CompactAccountList` Component** (3208e01)
+    - [x] Implement a minimalist list-based view with 7-day sparklines.
+    - [x] Removed all card wrappers for a truly "Flat Out" integrated design.
+- [x] **Task: Implement `TrendInsights` Widget** (3208e01)
+    - [x] Refined observation logic (overall summary, peak detection, robust percentage change).
+    - [x] Positioned at the top for immediate visibility.
+- [x] **Task: Implement Integrated Layout with Progressive Disclosure** (3208e01)
+    - [x] `IncomeVsExpenseWidget` acts as a trigger to reveal account breakdown.
+    - [x] Strictly single-column vertical stack with deliberate spacing and no cards.
 - [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
 
 ## Phase 4: Goal Integration & Export
