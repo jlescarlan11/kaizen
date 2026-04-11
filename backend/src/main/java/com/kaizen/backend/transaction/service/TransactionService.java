@@ -74,9 +74,6 @@ public class TransactionService {
         validateRequest(request);
 
         OffsetDateTime date = request.transactionDate() != null ? request.transactionDate() : OffsetDateTime.now();
-        if (date.isAfter(OffsetDateTime.now().plusMinutes(10))) {
-            throw new IllegalArgumentException("Transactions cannot be set in the future.");
-        }
 
         Category category = fetchCategory(request.categoryId());
         PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
