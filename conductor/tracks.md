@@ -17,7 +17,7 @@
 
 ---
 
-- [~] **Track: Balance Summary UI/UX Overhaul**
+- [x] **Track: Balance Summary UI/UX Overhaul**
 *Link: [./tracks/balance_summary_overhaul_20260411/](./tracks/balance_summary_overhaul_20260411/)*
 
 
