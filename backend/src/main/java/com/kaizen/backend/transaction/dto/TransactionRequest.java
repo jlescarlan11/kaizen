@@ -18,7 +18,6 @@ public record TransactionRequest(
     @NotNull(message = "Transaction type is required.")
     TransactionType type,
 
-    @jakarta.validation.constraints.PastOrPresent(message = "Transactions cannot be set in the future.")
     OffsetDateTime transactionDate,
 
     String description,

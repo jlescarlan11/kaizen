@@ -74,7 +74,7 @@ public class TransactionService {
         validateRequest(request);
 
         OffsetDateTime date = request.transactionDate() != null ? request.transactionDate() : OffsetDateTime.now();
-        if (date.isAfter(OffsetDateTime.now().plusMinutes(1))) {
+        if (date.isAfter(OffsetDateTime.now().plusMinutes(10))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
@@ -196,7 +196,7 @@ public class TransactionService {
         validateRequest(request);
 
         if (request.transactionDate() != null
-                && request.transactionDate().isAfter(OffsetDateTime.now().plusMinutes(1))) {
+                && request.transactionDate().isAfter(OffsetDateTime.now().plusMinutes(10))) {
             throw new IllegalArgumentException("Transactions cannot be set in the future.");
         }
 
