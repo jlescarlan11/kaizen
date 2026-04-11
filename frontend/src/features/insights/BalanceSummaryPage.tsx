@@ -9,6 +9,7 @@ import { IncomeVsExpenseWidget } from './components/IncomeVsExpenseWidget'
 import { BalanceTrendChart } from './components/BalanceTrendChart'
 import { BalanceSummaryHero } from './components/BalanceSummaryHero'
 import { SummaryFilterBar } from './components/SummaryFilterBar'
+import { TrendInsights } from './components/TrendInsights'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
 
@@ -96,16 +97,22 @@ export function BalanceSummaryPage(): ReactElement {
         </div>
       </div>
 
-      <BalanceTrendChart
-        trends={balanceTrends}
-        granularity={granularity}
-        onGranularityChange={(g) => dispatch(setGranularity(g))}
-        isLoading={isTrendsLoading}
-      />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <BalanceTrendChart
+            trends={balanceTrends}
+            granularity={granularity}
+            onGranularityChange={(g) => dispatch(setGranularity(g))}
+            isLoading={isTrendsLoading}
+          />
+        </div>
+        <div className="space-y-6">
+          <TrendInsights trends={balanceTrends} isLoading={isTrendsLoading} />
+          <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
+        </div>
+      </div>
 
       <CompactAccountList summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
-
-      <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
     </div>
   )
 }

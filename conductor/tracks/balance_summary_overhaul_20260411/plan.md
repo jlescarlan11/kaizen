@@ -30,10 +30,10 @@
 ## Phase 3: Streamlined Account Breakdowns & Insights
 **Goal:** Replace bulky widgets with a data-dense, interactive list and trend insights.
 
-- [~] **Task: Create `CompactAccountList` Component**
-    - [ ] Implement a list-based view with mini-sparklines (7-day trend) for each account.
-    - [ ] Add collapsible/expandable functionality to the list to save space.
-- [ ] **Task: Implement `TrendInsights` Widget**
+- [x] **Task: Create `CompactAccountList` Component** (e655805)
+    - [x] Implement a list-based view with mini-sparklines (7-day trend) for each account.
+    - [x] Add collapsible/expandable functionality to the list to save space.
+- [~] **Task: Implement `TrendInsights` Widget**
     - [ ] Create a "Key Observations" widget that parses summary data and highlights anomalies or trend shifts.
     - [ ] **TDD:** Test the insight generator with specific data patterns (e.g., sharp expense increase).
 - [ ] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)**
