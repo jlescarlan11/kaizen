@@ -1,6 +1,6 @@
-import { type ReactElement, useState } from 'react'
+import { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight, ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Card } from '../../../shared/components/Card'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import type { PaymentMethodSummary } from '../../payment-methods/api'
@@ -16,14 +16,18 @@ export function CompactAccountList({
   isLoading,
 }: CompactAccountListProps): ReactElement {
   const navigate = useNavigate()
-  const [isExpanded, setIsExpanded] = useState(true)
 
   if (isLoading) {
-    return <div className="h-48 rounded-2xl bg-black/5 animate-pulse" />
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 w-full animate-pulse rounded-xl bg-ui-surface-muted" />
+        ))}
+      </div>
+    )
   }
 
   const sortedSummaries = [...summaries].sort((a, b) => b.totalAmount - a.totalAmount)
-  const total = sortedSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
 
   const handleAccountClick = (paymentMethodId?: number) => {
     if (paymentMethodId) {
@@ -34,82 +38,48 @@ export function CompactAccountList({
   }
 
   return (
-    <Card className="p-0 overflow-hidden border-ui-border-subtle bg-ui-surface/50 backdrop-blur-sm">
-      <div
-        className="p-4 flex items-center justify-between cursor-pointer hover:bg-ui-surface-hover transition-colors"
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <h3 className="text-sm font-black uppercase tracking-widest text-primary">Accounts</h3>
-          </div>
-          <span className="text-xs font-bold text-muted-foreground">
-            {sortedSummaries.length} active
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <p className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground leading-none mb-1">
-              Total Assets
-            </p>
-            <p className="text-sm font-black text-foreground">
-              {formatCurrency(total).replace('PHP', '').trim()}
-              <span className="ml-1 text-[10px] text-muted-foreground">PHP</span>
-            </p>
-          </div>
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          )}
-        </div>
-      </div>
-
-      {isExpanded && (
-        <div className="border-t border-ui-border-subtle divide-y divide-ui-border-subtle/50 animate-in slide-in-from-top-2 duration-200">
-          {sortedSummaries.length === 0 ? (
-            <p className="text-sm text-muted-foreground italic py-8 text-center">
-              No account data available.
-            </p>
-          ) : (
-            sortedSummaries.map((s) => (
-              <div
-                key={s.paymentMethod?.id ?? 'unknown'}
-                onClick={() => handleAccountClick(s.paymentMethod?.id)}
-                className="group flex items-center justify-between p-4 hover:bg-ui-surface-muted/50 transition-all cursor-pointer"
-              >
-                <div className="flex items-center gap-4 flex-1 min-w-0">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black text-foreground truncate group-hover:text-primary transition-colors">
-                      {s.paymentMethod?.name ?? 'Unknown'}
-                    </p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Balance
-                    </p>
-                  </div>
-
-                  <div className="hidden xs:block w-24 h-8 shrink-0">
-                    <Sparkline data={s.last7Days} />
-                  </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {sortedSummaries.length === 0 ? (
+        <p className="col-span-full text-sm text-muted-foreground italic py-4 text-center">
+          No account data available.
+        </p>
+      ) : (
+        sortedSummaries.map((s) => (
+          <Card
+            key={s.paymentMethod?.id ?? 'unknown'}
+            onClick={() => handleAccountClick(s.paymentMethod?.id)}
+            className="group flex flex-col justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all cursor-pointer bg-ui-surface"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-black text-xs">
+                  {(s.paymentMethod?.name ?? 'U').charAt(0).toUpperCase()}
                 </div>
-
-                <div className="flex items-center gap-4 ml-4">
-                  <div className="text-right">
-                    <p className="text-sm font-black text-foreground tabular-nums">
-                      {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
-                    </p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase text-right">
-                      PHP
-                    </p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-                </div>
+                <p className="font-bold text-sm text-foreground truncate max-w-[120px]">
+                  {s.paymentMethod?.name ?? 'Unknown'}
+                </p>
               </div>
-            ))
-          )}
-        </div>
+              <ChevronRight className="h-3 w-3 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+            </div>
+
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">
+                  Balance
+                </p>
+                <p className="text-lg font-black text-foreground tabular-nums leading-none">
+                  {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
+                  <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+                </p>
+              </div>
+              <div className="w-16 h-6 mb-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                <Sparkline data={s.last7Days} />
+              </div>
+            </div>
+          </Card>
+        ))
       )}
-    </Card>
+    </div>
   )
 }
 

@@ -81,7 +81,7 @@ export function BalanceSummaryPage(): ReactElement {
   const previousBalance = currentBalance - currentNetFlow
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-20">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <BalanceSummaryHero
           currentBalance={currentBalance}
@@ -97,22 +97,24 @@ export function BalanceSummaryPage(): ReactElement {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <BalanceTrendChart
-            trends={balanceTrends}
-            granularity={granularity}
-            onGranularityChange={(g) => dispatch(setGranularity(g))}
-            isLoading={isTrendsLoading}
-          />
-        </div>
-        <div className="space-y-6">
-          <TrendInsights trends={balanceTrends} isLoading={isTrendsLoading} />
-          <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
-        </div>
+      <div className="space-y-2">
+        <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+          Your Accounts
+        </h2>
+        <CompactAccountList summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
       </div>
 
-      <CompactAccountList summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
+      <BalanceTrendChart
+        trends={balanceTrends}
+        granularity={granularity}
+        onGranularityChange={(g) => dispatch(setGranularity(g))}
+        isLoading={isTrendsLoading}
+      />
+
+      <div className="space-y-6">
+        <TrendInsights trends={balanceTrends} isLoading={isTrendsLoading} />
+        <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
+      </div>
     </div>
   )
 }
