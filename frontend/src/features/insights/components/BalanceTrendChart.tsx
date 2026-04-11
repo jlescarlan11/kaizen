@@ -59,29 +59,6 @@ export function BalanceTrendChart({
   if (!trends.series || trends.series.length === 0) {
     return (
       <Card className="h-[400px] flex items-center justify-center">
-        <div className="flex items-center justify-between w-full px-6 absolute top-6">
-          <div>
-            <h3 className="text-lg font-black tracking-tight text-foreground">Balance Trends</h3>
-            <p className="text-xs text-muted-foreground">
-              Income, Expenses, and Net Flow over time
-            </p>
-          </div>
-          <div className="flex bg-ui-surface-muted p-1 rounded-lg border border-ui-border-subtle">
-            {GRANULARITY_OPTIONS.map(({ label, value }) => (
-              <button
-                key={value}
-                onClick={() => onGranularityChange(value)}
-                className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${
-                  granularity === value
-                    ? 'bg-ui-surface text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
         <p className="text-muted-foreground italic">No trend data available for this period.</p>
       </Card>
     )
