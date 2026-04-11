@@ -2,8 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { BalanceTrendChart } from './BalanceTrendChart'
-import type { BalanceTrendSeries } from '../types'
-import type { BalanceTrendEntry } from '../types'
+import type { BalanceTrendSeries, BalanceTrendEntry } from '../types'
 
 // Recharts uses ResizeObserver internally; jsdom doesn't have it.
 class ResizeObserverMock {

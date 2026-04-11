@@ -105,7 +105,7 @@ export function BalanceTrendChart({
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="var(--color-border-subtle)"
+              stroke="var(--ui-border-subtle)"
             />
             <XAxis
               dataKey="name"
