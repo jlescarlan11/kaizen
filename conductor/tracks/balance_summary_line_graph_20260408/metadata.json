@@ -1,8 +1,0 @@
-{
-  "track_id": "balance_summary_line_graph_20260408",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-04-08T23:51:00Z",
-  "updated_at": "2026-04-08T23:51:00Z",
-  "description": "In our balance summary let's make our income and expenses into a line graph just like the way in our playground."
-}
