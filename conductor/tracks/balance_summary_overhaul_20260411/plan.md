@@ -41,7 +41,7 @@
     - [x] Strictly single-column vertical stack with deliberate spacing and no cards.
 - [x] **Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)** (97785d2)
 
-## Phase 4: Goal Integration & Export
+## Phase 4: Goal Integration & Export [checkpoint: 9474d67]
 **Goal:** Add progress context and data portability actions.
 
 - [x] **Task: Integrate Goal Progress Indicators** (DEFERRED)
@@ -51,4 +51,4 @@
 - [x] **Task: Final UI/UX Polish & Mobile Verification** (50471ee)
     - [x] Removed all cards for "Flat Out" design system.
     - [x] Refined spacing and typography for professional look.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 4' (Protocol in workflow.md)** (9474d67)
