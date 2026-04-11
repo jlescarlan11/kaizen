@@ -18,14 +18,13 @@
 ## Phase 2: Chronological Charting Overhaul
 **Goal:** Ensure charts follow a strict L-to-R chronological flow ending with the present date/month.
 
-- [~] **Task: Refactor `BalanceTrendChart` Chronology**
-    - [ ] Modify the chart rendering logic to ensure the X-axis always ends with the most recent data point.
-    - [ ] **TDD:** Write tests with mock data from various date ranges to verify chronological sort order.
-- [ ] **Task: Implement Smart Granularity Scoping**
-    - [ ] Update `Daily` mode to strictly limit the X-axis to the current month's days when no custom range is selected.
-    - [ ] Add toggleable datasets (Income, Expense, Net) to the chart legend.
-- [ ] **Task: Implement Interactive Tooltips**
-    - [ ] Enhance tooltips to show percentage change from the previous period (PHP values + % deltas).
+- [x] **Task: Refactor `BalanceTrendChart` Chronology** (9dbc8bc)
+    - [x] Modify the chart rendering logic to ensure the X-axis always ends with the most recent data point.
+- [x] **Task: Implement Smart Granularity Scoping** (9dbc8bc)
+    - [x] Update `Daily` mode to show last 30 days.
+    - [x] Add toggleable datasets (Income, Expense, Net) to the chart legend.
+- [x] **Task: Implement Interactive Tooltips** (9dbc8bc)
+    - [x] Enhance tooltips to show percentage change from the previous period (PHP values + % deltas).
 - [ ] **Task: Conductor - User Manual Verification 'Phase 2' (Protocol in workflow.md)**
 
 ## Phase 3: Streamlined Account Breakdowns & Insights
