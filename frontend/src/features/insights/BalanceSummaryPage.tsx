@@ -41,6 +41,8 @@ export function BalanceSummaryPage(): ReactElement {
 
   const currentBalance = accountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
   const currentNetFlow = currentSummary?.netBalance ?? 0
+  // Approximation: subtracts current month's net flow from current balance.
+  // Accurate only when there are no cross-month adjustments or deletions.
   const previousBalance = currentBalance - currentNetFlow
 
   return (
