@@ -1,6 +1,6 @@
 # Implementation Plan: Balance Summary UI/UX Overhaul
 
-## Phase 1: Global Filter System & Layout Foundation
+## Phase 1: Global Filter System & Layout Foundation [checkpoint: 69e64a7]
 **Goal:** Implement a persistent, high-signal filter bar to control the date range and account scope for the entire summary page.
 
 - [x] **Task: Define Filter State in Redux** (289df38)
@@ -13,7 +13,7 @@
     - [x] Support `WEEKLY` granularity in backend `getBalanceTrends`.
     - [x] Update frontend API and Page to filter entire dashboard by account.
     - [x] Implement single-column vertical stack layout.
-- [ ] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 1' (Protocol in workflow.md)** (69e64a7)
 
 ## Phase 2: Chronological Charting Overhaul
 **Goal:** Ensure charts follow a strict L-to-R chronological flow ending with the present date/month.
