@@ -88,7 +88,7 @@ public final class CategoryDesignSystem {
         new CategoryTemplate("Other Income", "piggy-bank", "#475569", TransactionType.INCOME),
 
         // Initial Balance
-        new CategoryTemplate("Initial Setup", "wallet", "#1d4ed8", TransactionType.INITIAL_BALANCE)
+        new CategoryTemplate("Initial Balance", "wallet", "#1d4ed8", TransactionType.INCOME)
     );
 
     public static IconColor autoAssign(int existingCustomCount) {

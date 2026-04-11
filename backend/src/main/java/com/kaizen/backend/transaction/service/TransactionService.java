@@ -338,7 +338,6 @@ public class TransactionService {
                         runningBalance = runningBalance.subtract(t.getAmount());
                     }
                 }
-                case INITIAL_BALANCE -> runningBalance = runningBalance.add(t.getAmount());
             }
             history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
                     t.getTransactionDate(),

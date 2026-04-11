@@ -149,7 +149,7 @@ public class InsightsService {
 
             BigDecimal[] values = groupedData.computeIfAbsent(periodStart, k -> new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
 
-            boolean isIncome = type == TransactionType.INCOME || type == TransactionType.INITIAL_BALANCE ||
+            boolean isIncome = type == TransactionType.INCOME ||
                     (type == TransactionType.RECONCILIATION && Boolean.TRUE.equals(reconIncrease));
 
             boolean isExpense = type == TransactionType.EXPENSE ||
