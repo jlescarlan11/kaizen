@@ -54,6 +54,7 @@ export async function getPaymentMethodTransactionCount(id: number): Promise<numb
 export interface PaymentMethodSummary {
   paymentMethod: PaymentMethod | null
   totalAmount: number
+  last7Days: number[]
 }
 
 export async function getPaymentMethodSummary(): Promise<PaymentMethodSummary[]> {

@@ -1,6 +1,8 @@
 package com.kaizen.backend.payment.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -52,13 +54,37 @@ public class PaymentMethodService {
         List<PaymentMethod> allMethods = paymentMethodRepository.findByUserAccountIdOrGlobalTrue(account.getId());
         List<PaymentMethodSummaryResponse> summaries = new ArrayList<>();
 
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7).withHour(0).withMinute(0).withSecond(0).withNano(0);
+
         for (PaymentMethod pm : allMethods) {
-            BigDecimal balance = transactionRepository.calculateNetTransactionAmountByPaymentMethod(account.getId(), pm.getId())
+            BigDecimal currentBalance = transactionRepository.calculateNetTransactionAmountByPaymentMethod(account.getId(), pm.getId())
                     .orElse(BigDecimal.ZERO);
+            
+            // Get daily changes for the last 7 days
+            List<Object[]> rawChanges = transactionRepository.getDailyBalanceChangesByPaymentMethod(account.getId(), pm.getId(), sevenDaysAgo);
+            
+            Map<LocalDate, BigDecimal> changesMap = rawChanges.stream()
+                    .collect(Collectors.toMap(
+                            r -> ((java.sql.Date) r[0]).toLocalDate(),
+                            r -> (BigDecimal) r[1]
+                    ));
+
+            // Calculate daily balances by working backwards from current balance
+            List<BigDecimal> trend = new ArrayList<>();
+            BigDecimal runningBalance = currentBalance;
+            LocalDate today = LocalDate.now();
+
+            for (int i = 0; i < 7; i++) {
+                trend.add(0, runningBalance);
+                LocalDate date = today.minusDays(i);
+                BigDecimal change = changesMap.getOrDefault(date, BigDecimal.ZERO);
+                runningBalance = runningBalance.subtract(change);
+            }
             
             summaries.add(new PaymentMethodSummaryResponse(
                     new PaymentMethodResponse(pm.getId(), pm.getName(), pm.isGlobal(), pm.getDescription()),
-                    balance));
+                    currentBalance,
+                    trend));
         }
 
         return summaries;

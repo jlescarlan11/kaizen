@@ -4,7 +4,7 @@ import {
   useGetSpendingSummaryQuery,
   useGetBalanceTrendsQuery,
 } from '../../app/store/api/insightsApi'
-import { AccountBreakdownWidget } from './components/AccountBreakdownWidget'
+import { CompactAccountList } from './components/CompactAccountList'
 import { IncomeVsExpenseWidget } from './components/IncomeVsExpenseWidget'
 import { BalanceTrendChart } from './components/BalanceTrendChart'
 import { BalanceSummaryHero } from './components/BalanceSummaryHero'
@@ -103,7 +103,7 @@ export function BalanceSummaryPage(): ReactElement {
         isLoading={isTrendsLoading}
       />
 
-      <AccountBreakdownWidget summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
+      <CompactAccountList summaries={filteredAccountSummaries} isLoading={isAccountsLoading} />
 
       <IncomeVsExpenseWidget summary={currentSummary} isLoading={isCurrentSummaryLoading} />
     </div>

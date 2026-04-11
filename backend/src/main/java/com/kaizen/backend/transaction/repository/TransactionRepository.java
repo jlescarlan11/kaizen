@@ -115,6 +115,24 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
+    @Query("SELECT CAST(t.transactionDate AS date), " +
+           "SUM(CASE " +
+           "  WHEN t.type = 'INCOME' THEN t.amount " +
+           "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
+           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
+           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
+           "  ELSE 0 END) " +
+           "FROM Transaction t " +
+           "WHERE t.userAccount.id = :userId AND t.paymentMethod.id = :paymentMethodId " +
+           "AND t.transactionDate >= :start " +
+           "GROUP BY CAST(t.transactionDate AS date) " +
+           "ORDER BY CAST(t.transactionDate AS date) ASC")
+    List<Object[]> getDailyBalanceChangesByPaymentMethod(
+        @Param("userId") Long userId,
+        @Param("paymentMethodId") Long paymentMethodId,
+        @Param("start") java.time.LocalDateTime start
+    );
+
     Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);
 
     boolean existsByClientGeneratedId(String clientGeneratedId);
