@@ -26,5 +26,8 @@ Initial monorepo scaffold for backend and frontend development.
 ## Key Differentiators
 - **Advanced Backend Modularity:** Highly modular and extensible architecture.
 - **Modern Frontend Tech (React 19):** State-of-the-art frontend patterns with React 19 features.
-- **Flat UI Architecture:** Clean, minimalist "flat out" design for data-dense components (Widgets, Lists, Items).
+- **Flat UI Architecture:** Clean, minimalist \"flat out\" design for data-dense components (Widgets, Lists, Items). Features progressive disclosure patterns to manage complexity and card-less integrated layouts for professional financial dashboards.
+- **Intelligent Financial Insights:** Automated trend analysis and anomaly detection providing high-value observations (savings tracking, peak spending alerts) directly on the summary view.
+- **Dynamic Data Exploration:** Robust filtering by account and date granularity (Daily/Weekly/Monthly) with chronological visualization and percentage-based trajectory metrics.
+
 - **Superior Dev Experience & Automation:** Ready-to-use CI/CD and Dockerized environments.
