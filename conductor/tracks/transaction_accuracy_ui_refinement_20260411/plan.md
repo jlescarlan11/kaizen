@@ -32,3 +32,4 @@
 ## Phase: Review Fixes
 - [x] Task: Apply review suggestions 8bebc3e
 - [x] Task: Fix missing timezone offset in frontend submissions 0401314
+- [x] Task: Increase future date buffer to 10m a790106
