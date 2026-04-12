@@ -22,6 +22,7 @@ import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
 export function SmartBudgetPage(): ReactElement | null {
   const { user } = useAuthState()
@@ -36,11 +37,7 @@ export function SmartBudgetPage(): ReactElement | null {
 
   const isSaving = isSavingOnboarding || isSavingBudgets
 
-  const formattedBalance = new Intl.NumberFormat('en-PH', {
-    style: 'currency',
-    currency: 'PHP',
-    minimumFractionDigits: 2,
-  }).format(balance)
+  const formattedBalance = formatCurrency(balance)
 
   const [amounts, setAmounts] = useState(() =>
     SMART_BUDGET_SLOTS.map((slot) => (balance * slot.percentage).toFixed(2)),
@@ -219,10 +216,7 @@ export function SmartBudgetPage(): ReactElement | null {
             const parsed = parsedAmounts[index]
             const showError = value.trim() !== '' && parsed === null
             return (
-              <Card
-                key={slot.id}
-                className="flex flex-col gap-3 border border-ui-border-subtle p-4"
-              >
+              <Card key={slot.id} className="flex flex-col gap-3 p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-semibold text-foreground">{slot.categoryName}</p>
@@ -253,7 +247,7 @@ export function SmartBudgetPage(): ReactElement | null {
           })}
 
           {/* Instruction 5 integration slot: period selector mounts here. */}
-          <div className="rounded-2xl border border-ui-border-subtle bg-ui-surface-subtle/60 p-4">
+          <div className="rounded-2xl border border-ui-border-subtle p-4">
             <BudgetPeriodSelector
               value={selectedPeriod}
               onChange={setSelectedPeriod}
@@ -261,7 +255,7 @@ export function SmartBudgetPage(): ReactElement | null {
             />
           </div>
 
-          <div className="rounded-2xl border border-ui-border-subtle bg-ui-surface-subtle/60 p-4">
+          <div className="rounded-2xl border border-ui-border-subtle p-4">
             {/* Instruction 4 integration slot: render the allocation total display here. */}
             <AllocationTotalDisplay
               totalAllocated={totalAllocation}

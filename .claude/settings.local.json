@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(grep -n \"TODO\\\\|FIXME\\\\|BUG\\\\|ISSUE\\\\|XXX\\\\|HACK\" /d/kaizen/frontend/src/features/insights/BalanceSummaryPage.tsx /d/kaizen/frontend/src/features/insights/components/*.tsx)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k: d.get\\(k, {}\\) for k in ['scripts', 'devDependencies', 'dependencies']}, indent=2\\)\\)\")",
+      "Bash(pnpm test:*)",
+      "Bash(python3 -c \"import json,sys; pkg=json.load\\(sys.stdin\\); print\\(list\\(pkg.get\\('exports',{}\\).keys\\(\\)\\)[:20]\\)\")",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm tsc:*)",
+      "Bash(pnpm add:*)",
+      "Bash(grep:*)",
+      "Bash(mvn compile:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vitest:*)"
+    ]
+  }
+}

@@ -77,6 +77,13 @@ export function OnboardingGuard(): ReactElement | null {
         categoriesSeeded: storedDraft?.categoriesSeeded ?? initialOnboardingState.categoriesSeeded,
         pendingBudgets: storedDraft?.pendingBudgets ?? initialOnboardingState.pendingBudgets,
         budgetEditorDraft: storedDraft?.budgetEditorDraft ?? createInitialBudgetEditorDraft(),
+        initialTransactionDescription:
+          storedDraft?.initialTransactionDescription ?? progress?.description,
+        initialTransactionNotes: storedDraft?.initialTransactionNotes ?? progress?.notes,
+        initialTransactionPaymentMethodId:
+          storedDraft?.initialTransactionPaymentMethodId ?? progress?.paymentMethodId,
+        initialTransactionDate: storedDraft?.initialTransactionDate ?? progress?.transactionDate,
+        initialBalances: storedDraft?.initialBalances ?? progress?.initialBalances ?? [],
       }),
     )
     Promise.resolve().then(() => {
@@ -102,6 +109,11 @@ export function OnboardingGuard(): ReactElement | null {
       categoriesSeeded: onboardingState.categoriesSeeded,
       pendingBudgets: onboardingState.pendingBudgets,
       budgetEditorDraft: onboardingState.budgetEditorDraft,
+      initialTransactionDescription: onboardingState.initialTransactionDescription,
+      initialTransactionNotes: onboardingState.initialTransactionNotes,
+      initialTransactionPaymentMethodId: onboardingState.initialTransactionPaymentMethodId,
+      initialTransactionDate: onboardingState.initialTransactionDate,
+      initialBalances: onboardingState.initialBalances,
     })
   }, [isHydrated, location.pathname, onboardingState, user])
 
@@ -159,6 +171,7 @@ export function OnboardingGuard(): ReactElement | null {
   }
 
   const resolvedRoute = ONBOARDING_STEP_ROUTE_MAP[currentStep]
+
   if (location.pathname === '/onboarding') {
     return <Navigate to={resolvedRoute} replace />
   }
@@ -167,6 +180,7 @@ export function OnboardingGuard(): ReactElement | null {
   if (routeStep) {
     const attemptedIndex = ONBOARDING_STEP_ORDER.indexOf(routeStep)
     const currentIndex = ONBOARDING_STEP_ORDER.indexOf(currentStep)
+
     if (currentIndex === -1 || attemptedIndex > currentIndex) {
       return <Navigate to={resolvedRoute} replace />
     }

@@ -19,6 +19,7 @@ import com.kaizen.backend.user.entity.Role;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.RoleRepository;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -73,17 +74,17 @@ public class GoogleOAuthService {
         });
     }
 
-    private void revokeTokenAtProvider(String token) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("token", token);
+private void revokeTokenAtProvider(String token) {
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    formData.add("token", token);
 
-        restClient.post()
-            .uri(GOOGLE_REVOCATION_URI)
-            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-            .body(formData)
-            .retrieve()
-            .toBodilessEntity();
-    }
+    restClient.post()
+        .uri(GOOGLE_REVOCATION_URI)
+        .contentType(Objects.requireNonNull(MediaType.APPLICATION_FORM_URLENCODED))
+        .body(formData)
+        .retrieve()
+        .toBodilessEntity();
+}
 
     @NonNull
     public URI buildAuthorizationRedirectUri(@NonNull String state) {
@@ -121,14 +122,19 @@ public class GoogleOAuthService {
             userInfoResponse.email(), userInfoResponse.name(), userInfoResponse.picture());
 
         String email = Objects.requireNonNull(userInfoResponse.email(), "email must not be null");
+        String providerUserId = userInfoResponse.subject();
+        
         Role userRole = roleRepository.findByName(DEFAULT_ROLE_NAME)
             .orElseGet(() -> roleRepository.save(new Role(DEFAULT_ROLE_NAME)));
 
-        UserAccount userAccount = userAccountRepository.findByEmailIgnoreCase(email)
+        // Try to find by provider identity first (robust against email changes)
+        UserAccount userAccount = userAccountRepository.findByProviderNameAndProviderUserId(GOOGLE_PROVIDER_NAME, providerUserId)
+            .or(() -> userAccountRepository.findByEmailIgnoreCase(email))
             .map(existing -> {
                 // Update existing user with latest social info
+                existing.setEmail(email); // Keep email in sync
                 existing.setProviderName(GOOGLE_PROVIDER_NAME);
-                existing.setProviderUserId(userInfoResponse.subject());
+                existing.setProviderUserId(providerUserId);
                 existing.setPictureUrl(userInfoResponse.picture());
                 existing.setEncryptedAccessToken(oAuthTokenCipher.encrypt(
                     Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
@@ -147,7 +153,7 @@ public class GoogleOAuthService {
                     userInfoResponse.name(),
                     email,
                     GOOGLE_PROVIDER_NAME,
-                    userInfoResponse.subject(),
+                    providerUserId,
                     null,
                     userInfoResponse.picture(),
                     oAuthTokenCipher.encrypt(

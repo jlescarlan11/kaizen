@@ -56,7 +56,7 @@ export function ResponsiveModal({
               <DialogPanel
                 className={cn(
                   'relative w-full max-w-md transform overflow-hidden bg-ui-surface text-left align-middle shadow-xl transition-all',
-                  'rounded-t-[2rem] md:rounded-xl border border-ui-border',
+                  'rounded-t-4xl md:rounded-xl border border-ui-border',
                   'flex flex-col max-h-[75vh] md:max-h-[90vh]',
                   className,
                 )}

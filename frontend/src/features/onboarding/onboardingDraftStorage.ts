@@ -2,7 +2,7 @@ import type { FundingSourceType } from './fundingSource'
 import type { BudgetPeriod } from '../budgets/constants'
 import { CUSTOM_CATEGORY_OPTION_VALUE } from '../budgets/ManualBudgetCategoryPicker'
 import type { OnboardingStep } from './onboardingStep'
-import type { PendingBudget } from './onboardingSlice'
+import type { PendingBudget, InitialBalance } from './onboardingSlice'
 
 const ONBOARDING_DRAFT_STORAGE_VERSION = 1
 const ONBOARDING_DRAFT_STORAGE_KEY_PREFIX = 'kaizen-onboarding-draft'
@@ -24,6 +24,11 @@ export interface OnboardingDraft {
   categoriesSeeded: boolean
   pendingBudgets: PendingBudget[]
   budgetEditorDraft: StoredBudgetEditorDraft
+  initialTransactionDescription?: string
+  initialTransactionNotes?: string
+  initialTransactionPaymentMethodId?: number
+  initialTransactionDate?: string
+  initialBalances: InitialBalance[]
   updatedAt: string
 }
 
@@ -45,6 +50,15 @@ function isPendingBudget(value: unknown): value is PendingBudget {
     typeof candidate.amount === 'number' &&
     (candidate.period === 'MONTHLY' || candidate.period === 'WEEKLY')
   )
+}
+
+function isInitialBalance(value: unknown): value is InitialBalance {
+  if (typeof value !== 'object' || value == null) {
+    return false
+  }
+
+  const candidate = value as Record<string, unknown>
+  return typeof candidate.paymentMethodId === 'number' && typeof candidate.amount === 'number'
 }
 
 function isBudgetEditorDraft(value: unknown): value is StoredBudgetEditorDraft {
@@ -85,7 +99,9 @@ function isOnboardingDraft(value: unknown): value is OnboardingDraft {
     Array.isArray(candidate.pendingBudgets) &&
     candidate.pendingBudgets.every(isPendingBudget) &&
     isBudgetEditorDraft(candidate.budgetEditorDraft) &&
-    typeof candidate.updatedAt === 'string'
+    typeof candidate.updatedAt === 'string' &&
+    Array.isArray(candidate.initialBalances) &&
+    candidate.initialBalances.every(isInitialBalance)
   )
 }
 

@@ -2,10 +2,13 @@ import type { ButtonHTMLAttributes, ReactElement, ForwardedRef } from 'react'
 import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline'
+
+type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
+  size?: ButtonSize
   isLoading?: boolean
 }
 
@@ -18,6 +21,15 @@ const variantStyles: Record<ButtonVariant, string> = {
     'border border-transparent bg-transparent text-foreground hover:bg-ui-surface-muted hover:text-foreground focus-visible:ring-ui-focus disabled:text-foreground disabled:opacity-60',
   destructive:
     'border border-transparent bg-ui-danger text-ui-danger-text hover:bg-ui-danger-hover active:bg-ui-danger-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
+  outline:
+    'border border-ui-border bg-transparent text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-transparent disabled:text-foreground disabled:opacity-60',
+}
+
+const sizeStyles: Record<ButtonSize, string> = {
+  sm: 'px-3 py-1.5 text-xs',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base',
+  xl: 'px-8 py-4 text-lg',
 }
 
 export const Button = forwardRef(function Button(
@@ -25,6 +37,7 @@ export const Button = forwardRef(function Button(
     className,
     type = 'button',
     variant = 'primary',
+    size = 'md',
     isLoading = false,
     children,
     ...props
@@ -37,10 +50,11 @@ export const Button = forwardRef(function Button(
       type={type}
       disabled={isLoading || props.disabled}
       className={cn(
-        'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition',
+        'inline-flex items-center justify-center rounded-md font-medium transition',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed',
         variantStyles[variant],
+        sizeStyles[size],
         className,
       )}
       {...props}

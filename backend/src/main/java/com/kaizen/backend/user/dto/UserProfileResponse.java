@@ -2,7 +2,11 @@ package com.kaizen.backend.user.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
+@Jacksonized
+@Builder
 public record UserProfileResponse(
     Long id,
     String name,
@@ -13,6 +17,8 @@ public record UserProfileResponse(
     BigDecimal balance,
     boolean budgetSetupSkipped,
     boolean tourCompleted,
-    boolean firstTransactionAdded
+    boolean firstTransactionAdded,
+    String quickAddPreferences,
+    boolean remindersEnabled
 ) {
 }

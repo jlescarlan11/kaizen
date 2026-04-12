@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public record BudgetSummaryResponse(
     BigDecimal balance,
     BigDecimal totalAllocated,
+    BigDecimal totalSpent,
     BigDecimal remainingToAllocate,
     int allocationPercentage,
     long budgetCount

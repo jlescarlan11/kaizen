@@ -6,8 +6,10 @@ import {
   useLogoutMutation,
   useResetTourFlagMutation,
   useResetOnboardingMutation,
+  useToggleRemindersMutation,
 } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
+import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
 
@@ -21,6 +23,11 @@ type AccountItem = {
   onClick?: () => void
   destructive?: boolean
   icon: ReactElement
+  toggle?: {
+    checked: boolean
+    onChange: (checked: boolean) => void
+    disabled?: boolean
+  }
 }
 
 interface AccountSection {
@@ -29,7 +36,7 @@ interface AccountSection {
 }
 
 function AccountRow({ item }: { item: AccountItem }): ReactElement {
-  const isInteractive = !!(item.to || item.onClick)
+  const isInteractive = !!(item.to || item.onClick || item.toggle)
 
   const baseClassName = cn(
     'flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors',
@@ -68,7 +75,17 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
             {item.badge}
           </span>
         )}
-        {isInteractive && (
+        {item.toggle && (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={item.toggle.checked}
+              onCheckedChange={item.toggle.onChange}
+              disabled={item.toggle.disabled}
+              className="mr-1"
+            />
+          </div>
+        )}
+        {isInteractive && !item.toggle && (
           <svg
             width="15"
             height="15"
@@ -95,9 +112,14 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
     )
   }
 
-  if (item.onClick) {
+  if (item.onClick || item.toggle) {
     return (
-      <button type="button" onClick={item.onClick} className={baseClassName}>
+      <button
+        type="button"
+        onClick={item.onClick || (() => item.toggle?.onChange(!item.toggle.checked))}
+        className={baseClassName}
+        disabled={item.toggle?.disabled}
+      >
         {content}
       </button>
     )
@@ -122,7 +144,16 @@ export function YourAccountPage(): ReactElement {
   )
   const [resetTourFlag, { isLoading: isResettingTour }] = useResetTourFlagMutation()
   const [resetOnboarding, { isLoading: isResettingOnboarding }] = useResetOnboardingMutation()
+  const [toggleReminders, { isLoading: isTogglingReminders }] = useToggleRemindersMutation()
   const guidanceDescription = isResettingTour ? 'Resetting tour state…' : tourReminder
+
+  const handleToggleReminders = async (enabled: boolean) => {
+    try {
+      await toggleReminders({ enabled }).unwrap()
+    } catch (error) {
+      console.error('Failed to toggle reminders:', error)
+    }
+  }
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -203,6 +234,12 @@ export function YourAccountPage(): ReactElement {
           icon: <CategoryIcon />,
           to: '/your-account/categories',
         },
+        {
+          label: 'Payment methods',
+          description: 'Manage your cards, cash, and accounts',
+          icon: <PaymentMethodIcon />,
+          to: '/your-account/payment-methods',
+        },
       ],
     },
     {
@@ -213,6 +250,21 @@ export function YourAccountPage(): ReactElement {
           description: guidanceDescription,
           icon: <TourIcon />,
           onClick: handleShowTourAgain,
+        },
+      ],
+    },
+    {
+      title: 'Notifications',
+      items: [
+        {
+          label: 'Recurring reminders',
+          description: 'Get notified when recurring transactions are due',
+          icon: <ReminderIcon />,
+          toggle: {
+            checked: user?.remindersEnabled ?? true,
+            onChange: handleToggleReminders,
+            disabled: isTogglingReminders,
+          },
         },
       ],
     },
@@ -487,6 +539,24 @@ function CategoryIcon(): ReactElement {
   )
 }
 
+function PaymentMethodIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
+    </svg>
+  )
+}
+
 function StatementIcon(): ReactElement {
   return (
     <svg
@@ -542,6 +612,24 @@ function TourIcon(): ReactElement {
       <path d="M12 5v14" />
       <path d="M5 9h14" />
       <path d="M8 17l4-4 4 4" />
+    </svg>
+  )
+}
+
+function ReminderIcon(): ReactElement {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
     </svg>
   )
 }

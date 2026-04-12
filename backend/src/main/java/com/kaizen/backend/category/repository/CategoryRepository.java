@@ -4,12 +4,19 @@ import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.common.repository.BaseRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface CategoryRepository extends BaseRepository<Category, Long> {
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Category c WHERE c.user.id = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 
     @Query("SELECT c FROM Category c WHERE c.global = true OR (:userId IS NOT NULL AND c.user IS NOT NULL AND c.user.id = :userId)")
     List<Category> findAllVisibleToUser(@Param("userId") Long userId);
@@ -36,6 +43,8 @@ public interface CategoryRepository extends BaseRepository<Category, Long> {
         @Param("categoryId") Long categoryId,
         @Param("name") String name
     );
+
+    Optional<Category> findByNameIgnoreCaseAndGlobalTrue(String name);
 
     Optional<Category> findByIdAndUserId(Long id, Long userId);
 

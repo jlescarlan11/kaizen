@@ -1,0 +1,8 @@
+{
+  "track_id": "balance_summary_overhaul_20260411",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-11T12:00:00Z",
+  "updated_at": "2026-04-11T12:00:00Z",
+  "description": "help me brainstorm possible ui/ux improvements in our /balance-summary decluttering it and modifying out ui/ux layout in a way that could benefit us in the long term."
+}

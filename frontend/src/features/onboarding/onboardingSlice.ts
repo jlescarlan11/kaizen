@@ -23,6 +23,11 @@ export interface BudgetEditorDraft {
   selectedPeriod: BudgetPeriod
 }
 
+export interface InitialBalance {
+  paymentMethodId: number
+  amount: number
+}
+
 export interface OnboardingState {
   currentStep: OnboardingStep
   startingFunds: number | null
@@ -31,6 +36,11 @@ export interface OnboardingState {
   categoriesSeeded: boolean
   pendingBudgets: PendingBudget[]
   budgetEditorDraft: BudgetEditorDraft
+  initialTransactionDescription?: string
+  initialTransactionNotes?: string
+  initialTransactionPaymentMethodId?: number
+  initialTransactionDate?: string
+  initialBalances: InitialBalance[]
 }
 
 export const createInitialBudgetEditorDraft = (): BudgetEditorDraft => ({
@@ -49,6 +59,7 @@ export const createInitialOnboardingState = (): OnboardingState => ({
   categoriesSeeded: false,
   pendingBudgets: [],
   budgetEditorDraft: createInitialBudgetEditorDraft(),
+  initialBalances: [],
 })
 
 const initialState: OnboardingState = createInitialOnboardingState()
@@ -103,6 +114,38 @@ const slice = createSlice({
     markCategoriesSeeded(state) {
       state.categoriesSeeded = true
     },
+    setInitialTransactionData(
+      state,
+      action: PayloadAction<{
+        description?: string
+        notes?: string
+        paymentMethodId?: number
+        transactionDate?: string
+      }>,
+    ) {
+      state.initialTransactionDescription = action.payload.description
+      state.initialTransactionNotes = action.payload.notes
+      state.initialTransactionPaymentMethodId = action.payload.paymentMethodId
+      state.initialTransactionDate = action.payload.transactionDate
+    },
+    addInitialBalance(state, action: PayloadAction<InitialBalance>) {
+      state.initialBalances.push(action.payload)
+    },
+    removeInitialBalance(state, action: PayloadAction<number>) {
+      state.initialBalances = state.initialBalances.filter(
+        (b) => b.paymentMethodId !== action.payload,
+      )
+    },
+    updateInitialBalance(state, action: PayloadAction<InitialBalance>) {
+      const index = state.initialBalances.findIndex(
+        (b) => b.paymentMethodId === action.payload.paymentMethodId,
+      )
+      if (index !== -1) {
+        state.initialBalances[index] = action.payload
+      } else {
+        state.initialBalances.push(action.payload)
+      }
+    },
     setBudgetEditorDraft(state, action: PayloadAction<Partial<BudgetEditorDraft>>) {
       state.budgetEditorDraft = {
         ...state.budgetEditorDraft,
@@ -137,6 +180,21 @@ const slice = createSlice({
           ...action.payload.budgetEditorDraft,
         }
       }
+      if (action.payload.initialTransactionDescription !== undefined) {
+        state.initialTransactionDescription = action.payload.initialTransactionDescription
+      }
+      if (action.payload.initialTransactionNotes !== undefined) {
+        state.initialTransactionNotes = action.payload.initialTransactionNotes
+      }
+      if (action.payload.initialTransactionPaymentMethodId !== undefined) {
+        state.initialTransactionPaymentMethodId = action.payload.initialTransactionPaymentMethodId
+      }
+      if (action.payload.initialTransactionDate !== undefined) {
+        state.initialTransactionDate = action.payload.initialTransactionDate
+      }
+      if (action.payload.initialBalances !== undefined) {
+        state.initialBalances = action.payload.initialBalances
+      }
     },
     resetOnboardingState(state) {
       const nextState = createInitialOnboardingState()
@@ -147,6 +205,11 @@ const slice = createSlice({
       state.categoriesSeeded = nextState.categoriesSeeded
       state.pendingBudgets = nextState.pendingBudgets
       state.budgetEditorDraft = nextState.budgetEditorDraft
+      state.initialTransactionDescription = undefined
+      state.initialTransactionNotes = undefined
+      state.initialTransactionPaymentMethodId = undefined
+      state.initialTransactionDate = undefined
+      state.initialBalances = []
     },
   },
 })
@@ -163,6 +226,10 @@ export const {
   advanceToNextStep,
   goToPreviousStep,
   markCategoriesSeeded,
+  setInitialTransactionData,
+  addInitialBalance,
+  removeInitialBalance,
+  updateInitialBalance,
   setBudgetEditorDraft,
   resetBudgetEditorDraft,
   hydrateOnboardingState,
@@ -178,5 +245,14 @@ export const selectFundingSourceType = (state: RootState) => state.onboarding.fu
 export const selectCategoriesSeeded = (state: RootState) => state.onboarding.categoriesSeeded
 export const selectPendingBudgets = (state: RootState) => state.onboarding.pendingBudgets
 export const selectBudgetEditorDraft = (state: RootState) => state.onboarding.budgetEditorDraft
+export const selectInitialTransactionDescription = (state: RootState) =>
+  state.onboarding.initialTransactionDescription
+export const selectInitialTransactionNotes = (state: RootState) =>
+  state.onboarding.initialTransactionNotes
+export const selectInitialTransactionPaymentMethodId = (state: RootState) =>
+  state.onboarding.initialTransactionPaymentMethodId
+export const selectInitialTransactionDate = (state: RootState) =>
+  state.onboarding.initialTransactionDate
+export const selectInitialBalances = (state: RootState) => state.onboarding.initialBalances
 
 export default slice.reducer

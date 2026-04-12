@@ -6,6 +6,7 @@ export interface CheckboxProps extends Omit<InputHTMLAttributes<HTMLInputElement
   label?: string
   error?: string
   helperText?: string
+  onCheckedChange?: (checked: boolean) => void
 }
 
 export function Checkbox({
@@ -14,6 +15,8 @@ export function Checkbox({
   helperText,
   id,
   label,
+  onCheckedChange,
+  onChange,
   ...props
 }: CheckboxProps): ReactElement {
   const generatedId = useId()
@@ -23,6 +26,11 @@ export function Checkbox({
 
   const ariaDescribedBy = error ? errorId : helperId
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e)
+    onCheckedChange?.(e.target.checked)
+  }
+
   return (
     <div className={cn('flex flex-col gap-1.5', className)}>
       <div className="flex items-start gap-3">
@@ -31,6 +39,7 @@ export function Checkbox({
             id={inputId}
             type="checkbox"
             {...props}
+            onChange={handleChange}
             aria-describedby={ariaDescribedBy}
             aria-invalid={error ? 'true' : undefined}
             className={cn(

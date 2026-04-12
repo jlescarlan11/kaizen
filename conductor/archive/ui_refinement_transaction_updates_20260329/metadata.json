@@ -1,0 +1,8 @@
+{
+  "track_id": "ui_refinement_transaction_updates_20260329",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-29T00:00:00Z",
+  "updated_at": "2026-03-29T00:00:00Z",
+  "description": "update the budget @... to have icon similar to the onboarding...let's update the inputs for the transaction. if it is expense, it should have amount, category, payment method, date (toptional), description (optional), notes (optional), attachment (optional). if it is income, amount, payment method, date (toptional), description (optional), notes (optional), attachment (optional). also let's modify our ui for adding transactions you decide what's best but make sure it is mobile first approach then scale it into non mobile screen."
+}

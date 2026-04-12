@@ -1,3 +1,7 @@
+# --- AI / Tools ---
+.gemini/
+.codex/
+
 # --- OS / Editor ---
 .DS_Store
 Thumbs.db

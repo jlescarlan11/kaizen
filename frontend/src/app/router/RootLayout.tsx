@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate, useMatches } from 'react-router-dom'
 import { MainContent } from '../../shared/components/MainContent'
 import { SiteFooter } from '../../shared/components/SiteFooter'
 import { SiteHeader } from '../../shared/components/SiteHeader'
+import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
 import { Button } from '../../shared/components/Button'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
@@ -214,6 +215,7 @@ export function RootLayout(): ReactElement {
       </MainContent>
 
       {!backButtonConfig && !isSigninPage && !isOnboardingPage && <SiteFooter />}
+      <UndoSnackbar />
     </div>
   )
 }

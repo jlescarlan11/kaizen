@@ -1,0 +1,8 @@
+{
+  "track_id": "auth_home_ui_refactor_20260330",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-03-30T23:05:00Z",
+  "updated_at": "2026-03-30T23:05:00Z",
+  "description": "let's update our authenticated \"/\" to make not use card, and instead use horizontal line as separator..also, opening any trnasaction, goals, budget would go to the detail screen not just modal...also, use the icon used in onboarding for the category, payment method etc. so that we have single source of truth....if posible create a new component so that it would be maintainable and scalable"
+}

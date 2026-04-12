@@ -4,18 +4,17 @@ import { computeAllocationStatus, RED_THRESHOLD } from '../allocationThresholds'
 import type { AllocationStatus } from '../allocationThresholds'
 import { ProgressBar } from '../../../shared/components/ProgressBar'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-})
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
-const currencyFormatterFull = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-})
+const currencyFormatter = {
+  format: (amount: number) =>
+    formatCurrency(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
+}
+
+const currencyFormatterFull = {
+  format: (amount: number) =>
+    formatCurrency(amount, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+}
 
 interface AllocationTotalDisplayProps {
   totalAllocated: number

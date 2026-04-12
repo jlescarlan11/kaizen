@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
+import { Button } from '../../shared/components/Button'
 import { CategoryCreationForm } from './CategoryCreationForm'
 import { CategoryList } from './CategoryList'
+import { MergeCategoriesModal } from './MergeCategoriesModal'
 import { getCategories } from './api'
 import type { Category } from './types'
 import { pageLayout } from '../../shared/styles/layout'
@@ -12,6 +14,7 @@ export function CategoryManagementPage(): ReactElement {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false)
 
   const loadCategories = useCallback(async () => {
     setIsLoading(true)
@@ -44,13 +47,24 @@ export function CategoryManagementPage(): ReactElement {
   return (
     <section className={pageLayout.sectionGap}>
       <header className={pageLayout.headerGap}>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Category management
-        </h1>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Create categories tailored to your workflow. They will appear immediately anywhere you
-          pick a category, alongside the defaults you already know.
-        </p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              Category management
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Create categories tailored to your workflow. They will appear immediately anywhere you
+              pick a category.
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => setIsMergeModalOpen(true)}
+          >
+            Merge Categories
+          </Button>
+        </div>
       </header>
 
       {error && (
@@ -96,6 +110,8 @@ export function CategoryManagementPage(): ReactElement {
           />
         ) : null}
       </ResponsiveModal>
+
+      <MergeCategoriesModal open={isMergeModalOpen} onClose={() => setIsMergeModalOpen(false)} />
     </section>
   )
 }

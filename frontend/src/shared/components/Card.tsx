@@ -9,7 +9,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const toneStyles: Record<CardTone, string> = {
-  neutral: 'border-ui-border bg-ui-surface text-foreground shadow-sm',
+  neutral: 'border-ui-border-subtle bg-transparent text-foreground shadow-none',
   accent: 'border-ui-border bg-ui-accent-subtle text-foreground',
   success: 'border-ui-border bg-ui-success-subtle text-foreground',
   error: 'border-ui-border bg-ui-danger-subtle text-foreground',

@@ -563,6 +563,14 @@ Rules:
 - Repository tests for non-trivial custom queries.
 - Every endpoint should have happy path + validation failure + auth failure test (if protected).
 
+### 2.10 Database Migration Standards (Flyway)
+
+- **Immutability:** Once a migration script (e.g., `V1__Initial_Schema.sql`) is committed to the main branch or shared with others, it is **read-only**. Never edit existing scripts.
+- **Forward-Only:** All schema changes must be implemented as new, higher-numbered migration scripts (e.g., `V5__Add_Index.sql`).
+- **Compatibility:** Use standard SQL where possible. If using database-specific features (e.g., Postgres `LOWER` index), ensure it doesn't break local H2 tests or document the deviation.
+- **Safety:** Use `IF NOT EXISTS` for adding columns or indexes in development-heavy phases to prevent repair cycles.
+- **No Manual Repair:** Avoid `repair-on-migrate` in production. Development environments should only use it during baseline "squashing" or cleanup phases.
+
 ## 3) Data Structures & Algorithm Efficiency Standards (Required)
 
 ### 3.1 Minimum Expectations

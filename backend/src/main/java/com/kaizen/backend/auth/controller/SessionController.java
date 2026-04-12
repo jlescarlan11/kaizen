@@ -64,7 +64,7 @@ public class SessionController {
     @Transactional
     public ResponseEntity<Void> revokeSession(
             @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long id) {
+            @PathVariable long id) {
 
         UserAccount user = userAccountRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalStateException("User account not found"));

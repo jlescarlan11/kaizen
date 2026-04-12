@@ -7,7 +7,12 @@ import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
+import { AddEntryFAB } from '../../shared/components/AddEntryFAB'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
+import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
+import { ConnectivityIndicator } from '../../shared/components/ConnectivityIndicator'
+import { showAlert } from '../../app/store/notificationSlice'
+import { useAppDispatch } from '../../app/store/hooks'
 import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
@@ -19,6 +24,7 @@ interface RouteHandle {
     label: string
     fallbackPath: string
   }
+  actions?: ReactElement
   hideHeader?: boolean
 }
 
@@ -38,6 +44,7 @@ export function AuthenticatedLayout(): ReactElement {
 
 function AuthenticatedLayoutContent(): ReactElement {
   const { user } = useAuthState()
+  const dispatch = useAppDispatch()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const isMobile = useMediaQuery('(max-width: 768px)')
   const matches = useMatches()
@@ -134,24 +141,15 @@ function AuthenticatedLayoutContent(): ReactElement {
     { label: 'Transactions', to: '/', icon: <HomeIcon /> },
     { label: 'Budgets', to: '/budget', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
     {
-      label: 'Add Entry',
-      to: '/budget/manual',
-      icon: <AddIcon />,
-      isAction: true,
-      // TODO: swap to the real add-transaction route once the flow is built.
-    },
-    {
       label: 'Goals',
-      to: '/playground',
+      to: '/goals',
       icon: <GoalIcon />,
       anchorKey: 'goalsTab',
-      // Placeholder route: replace with /goals when the tab is implemented.
     },
     {
       label: 'Vault',
-      to: '/playground',
+      to: '/vault',
       icon: <VaultIcon />,
-      // Additional tab per spec; currently maps to playground until the real vault exists.
     },
   ]
 
@@ -268,6 +266,7 @@ function AuthenticatedLayoutContent(): ReactElement {
               </div>
 
               <div className="flex items-center gap-3 md:gap-5">
+                {handle?.actions}
                 {!isSecondDegree && (
                   <>
                     <button
@@ -321,7 +320,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 h-24 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-end justify-around px-4 pb-6 z-30">
+        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'
@@ -334,10 +333,10 @@ function AuthenticatedLayoutContent(): ReactElement {
                 key={item.to}
                 to={item.to}
                 end={item.to === '/'}
+                aria-label={item.label}
                 className={({ isActive }) =>
                   cn(
                     'flex flex-col items-center gap-1.5 transition-all duration-200',
-                    item.isAction ? 'mb-4' : 'mb-0',
                     isActive
                       ? 'text-foreground scale-110'
                       : 'text-muted-foreground hover:text-foreground',
@@ -349,22 +348,15 @@ function AuthenticatedLayoutContent(): ReactElement {
                   <>
                     <div
                       className={cn(
-                        'transition-all duration-200 flex items-center justify-center',
-                        item.isAction
-                          ? 'h-16 w-16 rounded-full bg-black text-white shadow-xl border-4 border-background -translate-y-2 hover:scale-110 active:scale-95'
-                          : cn(
-                              'p-2 rounded-xl',
-                              isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
-                            ),
+                        'transition-all duration-200 flex items-center justify-center p-2 rounded-xl',
+                        isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
                       )}
                     >
                       {item.icon}
                     </div>
-                    {!item.isAction && (
-                      <span className="text-[10px] font-bold uppercase tracking-wider">
-                        {item.label}
-                      </span>
-                    )}
+                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                      {item.label}
+                    </span>
                   </>
                 )}
               </NavLink>
@@ -372,6 +364,23 @@ function AuthenticatedLayoutContent(): ReactElement {
           })}
         </nav>
       )}
+
+      <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
+      <ConnectivityIndicator />
+      <AddEntryFAB
+        onAddTransaction={() => navigate('/transactions/add')}
+        onCreateBudget={() => navigate('/budget/manual')}
+        onCreateGoal={() => navigate('/goals')}
+        onHoldPurchase={() =>
+          void dispatch(
+            showAlert({
+              title: 'Hold Purchase',
+              message: 'This feature is coming soon!',
+              type: 'info',
+            }),
+          )
+        }
+      />
     </div>
   )
 }
@@ -410,24 +419,6 @@ function BudgetIcon() {
     >
       <path d="M12 2v20" />
       <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-    </svg>
-  )
-}
-
-function AddIcon() {
-  return (
-    <svg
-      width="28"
-      height="28"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
     </svg>
   )
 }

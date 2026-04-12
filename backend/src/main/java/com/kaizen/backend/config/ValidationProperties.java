@@ -18,7 +18,8 @@ public class ValidationProperties {
 
     /**
      * Toggle for enforcing budget-to-balance constraints.
-     * TODO: Confirm applicability of restricted mode (PRD Open Question 2).
+     * Override via {@code app.validation.budget-balance-constraint-enabled} in the environment-specific
+     * configuration file when the restricted-mode behavior needs to differ from the default.
      */
     private boolean budgetBalanceConstraintEnabled = ValidationConstants.BUDGET_BALANCE_CONSTRAINT_ENABLED;
 

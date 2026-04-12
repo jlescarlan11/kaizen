@@ -38,9 +38,39 @@ const CategoryManagementPage = lazy(() =>
     default: m.CategoryManagementPage,
   })),
 )
+const PaymentMethodManagementPage = lazy(() =>
+  import('../../features/payment-methods/PaymentMethodManagementPage').then((m) => ({
+    default: m.PaymentMethodManagementPage,
+  })),
+)
+const PaymentMethodSummaryPage = lazy(() =>
+  import('../../features/payment-methods/PaymentMethodSummaryPage').then((m) => ({
+    default: m.PaymentMethodSummaryPage,
+  })),
+)
 const ManualBudgetSetupPage = lazy(() =>
   import('../../features/budgets/ManualBudgetSetupPage').then((m) => ({
     default: m.ManualBudgetSetupPage,
+  })),
+)
+const TransactionEntryPage = lazy(() =>
+  import('../../features/transactions/TransactionEntryPage').then((m) => ({
+    default: m.TransactionEntryPage,
+  })),
+)
+const TransactionListPage = lazy(() =>
+  import('../../features/transactions/TransactionListPage').then((m) => ({
+    default: m.TransactionListPage,
+  })),
+)
+const ReminderRedirectHandler = lazy(() =>
+  import('../../features/transactions/components/ReminderRedirectHandler').then((m) => ({
+    default: m.ReminderRedirectHandler,
+  })),
+)
+const BalanceHistoryPage = lazy(() =>
+  import('../../features/transactions/BalanceHistoryPage').then((m) => ({
+    default: m.BalanceHistoryPage,
   })),
 )
 const BudgetsPage = lazy(() =>
@@ -48,6 +78,33 @@ const BudgetsPage = lazy(() =>
     default: m.BudgetsPage,
   })),
 )
+const InsightsPage = lazy(() =>
+  import('../../features/insights').then((m) => ({
+    default: m.InsightsPage,
+  })),
+)
+const BalanceSummaryPage = lazy(() =>
+  import('../../features/insights/BalanceSummaryPage').then((m) => ({
+    default: m.BalanceSummaryPage,
+  })),
+)
+const TransactionDetailPage = lazy(() =>
+  import('../../features/transactions/TransactionDetailPage').then((m) => ({
+    default: m.TransactionDetailPage,
+  })),
+)
+const BudgetDetailPage = lazy(() =>
+  import('../../features/budgets/BudgetDetailPage').then((m) => ({
+    default: m.BudgetDetailPage,
+  })),
+)
+const GoalDetailPage = lazy(() =>
+  import('../../features/goals/GoalDetailPage').then((m) => ({
+    default: m.GoalDetailPage,
+  })),
+)
+
+import { TransactionDetailActions } from '../../features/transactions/components/TransactionDetailActions'
 
 export const router = createBrowserRouter([
   {
@@ -132,6 +189,81 @@ export const router = createBrowserRouter([
             element: <PlaygroundPage />,
           },
           {
+            path: 'transactions/add',
+            element: <TransactionEntryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'transactions/:id',
+            element: <TransactionDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+              actions: <TransactionDetailActions />,
+            },
+          },
+          {
+            path: 'transactions/reminder/:id',
+            element: <ReminderRedirectHandler />,
+          },
+          {
+            path: 'transactions/edit/:id',
+            element: <TransactionEntryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+            },
+          },
+          {
+            path: 'transactions/history',
+            element: <BalanceHistoryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/transactions',
+              },
+            },
+          },
+          {
+            path: 'transactions',
+            element: <TransactionListPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'payment-summary',
+            element: <PaymentMethodSummaryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'budget/:id',
+            element: <BudgetDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/budget',
+              },
+            },
+          },
+          {
             path: 'budget',
             element: <BudgetsPage />,
             handle: {
@@ -148,6 +280,36 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Back',
                 fallbackPath: '/budget',
+              },
+            },
+          },
+          {
+            path: 'goals/:id',
+            element: <GoalDetailPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'insights',
+            element: <InsightsPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
+              },
+            },
+          },
+          {
+            path: 'balance-summary',
+            element: <BalanceSummaryPage />,
+            handle: {
+              backButton: {
+                label: 'Back',
+                fallbackPath: '/',
               },
             },
           },
@@ -194,6 +356,16 @@ export const router = createBrowserRouter([
           {
             path: 'your-account/categories',
             element: <CategoryManagementPage />,
+            handle: {
+              backButton: {
+                label: 'Account',
+                fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'your-account/payment-methods',
+            element: <PaymentMethodManagementPage />,
             handle: {
               backButton: {
                 label: 'Account',

@@ -1,5 +1,8 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Check } from 'lucide-react'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { BudgetCard } from '../budgets/components/BudgetCard'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import {
   useCompleteOnboardingMutation,
@@ -11,13 +14,8 @@ import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { typography } from '../../shared/styles/typography'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { createCategory, getCategories } from '../categories/api'
-import { CategoryBadge } from '../categories/CategoryBadge'
 import { InlineCustomCategoryFields } from '../categories/InlineCustomCategoryFields'
-import {
-  getAutoAssignedCategoryDesign,
-  type CategoryIconName,
-  resolveCategoryDesign,
-} from '../categories/designSystem'
+import { getAutoAssignedCategoryDesign, type CategoryIconName } from '../categories/designSystem'
 import type { Category } from '../categories/types'
 import {
   CUSTOM_CATEGORY_OPTION_VALUE,
@@ -26,9 +24,10 @@ import {
 import { AllocationTotalDisplay } from '../budgets/components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from '../budgets/components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from '../budgets/components/SkipBudgetTrigger'
-import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS, type BudgetPeriod } from '../budgets/constants'
+import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS } from '../budgets/constants'
 import { OnboardingErrorBlock } from './OnboardingErrorBlock'
 import { clearStoredOnboardingDraft } from './onboardingDraftStorage'
+import { toLocalISOString } from '../../shared/lib/dateUtils'
 import {
   markCategoriesSeeded,
   selectBalanceValue,
@@ -36,6 +35,7 @@ import {
   selectCategoriesSeeded,
   selectFundingSourceType,
   selectPendingBudgets,
+  selectInitialBalances,
   resetBudgetEditorDraft,
   setBudgetEditorDraft,
   setPendingBudgets,
@@ -43,6 +43,8 @@ import {
 } from './onboardingSlice'
 import { type OnboardingStep } from './onboardingStep'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
+import { cn } from '../../shared/lib/cn'
+import { fluidLayout } from '../../shared/styles/layout'
 
 function roundCurrency(value: number): number {
   return Number(value.toFixed(2))
@@ -94,80 +96,6 @@ function AllocationBar({ allocated, balance, onOver }: AllocationBarProps): Reac
   )
 }
 
-interface BudgetCardProps {
-  budget: PendingBudget
-  isInvalid: boolean
-  onEdit: () => void
-  onRemove: () => void
-}
-
-const periodLabel: Record<BudgetPeriod, string> = {
-  MONTHLY: 'Monthly',
-  WEEKLY: 'Weekly',
-}
-
-function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardProps): ReactElement {
-  const formatter = useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
-  )
-  const categoryDesign = resolveCategoryDesign(
-    budget.categoryName,
-    budget.categoryIcon,
-    budget.categoryColor,
-  )
-
-  return (
-    <div
-      className={`flex items-center gap-3 rounded-xl border px-4 py-3.5 transition-colors ${
-        isInvalid
-          ? 'border-ui-danger-bg bg-ui-danger-subtle'
-          : 'border-ui-border-subtle bg-ui-surface'
-      }`}
-    >
-      <CategoryBadge
-        icon={categoryDesign.icon}
-        color={categoryDesign.color}
-        size={36}
-        label={`Icon for ${budget.categoryName}`}
-      />
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium leading-none text-foreground">
-          {budget.categoryName}
-        </p>
-        <p className="text-xs leading-5 text-muted-foreground tabular-nums">
-          {formatter.format(budget.amount)} / {periodLabel[budget.period]}
-        </p>
-      </div>
-
-      <div className="flex shrink-0 gap-1">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground"
-          aria-label={`Edit ${budget.categoryName} budget`}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="rounded-md px-2.5 py-1.5 text-xs font-medium leading-none text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-foreground"
-          aria-label={`Remove ${budget.categoryName} budget`}
-        >
-          Remove
-        </button>
-      </div>
-    </div>
-  )
-}
-
 export function OnboardingBudgetStep(): ReactElement | null {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -177,6 +105,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
   const pendingBudgets = useAppSelector(selectPendingBudgets)
   const categoriesSeeded = useAppSelector(selectCategoriesSeeded)
   const budgetEditorDraft = useAppSelector(selectBudgetEditorDraft)
+  const initialBalances = useAppSelector(selectInitialBalances)
 
   const balance = reduxBalance ?? user?.balance ?? 0
 
@@ -297,16 +226,6 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
     return Math.max(balance - otherTotal, 0)
   }, [balance, editingCategoryId, pendingBudgets])
-
-  const currencyFormatter = useMemo(
-    () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
-  )
 
   const nextCustomCategoryDesign = useMemo(
     () => getAutoAssignedCategoryDesign(categories.filter((category) => !category.isGlobal)),
@@ -433,7 +352,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
     if (parsedAmount > available) {
       setAmountValidationError(
-        `Amount cannot exceed your remaining balance of ${currencyFormatter.format(Math.max(available, 0))}.`,
+        `Amount cannot exceed your remaining balance of ${formatCurrency(Math.max(available, 0))}.`,
       )
       return
     }
@@ -493,6 +412,13 @@ export function OnboardingBudgetStep(): ReactElement | null {
             amount: budget.amount,
             period: budget.period,
           })),
+          initialBalances: initialBalances.map((b) => ({
+            paymentMethodId: b.paymentMethodId,
+            amount: b.amount,
+            description: 'Opening Balance',
+            notes: 'Initial setup',
+            transactionDate: toLocalISOString(new Date()),
+          })),
         }).unwrap(),
       )
 
@@ -513,25 +439,32 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
   return (
     <>
-      <div className="flex flex-col gap-6 pb-28 sm:pb-10">
-        <div className="rounded-xl border border-ui-border-subtle bg-ui-surface px-4 py-4">
-          <p className="mb-3 text-xs leading-5 text-subtle-foreground">Balance overview</p>
-          <AllocationBar allocated={totalAllocated} balance={balance} onOver={setIsOverAllocated} />
-        </div>
+      <div className={cn('flex flex-col', fluidLayout.sectionGap)}>
+        <section aria-label="Balance overview" className="space-y-4">
+          <p className="text-sm font-medium leading-none text-foreground">Balance overview</p>
 
-        <section aria-label="Your budgets">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="">
+            <AllocationBar
+              allocated={totalAllocated}
+              balance={balance}
+              onOver={setIsOverAllocated}
+            />
+          </div>
+        </section>
+
+        <section aria-label="Your budgets" className="">
+          <div className="flex items-center justify-between">
             <h2 className="text-sm font-medium leading-none text-foreground">
               Your budgets
               {pendingBudgets.length > 0 && (
-                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs leading-5 text-muted-foreground">
+                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
                   {pendingBudgets.length}
                 </span>
               )}
             </h2>
             <Button
               variant="secondary"
-              className="h-8 px-3 text-xs"
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-5 text-sm font-semibold')}
               onClick={openAddModal}
               disabled={isLoadingCategories}
             >
@@ -541,7 +474,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
           {categoryError ? (
             <p
-              className="mb-3 rounded-lg bg-ui-warning-subtle px-3 py-2.5 text-xs leading-5 text-muted-foreground"
+              className="rounded-xl bg-ui-warning-subtle px-4 py-3 text-sm font-medium leading-relaxed text-muted-foreground"
               role="alert"
             >
               {categoryError}
@@ -549,49 +482,51 @@ export function OnboardingBudgetStep(): ReactElement | null {
           ) : null}
 
           {isLoadingCategories ? (
-            <div className="space-y-2.5">
-              {[1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className="h-[60px] animate-pulse rounded-xl border border-ui-border-subtle bg-ui-surface-muted"
-                />
+            <div className="px-4 py-3.5">
+              {[0, 1, 2].map((index) => (
+                <div key={index} className="">
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <div className="h-20 flex items-center gap-4 py-4 animate-pulse">
+                    <div className="h-10 w-10 rounded-full bg-ui-surface-muted shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-24 bg-ui-surface-muted rounded" />
+                      <div className="h-3 w-32 bg-ui-surface-muted rounded" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : pendingBudgets.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-ui-border py-10 text-center">
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
               <span
-                className="text-2xl font-medium leading-none text-foreground"
+                className="text-3xl font-bold tracking-tight text-muted-foreground/30"
                 aria-hidden="true"
               >
                 PHP
               </span>
-              <p className="text-sm font-medium leading-none text-foreground">No budgets yet</p>
-              <p className="text-xs leading-5 text-subtle-foreground">
-                Add at least one to finish setup, or skip for now.
-              </p>
+              <div className="space-y-1">
+                <p className="text-base font-bold text-foreground">No budgets yet</p>
+                <p className="text-sm text-subtle-foreground">
+                  Add at least one to finish setup, or skip for now.
+                </p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-2.5">
-              {pendingBudgets.map((budget) => (
-                <BudgetCard
-                  key={budget.categoryId}
-                  budget={budget}
-                  isInvalid={invalidBudgetIds.has(budget.categoryId)}
-                  onEdit={() => openEditModal(budget.categoryId)}
-                  onRemove={() => handleRemoveBudget(budget.categoryId)}
-                />
+            <div className="">
+              {pendingBudgets.map((budget, index) => (
+                <div key={budget.categoryId} className="">
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <BudgetCard
+                    budget={budget}
+                    isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                    onEdit={() => openEditModal(budget.categoryId)}
+                    onRemove={() => handleRemoveBudget(budget.categoryId)}
+                  />
+                </div>
               ))}
             </div>
           )}
         </section>
-
-        {onboardingError ? (
-          <OnboardingErrorBlock
-            error={onboardingError}
-            onRetry={retry}
-            isRetryDisabled={isRetryDisabled}
-          />
-        ) : null}
 
         {submissionError ? (
           <p className={typography['body-sm']} role="alert">
@@ -600,17 +535,52 @@ export function OnboardingBudgetStep(): ReactElement | null {
         ) : null}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Button
-            className="h-12 w-full rounded-xl text-base font-semibold sm:h-10 sm:w-auto sm:flex-none sm:rounded-md sm:px-5 sm:text-sm"
-            onClick={handleFinishSetup}
-            isLoading={isCompleting}
-            disabled={!canFinish}
-          >
-            Finish setup
-          </Button>
-          <SkipBudgetTrigger className="text-center sm:text-left" />
+      <hr className="my-10 border-ui-border" />
+
+      {/* Summary and Navigation */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
+          <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
+            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+              Total Starting Funds
+            </p>
+            <p className="text-lg font-semibold text-foreground">
+              {formatCurrency(totalAllocated)}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <SkipBudgetTrigger className="hidden sm:inline-block" />
+            <Button
+              variant="primary"
+              onClick={handleFinishSetup}
+              className={cn(
+                fluidLayout.touchTarget,
+                'rounded-full p-0 sm:rounded-xl sm:px-8',
+                'h-12 w-12 sm:h-auto sm:w-auto',
+              )}
+              isLoading={isCompleting}
+              disabled={!canFinish}
+              aria-label="Finish setup"
+            >
+              <span className="hidden sm:inline">Finish setup</span>
+              <Check className="h-6 w-6 sm:hidden" />
+            </Button>
+          </div>
+        </div>
+
+        {onboardingError ? (
+          <div className="mt-4">
+            <OnboardingErrorBlock
+              error={onboardingError}
+              onRetry={retry}
+              isRetryDisabled={isRetryDisabled}
+            />
+          </div>
+        ) : null}
+
+        <div className="mt-4 sm:hidden">
+          <SkipBudgetTrigger className="w-full text-center" />
         </div>
       </div>
 
@@ -619,11 +589,16 @@ export function OnboardingBudgetStep(): ReactElement | null {
         open={isCategoryModalOpen}
         onClose={closeModal}
         footer={
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={closeModal}>
+          <div className="flex flex-col-reverse gap-3 pt-4 sm:flex-row sm:justify-end sm:gap-3 sm:pt-2">
+            <Button
+              variant="ghost"
+              className={cn(fluidLayout.touchTarget, 'w-full sm:h-10 sm:w-auto sm:px-5')}
+              onClick={closeModal}
+            >
               Cancel
             </Button>
             <Button
+              className={cn(fluidLayout.touchTarget, 'w-full sm:h-10 sm:w-auto sm:px-5')}
               onClick={() => void handleConfirmCategory()}
               isLoading={isCreatingCustomCategory}
             >
@@ -638,6 +613,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             value={selectedCategoryId ?? ''}
             disabledIds={disabledCategoryIds}
             loading={isLoadingCategories}
+            className={fluidLayout.touchTarget}
             onChange={(value) => {
               dispatch(
                 setBudgetEditorDraft({
@@ -684,8 +660,11 @@ export function OnboardingBudgetStep(): ReactElement | null {
             inputMode="decimal"
             min="1"
             step="0.01"
-            endAdornment="PHP"
+            startAdornment={
+              <span className="text-sm font-semibold text-muted-foreground">PHP</span>
+            }
             value={amountInput}
+            className={cn(fluidLayout.touchTarget, 'font-semibold text-right')}
             onChange={(event) => {
               dispatch(
                 setBudgetEditorDraft({
@@ -698,7 +677,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             error={amountValidationError ?? undefined}
             helperText={
               !amountValidationError
-                ? `Unallocated: ${currencyFormatter.format(availableForCurrent)}`
+                ? `Unallocated: ${formatCurrency(availableForCurrent)}`
                 : undefined
             }
           />

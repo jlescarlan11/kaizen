@@ -1,45 +1,43 @@
-import { type ChangeEvent, type ReactElement, useMemo, useState } from 'react'
+import { type ReactElement, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '../../shared/components/Button'
-import { Input } from '../../shared/components/Input'
-import { Select } from '../../shared/components/Select'
-import { validateBalance } from '../../shared/lib/validation'
-import { typography } from '../../shared/styles/typography'
+import { ArrowRight } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { useUpdateOnboardingProgressMutation } from '../../app/store/api/authApi'
 import { ONBOARDING_STEP_ROUTE_MAP, type OnboardingStep } from './onboardingStep'
 import {
-  selectFundingSourceType,
-  selectStartingFunds,
-  selectStartingFundsInput,
   setCurrentStep,
-  setFundingSourceType,
   setStartingFunds,
-  setStartingFundsInput,
+  setFundingSourceType,
+  updateInitialBalance,
+  selectInitialBalances,
 } from './onboardingSlice'
 import { OnboardingErrorBlock } from './OnboardingErrorBlock'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
-import {
-  FUNDING_SOURCE_HELP_TEXT,
-  FUNDING_SOURCE_OPTIONS,
-  type FundingSourceType,
-} from './fundingSource'
+import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
+import { Input, Button } from '../../shared/components'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { fluidLayout } from '../../shared/styles/layout'
+import { typography } from '../../shared/styles/typography'
+import { cn } from '../../shared/lib/cn'
 
-const formatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-})
+import { toLocalISOString } from '../../shared/lib/dateUtils'
 
 export function BalanceSetupStep(): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const startingFunds = useAppSelector(selectStartingFunds)
-  const startingFundsInput = useAppSelector(selectStartingFundsInput)
-  const fundingSourceType = useAppSelector(selectFundingSourceType)
-  const [updateProgress, { isLoading }] = useUpdateOnboardingProgressMutation()
-  const [error, setError] = useState<string | null>(null)
-  const [fundingSourceError, setFundingSourceError] = useState<string | null>(null)
+  const [updateProgress] = useUpdateOnboardingProgressMutation()
+  const { data: rawPaymentMethods = [], isLoading: isLoadingMethods } = useGetPaymentMethodsQuery()
+
+  const paymentMethods = useMemo(() => {
+    return [...rawPaymentMethods].sort((a, b) => {
+      if (a.name.toLowerCase() === 'cash') return -1
+      if (b.name.toLowerCase() === 'cash') return 1
+      return a.name.localeCompare(b.name)
+    })
+  }, [rawPaymentMethods])
+
+  const initialBalances = useAppSelector(selectInitialBalances)
+
   const {
     handleRequest,
     retry,
@@ -47,158 +45,139 @@ export function BalanceSetupStep(): ReactElement {
     isRetryDisabled,
   } = useOnboardingErrorHandler('BALANCE' as OnboardingStep)
 
-  const balanceError = useMemo(() => validateBalance(startingFundsInput), [startingFundsInput])
+  const totalBalance = useMemo(() => {
+    return initialBalances.reduce((sum, b) => sum + b.amount, 0)
+  }, [initialBalances])
 
-  const parsedBalance = parseFloat(startingFundsInput)
-  const hasValidBalance = !Number.isNaN(parsedBalance) && parsedBalance > 0 && !balanceError
-  const hasFundingSource = fundingSourceType != null
-  const formattedPreview = hasValidBalance ? formatter.format(parsedBalance) : null
+  const hasAnyBalance = useMemo(() => {
+    return initialBalances.some((b) => b.amount > 0)
+  }, [initialBalances])
 
-  const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    const raw = event.target.value
-    dispatch(setStartingFundsInput(raw))
-    setError(null)
-
-    const parsed = parseFloat(raw)
-    if (Number.isNaN(parsed)) {
-      dispatch(setStartingFunds(null))
-      return
-    }
-
-    dispatch(setStartingFunds(parsed))
-  }
-
-  const handleFundingSourceChange = (value: string): void => {
-    dispatch(setFundingSourceType(value as FundingSourceType))
-    setFundingSourceError(null)
+  const handleBalanceChange = (paymentMethodId: number, value: string) => {
+    const amount = parseFloat(value) || 0
+    dispatch(updateInitialBalance({ paymentMethodId, amount }))
   }
 
   const handleContinue = async (): Promise<void> => {
-    if (balanceError) return
+    dispatch(setStartingFunds(totalBalance))
+    dispatch(setFundingSourceType('CASH_ON_HAND'))
 
-    if (startingFunds == null) {
-      setError('Please enter your starting funds before continuing.')
-      return
-    }
+    const activeBalances = initialBalances.filter((b) => b.amount > 0)
 
-    if (fundingSourceType == null) {
-      setFundingSourceError('Please choose where these funds are currently stored.')
-      return
-    }
+    const mappedBalances = activeBalances.map((b) => ({
+      paymentMethodId: b.paymentMethodId,
+      amount: b.amount,
+      description: 'Opening Balance',
+      notes: 'Initial setup',
+      transactionDate: toLocalISOString(new Date()),
+    }))
 
-    setError(null)
-    setFundingSourceError(null)
     try {
+      dispatch(setCurrentStep('BUDGET'))
+
       await handleRequest(() =>
         updateProgress({
-          currentStep: 'BALANCE' as OnboardingStep,
-          startingFunds,
-          fundingSourceType,
+          currentStep: 'BUDGET' as OnboardingStep, // Mark as BUDGET complete
+          startingFunds: totalBalance,
+          fundingSourceType: 'CASH_ON_HAND',
+          initialBalances: mappedBalances,
         }).unwrap(),
       )
-      dispatch(setCurrentStep('BUDGET'))
-      navigate(ONBOARDING_STEP_ROUTE_MAP['BUDGET'])
+
+      const nextRoute = ONBOARDING_STEP_ROUTE_MAP['BUDGET']
+      navigate(nextRoute)
     } catch (err) {
-      console.error('Balance setup failed:', err)
+      console.error('Balance setup progress update failed:', err)
+      // Revert on failure
+      dispatch(setCurrentStep('BALANCE'))
     }
   }
 
+  if (isLoadingMethods) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
+
   return (
-    <>
-      <div className="flex flex-col gap-6 pb-28 sm:pb-10">
-        <div className="space-y-2">
-          <Input
-            label="Starting funds"
-            type="number"
-            inputMode="decimal"
-            value={startingFundsInput}
-            onChange={handleChange}
-            placeholder="0.00"
-            endAdornment="PHP"
-            min="0"
-            step="0.01"
-            error={balanceError ?? undefined}
-            aria-label="Starting funds in Philippine Peso"
-          />
+    <div className={cn('flex w-full flex-col', fluidLayout.sectionGap)}>
+      <div className="">
+        {paymentMethods.map((pm, index) => {
+          const balance = initialBalances.find((b) => b.paymentMethodId === pm.id)
+          const amountValue = balance ? balance.amount.toString() : ''
 
-          <div className="min-h-[1.25rem] pl-1">
-            {formattedPreview ? (
-              <p className="text-sm font-medium leading-none text-foreground tabular-nums">
-                {formattedPreview}
-              </p>
-            ) : null}
+          return (
+            <div key={pm.id} className="">
+              {index > 0 && <hr className="border-ui-border-subtle" />}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6 px-4 py-3.5">
+                <label
+                  htmlFor={`balance-${pm.id}`}
+                  className={cn(typography.label, 'text-foreground')}
+                >
+                  {pm.name}
+                </label>
+
+                <div className="w-full sm:w-48 lg:w-64">
+                  <Input
+                    id={`balance-${pm.id}`}
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={amountValue}
+                    onChange={(e) => handleBalanceChange(pm.id, e.target.value)}
+                    startAdornment={
+                      <span className="text-sm font-semibold text-muted-foreground">PHP</span>
+                    }
+                    className={cn(fluidLayout.touchTarget, 'text-lg font-semibold text-right')}
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <hr className="my-10 border-ui-border" />
+
+      {/* Summary and Navigation */}
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
+          <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
+            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+              Total Starting Funds
+            </p>
+            <p className="text-lg font-semibold text-foreground">{formatCurrency(totalBalance)}</p>
           </div>
-        </div>
 
-        <Select
-          label="Where is this money stored?"
-          options={FUNDING_SOURCE_OPTIONS}
-          value={fundingSourceType ?? undefined}
-          onChange={handleFundingSourceChange}
-          error={fundingSourceError ?? undefined}
-          helperText={
-            fundingSourceType
-              ? FUNDING_SOURCE_HELP_TEXT[fundingSourceType]
-              : 'Choose the source that currently holds your available money.'
-          }
-          placeholder="Select a funding source"
-        />
-
-        <div className="flex items-start gap-2.5 rounded-xl border border-ui-border-subtle bg-ui-surface-muted px-4 py-3.5">
-          <svg
-            className="mt-0.5 h-4 w-4 shrink-0 text-subtle-foreground"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
+          <Button
+            onClick={handleContinue}
+            variant="primary"
+            className={cn(
+              fluidLayout.touchTarget,
+              'rounded-full p-0 sm:rounded-xl sm:px-8',
+              'h-12 w-12 sm:h-auto sm:w-auto',
+            )}
+            disabled={!hasAnyBalance}
+            aria-label="Continue to budgets"
           >
-            <rect
-              x="3"
-              y="7"
-              width="10"
-              height="8"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.3"
-            />
-            <path
-              d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"
-              stroke="currentColor"
-              strokeWidth="1.3"
-              strokeLinecap="round"
-            />
-            <circle cx="8" cy="11" r="1" fill="currentColor" />
-          </svg>
-          <p className="text-xs leading-5 text-subtle-foreground">
-            Kaizen uses this starting snapshot to personalize your first budget setup. You can
-            refine how your money is organized later.
-          </p>
+            <span className="hidden sm:inline">Continue to budgets</span>
+            <ArrowRight className="h-6 w-6 sm:hidden" />
+          </Button>
         </div>
 
         {onboardingError ? (
-          <OnboardingErrorBlock
-            error={onboardingError}
-            onRetry={retry}
-            isRetryDisabled={isRetryDisabled}
-          />
-        ) : null}
-
-        {error ? (
-          <p className={typography['body-sm']} role="alert">
-            {error}
-          </p>
+          <div className="mt-4">
+            <OnboardingErrorBlock
+              error={onboardingError}
+              onRetry={retry}
+              isRetryDisabled={isRetryDisabled}
+            />
+          </div>
         ) : null}
       </div>
-
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <Button
-          className="h-12 w-full rounded-xl text-base font-semibold sm:h-10 sm:rounded-md sm:text-sm"
-          onClick={handleContinue}
-          isLoading={isLoading}
-          disabled={Boolean(balanceError) || !hasValidBalance || !hasFundingSource}
-        >
-          Continue to budgets
-        </Button>
-      </div>
-    </>
+    </div>
   )
 }

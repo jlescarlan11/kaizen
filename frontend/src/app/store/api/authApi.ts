@@ -14,6 +14,15 @@ interface User {
   budgetSetupSkipped: boolean
   tourCompleted: boolean
   firstTransactionAdded: boolean
+  remindersEnabled: boolean
+}
+
+export interface InitialBalanceRequest {
+  paymentMethodId: number
+  amount: number
+  description?: string
+  notes?: string
+  transactionDate?: string
 }
 
 export interface OnboardingProgressResponse {
@@ -21,6 +30,11 @@ export interface OnboardingProgressResponse {
   startingFunds: number | null
   fundingSourceType: FundingSourceType | null
   lastUpdatedAt: string
+  description?: string
+  notes?: string
+  paymentMethodId?: number
+  transactionDate?: string
+  initialBalances?: InitialBalanceRequest[]
 }
 
 export const authApi = baseApi.injectEndpoints({
@@ -48,6 +62,11 @@ export const authApi = baseApi.injectEndpoints({
         startingFunds: number
         fundingSourceType: FundingSourceType
         budgets?: { categoryId: number; amount: number; period: string }[]
+        description?: string
+        notes?: string
+        paymentMethodId?: number
+        transactionDate?: string
+        initialBalances?: InitialBalanceRequest[]
       }
     >({
       query: (body) => ({
@@ -144,6 +163,22 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
+    toggleReminders: builder.mutation<User, { enabled: boolean }>({
+      query: (body) => ({
+        url: '/users/reminders',
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: user } = await queryFulfilled
+          dispatch(setCredentials({ user }))
+        } catch (error) {
+          console.error('Failed to toggle reminders:', error)
+        }
+      },
+    }),
     getMe: builder.query<User, void>({
       query: () => '/users/me',
       providesTags: ['User'],
@@ -167,6 +202,11 @@ export const authApi = baseApi.injectEndpoints({
         currentStep: OnboardingStep
         startingFunds?: number
         fundingSourceType?: FundingSourceType
+        description?: string
+        notes?: string
+        paymentMethodId?: number
+        transactionDate?: string
+        initialBalances?: InitialBalanceRequest[]
       }
     >({
       query: (body) => ({
@@ -198,4 +238,5 @@ export const {
   useResetTourFlagMutation,
   useMarkFirstTransactionAddedMutation,
   useResetOnboardingMutation,
+  useToggleRemindersMutation,
 } = authApi

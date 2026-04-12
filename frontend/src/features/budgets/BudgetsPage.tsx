@@ -1,33 +1,29 @@
 import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { DataList } from '../../shared/components/DataList'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
+}
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
-  const { data: budgets, isLoading } = useGetBudgetsQuery()
+  const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: budgetSummary } = useGetBudgetSummaryQuery()
-
-  const handleEditBudget = () => {
-    // For now, redirect to the smart setup as an "editor" (MVP logic)
-    // In a future story, we might have a specific per-budget edit view.
-    navigate('/budget/smart')
-  }
+  const { data: categories = [] } = useGetCategoriesQuery()
 
   const handleNewBudget = () => {
     navigate('/budget/manual')
   }
 
-  if (isLoading) {
+  if (isBudgetsLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -77,11 +73,12 @@ export function BudgetsPage(): ReactElement {
         </Card>
       </div>
 
-      <div className="grid gap-6">
-        {!budgets || budgets.length === 0 ? (
-          <Card className="flex flex-col items-center justify-center border-dashed p-12 text-center">
+      <DataList
+        data={budgets || []}
+        emptyState={
+          <div className="flex flex-col items-center justify-center p-12 text-center">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-ui-accent-subtle text-ui-action">
-              <BudgetIcon />
+              <SharedIcon type="category" name="wallet" size={24} />
             </div>
             <h3 className="text-lg font-semibold text-foreground">No budgets found</h3>
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
@@ -94,51 +91,60 @@ export function BudgetsPage(): ReactElement {
                 Manual Setup
               </Button>
             </div>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {budgets.map((budget) => (
-              <Card
-                key={budget.id}
-                className="group space-y-4 border border-ui-border-subtle p-6 transition-colors hover:border-ui-border-strong"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                      {budget.categoryName}
-                    </p>
-                    <p className="text-2xl font-semibold text-foreground">
-                      {currencyFormatter.format(budget.amount)}
-                    </p>
-                  </div>
-                  <div className="rounded-md bg-ui-accent-subtle px-2 py-1 text-[10px] font-medium uppercase text-ui-action">
-                    {budget.period}
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <Button
-                    variant="ghost"
-                    onClick={handleEditBudget}
-                    className="w-full text-xs font-medium"
-                  >
-                    Edit Budget
-                  </Button>
-                </div>
-              </Card>
-            ))}
           </div>
-        )}
-      </div>
+        }
+        renderItem={(budget) => {
+          const category = categories.find((c) => c.id === budget.categoryId)
+          return (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(`/budget/${budget.id}`)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+              className="group flex items-center justify-between px-4 py-3.5 hover:bg-ui-surface-hover transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110"
+                  style={{
+                    backgroundColor: (category?.color || '#000') + '15',
+                    color: category?.color,
+                  }}
+                >
+                  <SharedIcon type="category" name={category?.icon || 'wallet'} size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {budget.categoryName}
+                  </p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                    {budget.period}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-lg font-bold text-foreground">
+                    {currencyFormatter.format(budget.amount)}
+                  </p>
+                </div>
+                <div className="text-muted-foreground/30 group-hover:text-primary transition-colors">
+                  <ChevronRightIcon size={20} />
+                </div>
+              </div>
+            </div>
+          )
+        }}
+      />
     </section>
   )
 }
 
-function BudgetIcon() {
+function ChevronRightIcon({ size }: { size: number }) {
   return (
     <svg
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -146,8 +152,7 @@ function BudgetIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M12 2v20" />
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      <path d="m9 18 6-6-6-6" />
     </svg>
   )
 }

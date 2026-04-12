@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.auth.config.SessionProperties;
 import com.kaizen.backend.auth.repository.PersistentSessionRepository;
 import com.kaizen.backend.auth.service.GoogleOAuthService;
 import com.kaizen.backend.auth.util.SessionTokenUtil;
@@ -30,8 +31,8 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final PersistentSessionRepository persistentSessionRepository;
-    private final com.kaizen.backend.auth.service.GoogleOAuthService googleOAuthService;
-    private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
+    private final GoogleOAuthService googleOAuthService;
+    private final SessionProperties sessionProperties;
 
     @Operation(summary = "Logout the current user", description = "Invalidates the current session.")
     @PostMapping("/logout")
@@ -60,7 +61,7 @@ public class AuthController {
                 .ifPresent(cookie -> {
                     String token = cookie.getValue();
                     if (token != null && !token.isBlank()) {
-                        String tokenHash = com.kaizen.backend.auth.util.SessionTokenUtil.hashToken(token);
+                        String tokenHash = SessionTokenUtil.hashToken(token);
                         persistentSessionRepository.deleteByTokenHash(tokenHash);
                     }
                 });

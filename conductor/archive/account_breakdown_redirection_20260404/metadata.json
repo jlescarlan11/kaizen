@@ -1,0 +1,8 @@
+{
+  "track_id": "account_breakdown_redirection_20260404",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-04T16:50:00Z",
+  "updated_at": "2026-04-04T16:50:00Z",
+  "description": "let's update our account breakdown to make the payment method clickable, and if it was clicked, it will direct to the transaction page filtered for that payment method."
+}

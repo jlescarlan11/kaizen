@@ -3,7 +3,7 @@ package com.kaizen.backend.category.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaizen.backend.category.dto.CategoryCreateRequest;
+import com.kaizen.backend.category.dto.CategoryMergeRequest;
 import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.category.dto.CategoryUpdateRequest;
 import com.kaizen.backend.category.entity.Category;
@@ -31,7 +32,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 
 @Tag(name = "Category", description = "Category management.")
 @RestController
@@ -44,6 +45,55 @@ public class CategoryController {
     public CategoryController(CategoryService categoryService, UserAccountService userAccountService) {
         this.categoryService = categoryService;
         this.userAccountService = userAccountService;
+    }
+
+    @Operation(
+        summary = "Get transaction count for a category",
+        description = "Returns the number of transactions currently assigned to a specific category.",
+        operationId = "getCategoryTransactionCount"
+    )
+    @GetMapping("/{categoryId}/transactions/count")
+    public long getCategoryTransactionCount(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @PathVariable Long categoryId
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+        return categoryService.getTransactionCountForCategory(userDetails.getUsername(), categoryId);
+    }
+
+    @Operation(
+        summary = "Merge categories",
+        description = "Atomic merge that reassigns all transactions from source to target and deletes the source category.",
+        operationId = "mergeCategories"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "204",
+            description = "Categories merged successfully."
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid source or target, or they are identical.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Category not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @PostMapping("/merge")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void mergeCategories(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @Valid @RequestBody CategoryMergeRequest request
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+        categoryService.mergeCategories(userDetails.getUsername(), request.sourceId(), request.targetId());
     }
 
     @Operation(
@@ -162,7 +212,8 @@ public class CategoryController {
             category.getName(),
             category.isGlobal(),
             category.getIcon(),
-            category.getColor()
+            category.getColor(),
+            category.getType()
         );
     }
 }

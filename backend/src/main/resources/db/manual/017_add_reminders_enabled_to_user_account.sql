@@ -1,0 +1,1 @@
+ALTER TABLE user_account ADD COLUMN reminders_enabled BOOLEAN NOT NULL DEFAULT TRUE;

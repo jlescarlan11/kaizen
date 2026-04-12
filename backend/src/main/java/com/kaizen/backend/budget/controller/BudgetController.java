@@ -232,6 +232,7 @@ public class BudgetController {
             budget.getCategory().getId(),
             budget.getCategory().getName(),
             budget.getAmount(),
+            budget.getExpense(),
             budget.getPeriod(),
             budget.getCreatedAt(),
             budget.getUpdatedAt()

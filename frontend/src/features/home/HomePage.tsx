@@ -1,48 +1,241 @@
 import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import {
+  useGetBudgetSummaryQuery,
+  useGetBudgetsQuery,
+  type BudgetResponse,
+} from '../../app/store/api/budgetApi'
+import {
+  useGetTransactionsQuery,
+  type TransactionResponse,
+} from '../../app/store/api/transactionApi'
+import { useGetCategoriesQuery, type CategoryResponse } from '../../app/store/api/categoryApi'
 import { useAuthState } from '../../shared/hooks/useAuthState'
+import { BalanceSummaryIcon } from './components/BalanceSummaryIcon'
 import { BudgetsEmptyState } from './BudgetsEmptyState'
 import { TransactionsEmptyState } from './TransactionsEmptyState'
-import { Card } from '../../shared/components/Card'
-import { Button } from '../../shared/components/Button'
+import { SectionHeader } from '../../shared/components/SectionHeader'
+import { SkeletonList } from '../../shared/components/SkeletonList'
+import { Badge } from '../../shared/components/Badge'
 import { DashboardTour } from './DashboardTour'
 import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
 import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
-import { pageLayout } from '../../shared/styles/layout'
+import { cn } from '../../shared/lib/cn'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { DataList } from '../../shared/components/DataList'
+import { SharedIcon } from '../../shared/components/IconRegistry'
+import { formatTransactionDate } from '../transactions/utils/transactionUtils'
 
-interface HomePageProps {
-  /**
-   * Placeholder count until a transaction history endpoint exists (PRD Section 6b).
-   * Connect this to the same data used to render transaction rows so no extra requests are required.
-   */
-  transactionsCount?: number
+const currencyFormatter = {
+  format: (amount: number) => formatCurrency(amount),
 }
 
-const currencyFormatter = new Intl.NumberFormat('en-PH', {
-  style: 'currency',
-  currency: 'PHP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
+// --- Helper Components ---
 
-export function HomePage({ transactionsCount }: HomePageProps = {}): ReactElement {
+const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse }) => {
+  const navigate = useNavigate()
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/transactions/${tx.id}`)}
+      onKeyDown={(e) => e.key === 'Enter' && navigate(`/transactions/${tx.id}`)}
+      className="flex items-center justify-between px-4 py-3.5 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full transition-transform group-hover:scale-110"
+          style={{
+            backgroundColor: (tx.category?.color || '#000') + '15',
+            color: tx.category?.color || 'var(--muted-foreground)',
+          }}
+        >
+          {tx.category ? (
+            <SharedIcon type="category" name={tx.category.icon} size={20} />
+          ) : (
+            <div
+              className={cn(
+                'flex h-full w-full items-center justify-center rounded-full',
+                tx.type === 'INCOME'
+                  ? 'bg-ui-success/10 text-ui-success'
+                  : 'bg-ui-error/10 text-ui-error',
+              )}
+            >
+              {tx.type === 'INCOME' ? (
+                <SharedIcon type="category" name="banknote" size={20} />
+              ) : (
+                <span className="text-lg font-bold">?</span>
+              )}
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+            {tx.description || tx.category?.name || 'Uncategorized'}
+          </p>
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            {formatTransactionDate(tx.transactionDate)}
+            {tx.paymentMethod && (
+              <>
+                <span className="text-muted-foreground/50 mx-1">•</span>
+                <span className="font-medium text-foreground/70">{tx.paymentMethod.name}</span>
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+      <div className="text-right">
+        <p
+          className={cn('font-bold', tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success')}
+        >
+          {tx.type === 'EXPENSE' ? '-' : '+'}
+          {currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
+          <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+        </p>
+        <Badge
+          tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+          className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
+        >
+          {tx.type}
+        </Badge>
+      </div>
+    </div>
+  )
+}
+
+const BudgetRow = ({
+  budget,
+  category,
+}: {
+  budget: BudgetResponse
+  category?: CategoryResponse
+}) => {
+  const navigate = useNavigate()
+  const usagePercent = Math.min(Math.round((budget.expense / budget.amount) * 100), 100)
+  const isOverBudget = budget.expense > budget.amount
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/budget/${budget.id}`)}
+      onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+      className="flex flex-col px-4 py-4 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group border-b border-ui-border-subtle last:border-0"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-4">
+          <div
+            className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+            style={{
+              backgroundColor: (category?.color || '#000') + '15',
+              color: category?.color,
+            }}
+          >
+            <SharedIcon type="category" name={category?.icon || 'banknote'} size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
+              {budget.categoryName}
+            </p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              {budget.period}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <p className="text-sm font-bold text-foreground">
+              {currencyFormatter.format(budget.expense)}
+            </p>
+            <p
+              className={`text-[10px] font-bold uppercase tracking-wider ${isOverBudget ? 'text-ui-danger' : 'text-primary'}`}
+            >
+              {usagePercent}% used
+            </p>
+          </div>
+          <div className="text-muted-foreground/30 group-hover:text-primary transition-colors">
+            <ChevronRightIcon size={20} />
+          </div>
+        </div>
+      </div>
+
+      <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
+        <div
+          className={cn(
+            'h-full transition-all duration-500 ease-out',
+            isOverBudget ? 'bg-ui-danger' : 'bg-primary',
+          )}
+          style={{ width: `${usagePercent}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+const GoalPlaceholderRow = () => {
+  const navigate = useNavigate()
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate('/goals')}
+      onKeyDown={(e) => e.key === 'Enter' && navigate('/goals')}
+      className="p-10 flex flex-col items-center justify-center text-center space-y-3 hover:bg-ui-accent-subtle/30 transition-colors cursor-pointer group"
+    >
+      <div className="h-12 w-12 rounded-full bg-ui-accent-subtle flex items-center justify-center group-hover:scale-110 transition-transform">
+        <SharedIcon type="category" name="sparkles" size={24} className="text-primary" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-foreground">Savings Goals</p>
+        <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
+          Track your progress towards big purchases or emergency funds.
+        </p>
+      </div>
+      <Badge tone="neutral" className="text-[10px] uppercase font-black tracking-widest px-3 py-1">
+        Coming Soon
+      </Badge>
+    </div>
+  )
+}
+
+function ChevronRightIcon({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
+export function HomePage(): ReactElement {
   const { user } = useAuthState()
   const navigate = useNavigate()
 
   const balanceCardRef = useRegisterDashboardTourAnchor('balanceCard')
   const addTransactionButtonRef = useRegisterDashboardTourAnchor('addTransactionButton')
 
-  const { data: budgetSummary, isFetching: isBudgetSummaryLoading } = useGetBudgetSummaryQuery()
-  const budgetCount = budgetSummary?.budgetCount ?? 0
-  const hasBudgets = budgetCount > 0
-  const hasTransactions = (transactionsCount ?? 0) > 0
+  const { isFetching: isBudgetSummaryLoading } = useGetBudgetSummaryQuery()
+  const { data: budgets = [], isFetching: isBudgetsLoading } = useGetBudgetsQuery()
+  const { data: categories = [] } = useGetCategoriesQuery()
+
+  const hasBudgets = budgets.length > 0
+
+  const { data: transactions = [], isLoading: isTransactionsLoading } = useGetTransactionsQuery()
+  const hasTransactions = transactions.length > 0
 
   const formattedBalance = currencyFormatter.format(user?.balance ?? 0)
 
   const handleStartTransactions = () => {
-    // TODO: update ADD_TRANSACTION_ROUTE once the real add-transaction flow is available.
     navigate(ADD_TRANSACTION_ROUTE)
   }
 
@@ -52,111 +245,71 @@ export function HomePage({ transactionsCount }: HomePageProps = {}): ReactElemen
 
   return (
     <>
-      <section className={pageLayout.sectionGap}>
-        <header className={pageLayout.headerGap}>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.name}. Here is your account overview.
+      <div className={cn('space-y-7 pb-32')}>
+        {/* ───────── TOTAL BALANCE ───────── */}
+        <section
+          ref={balanceCardRef}
+          className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-500"
+        >
+          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+            Total Balance
           </p>
-        </header>
-
-        <div className={pageLayout.sectionCompactGap}>
-          <h2 className="text-xl font-semibold text-foreground">Transactions</h2>
-          {!hasTransactions ? (
-            <>
-              <TransactionsEmptyState
-                onAddTransaction={handleStartTransactions}
-                buttonRef={addTransactionButtonRef}
-              />
-              <p className="text-xs leading-snug text-subtle-foreground">
-                {/*
-                  The prompt shows until we have a transaction history endpoint.
-                  Replace this guard with a real `hasTransactions` flag once transaction data exists.
-                */}
-                No transaction history yet? Tap the button above to record your first entry.
-              </p>
-            </>
-          ) : (
-            <Card className="space-y-2 border border-ui-border-subtle p-6">
-              <p className="text-base font-semibold text-foreground">
-                Transactions will appear here
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Once you record entries, this list will refresh automatically and the tour can
-                highlight the most recent item.
-              </p>
-            </Card>
-          )}
-        </div>
-
-        <div className={pageLayout.sectionCompactGap}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                Budget summary
-              </p>
-              <p className="text-foreground text-lg font-semibold">Plan and track your budgets</p>
-            </div>
-            <Button variant="ghost" onClick={handleLaunchSetup} className="text-sm font-medium">
-              Manage budgets
-            </Button>
+          <div className="flex items-baseline gap-2">
+            <span className="text-lg font-bold text-muted-foreground">PHP</span>
+            <h2 className="text-4xl font-black tracking-tight text-foreground">
+              {formattedBalance.replace('PHP', '').trim()}
+            </h2>
+            <BalanceSummaryIcon />
           </div>
+        </section>
 
-          {isBudgetSummaryLoading ? (
-            <Card className="border border-ui-border-subtle p-6">
-              <p className="text-sm text-muted-foreground">Loading budget activity...</p>
-            </Card>
-          ) : hasBudgets ? (
-            <Card className="space-y-3 border border-ui-border-subtle p-6">
-              <p className="text-base font-semibold text-foreground">Budgets at a glance</p>
-              <p className="text-sm text-muted-foreground">
-                You currently have {budgetCount} budget{budgetCount === 1 ? '' : 's'} configured.
-              </p>
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Allocated
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Remaining to budget
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {currencyFormatter.format(budgetSummary?.remainingToAllocate ?? 0)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-                    Allocation rate
-                  </p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {budgetSummary?.allocationPercentage ?? 0}%
-                  </p>
-                </div>
-              </div>
-            </Card>
+        {/* ───────── TRANSACTIONS SECTION ───────── */}
+        <section className="space-y-3 animate-in fade-in slide-in-from-bottom-3 duration-600 delay-75">
+          <SectionHeader title="Transactions" seeAllHref="/transactions" />
+
+          {isTransactionsLoading ? (
+            <SkeletonList count={3} itemHeight="h-20" />
+          ) : !hasTransactions ? (
+            <TransactionsEmptyState
+              onAddTransaction={handleStartTransactions}
+              buttonRef={addTransactionButtonRef}
+            />
           ) : (
-            <BudgetsEmptyState onQuickSetup={handleLaunchSetup} />
+            <DataList
+              data={transactions.slice(0, 5)}
+              renderItem={(tx) => <TransactionRow transaction={tx} />}
+            />
           )}
-        </div>
+        </section>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Card ref={balanceCardRef} className="space-y-3 border border-ui-border-subtle p-6">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-              Available balance
-            </p>
-            <p className="text-4xl font-bold tracking-tight text-foreground">{formattedBalance}</p>
-          </Card>
-        </div>
-        {/*
-          Goals empty state content is deferred (PRD Open Question 6).
-          Keep this stub in place until the UX team confirms the required copy.
-        */}
-      </section>
+        {/* ───────── BUDGET SECTION ───────── */}
+        <section className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+          <SectionHeader title="Budget" seeAllHref="/budget" />
+
+          {isBudgetSummaryLoading || isBudgetsLoading ? (
+            <SkeletonList count={2} itemHeight="h-24" />
+          ) : !hasBudgets ? (
+            <BudgetsEmptyState onQuickSetup={handleLaunchSetup} />
+          ) : (
+            <DataList
+              data={budgets.slice(0, 3)}
+              renderItem={(budget) => {
+                const category = categories.find((c) => c.id === budget.categoryId)
+                return <BudgetRow budget={budget} category={category} />
+              }}
+            />
+          )}
+        </section>
+
+        {/* ───────── GOALS SECTION ───────── */}
+        <section className="space-y-3 animate-in fade-in slide-in-from-bottom-5 duration-800 delay-225">
+          <SectionHeader title="Goal" seeAllHref="/goals" />
+          <DataList
+            data={[1]} // Single item list for consistency
+            renderItem={() => <GoalPlaceholderRow />}
+          />
+        </section>
+      </div>
       <DashboardTour />
     </>
   )

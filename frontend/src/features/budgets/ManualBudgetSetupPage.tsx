@@ -18,7 +18,7 @@ import {
   setPendingBudgets,
 } from '../onboarding/onboardingSlice'
 import { createCategory, getCategories } from '../categories/api'
-import { CategoryBadge } from '../categories/CategoryBadge'
+import { BudgetCard } from './components/BudgetCard'
 import { InlineCustomCategoryFields } from '../categories/InlineCustomCategoryFields'
 import {
   getAutoAssignedCategoryDesign,
@@ -38,6 +38,7 @@ import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
 import { pageLayout } from '../../shared/styles/layout'
+import { formatCurrency } from '../../shared/lib/formatCurrency'
 
 export function ManualBudgetSetupPage(): ReactElement | null {
   const { user } = useAuthState()
@@ -86,14 +87,12 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     [sessionBudgets],
   )
 
-  const currencyFormatter = useMemo(
+  const invalidBudgetIds = useMemo(
     () =>
-      new Intl.NumberFormat('en-PH', {
-        style: 'currency',
-        currency: 'PHP',
-        minimumFractionDigits: 2,
-      }),
-    [],
+      new Set(
+        sessionBudgets.filter((budget) => budget.amount <= 0).map((budget) => budget.categoryId),
+      ),
+    [sessionBudgets],
   )
 
   const nextCustomCategoryDesign = useMemo(
@@ -189,7 +188,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
 
     const parsedAmount = Number(amountInput)
     if (!Number.isFinite(parsedAmount) || parsedAmount < 1) {
-      setAmountValidationError('Enter an amount of at least ₱1.00.')
+      setAmountValidationError('Enter an amount of at least PHP 1.00.')
       return
     }
 
@@ -200,7 +199,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     const available = balance - otherBudgetsTotal
     if (parsedAmount > available) {
       setAmountValidationError(
-        `Amount cannot exceed your remaining balance of ₱${available.toFixed(2)}.`,
+        `Amount cannot exceed your remaining balance of ${formatCurrency(Math.max(available, 0))}.`,
       )
       return
     }
@@ -288,7 +287,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           </p>
         </header>
 
-        <div className="rounded-2xl border border-ui-border-subtle bg-ui-surface-subtle/60 p-4">
+        <div className="rounded-2xl border border-ui-border-subtle p-4">
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
@@ -304,68 +303,22 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             </p>
           ) : null}
 
-          <div className="space-y-3">
+          <div className="space-y-0">
             {sessionBudgets.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground px-1 py-4">
                 No budgets added yet. Tap + Add Budget to begin.
               </p>
             ) : (
               sessionBudgets.map((budget, index) => (
-                <Card
-                  key={`${budget.categoryId}-${index}`}
-                  className="flex items-center justify-between gap-3 border border-ui-border-subtle p-4"
-                  tone="neutral"
-                >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <CategoryBadge
-                      icon={
-                        resolveCategoryDesign(
-                          budget.categoryName,
-                          budget.categoryIcon,
-                          budget.categoryColor,
-                        ).icon
-                      }
-                      color={
-                        resolveCategoryDesign(
-                          budget.categoryName,
-                          budget.categoryIcon,
-                          budget.categoryColor,
-                        ).color
-                      }
-                      size={36}
-                      label={`Icon for ${budget.categoryName}`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {budget.categoryName}
-                      </p>
-                      <p className="text-xs text-muted-foreground uppercase tracking-tight">
-                        {budget.period}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <p className="text-sm font-semibold text-foreground">
-                      {currencyFormatter.format(budget.amount)}
-                    </p>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        className="h-8 px-2 text-xs"
-                        onClick={() => openModal(budget)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="h-8 px-2 text-xs text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteBudget(budget.categoryId)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
+                <div key={`${budget.categoryId}-${index}`}>
+                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  <BudgetCard
+                    budget={budget}
+                    isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                    onEdit={() => openModal(budget)}
+                    onRemove={() => handleDeleteBudget(budget.categoryId)}
+                  />
+                </div>
               ))
             )}
           </div>
@@ -505,7 +458,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             max={availableForCurrent}
             step="0.01"
             endAdornment="PHP"
-            helperText={`Enter up to ₱${availableForCurrent.toFixed(2)}.`}
+            helperText={`Enter up to ${formatCurrency(availableForCurrent)}.`}
             value={amountInput}
             onChange={(event) => {
               setAmountInput(event.target.value)

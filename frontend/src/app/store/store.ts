@@ -2,11 +2,15 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { baseApi } from './api/baseApi'
 import authReducer from './authSlice'
 import onboardingReducer from '../../features/onboarding/onboardingSlice'
+import notificationReducer from './notificationSlice'
+import balanceSummaryReducer from '../../features/insights/balanceSummarySlice'
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   auth: authReducer,
   onboarding: onboardingReducer,
+  notification: notificationReducer,
+  balanceSummary: balanceSummaryReducer,
 })
 
 export const store = configureStore({
