@@ -51,15 +51,10 @@ export function assembleExportData({
   // Default sort for export is date desc (most recent first)
   processed = applySort(processed, sortState)
 
-  // 2. Stage 2: Reconciliation Handling
-  // PRD Open Question 5: Reconciliation entries excluded if unconfirmed.
-  // FLAG: Reconciliation entries are excluded from export as per Instruction 1.
-  const filteredForExport = processed.filter((tx) => tx.type !== 'RECONCILIATION')
-
-  // 3. Stage 3: Field Mapping (Human-Readable)
+  // 2. Stage 2: Field Mapping (Human-Readable)
   // PRD Open Question 3: Using five minimum fields + description (core field).
   // FLAG: Running balance per row is pending confirmation (Open Question 3).
-  return filteredForExport.map((tx) => {
+  return processed.map((tx) => {
     // Resolve Foreign Keys to Human-Readable names
     const categoryName = tx.category?.name || 'Uncategorized'
     const paymentMethodName = tx.paymentMethod?.name || 'None'

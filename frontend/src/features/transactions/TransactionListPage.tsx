@@ -5,13 +5,11 @@ import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
-import { ReconciliationModal } from './components/ReconciliationModal'
 import { ExportModal } from './components/ExportModal'
-import { Download, RefreshCw } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
-import { useAuthState } from '../../shared/hooks/useAuthState'
 import type { FilterState } from './types'
 import { useTransactionPagination } from './hooks/useTransactionPagination'
 
@@ -27,11 +25,9 @@ const INITIAL_FILTER: FilterState = {
 }
 
 export function TransactionListPage(): ReactElement {
-  const { user } = useAuthState()
   const [searchParams, setSearchParams] = useSearchParams()
   const { transactions, isLoading, hasMore, loadMore } = useTransactionPagination()
 
-  const [isReconcileModalOpen, setIsReconcileModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   // 1. Pipeline Inputs (State Management)
@@ -92,9 +88,6 @@ export function TransactionListPage(): ReactElement {
     [processedTransactions],
   )
 
-  // Use user profile balance for reconciliation consistency
-  const balance = user?.balance ?? 0
-
   const isSearchActive = searchQuery.trim().length > 0
   const isFilterActive =
     filterState.categories.length > 0 ||
@@ -116,18 +109,6 @@ export function TransactionListPage(): ReactElement {
             <h1 className="text-4xl font-black tracking-tight text-foreground">All Transactions</h1>
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7 gap-1.5 text-subtle-foreground hover:text-foreground"
-              onClick={() => setIsReconcileModalOpen(true)}
-            >
-              <RefreshCw className="h-3 w-3" />
-              Reconcile
-            </Button>
-          </div>
         </div>
 
         {/* Money Flow Metrics Visualization */}
@@ -136,13 +117,6 @@ export function TransactionListPage(): ReactElement {
             <MoneyFlowDisplay {...moneyFlow} />
           </div>
         )}
-
-        {/* Reconciliation Modal */}
-        <ReconciliationModal
-          isOpen={isReconcileModalOpen}
-          onClose={() => setIsReconcileModalOpen(false)}
-          currentBalance={balance}
-        />
 
         {/* Export Modal (Instructions 1-8) */}
         <ExportModal

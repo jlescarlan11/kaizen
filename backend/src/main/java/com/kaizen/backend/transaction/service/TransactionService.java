@@ -103,7 +103,6 @@ public class TransactionService {
                 request.type(),
                 request.description(),
                 date,
-                null,
                 notes);
 
         transaction.setIsRecurring(isRecurring);
@@ -299,8 +298,7 @@ public class TransactionService {
                 java.math.BigDecimal totalExpense = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId())
                     .stream()
                     .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(category.getId()))
-                    .filter(t -> t.getType() == TransactionType.EXPENSE || 
-                                (t.getType() == TransactionType.RECONCILIATION && Boolean.FALSE.equals(t.getReconciliationIncrease())))
+                    .filter(t -> t.getType() == TransactionType.EXPENSE)
                     .map(com.kaizen.backend.transaction.entity.Transaction::getAmount)
                     .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
                 
@@ -323,13 +321,6 @@ public class TransactionService {
             switch (t.getType()) {
                 case INCOME -> runningBalance = runningBalance.add(t.getAmount());
                 case EXPENSE -> runningBalance = runningBalance.subtract(t.getAmount());
-                case RECONCILIATION -> {
-                    if (Boolean.TRUE.equals(t.getReconciliationIncrease())) {
-                        runningBalance = runningBalance.add(t.getAmount());
-                    } else {
-                        runningBalance = runningBalance.subtract(t.getAmount());
-                    }
-                }
                 default -> throw new IllegalStateException("Unhandled TransactionType: " + t.getType());
             }
             history.add(new BalanceHistoryResponse.BalanceHistoryEntry(
@@ -342,41 +333,6 @@ public class TransactionService {
 
         Collections.reverse(history);
         return new BalanceHistoryResponse(history);
-    }
-
-    @Transactional
-    public TransactionResponse reconcileBalance(String email, java.math.BigDecimal realWorldBalance,
-            String description) {
-        UserAccount account = requireAccount(email);
-        java.math.BigDecimal currentBalance = account.getBalance();
-        java.math.BigDecimal difference = realWorldBalance.subtract(currentBalance);
-
-        if (difference.compareTo(java.math.BigDecimal.ZERO) == 0) {
-            return null;
-        }
-
-        Boolean increase = difference.compareTo(java.math.BigDecimal.ZERO) > 0;
-        java.math.BigDecimal absoluteDifference = difference.abs();
-
-        Transaction reconciliation = new Transaction(
-                account,
-                null,
-                null,
-                absoluteDifference,
-                TransactionType.RECONCILIATION,
-                description != null ? description : "Balance Reconciliation Adjustment",
-                OffsetDateTime.now(),
-                increase);
-
-        Transaction saved = Objects.requireNonNull(
-                transactionRepository.save(reconciliation),
-                "repository.save() returned null unexpectedly.");
-        requireTransactionId(saved);
-
-        recalculateUserBalance(account);
-        saveAccount(account);
-
-        return mapToResponse(saved);
     }
 
     @Transactional
@@ -537,7 +493,6 @@ public class TransactionService {
                 transaction.getDescription(),
                 categoryResponse,
                 paymentMethodResponse,
-                transaction.getReconciliationIncrease(),
                 transaction.getNotes(),
                 transaction.getIsRecurring(),
                 transaction.getFrequencyUnit(),

@@ -28,13 +28,15 @@ export function TransactionNoteSection({
       )}
 
       {notes && (
-        <div className="space-y-3 p-5 bg-ui-surface-muted/50 border border-ui-border-subtle rounded-2xl">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+        <div className="space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
             Internal Notes
           </p>
-          <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-wrap italic">
-            "{notes}"
-          </p>
+          <div className="pl-4 border-l-2 border-primary/20">
+            <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-wrap italic">
+              "{notes}"
+            </p>
+          </div>
         </div>
       )}
     </div>

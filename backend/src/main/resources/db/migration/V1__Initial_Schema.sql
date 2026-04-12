@@ -1,11 +1,11 @@
--- Initial Schema Consolidated (V1 to V5)
+-- Initial Schema Consolidated (V1)
 
 CREATE TABLE role (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE user_account (
@@ -25,8 +25,8 @@ CREATE TABLE user_account (
     balance NUMERIC(15,2) DEFAULT 0.00,
     quick_add_preferences TEXT,
     reminders_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 -- Case-insensitive unique index for email
@@ -46,8 +46,8 @@ CREATE TABLE category (
     color VARCHAR(50),
     is_global BOOLEAN NOT NULL DEFAULT FALSE,
     user_id BIGINT REFERENCES user_account(id),
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE budget (
@@ -58,8 +58,8 @@ CREATE TABLE budget (
     expense NUMERIC(15,2) NOT NULL DEFAULT 0.00,
     period VARCHAR(50) NOT NULL,
     start_date DATE NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE payment_method (
@@ -68,8 +68,8 @@ CREATE TABLE payment_method (
     description TEXT,
     is_global BOOLEAN NOT NULL DEFAULT FALSE,
     user_account_id BIGINT REFERENCES user_account(id),
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE transaction (
@@ -80,16 +80,15 @@ CREATE TABLE transaction (
     amount NUMERIC(15,2) NOT NULL,
     type VARCHAR(50) NOT NULL,
     description VARCHAR(255),
-    transaction_date TIMESTAMP NOT NULL,
+    transaction_date TIMESTAMPTZ NOT NULL,
     is_recurring BOOLEAN NOT NULL DEFAULT FALSE,
     frequency_unit VARCHAR(20),
     frequency_multiplier INTEGER,
     parent_recurring_transaction_id BIGINT REFERENCES transaction(id),
-    reconciliation_increase BOOLEAN,
     notes TEXT,
     client_generated_id VARCHAR(255) UNIQUE,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE transaction_attachment (
@@ -99,8 +98,8 @@ CREATE TABLE transaction_attachment (
     file_size BIGINT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
     storage_reference TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE onboarding_progress (
@@ -113,9 +112,9 @@ CREATE TABLE onboarding_progress (
     initial_transaction_description VARCHAR(255),
     initial_transaction_notes TEXT,
     initial_transaction_payment_method_id BIGINT,
-    initial_transaction_date TIMESTAMP,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    initial_transaction_date TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE onboarding_initial_balance (
@@ -124,7 +123,7 @@ CREATE TABLE onboarding_initial_balance (
     amount NUMERIC(15,2),
     description VARCHAR(255),
     notes TEXT,
-    transaction_date TIMESTAMP
+    transaction_date TIMESTAMPTZ
 );
 
 CREATE TABLE user_funding_source (
@@ -134,26 +133,26 @@ CREATE TABLE user_funding_source (
     name VARCHAR(100) NOT NULL,
     current_balance NUMERIC(15,2) NOT NULL DEFAULT 0.00,
     is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE reminder_schedule (
     id BIGSERIAL PRIMARY KEY,
     transaction_id BIGINT NOT NULL REFERENCES transaction(id),
-    next_reminder_timestamp TIMESTAMP,
+    next_reminder_timestamp TIMESTAMPTZ,
     is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     retry_count INTEGER DEFAULT 0,
-    last_retry_timestamp TIMESTAMP,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    last_retry_timestamp TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE persistent_session (
     id BIGSERIAL PRIMARY KEY,
     user_account_id BIGINT NOT NULL REFERENCES user_account(id),
     token_hash VARCHAR(255) NOT NULL UNIQUE,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL
 );

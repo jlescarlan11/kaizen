@@ -221,7 +221,7 @@ In scope: the inline error message component rendered adjacent to each form fiel
 **Expected Output**
 
 - An inline error message component that accepts a field identifier and an error code and renders the corresponding message copy adjacent to the field.
-- Wiring in each transaction form (entry, edit, reconciliation) that passes the validation error response to the inline error component and maps errors to their fields.
+- Wiring in each transaction form (entry, edit) that passes the validation error response to the inline error component and maps errors to their fields.
 - Clearing behavior: resolved errors removed on resubmission.
 - Accessible markup: error message programmatically associated with its input field.
 

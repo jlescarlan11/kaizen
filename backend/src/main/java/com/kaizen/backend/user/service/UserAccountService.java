@@ -107,7 +107,6 @@ public class UserAccountService {
                     TransactionType.INCOME,
                     balanceRequest.description() != null ? balanceRequest.description() : "Opening Balance",
                     balanceRequest.transactionDate() != null ? balanceRequest.transactionDate() : OffsetDateTime.now(),
-                    null,
                     balanceRequest.notes() != null ? balanceRequest.notes() : "Initial setup"
                 );
                 transactionRepository.save(transaction);
@@ -127,7 +126,6 @@ public class UserAccountService {
                 TransactionType.INCOME,
                 request.description() != null ? request.description() : "Opening Balance",
                 request.transactionDate() != null ? request.transactionDate() : OffsetDateTime.now(),
-                null,
                 request.notes() != null ? request.notes() : "Initial setup"
             );
             transactionRepository.save(openingTransaction);

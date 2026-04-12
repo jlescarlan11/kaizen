@@ -7,7 +7,7 @@ import { cn } from '../../../shared/lib/cn'
 interface RelatedTransaction {
   id: number
   amount: number
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+  type: 'INCOME' | 'EXPENSE'
   transactionDate: string
   description: string
   category?: {
@@ -35,12 +35,18 @@ export function RelatedTransactionsList({
 }: RelatedTransactionsListProps): ReactElement {
   if (isLoading) {
     return (
-      <div className={cn('space-y-4', className)} data-testid="related-loading">
+      <div className={cn('space-y-6 py-4', className)} data-testid="related-loading">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-16 w-full animate-pulse bg-ui-surface-muted rounded-2xl border border-ui-border-subtle"
-          />
+          <div key={i} className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-11 w-11 rounded-full animate-pulse bg-ui-surface-muted" />
+              <div className="space-y-2">
+                <div className="h-4 w-32 rounded animate-pulse bg-ui-surface-muted" />
+                <div className="h-3 w-20 rounded animate-pulse bg-ui-surface-muted/60" />
+              </div>
+            </div>
+            <div className="h-6 w-24 rounded animate-pulse bg-ui-surface-muted" />
+          </div>
         ))}
       </div>
     )
@@ -48,28 +54,25 @@ export function RelatedTransactionsList({
 
   if (transactions.length === 0) {
     return (
-      <div
-        className={cn(
-          'py-10 text-center border border-dashed border-ui-border rounded-2xl bg-ui-surface-muted/30',
-          className,
-        )}
-      >
-        <p className="text-sm text-muted-foreground">No related transactions found.</p>
+      <div className={cn('py-12 text-center', className)}>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
+          No related activity found in this category.
+        </p>
       </div>
     )
   }
 
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('divide-y divide-ui-border-subtle/30', className)}>
       {transactions.map((transaction) => (
         <Link
           key={transaction.id}
           to={`/transactions/${transaction.id}`}
-          className="flex items-center justify-between p-4 bg-ui-surface border border-ui-border-subtle rounded-2xl hover:bg-ui-surface-muted hover:border-ui-border transition-all group"
+          className="group flex items-center justify-between py-5 px-1 rounded-2xl hover:bg-ui-surface-muted transition-all cursor-pointer"
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-full"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-xl shrink-0 group-hover:scale-105 transition-transform"
               style={{
                 backgroundColor: transaction.category?.color + '15',
                 color: transaction.category?.color,
@@ -78,28 +81,36 @@ export function RelatedTransactionsList({
               <SharedIcon
                 type="category"
                 name={transaction.category?.icon || 'help-circle'}
-                size={18}
+                size={22}
               />
             </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+            <div className="flex-1 min-w-0">
+              <p className="font-black text-base text-foreground truncate group-hover:text-primary transition-colors leading-tight">
                 {transaction.description || 'No description'}
               </p>
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                {dateFormatter.format(new Date(transaction.transactionDate))} •{' '}
-                {transaction.category?.name || 'Uncategorized'}
-              </p>
+              <div className="flex items-center gap-3 mt-1.5">
+                <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 leading-none">
+                  {transaction.category?.name || 'Uncategorized'}
+                </p>
+                <div className="h-2 w-px bg-ui-border-subtle" />
+                <p className="text-[10px] uppercase font-black tracking-[0.15em] text-muted-foreground/40 leading-none">
+                  {dateFormatter.format(new Date(transaction.transactionDate))}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right ml-4">
             <p
               className={cn(
-                'text-sm font-bold tracking-tight tabular-nums',
+                'text-lg font-black tracking-tight tabular-nums leading-none',
                 transaction.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
               )}
             >
               {transaction.type === 'EXPENSE' ? '-' : transaction.type === 'INCOME' ? '+' : ''}
               {formatCurrency(transaction.amount).replace('PHP', '').trim()}
+            </p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest text-right mt-1.5 opacity-50">
+              PHP RECORD
             </p>
           </div>
         </Link>

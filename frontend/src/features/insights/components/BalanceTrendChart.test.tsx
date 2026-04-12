@@ -105,7 +105,7 @@ describe('BalanceTrendChart with data', () => {
         isLoading={false}
       />,
     )
-    expect(screen.getByRole('heading', { name: /balance trends/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /financial trajectory/i })).toBeInTheDocument()
   })
 
   it('renders all three granularity buttons when data is present', () => {

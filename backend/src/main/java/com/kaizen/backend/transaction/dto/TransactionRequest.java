@@ -8,7 +8,9 @@ import com.kaizen.backend.common.entity.TransactionType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
+@Jacksonized
 @Builder
 public record TransactionRequest(
     @NotNull(message = "Amount is required.")

@@ -37,8 +37,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
            "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
            "  ELSE 0 END) " +
            "FROM Transaction t WHERE t.userAccount.id = :userId")
     Optional<java.math.BigDecimal> calculateNetTransactionAmount(@Param("userId") Long userId);
@@ -46,8 +44,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
            "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
            "  ELSE 0 END) " +
            "FROM Transaction t WHERE t.userAccount.id = :userId AND t.paymentMethod.id = :paymentMethodId")
     Optional<java.math.BigDecimal> calculateNetTransactionAmountByPaymentMethod(@Param("userId") Long userId, @Param("paymentMethodId") Long paymentMethodId);
@@ -105,7 +101,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Param("paymentMethodIds") List<Long> paymentMethodIds
     );
 
-    @Query("SELECT t.transactionDate, t.amount, t.type, t.reconciliationIncrease FROM Transaction t WHERE t.userAccount.id = :userId AND t.transactionDate >= :start AND t.transactionDate <= :end " +
+    @Query("SELECT t.transactionDate, t.amount, t.type FROM Transaction t WHERE t.userAccount.id = :userId AND t.transactionDate >= :start AND t.transactionDate <= :end " +
            "AND (:paymentMethodIds IS NULL OR t.paymentMethod.id IN :paymentMethodIds) " +
            "ORDER BY t.transactionDate ASC")
     List<Object[]> getRawBalanceTrendDataWithPaymentMethods(
@@ -119,8 +115,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
            "  WHEN t.type = 'EXPENSE' THEN -t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = true THEN t.amount " +
-           "  WHEN t.type = 'RECONCILIATION' AND t.reconciliationIncrease = false THEN -t.amount " +
            "  ELSE 0 END) " +
            "FROM Transaction t " +
            "WHERE t.userAccount.id = :userId AND t.paymentMethod.id = :paymentMethodId " +

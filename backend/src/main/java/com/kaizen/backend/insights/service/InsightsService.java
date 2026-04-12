@@ -142,7 +142,6 @@ public class InsightsService {
             OffsetDateTime date = (OffsetDateTime) row[0];
             BigDecimal amount = (BigDecimal) row[1];
             TransactionType type = (TransactionType) row[2];
-            Boolean reconIncrease = (Boolean) row[3];
 
             LocalDate periodStart;
             if ("DAILY".equalsIgnoreCase(granularity)) {
@@ -155,15 +154,9 @@ public class InsightsService {
 
             BigDecimal[] values = groupedData.computeIfAbsent(periodStart, k -> new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
 
-            boolean isIncome = type == TransactionType.INCOME ||
-                    (type == TransactionType.RECONCILIATION && Boolean.TRUE.equals(reconIncrease));
-
-            boolean isExpense = type == TransactionType.EXPENSE ||
-                    (type == TransactionType.RECONCILIATION && Boolean.FALSE.equals(reconIncrease));
-
-            if (isIncome) {
+            if (type == TransactionType.INCOME) {
                 values[0] = values[0].add(amount);
-            } else if (isExpense) {
+            } else if (type == TransactionType.EXPENSE) {
                 values[1] = values[1].add(amount);
             }
         }

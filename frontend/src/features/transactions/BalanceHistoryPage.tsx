@@ -3,7 +3,7 @@ import { useGetBalanceHistoryQuery } from '../../app/store/api/transactionApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
-import { ChevronLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
+import { ChevronLeft, TrendingUp, TrendingDown } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '../../shared/lib/cn'
 
@@ -79,20 +79,14 @@ export function BalanceHistoryPage(): ReactElement {
                   >
                     {entry.transactionType === 'INCOME' ? (
                       <TrendingUp className="h-5 w-5" />
-                    ) : entry.transactionType === 'EXPENSE' ? (
-                      <TrendingDown className="h-5 w-5" />
                     ) : (
-                      <RefreshCw className="h-5 w-5" />
+                      <TrendingDown className="h-5 w-5" />
                     )}
                   </div>
                   <div>
                     <p className="font-medium text-foreground">
                       {entry.eventDescription ||
-                        (entry.transactionType === 'RECONCILIATION'
-                          ? 'Reconciliation Adjustment'
-                          : entry.transactionType === 'INCOME'
-                            ? 'Income'
-                            : 'Expense')}
+                        (entry.transactionType === 'INCOME' ? 'Income' : 'Expense')}
                     </p>
                     <p className="text-xs text-subtle-foreground">
                       {dateFormatter.format(new Date(entry.date))}

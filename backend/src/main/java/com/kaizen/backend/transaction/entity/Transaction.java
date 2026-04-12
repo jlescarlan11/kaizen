@@ -71,9 +71,6 @@ public class Transaction extends BaseEntity {
     @JoinColumn(name = "parent_recurring_transaction_id")
     private Transaction parentRecurringTransaction;
 
-    @Column(name = "reconciliation_increase")
-    private Boolean reconciliationIncrease;
-
     @Column(columnDefinition = "TEXT")
     private String notes;
 
@@ -88,7 +85,7 @@ public class Transaction extends BaseEntity {
             TransactionType type,
             String description,
             OffsetDateTime transactionDate) {
-        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null, null);
+        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, null);
     }
 
     public Transaction(
@@ -99,20 +96,6 @@ public class Transaction extends BaseEntity {
             TransactionType type,
             String description,
             OffsetDateTime transactionDate,
-            Boolean reconciliationIncrease) {
-        this(userAccount, category, paymentMethod, amount, type, description, transactionDate, reconciliationIncrease,
-                null);
-    }
-
-    public Transaction(
-            @NonNull UserAccount userAccount,
-            Category category,
-            PaymentMethod paymentMethod,
-            BigDecimal amount,
-            TransactionType type,
-            String description,
-            OffsetDateTime transactionDate,
-            Boolean reconciliationIncrease,
             String notes) {
         this.userAccount = userAccount;
         this.category = category;
@@ -121,7 +104,6 @@ public class Transaction extends BaseEntity {
         this.type = type;
         this.description = description;
         this.transactionDate = transactionDate;
-        this.reconciliationIncrease = reconciliationIncrease;
         this.notes = notes;
     }
 }

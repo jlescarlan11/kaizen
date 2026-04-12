@@ -66,7 +66,7 @@ export function validateTransaction(transaction: Partial<TransactionRequest>): V
     }
   }
 
-  if (transaction.type && !['INCOME', 'EXPENSE', 'RECONCILIATION'].includes(transaction.type)) {
+  if (transaction.type && !['INCOME', 'EXPENSE'].includes(transaction.type)) {
     errors.push({ field: 'type', code: ErrorCode.TYPE_INVALID })
   }
 

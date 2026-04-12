@@ -1,5 +1,4 @@
 import { type ReactElement } from 'react'
-import { Button } from '../../../shared/components/Button'
 import { Pencil, Trash2 } from 'lucide-react'
 import { cn } from '../../../shared/lib/cn'
 
@@ -17,30 +16,30 @@ export function TransactionActionGroup({
   className,
 }: TransactionActionGroupProps): ReactElement {
   return (
-    <div className={cn('grid grid-cols-2 gap-3', className)}>
-      <Button
-        variant="ghost"
+    <div className={cn('flex flex-wrap gap-4', className)}>
+      <button
         onClick={onEdit}
         disabled={isProcessing}
-        className="h-14 flex items-center justify-center gap-3 border border-ui-border-subtle hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all rounded-2xl group"
+        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm group"
       >
-        <Pencil className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-        <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
-          Edit
-        </span>
-      </Button>
+        <Pencil
+          size={12}
+          className="text-muted-foreground group-hover:text-primary transition-colors"
+        />
+        Edit Entry
+      </button>
 
-      <Button
-        variant="ghost"
+      <button
         onClick={onDelete}
         disabled={isProcessing}
-        className="h-14 flex items-center justify-center gap-3 border border-ui-border-subtle hover:bg-ui-danger/5 hover:border-ui-danger/30 hover:text-ui-danger transition-all rounded-2xl group"
+        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-ui-danger hover:border-ui-danger/30 transition-all disabled:opacity-50 shadow-sm group"
       >
-        <Trash2 className="h-5 w-5 text-muted-foreground group-hover:text-ui-danger transition-colors" />
-        <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground group-hover:text-ui-danger transition-colors">
-          Delete
-        </span>
-      </Button>
+        <Trash2
+          size={12}
+          className="text-muted-foreground group-hover:text-ui-danger transition-colors"
+        />
+        Delete Record
+      </button>
     </div>
   )
 }

@@ -11,7 +11,7 @@ interface TransactionDetailInfoProps {
   paymentMethod?: {
     name: string
   }
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+  type: 'INCOME' | 'EXPENSE'
   className?: string
 }
 
@@ -25,48 +25,31 @@ export function TransactionDetailInfo({
   const isIncome = type === 'INCOME'
 
   return (
-    <div className={cn('space-y-8', className)}>
-      {/* Flow Indicator Card */}
-      <div className="flex items-center justify-between p-4 bg-ui-surface border border-ui-border-subtle rounded-2xl">
-        <div className="flex items-center gap-3">
-          <div
-            className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-full',
-              isIncome ? 'bg-ui-success/10 text-ui-success' : 'bg-ui-surface-muted text-foreground',
-            )}
-          >
-            <SharedIcon
-              type="category"
-              name={isIncome ? 'trending-up' : isExpense ? 'trending-down' : 'refresh-cw'}
-              size={20}
-            />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Money Flow
-            </p>
-            <p className="text-sm font-semibold text-foreground">
+    <div className={cn('space-y-12', className)}>
+      {/* Detail Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 py-8 border-y border-ui-border-subtle">
+        <InfoBlock label="Flow">
+          <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                'flex h-10 w-10 items-center justify-center rounded-full',
+                isIncome
+                  ? 'bg-ui-success/10 text-ui-success'
+                  : 'bg-ui-surface-muted text-foreground',
+              )}
+            >
+              <SharedIcon
+                type="category"
+                name={isIncome ? 'trending-up' : isExpense ? 'trending-down' : 'refresh-cw'}
+                size={20}
+              />
+            </div>
+            <p className="text-lg font-bold text-foreground capitalize">
               {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
             </p>
           </div>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-            Type
-          </p>
-          <p
-            className={cn(
-              'text-xs font-bold uppercase tracking-wider',
-              isIncome ? 'text-ui-success' : 'text-foreground',
-            )}
-          >
-            {isIncome ? 'Income' : isExpense ? 'Expense' : 'Neutral'}
-          </p>
-        </div>
-      </div>
+        </InfoBlock>
 
-      {/* Main Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2 border-b border-ui-border-subtle">
         <InfoBlock label="Category">
           {category ? (
             <div className="flex items-center gap-3">
@@ -79,20 +62,20 @@ export function TransactionDetailInfo({
               >
                 <SharedIcon type="category" name={category.icon} size={20} />
               </div>
-              <span className="text-lg font-medium text-foreground">{category.name}</span>
+              <span className="text-lg font-bold text-foreground">{category.name}</span>
             </div>
           ) : (
             <span className="italic text-muted-foreground">No Category</span>
           )}
         </InfoBlock>
 
-        <InfoBlock label="Payment Method">
+        <InfoBlock label="Account">
           {paymentMethod ? (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-bold border border-ui-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-black border border-ui-border">
                 {paymentMethod.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-lg font-medium text-foreground">{paymentMethod.name}</span>
+              <span className="text-lg font-bold text-foreground">{paymentMethod.name}</span>
             </div>
           ) : (
             <span className="italic text-muted-foreground">No Payment Method</span>

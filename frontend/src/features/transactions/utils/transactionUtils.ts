@@ -23,12 +23,6 @@ export function calculateMoneyFlow(transactions: TransactionResponse[]): MoneyFl
         acc.incoming += tx.amount
       } else if (tx.type === 'EXPENSE') {
         acc.outgoing += tx.amount
-      } else if (tx.type === 'RECONCILIATION') {
-        if (tx.reconciliationIncrease) {
-          acc.incoming += tx.amount
-        } else {
-          acc.outgoing += tx.amount
-        }
       }
       return acc
     },
@@ -58,7 +52,8 @@ export function groupTransactionsByDate(transactions: TransactionResponse[]): Tr
   const groupMap = new Map<string, TransactionResponse[]>()
 
   for (const tx of sortedTransactions) {
-    const calendarDate = new Date(tx.transactionDate).toISOString().split('T')[0]
+    const d = new Date(tx.transactionDate)
+    const calendarDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
     const existingGroup = groupMap.get(calendarDate) || []
     groupMap.set(calendarDate, [...existingGroup, tx])
   }
@@ -102,15 +97,15 @@ export function formatTransactionDate(dateStr: string): string {
  * @returns Human-readable date label.
  */
 export function formatGroupDate(dateStr: string): string {
-  const date = new Date(dateStr)
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const targetDate = new Date(year, month - 1, day)
+  targetDate.setHours(0, 0, 0, 0)
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
-
-  const targetDate = new Date(date)
-  targetDate.setHours(0, 0, 0, 0)
 
   if (targetDate.getTime() === today.getTime()) {
     return 'Today'
@@ -124,21 +119,18 @@ export function formatGroupDate(dateStr: string): string {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }).format(date)
+  }).format(targetDate)
 }
 
 /**
  * Calculates the total running balance from a set of transactions.
  * @param transactions Array of TransactionResponse objects.
- * @returns Total balance (Income - Expense + Reconciliation).
+ * @returns Total balance (Income - Expense).
  */
 export function calculateRunningBalance(transactions: TransactionResponse[]): number {
   return transactions.reduce((acc, tx) => {
     if (tx.type === 'INCOME') return acc + tx.amount
     if (tx.type === 'EXPENSE') return acc - tx.amount
-    if (tx.type === 'RECONCILIATION') {
-      return tx.reconciliationIncrease ? acc + tx.amount : acc - tx.amount
-    }
     return acc
   }, 0)
 }

@@ -121,8 +121,7 @@ In `backend/src/main/java/com/kaizen/backend/insights/service/InsightsService.ja
 With:
 
 ```java
-            boolean isIncome = type == TransactionType.INCOME ||
-                    (type == TransactionType.RECONCILIATION && Boolean.TRUE.equals(reconIncrease));
+            boolean isIncome = type == TransactionType.INCOME;
 ```
 
 - [ ] **Step 2.3: Update TransactionRepository — remove INITIAL_BALANCE from both balance queries**
@@ -280,7 +279,7 @@ package com.kaizen.backend.common.entity;
 public enum TransactionType {
     INCOME,
     EXPENSE,
-    RECONCILIATION
+
 }
 ```
 
@@ -316,10 +315,10 @@ In `frontend/src/app/store/api/transactionApi.ts`, change line 5:
 
 ```typescript
 // Before:
-export type TransactionType = 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'INITIAL_BALANCE'
 
 // After:
-export type TransactionType = 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+export type TransactionType = 'INCOME' | 'EXPENSE'
 ```
 
 - [ ] **Step 4.2: Remove INITIAL_BALANCE alias from pipelineUtils.ts**
@@ -543,28 +542,28 @@ In `frontend/src/features/transactions/components/TransactionList.tsx`:
 In `frontend/src/features/transactions/components/RelatedTransactionsList.tsx`, line 10:
 ```tsx
 // Before:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'INITIAL_BALANCE'
 
 // After:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+  type: 'INCOME' | 'EXPENSE'
 ```
 
 In `frontend/src/features/transactions/components/TransactionDetailHeader.tsx`, line 7:
 ```tsx
 // Before:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'INITIAL_BALANCE'
 
 // After:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+  type: 'INCOME' | 'EXPENSE'
 ```
 
 In `frontend/src/features/transactions/components/TransactionDetailInfo.tsx`, line 14:
 ```tsx
 // Before:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION' | 'INITIAL_BALANCE'
+  type: 'INCOME' | 'EXPENSE' | 'INITIAL_BALANCE'
 
 // After:
-  type: 'INCOME' | 'EXPENSE' | 'RECONCILIATION'
+  type: 'INCOME' | 'EXPENSE'
 ```
 
 - [ ] **Step 5.4: Run full TypeScript check — zero INITIAL_BALANCE errors**
@@ -625,7 +624,7 @@ No TBD, TODO, or "implement later" phrases present. Every step has exact file pa
 ### Type Consistency
 
 - `TransactionType.INCOME` is used consistently in `UserAccountService` (Task 3) — matches enum after removal.
-- Frontend `TransactionType` (`'INCOME' | 'EXPENSE' | 'RECONCILIATION'`) — matches all three component prop types after Task 5.
+- Frontend `TransactionType` (`'INCOME' | 'EXPENSE'`) — matches all three component prop types after Task 5.
 - `CategoryDesignSystem.DEFAULT_CATEGORIES` uses `TransactionType.INCOME` for "Initial Balance" (Task 2) — matches what `ensureDefaultCategoriesExist()` seeds and what the Flyway migration sets in the DB.
 
 ### DB Migration Safety
@@ -633,3 +632,4 @@ No TBD, TODO, or "implement later" phrases present. Every step has exact file pa
 - The UPDATE in V2 uses `is_global = true` to target only the seeded category, not any user-created category named "Initial Setup".
 - The transaction UPDATE uses a subquery to find the category ID — if for any reason the category doesn't exist, `category_id` will be set to NULL (no error, no data loss).
 - Flyway runs migrations before Spring beans initialize, so the `CategoryDataInitializer` `CommandLineRunner` will see the renamed "Initial Balance" category already in the DB and correctly skip re-seeding it.
+ectly skip re-seeding it.
