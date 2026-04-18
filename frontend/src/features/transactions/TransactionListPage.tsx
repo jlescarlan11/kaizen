@@ -9,11 +9,17 @@ import { Download } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
+import { cn } from '../../shared/lib/cn'
+import { useAppSelector, useAppDispatch } from '../../app/store/hooks'
+import { selectIsSelectionMode, setSelectionMode, clearSelection } from './transactionSlice'
+import { CheckSquare, X } from 'lucide-react'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 
 export function TransactionListPage(): ReactElement {
+  const dispatch = useAppDispatch()
+  const isSelectionMode = useAppSelector(selectIsSelectionMode)
   const [sortState] = useSortPersistence()
 
   // 1. The Shared Result Pipeline
@@ -53,6 +59,15 @@ export function TransactionListPage(): ReactElement {
     clearFilters()
   }
 
+  const toggleSelectionMode = () => {
+    if (isSelectionMode) {
+      dispatch(setSelectionMode(false))
+      dispatch(clearSelection())
+    } else {
+      dispatch(setSelectionMode(true))
+    }
+  }
+
   return (
     <div className={pageLayout.sectionGap}>
       <header className="space-y-7">
@@ -88,6 +103,28 @@ export function TransactionListPage(): ReactElement {
                 <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    'h-10 px-4 border transition-all duration-200',
+                    isSelectionMode
+                      ? 'bg-primary border-primary text-white hover:bg-primary-hover shadow-md'
+                      : 'border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30',
+                  )}
+                  onClick={toggleSelectionMode}
+                >
+                  {isSelectionMode ? (
+                    <>
+                      <X className="h-4 w-4 mr-2" />
+                      Exit Select
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Select
+                    </>
+                  )}
+                </Button>
                 <TransactionFilter
                   filter={filterState}
                   onChange={setFilterState}

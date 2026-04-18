@@ -11,7 +11,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md) (9a8972e)
 
 ## Phase 2: TransactionList Component Updates
-- [ ] Task: Update List Header UI
+- [~] Task: Update List Header UI
     - [ ] Write failing test for the "Select" toggle button in the list header.
     - [ ] Implement "Select" toggle button next to filters.
     - [ ] Write failing test for the "Select all on page" checkbox visibility.
