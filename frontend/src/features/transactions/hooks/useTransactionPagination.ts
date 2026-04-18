@@ -96,17 +96,22 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
   }, [pendingTransactions])
 
   const allTransactions = useMemo(() => {
-    const combined = [...mappedPending, ...transactions]
+    // Prevent flickering: If the current state is empty (e.g., during a filter reset)
+    // but the backend query already has data (e.g., from cache), use the backend data immediately.
+    const baseTransactions = transactions.length === 0 && initialData ? initialData : transactions
+
+    const combined = [...mappedPending, ...baseTransactions]
     // Sort by date descending
     return combined.sort(
       (a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime(),
     )
-  }, [mappedPending, transactions])
+  }, [mappedPending, transactions, initialData])
 
   return {
     transactions: allTransactions,
     isLoading,
     isError,
+    isFetching,
     hasMore,
     loadMore,
     isFetchingMore,

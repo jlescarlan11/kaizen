@@ -9,6 +9,7 @@ export interface TransactionPipelineResult {
   transactions: TransactionResponse[]
   isLoading: boolean
   isError: boolean
+  isFetching: boolean
   hasMore: boolean
   loadMore: () => Promise<void>
   isFetchingMore: boolean
@@ -78,7 +79,7 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
     if (filterState.endDate) newParams.set('endDate', filterState.endDate)
 
     setSearchParams(newParams, { replace: true })
-  }, [filterState, setSearchParams])
+  }, [filterState, setSearchParams, searchParams])
 
   // 4. Backend Fetching (via useTransactionPagination)
   const apiFilters = useMemo<TransactionFilters>(() => ({
@@ -94,12 +95,18 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
     transactions,
     isLoading,
     isError,
+    isFetching: apiFetching,
     hasMore,
     loadMore,
     isFetchingMore,
   } = useTransactionPagination(apiFilters)
 
-  // 5. Client-side Sorting
+  // 5. Unified Loading State
+  // We are "fetching" if the backend is working OR if we are waiting for the search debounce.
+  const isDebouncing = searchQuery !== debouncedSearch
+  const isFetching = apiFetching || isDebouncing
+
+  // 6. Client-side Sorting
   const processedTransactions = useMemo(() => {
     return applySort(transactions, sortState)
   }, [transactions, sortState])
@@ -120,6 +127,7 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
     transactions: processedTransactions,
     isLoading,
     isError,
+    isFetching,
     hasMore,
     loadMore,
     isFetchingMore,

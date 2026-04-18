@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo, type ReactElement } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useMemo, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
@@ -10,19 +9,9 @@ import { Download } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
-import type { FilterState } from './types'
-import { useTransactionPagination } from './hooks/useTransactionPagination'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
-
-const INITIAL_FILTER: FilterState = {
-  categories: [],
-  types: [],
-  paymentMethods: [],
-  startDate: undefined,
-  endDate: undefined,
-}
 
 export function TransactionListPage(): ReactElement {
   const [sortState] = useSortPersistence()
@@ -32,6 +21,7 @@ export function TransactionListPage(): ReactElement {
   const {
     transactions: processedTransactions,
     isLoading,
+    isFetching,
     hasMore,
     loadMore,
     searchQuery,
@@ -192,7 +182,7 @@ export function TransactionListPage(): ReactElement {
       </header>
 
       <div className="w-full">
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <div className="p-12 flex justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>

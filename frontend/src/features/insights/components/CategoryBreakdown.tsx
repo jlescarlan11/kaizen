@@ -56,7 +56,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: any) => formatCurrency(Number(value ?? 0))} />
+              <Tooltip formatter={(value: number | string) => formatCurrency(Number(value ?? 0))} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
