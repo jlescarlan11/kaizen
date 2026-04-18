@@ -30,13 +30,13 @@
     - [ ] Implement the confirmation dialog ("Delete [N] transactions? This cannot be undone.").
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Action Bar and Confirmation Dialog' (Protocol in workflow.md) (9bffcf9)
 
-## Phase 4: API Integration and Error Handling
-- [~] Task: Hook up the Bulk Delete Endpoint
+## Phase 4: API Integration and Error Handling [checkpoint: 0e23800]
+- [x] Task: Hook up the Bulk Delete Endpoint (5369439)
     - [ ] Write failing test for calling `bulkDeleteTransactions` API with selected IDs.
     - [ ] Implement API call on dialog confirmation.
     - [ ] Write failing test for list refresh and balance recalculation on success.
     - [ ] Implement success state updates (refresh list, clear selection).
-- [ ] Task: Implement Error Handling
+- [x] Task: Implement Error Handling (5369439)
     - [ ] Write failing test for API error toast/snackbar notification.
     - [ ] Implement error handling toast/dialog with retry options and partial failure state retention.
-- [ ] Task: Conductor - User Manual Verification 'Phase 4: API Integration and Error Handling' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 4: API Integration and Error Handling' (Protocol in workflow.md) (0e23800)
