@@ -1,14 +1,14 @@
 # Implementation Plan: Bulk Transaction Deletion
 
-## Phase 1: Setup and State Management
-- [~] Task: Define state for bulk selection
+## Phase 1: Setup and State Management [checkpoint: 9a8972e]
+- [x] Task: Define state for bulk selection (054b0e0)
     - [ ] Write failing test for toggling selection mode state.
     - [ ] Implement state logic to activate/deactivate selection mode.
     - [ ] Write failing test for selecting/deselecting individual transaction IDs.
     - [ ] Implement state logic to hold the array of selected IDs.
     - [ ] Write failing test for selecting/deselecting all currently visible IDs.
     - [ ] Implement state logic for "Select All".
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md) (9a8972e)
 
 ## Phase 2: TransactionList Component Updates
 - [ ] Task: Update List Header UI
