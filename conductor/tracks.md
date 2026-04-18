@@ -15,6 +15,7 @@
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
 
+---
 
-
-
+- [ ] **Track: Advanced Transaction Search and Filter**
+*Link: [./tracks/advanced_transaction_search_20260418/](./tracks/advanced_transaction_search_20260418/)*

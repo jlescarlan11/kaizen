@@ -1,0 +1,8 @@
+{
+  "track_id": "advanced_transaction_search_20260418",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-18T12:00:00Z",
+  "updated_at": "2026-04-18T12:00:00Z",
+  "description": "As a user, I want to search and filter my entire transaction history by keyword, category, type, account, and date range so that I always see complete and accurate results regardless of how many transactions I have."
+}
