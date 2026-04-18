@@ -18,6 +18,11 @@ export interface BudgetResponse {
   categoryName: string
   amount: number
   expense: number
+  burnRate: number | null
+  dailyAllowance: number | null
+  projectedTotal: number | null
+  daysElapsed: number | null
+  daysLeft: number | null
   period: BudgetPeriod
   createdAt: string
   updatedAt: string
