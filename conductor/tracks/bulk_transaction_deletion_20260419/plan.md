@@ -11,12 +11,12 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Setup and State Management' (Protocol in workflow.md) (9a8972e)
 
 ## Phase 2: TransactionList Component Updates
-- [~] Task: Update List Header UI
+- [x] Task: Update List Header UI (9957290)
     - [ ] Write failing test for the "Select" toggle button in the list header.
     - [ ] Implement "Select" toggle button next to filters.
     - [ ] Write failing test for the "Select all on page" checkbox visibility.
     - [ ] Implement the "Select all" checkbox in the header.
-- [ ] Task: Update Transaction Row UI
+- [~] Task: Update Transaction Row UI
     - [ ] Write failing test for rendering checkboxes on rows during selection mode.
     - [ ] Implement checkbox rendering and visual highlighting for selected rows.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: TransactionList Component Updates' (Protocol in workflow.md)
