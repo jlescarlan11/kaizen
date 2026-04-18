@@ -22,5 +22,5 @@
 
 ---
 
-- [ ] **Track: Budget Burn Rate and Projection**
+- [~] **Track: Budget Burn Rate and Projection**
 *Link: [./tracks/budget_burn_rate_projection_20260418/](./tracks/budget_burn_rate_projection_20260418/)*
