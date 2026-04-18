@@ -1,6 +1,6 @@
 # Implementation Plan: Advanced Transaction Search and Filter
 
-## Phase 1: Backend Implementation (Spring Boot)
+## Phase 1: Backend Implementation (Spring Boot) [checkpoint: 6f03e3a]
 - [x] Task: Add Database Indexes 1ff090b
     - [ ] Write Flyway migration script to add indexes on `date`, `category_id`, and `account_id` in the `transactions` table.
 - [x] Task: Implement Transaction Search & Filter Repository Logic b28ac7d
@@ -9,7 +9,7 @@
 - [x] Task: Implement Transaction Search & Filter API Endpoint 9d80956
     - [ ] Write unit tests (MockMvc) for `GET /transactions` endpoint ensuring all query parameters (`search`, `category`, `type`, `account`, `from`, `to`) are correctly parsed and passed to the service layer.
     - [ ] Update `TransactionController` and `TransactionService` to handle the new query parameters and pagination.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Backend Implementation (Spring Boot)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Backend Implementation (Spring Boot)' (Protocol in workflow.md) 6f03e3a
 
 ## Phase 2: Frontend Implementation (React / Redux Toolkit)
 - [ ] Task: Update API Client and Redux Store
