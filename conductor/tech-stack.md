@@ -8,7 +8,6 @@
 - **Flyway:** Consolidated baseline migrations for consistent schema management.
 - **Spring Data Redis:** High-performance caching and messaging.
 - **Maven:** Standard dependency management and build tool.
-- **Testcontainers:** Reproducible integration tests for database and Redis.
 - **Lombok & MapStruct:** Code generation for boilerplate reduction and DTO mapping.
 
 ## Frontend
@@ -18,9 +17,7 @@
 - **Redux Toolkit:** State management with best practices.
 - **React Router:** Standard routing for SPAs.
 - **Tailwind CSS & Headless UI:** Modern styling and accessible component primitives.
-- **Vitest:** Blazing fast unit testing.
 - **Dexie:** Robust IndexedDB wrapper for local storage.
-
 ## Tools & Infrastructure
 - **Docker:** Containerized development and deployment.
 - **Husky & Lint-staged:** Automated pre-commit checks.
