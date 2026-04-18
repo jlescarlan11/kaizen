@@ -1,5 +1,6 @@
 import { useState, useMemo, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
+import { SelectionActionBar } from './components/SelectionActionBar'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
@@ -77,6 +78,14 @@ export function TransactionListPage(): ReactElement {
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
         </div>
+
+        {/* Selection Action Bar */}
+        <SelectionActionBar
+          onDeleteRequest={() => {
+            // This will be implemented in the next task
+            console.log('Delete requested')
+          }}
+        />
 
         {/* Money Flow Metrics Visualization */}
         {!isLoading && processedTransactions.length > 0 && (
