@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -28,14 +28,5 @@ export default defineConfig({
       '@reduxjs/toolkit',
       '@headlessui/react',
     ],
-  },
-  test: {
-    environment: 'jsdom',
-    setupFiles: './src/tests/setup.ts',
-    globals: false,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'lcov', 'html'],
-    },
   },
 })
