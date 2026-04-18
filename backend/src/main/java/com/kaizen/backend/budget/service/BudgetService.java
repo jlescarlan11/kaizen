@@ -27,6 +27,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Service
@@ -39,6 +40,7 @@ public class BudgetService {
     private final TransactionService transactionService;
     private final Clock clock;
 
+    @Autowired
     public BudgetService(
         BudgetRepository budgetRepository,
         UserAccountRepository userAccountRepository,
