@@ -20,22 +20,22 @@
 - [x] Task: Conductor - User Manual Verification 'Remove Unused Components' (Protocol in workflow.md) 2798dc9
 
 ## Phase 3: Remove Unused Backend Services
-- [ ] Task: Identify and remove unused backend services.
-    - [ ] Use the Dead Code Removal Manifesto to locate unused services.
-    - [ ] Search for dynamically discovered unused services.
-    - [ ] Delete unused services and their associated test files (if any).
-    - [ ] Run backend test suite to ensure no regressions.
-- [ ] Task: Conductor - User Manual Verification 'Remove Unused Backend Services' (Protocol in workflow.md)
+- [x] Task: Identify and remove unused backend services. 2798dc9
+    - [x] Use the Dead Code Removal Manifesto to locate unused services.
+    - [x] Search for dynamically discovered unused services.
+    - [x] Delete unused services and their associated test files (if any).
+    - [x] Run backend test suite to ensure no regressions.
+- [x] Task: Conductor - User Manual Verification 'Remove Unused Backend Services' (Protocol in workflow.md) 2798dc9
 
 ## Phase 4: Prune Unused Dependencies
-- [ ] Task: Prune unused dependencies from `package.json`.
-    - [ ] Identify dependencies exclusively used by removed frontend code.
-    - [ ] Remove identified dependencies from `package.json`.
-    - [ ] Run frontend build (bundle analysis) to verify size reduction.
-    - [ ] Run frontend test suite to ensure no regressions.
-- [ ] Task: Prune unused dependencies from `pom.xml`.
-    - [ ] Identify dependencies exclusively used by removed backend code.
-    - [ ] Remove identified dependencies from `pom.xml`.
-    - [ ] Run backend build to ensure it compiles successfully.
-    - [ ] Run backend test suite to ensure no regressions.
-- [ ] Task: Conductor - User Manual Verification 'Prune Unused Dependencies' (Protocol in workflow.md)
+- [x] Task: Prune unused dependencies from `package.json`. 794811e
+    - [x] Identify dependencies exclusively used by removed frontend code.
+    - [x] Remove identified dependencies from `package.json`.
+    - [x] Run frontend build (bundle analysis) to verify size reduction.
+    - [x] Run frontend test suite to ensure no regressions.
+- [x] Task: Prune unused dependencies from `pom.xml`. 794811e
+    - [x] Identify dependencies exclusively used by removed backend code.
+    - [x] Remove identified dependencies from `pom.xml`.
+    - [x] Run backend build to ensure it compiles successfully.
+    - [x] Run backend test suite to ensure no regressions.
+- [x] Task: Conductor - User Manual Verification 'Prune Unused Dependencies' (Protocol in workflow.md) 794811e
