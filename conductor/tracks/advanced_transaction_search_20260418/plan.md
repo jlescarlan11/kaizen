@@ -1,7 +1,7 @@
 # Implementation Plan: Advanced Transaction Search and Filter
 
 ## Phase 1: Backend Implementation (Spring Boot)
-- [ ] Task: Add Database Indexes
+- [x] Task: Add Database Indexes 1ff090b
     - [ ] Write Flyway migration script to add indexes on `date`, `category_id`, and `account_id` in the `transactions` table.
 - [ ] Task: Implement Transaction Search & Filter Repository Logic
     - [ ] Write integration tests for `TransactionRepository` (using Testcontainers) for keyword search (description, notes, category) and filters (category, flow type, account, date range) combined with pagination.
