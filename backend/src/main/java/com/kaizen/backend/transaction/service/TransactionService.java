@@ -293,37 +293,6 @@ public class TransactionService {
     }
 
     @Transactional
-    public void bulkDeleteTransactions(String email, List<Long> ids) {
-        UserAccount account = requireAccount(email);
-        if (ids == null) {
-            return;
-        }
-        List<Transaction> transactions = transactionRepository.findAllById(ids);
-        java.util.Set<Category> affectedCategories = new java.util.HashSet<>();
-
-        for (Transaction transaction : transactions) {
-            if (transaction == null) {
-                continue;
-            }
-            validateTransactionOwnership(account, transaction);
-            if (transaction.getCategory() != null) {
-                affectedCategories.add(transaction.getCategory());
-            }
-            Long transactionId = transaction.getId();
-            if (transactionId != null) {
-                attachmentService.deleteAttachmentsForTransaction(transactionId);
-            }
-            reminderSchedulerService.rescheduleOnFrequencyChange(transaction);
-        }
-        transactionRepository.deleteAll(transactions);
-        recalculateUserBalance(account);
-        for (Category category : affectedCategories) {
-            recalculateBudgetExpenses(account, category);
-        }
-        saveAccount(account);
-    }
-
-    @Transactional
     public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
         budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
             .ifPresent(budget -> {
@@ -441,21 +410,6 @@ public class TransactionService {
     private Transaction requireTransaction(Long id) {
         return transactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + id));
-    }
-
-    /**
-     * Unwraps a saved transaction's generated ID or throws.
-     * {@code Transaction.getId()} returns boxed {@code Long}, which the checker
-     * treats as nullable. This guard makes the post-persist ID contract explicit.
-     */
-    @NonNull
-    private Long requireTransactionId(@NonNull Transaction transaction) {
-        Long id = transaction.getId();
-        if (id == null) {
-            throw new IllegalStateException(
-                    "Saved transaction has no ID — verify @GeneratedValue is configured on Transaction.id.");
-        }
-        return id;
     }
 
     /**

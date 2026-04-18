@@ -14,3 +14,8 @@
 
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
+
+---
+
+- [x] **Track: Dead Code Removal Cleanup**
+*Link: [./tracks/dead_code_removal_20260418/](./tracks/dead_code_removal_20260418/)*

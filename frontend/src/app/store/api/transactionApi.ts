@@ -153,19 +153,6 @@ export const transactionApi = baseApi.injectEndpoints({
         { type: 'PaymentMethods', id: 'SUMMARY' },
       ],
     }),
-    bulkDeleteTransactions: builder.mutation<void, number[]>({
-      query: (ids) => ({
-        url: '/transactions/bulk-delete',
-        method: 'POST',
-        body: { ids },
-      }),
-      invalidatesTags: [
-        'Transactions',
-        'User',
-        'Insights',
-        { type: 'PaymentMethods', id: 'SUMMARY' },
-      ],
-    }),
     getBalanceHistory: builder.query<BalanceHistoryResponse, void>({
       query: () => '/transactions/history',
       providesTags: ['Transactions'],
@@ -207,7 +194,6 @@ export const {
   useGetTransactionQuery,
   useUpdateTransactionMutation,
   useDeleteTransactionMutation,
-  useBulkDeleteTransactionsMutation,
   useGetBalanceHistoryQuery,
   useUploadAttachmentMutation,
   useDeleteAttachmentMutation,

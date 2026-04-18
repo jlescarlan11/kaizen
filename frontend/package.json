@@ -23,7 +23,6 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/react": "^10.45.0",
     "@tailwindcss/vite": "^4.2.1",
-    "@types/react-window": "^1.8.8",
     "dexie": "^4.4.1",
     "dexie-react-hooks": "^4.4.0",
     "driver.js": "^1.4.0",
@@ -32,7 +31,6 @@
     "react-dom": "^19.2.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.13.1",
-    "react-window": "^2.2.7",
     "recharts": "^3.8.1",
     "tailwindcss": "^4.2.1"
   },
@@ -40,7 +38,6 @@
     "@eslint/js": "^9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",

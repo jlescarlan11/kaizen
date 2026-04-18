@@ -27,7 +27,6 @@ export default defineConfig({
       'react-redux',
       '@reduxjs/toolkit',
       '@headlessui/react',
-      'react-window',
     ],
   },
   test: {

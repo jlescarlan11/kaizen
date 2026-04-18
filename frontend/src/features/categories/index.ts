@@ -1,6 +1,0 @@
-export { CategorySelector } from './CategorySelector'
-export { CategoryBadge } from './CategoryBadge'
-export { CategoryList } from './CategoryList'
-export { CategoryManagementPage } from './CategoryManagementPage'
-export { MergeCategoriesModal } from './MergeCategoriesModal'
-export * from './types'
