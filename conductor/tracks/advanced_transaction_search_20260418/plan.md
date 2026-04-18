@@ -11,7 +11,7 @@
     - [ ] Update `TransactionController` and `TransactionService` to handle the new query parameters and pagination.
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend Implementation (Spring Boot)' (Protocol in workflow.md) 6f03e3a
 
-## Phase 2: Frontend Implementation (React / Redux Toolkit)
+## Phase 2: Frontend Implementation (React / Redux Toolkit) [checkpoint: 2ab8c36]
 - [x] Task: Update API Client and Redux Store f68449b
     - [ ] Write unit tests for the updated Redux Toolkit RTK Query endpoint or thunk to ensure the new query parameters are correctly serialized in the request.
     - [ ] Update the `transactionsApi` definition to include `search`, `category`, `type`, `account`, `from`, and `to` query parameters.
@@ -21,4 +21,4 @@
 - [x] Task: Integrate UI Controls with Server-Side Filtering 1caaf96
     - [ ] Write unit tests (using React Testing Library) for the transaction list component to ensure that changing UI filters dispatches the updated API query with pagination reset to page 1.
     - [ ] Update the transaction list component to map existing UI filter state to the new API request parameters.
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend Implementation (React / Redux Toolkit)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Frontend Implementation (React / Redux Toolkit)' (Protocol in workflow.md) 2ab8c36
