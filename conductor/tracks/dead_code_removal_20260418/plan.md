@@ -31,6 +31,8 @@
 - [x] Task: Prune unused dependencies from `package.json`. 794811e
     - [x] Identify dependencies exclusively used by removed frontend code.
     - [x] Remove identified dependencies from `package.json`.
+    - [x] Update `vite.config.ts` to remove references to pruned dependencies. 6b61c65
+    - [x] Clear Vite cache and reinstall dependencies to ensure clean state. 6b61c65
     - [x] Run frontend build (bundle analysis) to verify size reduction.
     - [x] Run frontend test suite to ensure no regressions.
 - [x] Task: Prune unused dependencies from `pom.xml`. 794811e
