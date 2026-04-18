@@ -19,3 +19,8 @@
 
 - [x] **Track: Dead Code Removal Cleanup**
 *Link: [./tracks/dead_code_removal_20260418/](./tracks/dead_code_removal_20260418/)*
+
+---
+
+- [ ] **Track: Bulk Transaction Deletion UI**
+*Link: [./tracks/bulk_transaction_deletion_20260419/](./tracks/bulk_transaction_deletion_20260419/)*
