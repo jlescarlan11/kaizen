@@ -17,5 +17,5 @@
 
 ---
 
-- [ ] **Track: Advanced Transaction Search and Filter**
+- [x] **Track: Advanced Transaction Search and Filter**
 *Link: [./tracks/advanced_transaction_search_20260418/](./tracks/advanced_transaction_search_20260418/)*
