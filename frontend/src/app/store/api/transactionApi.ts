@@ -33,6 +33,7 @@ export interface TransactionResponse {
   isRecurring?: boolean
   frequencyUnit?: FrequencyUnit
   frequencyMultiplier?: number
+  remindersEnabled?: boolean
   attachments?: AttachmentResponse[]
 }
 
@@ -56,6 +57,25 @@ export interface BalanceHistoryResponse {
   history: BalanceHistoryEntry[]
 }
 
+export interface TransactionFilters {
+  search?: string
+  categoryIds?: number[]
+  paymentMethodIds?: number[]
+  startDate?: string
+  endDate?: string
+  minAmount?: number
+  maxAmount?: number
+  types?: TransactionType[]
+  category?: number[] // New API param
+  account?: number[] // New API param
+  type?: TransactionType[] // New API param
+  from?: string // New API param
+  to?: string // New API param
+  lastDate?: string
+  lastId?: number
+  pageSize?: number
+}
+
 export const transactionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     createTransaction: builder.mutation<TransactionResponse, TransactionRequest>({
@@ -71,14 +91,31 @@ export const transactionApi = baseApi.injectEndpoints({
         { type: 'PaymentMethods', id: 'SUMMARY' },
       ],
     }),
-    getTransactions: builder.query<
-      TransactionResponse[],
-      { lastDate?: string; lastId?: number; pageSize?: number } | void
-    >({
-      query: (params) => ({
-        url: '/transactions',
-        params: params || {},
-      }),
+    getTransactions: builder.query<TransactionResponse[], TransactionFilters | void>({
+      query: (params) => {
+        const queryParams: Record<string, unknown> = { ...(params as Record<string, unknown>) }
+
+        // Map old params to new names for backend compatibility
+        if (params) {
+          if (params.categoryIds) queryParams.category = params.categoryIds
+          if (params.paymentMethodIds) queryParams.account = params.paymentMethodIds
+          if (params.types) queryParams.type = params.types
+          if (params.startDate) queryParams.from = params.startDate
+          if (params.endDate) queryParams.to = params.endDate
+
+          // Remove old names to clean up the request
+          delete queryParams.categoryIds
+          delete queryParams.paymentMethodIds
+          delete queryParams.types
+          delete queryParams.startDate
+          delete queryParams.endDate
+        }
+
+        return {
+          url: '/transactions',
+          params: queryParams,
+        }
+      },
       providesTags: (result) =>
         result
           ? [...result.map(({ id }) => ({ type: 'Transactions' as const, id })), 'Transactions']
