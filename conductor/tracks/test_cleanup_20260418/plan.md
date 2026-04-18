@@ -1,9 +1,9 @@
 # Implementation Plan: Comprehensive Test File Cleanup
 
-## Phase 1: Identify and Delete Leftover Test Files
-- [ ] Task: Execute `find . -name "*.test.*" -o -name "*.spec.*"` to locate all remaining test files.
-- [ ] Task: Delete the identified test files, including `balanceSummarySlice.test.ts` and `InsightGenerator.test.ts`.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Identify and Delete Leftover Test Files' (Protocol in workflow.md)
+## Phase 1: Identify and Delete Leftover Test Files [checkpoint: 4121a34]
+- [x] Task: Execute `find . -name "*.test.*" -o -name "*.spec.*"` to locate all remaining test files.
+- [x] Task: Delete the identified test files, including `balanceSummarySlice.test.ts` and `InsightGenerator.test.ts`.
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Identify and Delete Leftover Test Files' (Protocol in workflow.md)
 
 ## Phase 2: Purge Test Scripts and Dependencies
 - [ ] Task: Remove test scripts (e.g., `test`, `coverage`) from `frontend/package.json`.
