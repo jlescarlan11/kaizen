@@ -12,7 +12,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Backend Implementation (Spring Boot)' (Protocol in workflow.md) 6f03e3a
 
 ## Phase 2: Frontend Implementation (React / Redux Toolkit)
-- [ ] Task: Update API Client and Redux Store
+- [x] Task: Update API Client and Redux Store f68449b
     - [ ] Write unit tests for the updated Redux Toolkit RTK Query endpoint or thunk to ensure the new query parameters are correctly serialized in the request.
     - [ ] Update the `transactionsApi` definition to include `search`, `category`, `type`, `account`, `from`, and `to` query parameters.
 - [ ] Task: Remove Client-Side Filtering
