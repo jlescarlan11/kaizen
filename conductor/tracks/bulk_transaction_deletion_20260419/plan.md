@@ -22,10 +22,10 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: TransactionList Component Updates' (Protocol in workflow.md) (edeeb8c)
 
 ## Phase 3: Action Bar and Confirmation Dialog
-- [~] Task: Create Persistent Action Bar
+- [x] Task: Create Persistent Action Bar (8fdc5d3)
     - [ ] Write failing test for the Action Bar rendering with correct selected count.
     - [ ] Implement the fixed-bottom Action Bar with "Delete selected" button.
-- [ ] Task: Create Confirmation Dialog
+- [~] Task: Create Confirmation Dialog
     - [ ] Write failing test for confirmation dialog triggering on "Delete selected" click.
     - [ ] Implement the confirmation dialog ("Delete [N] transactions? This cannot be undone.").
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Action Bar and Confirmation Dialog' (Protocol in workflow.md)

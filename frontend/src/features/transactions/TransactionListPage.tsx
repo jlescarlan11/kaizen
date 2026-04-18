@@ -1,6 +1,7 @@
 import { useState, useMemo, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
 import { SelectionActionBar } from './components/SelectionActionBar'
+import { ConfirmBulkDeleteDialog } from './components/ConfirmBulkDeleteDialog'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
@@ -21,7 +22,10 @@ import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 export function TransactionListPage(): ReactElement {
   const dispatch = useAppDispatch()
   const isSelectionMode = useAppSelector(selectIsSelectionMode)
+  const selectedIds = useAppSelector(selectSelectedIds)
   const [sortState] = useSortPersistence()
+
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
 
   // 1. The Shared Result Pipeline
   // Composable data pipeline: backend filter/search → client-side sort
@@ -69,6 +73,14 @@ export function TransactionListPage(): ReactElement {
     }
   }
 
+  const handleBulkDeleteConfirm = () => {
+    // This will be implemented in the next phase
+    console.log('Confirmed bulk delete for:', selectedIds)
+    setIsConfirmDialogOpen(false)
+    dispatch(setSelectionMode(false))
+    dispatch(clearSelection())
+  }
+
   return (
     <div className={pageLayout.sectionGap}>
       <header className="space-y-7">
@@ -80,11 +92,14 @@ export function TransactionListPage(): ReactElement {
         </div>
 
         {/* Selection Action Bar */}
-        <SelectionActionBar
-          onDeleteRequest={() => {
-            // This will be implemented in the next task
-            console.log('Delete requested')
-          }}
+        <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
+
+        {/* Confirmation Dialog */}
+        <ConfirmBulkDeleteDialog
+          isOpen={isConfirmDialogOpen}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={handleBulkDeleteConfirm}
+          count={selectedIds.length}
         />
 
         {/* Money Flow Metrics Visualization */}
