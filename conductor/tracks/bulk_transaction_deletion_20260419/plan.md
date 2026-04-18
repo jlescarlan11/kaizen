@@ -21,14 +21,14 @@
     - [ ] Implement checkbox rendering and visual highlighting for selected rows.
 - [x] Task: Conductor - User Manual Verification 'Phase 2: TransactionList Component Updates' (Protocol in workflow.md) (edeeb8c)
 
-## Phase 3: Action Bar and Confirmation Dialog
+## Phase 3: Action Bar and Confirmation Dialog [checkpoint: 9bffcf9]
 - [x] Task: Create Persistent Action Bar (8fdc5d3)
     - [ ] Write failing test for the Action Bar rendering with correct selected count.
     - [ ] Implement the fixed-bottom Action Bar with "Delete selected" button.
-- [~] Task: Create Confirmation Dialog
+- [x] Task: Create Confirmation Dialog (bfc2128)
     - [ ] Write failing test for confirmation dialog triggering on "Delete selected" click.
     - [ ] Implement the confirmation dialog ("Delete [N] transactions? This cannot be undone.").
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Action Bar and Confirmation Dialog' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Action Bar and Confirmation Dialog' (Protocol in workflow.md) (9bffcf9)
 
 ## Phase 4: API Integration and Error Handling
 - [ ] Task: Hook up the Bulk Delete Endpoint
