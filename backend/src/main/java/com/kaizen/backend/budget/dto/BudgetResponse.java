@@ -11,6 +11,11 @@ public record BudgetResponse(
     String categoryName,
     BigDecimal amount,
     BigDecimal expense,
+    BigDecimal burnRate,
+    BigDecimal dailyAllowance,
+    BigDecimal projectedTotal,
+    Integer daysElapsed,
+    Integer daysLeft,
     BudgetPeriod period,
     Instant createdAt,
     Instant updatedAt
