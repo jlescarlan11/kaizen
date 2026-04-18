@@ -22,5 +22,5 @@
 
 ---
 
-- [ ] **Track: Bulk Transaction Deletion UI**
+- [~] **Track: Bulk Transaction Deletion UI**
 *Link: [./tracks/bulk_transaction_deletion_20260419/](./tracks/bulk_transaction_deletion_20260419/)*

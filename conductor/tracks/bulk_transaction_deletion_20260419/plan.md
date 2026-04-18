@@ -1,7 +1,7 @@
 # Implementation Plan: Bulk Transaction Deletion
 
 ## Phase 1: Setup and State Management
-- [ ] Task: Define state for bulk selection
+- [~] Task: Define state for bulk selection
     - [ ] Write failing test for toggling selection mode state.
     - [ ] Implement state logic to activate/deactivate selection mode.
     - [ ] Write failing test for selecting/deselecting individual transaction IDs.

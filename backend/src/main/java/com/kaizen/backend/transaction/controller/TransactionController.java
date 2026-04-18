@@ -111,6 +111,19 @@ public class TransactionController {
     }
 
     @Operation(
+        summary = "Delete multiple transactions",
+        description = "Permanently removes multiple transactions and recalculates the user's running balance."
+    )
+    @DeleteMapping("/bulk")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDeleteTransactions(
+        @AuthenticationPrincipal UserDetails userDetails,
+        @org.springframework.web.bind.annotation.RequestParam("ids") List<Long> ids
+    ) {
+        transactionService.bulkDeleteTransactions(userDetails.getUsername(), ids);
+    }
+
+    @Operation(
         summary = "Get balance history",
         description = "Returns a chronological history of the user's balance."
     )

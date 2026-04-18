@@ -293,6 +293,13 @@ public class TransactionService {
     }
 
     @Transactional
+    public void bulkDeleteTransactions(String email, List<Long> ids) {
+        for (Long id : ids) {
+            deleteTransaction(email, id);
+        }
+    }
+
+    @Transactional
     public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
         budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
             .ifPresent(budget -> {
