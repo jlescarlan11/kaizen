@@ -13,8 +13,15 @@ import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
 import { cn } from '../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../app/store/hooks'
-import { selectIsSelectionMode, setSelectionMode, clearSelection } from './transactionSlice'
+import { useBulkDeleteTransactionsMutation } from '../../app/store/api/transactionApi'
+import {
+  selectIsSelectionMode,
+  setSelectionMode,
+  clearSelection,
+  selectSelectedIds,
+} from './transactionSlice'
 import { CheckSquare, X } from 'lucide-react'
+import { showNotification } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
@@ -27,8 +34,10 @@ export function TransactionListPage(): ReactElement {
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
 
+  const [bulkDelete, { isLoading: isDeleting }] = useBulkDeleteTransactionsMutation()
+
   // 1. The Shared Result Pipeline
-  // Composable data pipeline: backend filter/search → client-side sort
+  // ...
   const {
     transactions: processedTransactions,
     isLoading,
@@ -73,12 +82,29 @@ export function TransactionListPage(): ReactElement {
     }
   }
 
-  const handleBulkDeleteConfirm = () => {
-    // This will be implemented in the next phase
-    console.log('Confirmed bulk delete for:', selectedIds)
-    setIsConfirmDialogOpen(false)
-    dispatch(setSelectionMode(false))
-    dispatch(clearSelection())
+  const handleBulkDeleteConfirm = async () => {
+    try {
+      await bulkDelete(selectedIds).unwrap()
+
+      dispatch(
+        showNotification({
+          type: 'success',
+          message: `Successfully deleted ${selectedIds.length} transaction${selectedIds.length === 1 ? '' : 's'}.`,
+        }),
+      )
+
+      setIsConfirmDialogOpen(false)
+      dispatch(setSelectionMode(false))
+      dispatch(clearSelection())
+    } catch (error) {
+      console.error('Failed to bulk delete transactions:', error)
+      dispatch(
+        showNotification({
+          type: 'error',
+          message: 'Failed to delete transactions. Please try again.',
+        }),
+      )
+    }
   }
 
   return (
@@ -100,6 +126,7 @@ export function TransactionListPage(): ReactElement {
           onClose={() => setIsConfirmDialogOpen(false)}
           onConfirm={handleBulkDeleteConfirm}
           count={selectedIds.length}
+          isLoading={isDeleting}
         />
 
         {/* Money Flow Metrics Visualization */}

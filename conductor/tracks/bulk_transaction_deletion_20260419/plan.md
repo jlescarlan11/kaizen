@@ -31,7 +31,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Action Bar and Confirmation Dialog' (Protocol in workflow.md) (9bffcf9)
 
 ## Phase 4: API Integration and Error Handling
-- [ ] Task: Hook up the Bulk Delete Endpoint
+- [~] Task: Hook up the Bulk Delete Endpoint
     - [ ] Write failing test for calling `bulkDeleteTransactions` API with selected IDs.
     - [ ] Implement API call on dialog confirmation.
     - [ ] Write failing test for list refresh and balance recalculation on success.
