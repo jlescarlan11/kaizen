@@ -166,9 +166,7 @@ public class BudgetController {
       throw new ProfileNotFoundException();
     }
 
-    return budgetService.getBudgetsForUser(userDetails.getUsername()).stream()
-        .map(this::map)
-        .collect(Collectors.toList());
+    return budgetService.getBudgetsWithProjections(userDetails.getUsername());
   }
 
   @Operation(
@@ -310,6 +308,11 @@ public class BudgetController {
             budget.getCategory().getName(),
             budget.getAmount(),
             budget.getExpense(),
+            null, // burnRate
+            null, // dailyAllowance
+            null, // projectedTotal
+            null, // daysElapsed
+            null, // daysLeft
             budget.getPeriod(),
             budget.getCreatedAt(),
             budget.getUpdatedAt()

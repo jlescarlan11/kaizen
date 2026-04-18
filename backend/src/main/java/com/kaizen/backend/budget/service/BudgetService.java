@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.kaizen.backend.budget.dto.BudgetBatchRequest;
 import com.kaizen.backend.budget.dto.BudgetCreateRequest;
+import com.kaizen.backend.budget.dto.BudgetResponse;
 import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
 import com.kaizen.backend.budget.entity.Budget;
 import com.kaizen.backend.budget.entity.BudgetPeriod;
@@ -22,6 +23,11 @@ import com.kaizen.backend.transaction.service.TransactionService;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Service
@@ -32,17 +38,30 @@ public class BudgetService {
     private final UserAccountRepository userAccountRepository;
     private final CategoryRepository categoryRepository;
     private final TransactionService transactionService;
+    private final Clock clock;
 
+    @Autowired
     public BudgetService(
         BudgetRepository budgetRepository,
         UserAccountRepository userAccountRepository,
         CategoryRepository categoryRepository,
         TransactionService transactionService
     ) {
+        this(budgetRepository, userAccountRepository, categoryRepository, transactionService, Clock.systemUTC());
+    }
+
+    public BudgetService(
+        BudgetRepository budgetRepository,
+        UserAccountRepository userAccountRepository,
+        CategoryRepository categoryRepository,
+        TransactionService transactionService,
+        Clock clock
+    ) {
         this.budgetRepository = budgetRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     @Transactional
@@ -146,6 +165,62 @@ public class BudgetService {
 
         userAccountRepository.save(user);
         return budgetRepository.saveAll(budgets);
+    }
+
+    public List<BudgetResponse> getBudgetsWithProjections(String email) {
+        UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
+
+        List<Budget> budgets = budgetRepository.findAllByUserId(user.getId());
+        
+        LocalDate now = LocalDate.now(clock);
+        int daysElapsed = now.getDayOfMonth();
+        YearMonth yearMonth = YearMonth.from(now);
+        int totalDaysInMonth = yearMonth.lengthOfMonth();
+        int daysLeft = Math.max(0, totalDaysInMonth - daysElapsed);
+
+        return budgets.stream()
+            .map(budget -> calculateProjections(budget, daysElapsed, daysLeft, totalDaysInMonth))
+            .collect(Collectors.toList());
+    }
+
+    private BudgetResponse calculateProjections(Budget budget, int daysElapsed, int daysLeft, int totalDaysInMonth) {
+        BigDecimal burnRate = null;
+        BigDecimal dailyAllowance = null;
+        BigDecimal projectedTotal = null;
+
+        if (daysElapsed >= 3) {
+            BigDecimal spent = budget.getExpense() != null ? budget.getExpense() : BigDecimal.ZERO;
+            BigDecimal limit = budget.getAmount() != null ? budget.getAmount() : BigDecimal.ZERO;
+            BigDecimal remaining = limit.subtract(spent);
+
+            burnRate = spent.divide(BigDecimal.valueOf(daysElapsed), 2, RoundingMode.HALF_UP);
+            
+            if (daysLeft > 0) {
+                dailyAllowance = remaining.divide(BigDecimal.valueOf(daysLeft), 2, RoundingMode.HALF_UP);
+            } else {
+                dailyAllowance = BigDecimal.ZERO;
+            }
+
+            projectedTotal = burnRate.multiply(BigDecimal.valueOf(totalDaysInMonth)).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return new BudgetResponse(
+            budget.getId(),
+            budget.getUser().getId(),
+            budget.getCategory().getId(),
+            budget.getCategory().getName(),
+            budget.getAmount(),
+            budget.getExpense(),
+            burnRate,
+            dailyAllowance,
+            projectedTotal,
+            daysElapsed,
+            daysLeft,
+            budget.getPeriod(),
+            budget.getCreatedAt(),
+            budget.getUpdatedAt()
+        );
     }
 
     public List<Budget> getBudgetsForUser(String email) {
