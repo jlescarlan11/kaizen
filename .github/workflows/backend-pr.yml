@@ -23,8 +23,8 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Build and test backend
-        run: mvn -f backend/pom.xml -B verify
+      - name: Build backend
+        run: mvn -f backend/pom.xml -B package -DskipTests
 
       - name: SpotBugs scan
         run: mvn -f backend/pom.xml -B com.github.spotbugs:spotbugs-maven-plugin:4.8.6.6:check

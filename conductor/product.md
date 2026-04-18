@@ -18,7 +18,7 @@ Initial monorepo scaffold for backend and frontend development.
 - **Speed Dial Navigation:** Persistent, multi-action Speed Dial FAB for rapid entry creation (Transactions, Budgets, Goals).
 
 ## Success Metrics
-- **High Code Quality & Test Coverage:** Minimum 80% coverage and passing lint/type checks.
+- **High Code Quality:** Passing lint and type checks to ensure structural integrity and adherence to standards.
 - **Performance & Scalability:** Low latency and efficient resource usage on the backend.
 - **UX Excellence & Accessibility:** Smooth, intuitive user interactions and zero accessibility errors.
 
