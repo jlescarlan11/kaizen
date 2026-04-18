@@ -19,25 +19,25 @@
     - [x] Ensure the calculated fields map to the updated endpoint response.
 - [x] Task: Conductor - User Manual Verification 'Backend Calculations and Endpoint Updates' (Protocol in workflow.md) [a11a498]
 
-## Phase 2: Frontend Types and State Management
-- [ ] Task: Update Frontend Budget Types
-    - [ ] Add `burnRate`, `dailyAllowance`, `projectedTotal`, `daysElapsed`, `daysLeft` to the frontend `Budget` interface/type.
-- [ ] Task: Write Tests for Frontend Budget State (TDD - Red Phase)
-    - [ ] Create tests to verify the API response is correctly parsed into state.
-- [ ] Task: Implement Frontend Logic Updates (TDD - Green Phase)
-    - [ ] Ensure API client/store slice is fully aware of the new fields.
-- [ ] Task: Conductor - User Manual Verification 'Frontend Types and State Management' (Protocol in workflow.md)
+## Phase 2: Frontend Types and State Management [checkpoint: 7d374a5]
+- [x] Task: Update Frontend Budget Types [7d374a5]
+    - [x] Add `burnRate`, `dailyAllowance`, `projectedTotal`, `daysElapsed`, `daysLeft` to the frontend `Budget` interface/type.
+- [x] Task: Write Tests for Frontend Budget State (TDD - Red Phase) [7d374a5]
+    - [x] Create tests to verify the API response is correctly parsed into state.
+- [x] Task: Implement Frontend Logic Updates (TDD - Green Phase) [7d374a5]
+    - [x] Ensure API client/store slice is fully aware of the new fields.
+- [x] Task: Conductor - User Manual Verification 'Frontend Types and State Management' (Protocol in workflow.md) [7d374a5]
 
-## Phase 3: Frontend UI Implementation
-- [ ] Task: Update Budget Card Component (TDD - Red Phase)
-    - [ ] Write component tests verifying the appearance of the "Overbudget" badge.
-    - [ ] Write tests verifying the "Insights" collapsible section.
-    - [ ] Write tests verifying the metrics display "—" when insufficient data.
-- [ ] Task: Implement Budget Card UI (TDD - Green Phase)
-    - [ ] Add an "Overbudget" badge on the card when `spent > limit`.
-    - [ ] Add a collapsible "Insights" section to `BudgetCard`.
-    - [ ] Display "Burn Rate", "Daily Allowance", and "Projected Total" inside the section.
-    - [ ] Apply amber styling to `projectedTotal` if `projectedTotal > limit`.
-    - [ ] Apply red styling to `projectedTotal` if `spent > limit`.
-    - [ ] Show "—" when data is missing or `daysElapsed < 3`.
-- [ ] Task: Conductor - User Manual Verification 'Frontend UI Implementation' (Protocol in workflow.md)
+## Phase 3: Frontend UI Implementation [checkpoint: 7d374a5]
+- [x] Task: Update Budget Card Component (TDD - Red Phase) [7d374a5]
+    - [x] Write component tests verifying the appearance of the "Overbudget" badge.
+    - [x] Write tests verifying the "Insights" collapsible section.
+    - [x] Write tests verifying the metrics display "—" when insufficient data.
+- [x] Task: Implement Budget Card UI (TDD - Green Phase) [7d374a5]
+    - [x] Add an "Overbudget" badge on the card when `spent > limit`.
+    - [x] Add a collapsible "Insights" section to `BudgetCard`.
+    - [x] Display "Burn Rate", "Daily Allowance", and "Projected Total" inside the section.
+    - [x] Apply amber styling to `projectedTotal` if `projectedTotal > limit`.
+    - [x] Apply red styling to `projectedTotal` if `spent > limit`.
+    - [x] Show "—" when data is missing or `daysElapsed < 3`.
+- [x] Task: Conductor - User Manual Verification 'Frontend UI Implementation' (Protocol in workflow.md) [7d374a5]
