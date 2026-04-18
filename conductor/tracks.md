@@ -19,8 +19,3 @@
 
 - [x] **Track: Dead Code Removal Cleanup**
 *Link: [./tracks/dead_code_removal_20260418/](./tracks/dead_code_removal_20260418/)*
-
----
-
-- [x] **Track: Comprehensive Test File Cleanup**
-*Link: [./tracks/test_cleanup_20260418/](./tracks/test_cleanup_20260418/)*
