@@ -19,3 +19,8 @@
 
 - [x] **Track: Dead Code Removal Cleanup**
 *Link: [./tracks/dead_code_removal_20260418/](./tracks/dead_code_removal_20260418/)*
+
+---
+
+- [ ] **Track: Budget Burn Rate and Projection**
+*Link: [./tracks/budget_burn_rate_projection_20260418/](./tracks/budget_burn_rate_projection_20260418/)*
