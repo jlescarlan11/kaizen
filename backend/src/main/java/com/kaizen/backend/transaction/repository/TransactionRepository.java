@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kaizen.backend.transaction.entity.Transaction;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor<Transaction> {
 
     @Modifying
     @Transactional
@@ -22,17 +23,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     void deleteByUserAccountId(@Param("userAccountId") Long userAccountId);
 
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
-
-    @Query("SELECT t FROM Transaction t WHERE t.userAccount.id = :userId AND " +
-           "(CAST(:lastDate AS timestamp) IS NULL OR t.transactionDate < :lastDate OR " +
-           "(t.transactionDate = :lastDate AND t.id < :lastId)) " +
-           "ORDER BY t.transactionDate DESC, t.id DESC")
-    List<Transaction> findByUserAccountIdPaginated(
-        @Param("userId") Long userId,
-        @Param("lastDate") OffsetDateTime lastDate,
-        @Param("lastId") Long lastId,
-        org.springframework.data.domain.Pageable pageable
-    );
 
     @Query("SELECT SUM(CASE " +
            "  WHEN t.type = 'INCOME' THEN t.amount " +
@@ -125,6 +115,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Param("userId") Long userId,
         @Param("paymentMethodId") Long paymentMethodId,
         @Param("start") OffsetDateTime start
+    );
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.category.id = :categoryId AND t.type = :type AND t.transactionDate >= :start AND t.transactionDate <= :end")
+    java.math.BigDecimal sumAmountByCategoryIdAndTypeAndDateRange(
+        @Param("userId") Long userId,
+        @Param("categoryId") Long categoryId,
+        @Param("type") com.kaizen.backend.common.entity.TransactionType type,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end
+    );
+
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.userAccount.id = :userId AND t.type = 'INCOME' AND t.transactionDate >= :start AND t.transactionDate <= :end")
+    java.math.BigDecimal sumAmountByIncomeTypeAndDateRange(
+        @Param("userId") Long userId,
+        @Param("start") OffsetDateTime start,
+        @Param("end") OffsetDateTime end
     );
 
     Optional<Transaction> findByClientGeneratedId(String clientGeneratedId);

@@ -11,6 +11,8 @@ export interface User {
   budgetSetupSkipped: boolean
   tourCompleted: boolean
   firstTransactionAdded: boolean
+  remindersEnabled: boolean
+  quickAddPreferences?: string
 }
 
 export interface AuthState {

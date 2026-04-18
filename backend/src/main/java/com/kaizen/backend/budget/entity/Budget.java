@@ -11,6 +11,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -45,6 +46,9 @@ public class Budget extends BaseEntity {
 
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal expense = BigDecimal.ZERO;
+
+    @Version
+    private Long version;
 
     public Budget(UserAccount user, Category category, BigDecimal amount, BudgetPeriod period) {
         this(user, category, amount, period, LocalDate.now());

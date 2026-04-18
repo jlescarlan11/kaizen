@@ -15,7 +15,9 @@ interface User {
   tourCompleted: boolean
   firstTransactionAdded: boolean
   remindersEnabled: boolean
+  quickAddPreferences?: string
 }
+
 
 export interface InitialBalanceRequest {
   paymentMethodId: number

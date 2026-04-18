@@ -16,7 +16,7 @@ import { resolveCategoryDesign } from '../categories/designSystem'
 import { SMART_BUDGET_PERIOD, SMART_BUDGET_SLOTS } from './constants'
 import type { BudgetPeriod } from './constants'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
-import { useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
+import { useSaveSmartBudgetsMutation, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
 import { BudgetTooltip } from './BudgetTooltip'
 import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
@@ -30,6 +30,7 @@ export function SmartBudgetPage(): ReactElement | null {
   const dispatch = useAppDispatch()
   const [complete, { isLoading: isSavingOnboarding }] = useCompleteOnboardingMutation()
   const [saveSmartBudgets, { isLoading: isSavingBudgets }] = useSaveSmartBudgetsMutation()
+  const { data: budgetSummary } = useGetBudgetSummaryQuery()
 
   const reduxBalance = useAppSelector(selectBalanceValue)
   const fundingSourceType = useAppSelector(selectFundingSourceType)
@@ -259,7 +260,7 @@ export function SmartBudgetPage(): ReactElement | null {
             {/* Instruction 4 integration slot: render the allocation total display here. */}
             <AllocationTotalDisplay
               totalAllocated={totalAllocation}
-              balance={balance}
+              availablePoolBalance={selectedPeriod === 'MONTHLY' ? (budgetSummary?.availableMonthly ?? 0) : (budgetSummary?.availableWeekly ?? 0)}
               onStatusChange={(status) => setIsOverAllocated(status === 'over')}
             />
           </div>

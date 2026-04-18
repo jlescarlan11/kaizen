@@ -5,12 +5,15 @@ import com.kaizen.backend.budget.dto.BudgetCountResponse;
 import com.kaizen.backend.budget.dto.BudgetCreateRequest;
 import com.kaizen.backend.budget.dto.BudgetResponse;
 import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
+import com.kaizen.backend.budget.dto.BudgetTransferRequest;
 import com.kaizen.backend.budget.entity.Budget;
 import com.kaizen.backend.budget.service.BudgetService;
 import com.kaizen.backend.budget.validation.BudgetValidationService;
 import com.kaizen.backend.common.dto.ErrorResponse;
 import com.kaizen.backend.common.dto.ValidationErrorResponse;
+import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
+import com.kaizen.backend.user.repository.UserAccountRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -38,11 +41,14 @@ public class BudgetController {
 
     private final BudgetService budgetService;
     private final BudgetValidationService budgetValidationService;
+    private final UserAccountRepository userAccountRepository;
 
     public BudgetController(BudgetService budgetService,
-        BudgetValidationService budgetValidationService) {
+        BudgetValidationService budgetValidationService,
+        UserAccountRepository userAccountRepository) {
         this.budgetService = budgetService;
         this.budgetValidationService = budgetValidationService;
+        this.userAccountRepository = userAccountRepository;
     }
 
     @Operation(
@@ -223,6 +229,77 @@ public class BudgetController {
     }
 
     return budgetService.getBudgetSummaryForUser(userDetails.getUsername());
+  }
+
+  @Operation(
+      summary = "Transfer funds between pools",
+      description = "Transfers the specified amount between the user's weekly and monthly allocation pools."
+  )
+  @ApiResponses({
+      @ApiResponse(
+          responseCode = "204",
+          description = "Funds transferred successfully."
+      ),
+      @ApiResponse(
+          responseCode = "400",
+          description = "Validation failed for the transfer request or insufficient funds.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "401",
+          description = "User must be authenticated.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "409",
+          description = "Concurrency conflict during transfer.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      )
+  })
+  @PostMapping("/transfer")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void transferFunds(
+      @AuthenticationPrincipal UserDetails userDetails,
+      @Valid @RequestBody BudgetTransferRequest request
+  ) {
+    if (userDetails == null) {
+      throw new ProfileNotFoundException();
+    }
+
+    budgetService.transferFunds(userDetails.getUsername(), request.source(), request.target(), request.amount());
+  }
+
+  @Operation(
+      summary = "Process initial balance injection",
+      description = "Moves the user's current account balance into their monthly allocation pool. Only processes once."
+  )
+  @ApiResponses({
+      @ApiResponse(
+          responseCode = "204",
+          description = "Injection processed successfully."
+      ),
+      @ApiResponse(
+          responseCode = "401",
+          description = "User must be authenticated.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      ),
+      @ApiResponse(
+          responseCode = "404",
+          description = "User profile not found.",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+      )
+  })
+  @PostMapping("/initial-injection")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void processInitialInjection(@AuthenticationPrincipal UserDetails userDetails) {
+    if (userDetails == null) {
+      throw new ProfileNotFoundException();
+    }
+
+    UserAccount user = userAccountRepository.findByEmailIgnoreCase(userDetails.getUsername())
+        .orElseThrow(ProfileNotFoundException::new);
+    
+    budgetService.processInitialInjection(user);
   }
 
   private BudgetResponse map(Budget budget) {

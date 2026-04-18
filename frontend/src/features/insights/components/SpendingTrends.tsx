@@ -71,7 +71,7 @@ export function SpendingTrends({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" fontSize={12} />
             <YAxis fontSize={12} width={60} tickFormatter={(val) => `PHP ${val}`} />
-            <Tooltip formatter={(value: number) => formatCurrency(value)} />
+            <Tooltip formatter={(value: number | string) => formatCurrency(Number(value ?? 0))} />
             <Bar dataKey="value" fill="#6366f1" />
           </BarChart>
         </ResponsiveContainer>

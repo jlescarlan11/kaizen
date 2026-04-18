@@ -20,6 +20,7 @@ import com.kaizen.backend.transaction.dto.BulkDeleteRequest;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.service.TransactionService;
+import com.kaizen.backend.common.entity.TransactionType;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,17 +51,26 @@ public class TransactionController {
     }
 
     @Operation(
-        summary = "Get all transactions for the current user",
-        description = "Returns a list of transactions ordered by date descending."
+        summary = "Get transactions for the current user with advanced filtering",
+        description = "Returns a list of transactions ordered by date descending, supporting various filters and cursor-based pagination."
     )
     @GetMapping
     public List<TransactionResponse> getTransactions(
         @AuthenticationPrincipal UserDetails userDetails,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) String search,
+        @org.springframework.web.bind.annotation.RequestParam(name = "category", required = false) List<Long> categoryIds,
+        @org.springframework.web.bind.annotation.RequestParam(name = "account", required = false) List<Long> paymentMethodIds,
+        @org.springframework.web.bind.annotation.RequestParam(name = "type", required = false) List<TransactionType> types,
+        @org.springframework.web.bind.annotation.RequestParam(name = "from", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.OffsetDateTime startDate,
+        @org.springframework.web.bind.annotation.RequestParam(name = "to", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.OffsetDateTime endDate,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) java.math.BigDecimal minAmount,
+        @org.springframework.web.bind.annotation.RequestParam(required = false) java.math.BigDecimal maxAmount,
         @org.springframework.web.bind.annotation.RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.OffsetDateTime lastDate,
         @org.springframework.web.bind.annotation.RequestParam(required = false) Long lastId,
         @org.springframework.web.bind.annotation.RequestParam(defaultValue = "25") int pageSize
     ) {
-        return transactionService.getTransactionsPaginated(userDetails.getUsername(), lastDate, lastId, pageSize);
+        return transactionService.getTransactionsPaginated(
+            userDetails.getUsername(), search, categoryIds, paymentMethodIds, types, startDate, endDate, minAmount, maxAmount, lastDate, lastId, pageSize);
     }
 
     @Operation(

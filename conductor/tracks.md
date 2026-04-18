@@ -14,7 +14,3 @@
 
 - [x] **Track: Clickable account breakdown to filtered transaction page.**
 *Link: [./tracks/account_breakdown_redirection_20260404/](./tracks/account_breakdown_redirection_20260404/)*
-
-
-
-

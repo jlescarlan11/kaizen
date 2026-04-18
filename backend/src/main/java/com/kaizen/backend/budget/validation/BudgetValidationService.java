@@ -60,35 +60,39 @@ public class BudgetValidationService {
 
     private void validateBudgets(UserAccount user, List<BudgetCreateRequest> budgets, String fieldBase) {
         List<ValidationError> errors = new ArrayList<>();
-        BigDecimal availableBalance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
+        BigDecimal availableMonthly = user.getAvailableMonthly() == null ? BigDecimal.ZERO : user.getAvailableMonthly();
+        BigDecimal availableWeekly = user.getAvailableWeekly() == null ? BigDecimal.ZERO : user.getAvailableWeekly();
 
         for (int i = 0; i < budgets.size(); i++) {
             BudgetCreateRequest budget = budgets.get(i);
             String entryPrefix = String.format("%s[%d]", fieldBase, i);
+            BigDecimal poolBalance = budget.period() == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY ? availableMonthly : availableWeekly;
 
             if (budget.amount() != null) {
                 if (budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
                     errors.add(new ValidationError(entryPrefix + ".amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
                 }
                 if (validationProperties.isBudgetBalanceConstraintEnabled()
-                    && budget.amount().compareTo(availableBalance) > 0) {
+                    && budget.amount().compareTo(poolBalance) > 0) {
                     errors.add(new ValidationError(entryPrefix + ".amount", ValidationConstants.BUDGET_OVER_BALANCE_ERROR));
                 }
             }
         }
 
         if (validationProperties.isBudgetBalanceConstraintEnabled()) {
-            BigDecimal total = budgets.stream()
-                .map(BudgetCreateRequest::amount)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            Map<com.kaizen.backend.budget.entity.BudgetPeriod, BigDecimal> totals = budgets.stream()
+                .filter(b -> b.amount() != null && b.period() != null)
+                .collect(Collectors.groupingBy(
+                    BudgetCreateRequest::period,
+                    Collectors.reducing(BigDecimal.ZERO, BudgetCreateRequest::amount, BigDecimal::add)
+                ));
 
-            if (total.compareTo(availableBalance) > 0) {
-                errors.add(new ValidationError(fieldBase + ".total", ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR));
-            }
-        } else {
-            // PRD Open Question 2: When restricted mode is disabled, the per-entry and total checks turn into warnings.
-            // Adjust logic here if a soft warning path is confirmed.
+            totals.forEach((period, total) -> {
+                BigDecimal poolBalance = period == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY ? availableMonthly : availableWeekly;
+                if (total.compareTo(poolBalance) > 0) {
+                    errors.add(new ValidationError(fieldBase + "." + period.name().toLowerCase() + "Total", ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR));
+                }
+            });
         }
 
         addDuplicateCategoryErrors(errors, budgets, fieldBase);
@@ -101,23 +105,26 @@ public class BudgetValidationService {
 
     private void validateSingleBudget(UserAccount user, BudgetCreateRequest budget) {
         List<ValidationError> errors = new ArrayList<>();
-        BigDecimal availableBalance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
-        List<Budget> existingBudgets = budgetRepository.findAllByUserId(user.getId());
+        BigDecimal poolBalance = budget.period() == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY 
+            ? (user.getAvailableMonthly() == null ? BigDecimal.ZERO : user.getAvailableMonthly())
+            : (user.getAvailableWeekly() == null ? BigDecimal.ZERO : user.getAvailableWeekly());
+
+        List<Budget> existingBudgets = budgetRepository.findAllByUserIdAndPeriod(user.getId(), budget.period());
         BigDecimal existingAllocated = existingBudgets.stream()
             .map(Budget::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal remainingToAllocate = availableBalance.subtract(existingAllocated).max(BigDecimal.ZERO);
+        BigDecimal remainingInPool = poolBalance.subtract(existingAllocated).max(BigDecimal.ZERO);
 
         if (budget.amount() != null) {
             if (budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
                 errors.add(new ValidationError("budget.amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
             }
             if (validationProperties.isBudgetBalanceConstraintEnabled()
-                && budget.amount().compareTo(remainingToAllocate) > 0) {
+                && budget.amount().compareTo(remainingInPool) > 0) {
                 errors.add(new ValidationError("budget.amount", ValidationConstants.BUDGET_OVER_BALANCE_ERROR));
             }
             if (validationProperties.isBudgetBalanceConstraintEnabled()
-                && existingAllocated.add(budget.amount()).compareTo(availableBalance) > 0) {
+                && existingAllocated.add(budget.amount()).compareTo(poolBalance) > 0) {
                 errors.add(new ValidationError("budget.total", ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR));
             }
         }

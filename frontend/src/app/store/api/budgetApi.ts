@@ -17,6 +17,7 @@ export interface BudgetResponse {
   categoryId: number
   categoryName: string
   amount: number
+  expense: number
   period: BudgetPeriod
   createdAt: string
   updatedAt: string
@@ -28,10 +29,19 @@ export interface BudgetCountResponse {
 
 export interface BudgetSummaryResponse {
   balance: number
+  availableMonthly: number
+  availableWeekly: number
   totalAllocated: number
+  totalSpent: number
   remainingToAllocate: number
   allocationPercentage: number
   budgetCount: number
+}
+
+export interface BudgetTransferPayload {
+  source: BudgetPeriod
+  target: BudgetPeriod
+  amount: number
 }
 
 export const budgetApi = baseApi.injectEndpoints({
@@ -42,7 +52,7 @@ export const budgetApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Budgets'],
+      invalidatesTags: ['Budgets', 'User'],
     }),
     createBudget: builder.mutation<BudgetResponse, BudgetCreatePayload>({
       query: (payload) => ({
@@ -50,7 +60,7 @@ export const budgetApi = baseApi.injectEndpoints({
         method: 'POST',
         body: payload,
       }),
-      invalidatesTags: ['Budgets'],
+      invalidatesTags: ['Budgets', 'User'],
     }),
     getBudgetCount: builder.query<BudgetCountResponse, void>({
       query: () => '/budgets/count',
@@ -60,11 +70,26 @@ export const budgetApi = baseApi.injectEndpoints({
     getBudgetSummary: builder.query<BudgetSummaryResponse, void>({
       query: () => '/budgets/summary',
       keepUnusedDataFor: 60,
-      providesTags: ['Budgets'],
+      providesTags: ['Budgets', 'User'],
     }),
     getBudgets: builder.query<BudgetResponse[], void>({
       query: () => '/budgets',
       providesTags: ['Budgets'],
+    }),
+    transferFunds: builder.mutation<void, BudgetTransferPayload>({
+      query: (payload) => ({
+        url: '/budgets/transfer',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['Budgets', 'User'],
+    }),
+    processInitialInjection: builder.mutation<void, void>({
+      query: () => ({
+        url: '/budgets/initial-injection',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Budgets', 'User'],
     }),
   }),
 })
@@ -75,4 +100,6 @@ export const {
   useGetBudgetCountQuery,
   useGetBudgetSummaryQuery,
   useGetBudgetsQuery,
+  useTransferFundsMutation,
+  useProcessInitialInjectionMutation,
 } = budgetApi

@@ -1,6 +1,10 @@
-import type { ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
+import { 
+  useGetBudgetsQuery, 
+  useGetBudgetSummaryQuery,
+  useProcessInitialInjectionMutation 
+} from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
@@ -8,6 +12,7 @@ import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { TransferFundsModal } from './components/TransferFundsModal'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -15,12 +20,22 @@ const currencyFormatter = {
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
   const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: budgetSummary } = useGetBudgetSummaryQuery()
   const { data: categories = [] } = useGetCategoriesQuery()
+  const [processInitialInjection, { isLoading: isInjecting }] = useProcessInitialInjectionMutation()
 
   const handleNewBudget = () => {
     navigate('/budget/manual')
+  }
+
+  const handleSeedFromBalance = async () => {
+    try {
+      await processInitialInjection().unwrap()
+    } catch (err) {
+      console.error('Failed to seed from balance:', err)
+    }
   }
 
   if (isBudgetsLoading) {
@@ -31,47 +46,92 @@ export function BudgetsPage(): ReactElement {
     )
   }
 
+  const hasNoPoolFunds = (budgetSummary?.availableMonthly ?? 0) === 0 && (budgetSummary?.availableWeekly ?? 0) === 0
+  const hasBalanceToInject = (budgetSummary?.balance ?? 0) > 0
+
   return (
     <section className={pageLayout.sectionGap}>
       <header className="flex items-center justify-between">
         <div className="space-y-1">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">Budgets</h1>
-          <p className="text-muted-foreground">Monitor and manage your monthly spending limits.</p>
+          <p className="text-muted-foreground">Monitor and manage your spending limits.</p>
         </div>
-        <Button onClick={handleNewBudget} className="shrink-0">
-          Add Budget
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" onClick={() => setIsTransferModalOpen(true)}>
+            Transfer
+          </Button>
+          <Button onClick={handleNewBudget} className="shrink-0">
+            Add Budget
+          </Button>
+        </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Actual balance
+            Monthly Pool
           </p>
           <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.balance ?? 0)}
+            {currencyFormatter.format(budgetSummary?.availableMonthly ?? 0)}
+          </p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            Unallocated
           </p>
         </Card>
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Allocated
+            Weekly Pool
+          </p>
+          <p className="text-2xl font-semibold text-foreground">
+            {currencyFormatter.format(budgetSummary?.availableWeekly ?? 0)}
+          </p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            Unallocated
+          </p>
+        </Card>
+        <Card className="space-y-1 border border-ui-border-subtle p-5">
+          <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+            Total Allocated
           </p>
           <p className="text-2xl font-semibold text-foreground">
             {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
           </p>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            Across {budgets?.length || 0} Categories
+          </p>
         </Card>
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Remaining to budget
+            Plan Capacity
           </p>
           <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.remainingToAllocate ?? 0)}
+            {currencyFormatter.format((budgetSummary?.remainingToAllocate ?? 0) + (budgetSummary?.totalAllocated ?? 0))}
           </p>
           <p className="text-sm text-muted-foreground">
-            {budgetSummary?.allocationPercentage ?? 0}% of balance allocated
+            {budgetSummary?.allocationPercentage ?? 0}% of capacity assigned
           </p>
         </Card>
       </div>
+
+      {hasNoPoolFunds && hasBalanceToInject && (
+        <Card className="flex items-center justify-between border-ui-accent/30 bg-ui-accent-subtle p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-action text-white">
+              <SharedIcon type="category" name="wallet" size={20} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Ready to start budgeting?</p>
+              <p className="text-xs text-muted-foreground">
+                You have {currencyFormatter.format(budgetSummary?.balance ?? 0)} in your account. 
+                Seed your monthly pool to start allocating.
+              </p>
+            </div>
+          </div>
+          <Button size="sm" onClick={handleSeedFromBalance} isLoading={isInjecting}>
+            Seed from Balance
+          </Button>
+        </Card>
+      )}
 
       <DataList
         data={budgets || []}
@@ -118,7 +178,7 @@ export function BudgetsPage(): ReactElement {
                     {budget.categoryName}
                   </p>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                    {budget.period}
+                    {budget.period.toLowerCase()} Budget
                   </p>
                 </div>
               </div>
@@ -135,6 +195,11 @@ export function BudgetsPage(): ReactElement {
             </div>
           )
         }}
+      />
+
+      <TransferFundsModal 
+        isOpen={isTransferModalOpen} 
+        onClose={() => setIsTransferModalOpen(false)} 
       />
     </section>
   )
