@@ -3,12 +3,12 @@ import {
   useGetTransactionsQuery,
   useLazyGetTransactionsQuery,
 } from '../../../app/store/api/transactionApi'
-import type { TransactionResponse } from '../../../app/store/api/transactionApi'
+import type { TransactionResponse, TransactionFilters } from '../../../app/store/api/transactionApi'
 import { TRANSACTION_PAGE_SIZE } from '../constants'
 import { db, SyncStatus } from '../lib/localStore'
 import { useLiveQuery } from 'dexie-react-hooks'
 
-export function useTransactionPagination() {
+export function useTransactionPagination(filters: TransactionFilters = {}) {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
@@ -24,18 +24,31 @@ export function useTransactionPagination() {
     data: initialData,
     isLoading,
     isError,
+    isFetching,
   } = useGetTransactionsQuery({
+    ...filters,
     pageSize: TRANSACTION_PAGE_SIZE,
   })
 
   const [trigger] = useLazyGetTransactionsQuery()
 
+  // Reset and set initial data when filters or initialData change
   useEffect(() => {
     if (initialData) {
       setTransactions(initialData)
       setHasMore(initialData.length === TRANSACTION_PAGE_SIZE)
+    } else if (!isFetching) {
+      // If we are not fetching and have no data (e.g. filters changed but query not started)
+      // we don't necessarily want to clear, but the query will auto-trigger on filter change.
     }
-  }, [initialData])
+  }, [initialData, isFetching])
+
+  // Reset transactions immediately when filters change to avoid showing stale data
+  const filterKey = JSON.stringify(filters)
+  useEffect(() => {
+    setTransactions([])
+    setHasMore(true)
+  }, [filterKey])
 
   const loadMore = useCallback(async () => {
     if (isFetchingMore || !hasMore || transactions.length === 0) return
@@ -45,6 +58,7 @@ export function useTransactionPagination() {
 
     try {
       const result = await trigger({
+        ...filters,
         pageSize: TRANSACTION_PAGE_SIZE,
         lastDate: lastTx.transactionDate,
         lastId: lastTx.id,
@@ -57,7 +71,7 @@ export function useTransactionPagination() {
     } finally {
       setIsFetchingMore(false)
     }
-  }, [isFetchingMore, hasMore, transactions, trigger])
+  }, [isFetchingMore, hasMore, transactions, trigger, filters])
 
   // Map local pending transactions to TransactionResponse format for merging
   const mappedPending = useMemo(() => {
