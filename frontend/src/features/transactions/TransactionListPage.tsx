@@ -25,62 +25,24 @@ const INITIAL_FILTER: FilterState = {
 }
 
 export function TransactionListPage(): ReactElement {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const { transactions, isLoading, hasMore, loadMore } = useTransactionPagination()
-
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
-
-  // 1. Pipeline Inputs (State Management)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterState, setFilterState] = useState<FilterState>(() => {
-    const categories = searchParams
-      .getAll('category')
-      .map(Number)
-      .filter((id) => !isNaN(id))
-    const paymentMethods = searchParams
-      .getAll('paymentMethod')
-      .map(Number)
-      .filter((id) => !isNaN(id))
-    const types = searchParams.getAll('type') as ('INCOME' | 'EXPENSE')[]
-    const startDate = searchParams.get('startDate') || undefined
-    const endDate = searchParams.get('endDate') || undefined
-    return {
-      categories,
-      paymentMethods,
-      types: types.filter((t) => ['INCOME', 'EXPENSE'].includes(t)),
-      startDate,
-      endDate,
-    }
-  })
   const [sortState] = useSortPersistence()
 
-  // Sync URL when filters change
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.delete('category')
-    newParams.delete('type')
-    newParams.delete('paymentMethod')
-    newParams.delete('startDate')
-    newParams.delete('endDate')
-
-    filterState.categories.forEach((c) => newParams.append('category', String(c)))
-    filterState.types.forEach((t) => newParams.append('type', t))
-    filterState.paymentMethods.forEach((pm) => newParams.append('paymentMethod', String(pm)))
-
-    if (filterState.startDate) newParams.set('startDate', filterState.startDate)
-    if (filterState.endDate) newParams.set('endDate', filterState.endDate)
-
-    setSearchParams(newParams, { replace: true })
-  }, [filterState, setSearchParams, searchParams])
-
-  // 2. The Shared Result Pipeline
-  // Composable data pipeline: filter → search → sort
-  const processedTransactions = useTransactionPipeline({
-    transactions,
+  // 1. The Shared Result Pipeline
+  // Composable data pipeline: backend filter/search → client-side sort
+  const {
+    transactions: processedTransactions,
+    isLoading,
+    hasMore,
+    loadMore,
     searchQuery,
+    setSearchQuery,
     filterState,
-    sortState,
-  })
+    setFilterState,
+    clearFilters,
+    clearSearch,
+  } = useTransactionPipeline(sortState)
+
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   // Calculate money flow metrics from processed transactions
   const moneyFlow = useMemo(
@@ -92,13 +54,13 @@ export function TransactionListPage(): ReactElement {
   const isFilterActive =
     filterState.categories.length > 0 ||
     filterState.types.length > 0 ||
-    filterState.paymentMethods.length > 0
+    filterState.paymentMethods.length > 0 ||
+    !!filterState.startDate ||
+    !!filterState.endDate
 
-  const handleClearSearch = () => setSearchQuery('')
-  const handleClearFilter = () => setFilterState(INITIAL_FILTER)
   const handleClearAll = () => {
-    handleClearSearch()
-    handleClearFilter()
+    clearSearch()
+    clearFilters()
   }
 
   return (
@@ -112,7 +74,7 @@ export function TransactionListPage(): ReactElement {
         </div>
 
         {/* Money Flow Metrics Visualization */}
-        {!isLoading && transactions.length > 0 && (
+        {!isLoading && processedTransactions.length > 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-3 duration-600 delay-75">
             <MoneyFlowDisplay {...moneyFlow} />
           </div>
@@ -129,7 +91,7 @@ export function TransactionListPage(): ReactElement {
         />
 
         {/* Search, Filter, and Export Controls */}
-        {!isLoading && transactions.length > 0 && (
+        {!isLoading && (processedTransactions.length > 0 || isSearchActive || isFilterActive) && (
           <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex-1 min-w-[280px]">
@@ -139,7 +101,7 @@ export function TransactionListPage(): ReactElement {
                 <TransactionFilter
                   filter={filterState}
                   onChange={setFilterState}
-                  onClear={handleClearFilter}
+                  onClear={clearFilters}
                 />
                 <Button
                   variant="ghost"
@@ -238,8 +200,8 @@ export function TransactionListPage(): ReactElement {
           <TransactionEmptyState
             isSearchActive={isSearchActive}
             isFilterActive={isFilterActive}
-            onClearSearch={handleClearSearch}
-            onClearFilter={handleClearFilter}
+            onClearSearch={clearSearch}
+            onClearFilter={clearFilters}
             onClearAll={handleClearAll}
           />
         ) : (

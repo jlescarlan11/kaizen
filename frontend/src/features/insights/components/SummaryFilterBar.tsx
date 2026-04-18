@@ -42,57 +42,62 @@ export function SummaryFilterBar({
         Account Filter
       </label>
       <Popover className="relative">
-        <PopoverButton className="flex items-center justify-between w-full px-4 py-2.5 text-left bg-ui-surface border border-ui-border rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all hover:bg-ui-surface-hover shadow-sm hover:shadow-md">
-          <span className="truncate">{accountsLabel}</span>
-          <ChevronDownIcon />
-        </PopoverButton>
+        {({ open }) => (
+          <>
+            <PopoverButton className="flex items-center justify-between w-full px-4 py-2.5 text-left bg-ui-surface border border-ui-border rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all hover:bg-ui-surface-hover shadow-sm hover:shadow-md">
+              <span className="truncate">{accountsLabel}</span>
+              <ChevronDownIcon />
+            </PopoverButton>
 
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-200"
-          enterFrom="opacity-0 translate-y-1"
-          enterTo="opacity-100 translate-y-0"
-          leave="transition ease-in duration-150"
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-1"
-        >
-          <PopoverPanel className="absolute z-50 mt-2 right-0 w-64 p-2 bg-ui-surface border border-ui-border rounded-2xl shadow-2xl focus:outline-none">
-            <div className="max-h-60 overflow-auto space-y-1 p-1">
-              <div
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-ui-surface-hover transition-colors',
-                  selectedAccountIds.length === 0 && 'bg-ui-surface-subtle',
-                )}
-                onClick={() => onAccountSelectionChange([])}
-              >
-                <Checkbox
-                  id="all-accounts"
-                  checked={selectedAccountIds.length === 0}
-                  onChange={() => onAccountSelectionChange([])}
-                  label="All Accounts"
-                />
-              </div>
-              <div className="h-px bg-ui-border my-1" />
-              {accounts.map((account) => (
-                <div
-                  key={account.id}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-ui-surface-hover transition-colors',
-                    selectedAccountIds.includes(account.id) && 'bg-ui-surface-subtle',
-                  )}
-                  onClick={() => handleAccountToggle(account.id)}
-                >
-                  <Checkbox
-                    id={`account-${account.id}`}
-                    checked={selectedAccountIds.includes(account.id)}
-                    onChange={() => handleAccountToggle(account.id)}
-                    label={account.name}
-                  />
+            <Transition
+              show={open}
+              as={Fragment}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <PopoverPanel className="absolute z-50 mt-2 right-0 w-64 p-2 bg-ui-surface border border-ui-border rounded-2xl shadow-2xl focus:outline-none">
+                <div className="max-h-60 overflow-auto space-y-1 p-1">
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-ui-surface-hover transition-colors',
+                      selectedAccountIds.length === 0 && 'bg-ui-surface-subtle',
+                    )}
+                    onClick={() => onAccountSelectionChange([])}
+                  >
+                    <Checkbox
+                      id="all-accounts"
+                      checked={selectedAccountIds.length === 0}
+                      onChange={() => onAccountSelectionChange([])}
+                      label="All Accounts"
+                    />
+                  </div>
+                  <div className="h-px bg-ui-border my-1" />
+                  {accounts.map((account) => (
+                    <div
+                      key={account.id}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer hover:bg-ui-surface-hover transition-colors',
+                        selectedAccountIds.includes(account.id) && 'bg-ui-surface-subtle',
+                      )}
+                      onClick={() => handleAccountToggle(account.id)}
+                    >
+                      <Checkbox
+                        id={`account-${account.id}`}
+                        checked={selectedAccountIds.includes(account.id)}
+                        onChange={() => handleAccountToggle(account.id)}
+                        label={account.name}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </PopoverPanel>
-        </Transition>
+              </PopoverPanel>
+            </Transition>
+          </>
+        )}
       </Popover>
     </div>
   )

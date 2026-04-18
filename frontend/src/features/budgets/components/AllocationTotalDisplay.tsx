@@ -18,7 +18,7 @@ const currencyFormatterFull = {
 
 interface AllocationTotalDisplayProps {
   totalAllocated: number
-  balance: number
+  availablePoolBalance: number
   onStatusChange?: (status: AllocationStatus) => void
 }
 
@@ -40,20 +40,20 @@ const warningGradientStyle: CSSProperties = {
 
 export function AllocationTotalDisplay({
   totalAllocated,
-  balance,
+  availablePoolBalance,
   onStatusChange,
 }: AllocationTotalDisplayProps): ReactElement {
   const sanitizedAllocated = Math.max(totalAllocated, 0)
 
   const ratio = useMemo(
     () =>
-      balance > 0 ? sanitizedAllocated / balance : sanitizedAllocated === 0 ? 0 : RED_THRESHOLD,
-    [balance, sanitizedAllocated],
+      availablePoolBalance > 0 ? sanitizedAllocated / availablePoolBalance : sanitizedAllocated === 0 ? 0 : RED_THRESHOLD,
+    [availablePoolBalance, sanitizedAllocated],
   )
 
   const status = computeAllocationStatus(ratio)
   const isOver = status === 'over'
-  const remainder = Math.max(balance - sanitizedAllocated, 0)
+  const remainder = Math.max(availablePoolBalance - sanitizedAllocated, 0)
   const barPercent = Math.min(ratio * 100, 100)
   const percentLabel =
     ratio >= 1 || remainder === 0
@@ -83,7 +83,7 @@ export function AllocationTotalDisplay({
         <span className="text-ui-text-subtle">
           {isOver ? (
             <span className="font-medium text-ui-danger-text-soft">
-              Over by {currencyFormatter.format(sanitizedAllocated - balance)}
+              Over by {currencyFormatter.format(sanitizedAllocated - availablePoolBalance)}
             </span>
           ) : (
             <>{currencyFormatter.format(remainder)} left</>
@@ -92,7 +92,7 @@ export function AllocationTotalDisplay({
       </div>
 
       <p className="text-xs text-ui-text-subtle">
-        of {currencyFormatterFull.format(balance)} total balance
+        of {currencyFormatterFull.format(availablePoolBalance)} available in pool
       </p>
 
       {isOver ? (

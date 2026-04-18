@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,6 +68,19 @@ public class UserAccount extends BaseEntity {
 
     @Column(name = "balance", precision = 15, scale = 2)
     private java.math.BigDecimal balance = java.math.BigDecimal.ZERO;
+
+    @Column(name = "available_monthly", precision = 15, scale = 2, nullable = false)
+    private java.math.BigDecimal availableMonthly = java.math.BigDecimal.ZERO;
+
+    @Column(name = "available_weekly", precision = 15, scale = 2, nullable = false)
+    private java.math.BigDecimal availableWeekly = java.math.BigDecimal.ZERO;
+
+    @Column(name = "is_initial_injection_processed", nullable = false)
+    private boolean isInitialInjectionProcessed = false;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     @Column(name = "quick_add_preferences", columnDefinition = "TEXT")
     private String quickAddPreferences;

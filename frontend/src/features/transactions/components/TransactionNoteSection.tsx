@@ -2,8 +2,8 @@ import { type ReactElement } from 'react'
 import { cn } from '../../../shared/lib/cn'
 
 interface TransactionNoteSectionProps {
-  description: string | null
-  notes: string | null
+  description: string | null | undefined
+  notes: string | null | undefined
   className?: string
 }
 

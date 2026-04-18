@@ -36,7 +36,11 @@ import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
-import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
+import {
+  useGetBudgetsQuery,
+  useSaveSmartBudgetsMutation,
+  useGetBudgetSummaryQuery,
+} from '../../app/store/api/budgetApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 
@@ -47,6 +51,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   const [complete, { isLoading: isCompleting }] = useCompleteOnboardingMutation()
   const [saveBatch, { isLoading: isSavingBatch }] = useSaveSmartBudgetsMutation()
   const { data: existingBudgets, isLoading: isLoadingBudgets } = useGetBudgetsQuery()
+  const { data: budgetSummary } = useGetBudgetSummaryQuery()
 
   const reduxBalance = useAppSelector(selectBalanceValue)
   const fundingSourceType = useAppSelector(selectFundingSourceType)
@@ -83,8 +88,8 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   )
 
   const totalAllocated = useMemo(
-    () => sessionBudgets.reduce((sum, budget) => sum + budget.amount, 0),
-    [sessionBudgets],
+    () => sessionBudgets.filter(b => b.period === selectedPeriod).reduce((sum, budget) => sum + budget.amount, 0),
+    [sessionBudgets, selectedPeriod],
   )
 
   const invalidBudgetIds = useMemo(
@@ -291,7 +296,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
-            balance={balance}
+            availablePoolBalance={selectedPeriod === 'MONTHLY' ? (budgetSummary?.availableMonthly ?? 0) : (budgetSummary?.availableWeekly ?? 0)}
             onStatusChange={(status) => setIsOverAllocated(status === 'over')}
           />
         </div>

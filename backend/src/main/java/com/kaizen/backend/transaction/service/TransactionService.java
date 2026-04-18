@@ -1,6 +1,11 @@
 package com.kaizen.backend.transaction.service;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +17,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kaizen.backend.budget.entity.BudgetPeriod;
 import com.kaizen.backend.category.dto.CategoryResponse;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.category.repository.CategoryRepository;
@@ -25,6 +31,7 @@ import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.entity.Transaction;
 import com.kaizen.backend.transaction.repository.TransactionRepository;
+import com.kaizen.backend.transaction.specification.TransactionSpecification;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 
@@ -136,6 +143,10 @@ public class TransactionService {
         }
 
         recalculateUserBalance(account);
+        if (saved.getType() == TransactionType.INCOME) {
+            // Default income to monthly pool
+            account.setAvailableMonthly(account.getAvailableMonthly().add(saved.getAmount()));
+        }
         if (saved.getCategory() != null) {
             recalculateBudgetExpenses(account, saved.getCategory());
         }
@@ -166,13 +177,29 @@ public class TransactionService {
 
     public List<TransactionResponse> getTransactionsPaginated(
             String email,
+            String search,
+            List<Long> categoryIds,
+            List<Long> paymentMethodIds,
+            List<TransactionType> types,
+            OffsetDateTime startDate,
+            OffsetDateTime endDate,
+            java.math.BigDecimal minAmount,
+            java.math.BigDecimal maxAmount,
             OffsetDateTime lastDate,
             Long lastId,
             int pageSize) {
         UserAccount account = requireAccount(email);
         Long accountId = requireAccountId(account);
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, pageSize);
-        return transactionRepository.findByUserAccountIdPaginated(accountId, lastDate, lastId, pageable).stream()
+
+        org.springframework.data.jpa.domain.Specification<Transaction> spec = TransactionSpecification.filterTransactions(
+                accountId, search, categoryIds, paymentMethodIds, types, startDate, endDate, minAmount, maxAmount, lastDate, lastId);
+
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                0, pageSize, org.springframework.data.domain.Sort.by(
+                        org.springframework.data.domain.Sort.Order.desc("transactionDate"),
+                        org.springframework.data.domain.Sort.Order.desc("id")));
+
+        return transactionRepository.findAll(spec, pageable).getContent().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
@@ -191,11 +218,13 @@ public class TransactionService {
         validateTransactionOwnership(account, transaction);
         validateRequest(request);
 
-        Category category = fetchCategory(request.categoryId());
+        Category oldCategory = transaction.getCategory();
+        Category newCategory = fetchCategory(request.categoryId());
+        
         transaction.setAmount(request.amount());
         transaction.setType(request.type());
         transaction.setDescription(request.description());
-        transaction.setCategory(category);
+        transaction.setCategory(newCategory);
         transaction.setNotes((request.notes() == null || request.notes().isBlank()) ? null : request.notes());
 
         PaymentMethod paymentMethod = fetchPaymentMethod(request.paymentMethodId());
@@ -236,8 +265,11 @@ public class TransactionService {
         }
 
         recalculateUserBalance(account);
-        if (saved.getCategory() != null) {
-            recalculateBudgetExpenses(account, saved.getCategory());
+        if (oldCategory != null) {
+            recalculateBudgetExpenses(account, oldCategory);
+        }
+        if (newCategory != null && !newCategory.equals(oldCategory)) {
+            recalculateBudgetExpenses(account, newCategory);
         }
         saveAccount(account);
 
@@ -295,16 +327,41 @@ public class TransactionService {
     public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
         budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
             .ifPresent(budget -> {
-                java.math.BigDecimal totalExpense = transactionRepository.findByUserAccountIdOrderByTransactionDateDesc(account.getId())
-                    .stream()
-                    .filter(t -> t.getCategory() != null && t.getCategory().getId().equals(category.getId()))
-                    .filter(t -> t.getType() == TransactionType.EXPENSE)
-                    .map(com.kaizen.backend.transaction.entity.Transaction::getAmount)
-                    .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+                LocalDate now = LocalDate.now(ZoneOffset.UTC);
+                OffsetDateTime start;
+                OffsetDateTime end;
+
+                if (budget.getPeriod() == BudgetPeriod.MONTHLY) {
+                    start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay().atOffset(ZoneOffset.UTC);
+                    end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+                } else { // WEEKLY
+                    start = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay().atOffset(ZoneOffset.UTC);
+                    end = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+                }
+
+                java.math.BigDecimal totalExpense = transactionRepository.sumAmountByCategoryIdAndTypeAndDateRange(
+                    account.getId(), category.getId(), TransactionType.EXPENSE, start, end);
                 
-                budget.setExpense(totalExpense);
+                budget.setExpense(totalExpense != null ? totalExpense : java.math.BigDecimal.ZERO);
                 budgetRepository.save(budget);
             });
+    }
+
+    public java.math.BigDecimal calculatePeriodicIncome(Long userId, BudgetPeriod period) {
+        LocalDate now = LocalDate.now(ZoneOffset.UTC);
+        OffsetDateTime start;
+        OffsetDateTime end;
+
+        if (period == BudgetPeriod.MONTHLY) {
+            start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay().atOffset(ZoneOffset.UTC);
+            end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+        } else { // WEEKLY
+            start = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay().atOffset(ZoneOffset.UTC);
+            end = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+        }
+
+        java.math.BigDecimal totalIncome = transactionRepository.sumAmountByIncomeTypeAndDateRange(userId, start, end);
+        return totalIncome != null ? totalIncome : java.math.BigDecimal.ZERO;
     }
 
     public BalanceHistoryResponse getBalanceHistory(String email) {

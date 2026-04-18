@@ -66,7 +66,7 @@ export function BudgetDetailPage(): ReactElement {
 
           <div className="space-y-2">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
-              Monthly Budget
+              {budget.period.toLowerCase()} Budget
             </p>
             <div className="flex items-baseline gap-2">
               <p className="text-6xl font-black tracking-tighter text-foreground tabular-nums">
@@ -96,8 +96,44 @@ export function BudgetDetailPage(): ReactElement {
       </div>
 
       <div className="space-y-16">
-        {/* Progress & Summary */}
+        {/* Spending Progress */}
         <section className="py-8 border-y border-ui-border-subtle">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Spending Progress
+                </p>
+                <p className="text-2xl font-black text-foreground tabular-nums">
+                  {currencyFormatter.format(budget.expense)} / {currencyFormatter.format(budget.amount)}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                  Remaining
+                </p>
+                <p className={`text-2xl font-black tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}>
+                  {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
+                </p>
+              </div>
+            </div>
+            <div className="h-4 w-full bg-ui-surface-hover rounded-full overflow-hidden border border-ui-border-subtle">
+              <div 
+                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-error' : 'bg-ui-action'}`}
+                style={{ width: `${Math.min(100, (budget.expense / budget.amount) * 100)}%` }}
+              />
+            </div>
+            {budget.expense > budget.amount && (
+              <p className="text-[10px] font-black uppercase tracking-widest text-ui-error flex items-center gap-2">
+                <SharedIcon type="ui" name="error" size={10} />
+                You have exceeded your {budget.period.toLowerCase()} budget by {currencyFormatter.format(budget.expense - budget.amount)}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Summary */}
+        <section className="py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
@@ -109,10 +145,12 @@ export function BudgetDetailPage(): ReactElement {
             </div>
             <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-                Remaining to budget
+                Pool Availability
               </p>
               <p className="text-2xl font-black text-foreground tabular-nums">
-                {currencyFormatter.format(budgetSummary?.remainingToAllocate ?? 0)}
+                {budget.period === 'MONTHLY' 
+                  ? currencyFormatter.format(budgetSummary?.availableMonthly ?? 0)
+                  : currencyFormatter.format(budgetSummary?.availableWeekly ?? 0)}
               </p>
             </div>
           </div>

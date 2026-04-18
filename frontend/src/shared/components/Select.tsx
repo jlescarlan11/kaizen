@@ -29,6 +29,7 @@ export interface SelectProps {
   placeholder?: string
   className?: string
   name?: string
+  disabled?: boolean
 }
 
 export function Select({
@@ -43,6 +44,7 @@ export function Select({
   value: controlledValue,
   onChange,
   name,
+  disabled,
 }: SelectProps): ReactElement {
   const generatedId = useId()
   const selectId = id ?? generatedId
@@ -69,80 +71,86 @@ export function Select({
 
   return (
     <div className={formFieldClasses.container}>
-      <Listbox value={currentValue} onChange={handleValueChange} name={name}>
-        <ListboxLabel className={formFieldClasses.label}>{label}</ListboxLabel>
-        <div className="relative">
-          <ListboxButton
-            id={selectId}
-            aria-describedby={describedBy}
-            aria-invalid={error ? 'true' : undefined}
-            className={cn(
-              formFieldClasses.input,
-              'flex items-center justify-between text-left',
-              !selectedOption && 'text-subtle-foreground',
-              error && 'border-ui-danger focus-visible:ring-ui-danger/22',
-              className,
-            )}
-          >
-            <span className="flex items-center gap-2 truncate">
-              {selectedOption?.icon && (
-                <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-foreground/70">
-                  {selectedOption.icon}
-                </span>
-              )}
-              <span className="block truncate">{selectedOption?.label ?? placeholder}</span>
-            </span>
-            <span className="pointer-events-none flex items-center pr-2 text-foreground/50">
-              <ChevronDownIcon />
-            </span>
-          </ListboxButton>
-
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-ui-border bg-ui-surface p-1 shadow-xl focus:outline-none sm:text-sm">
-              {options.map((option) => (
-                <ListboxOption
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disabled}
-                  className={({ focus, selected }) =>
-                    cn(
-                      'relative select-none transition-colors',
-                      option.disabled
-                        ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground'
-                        : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
-                      !option.disabled && focus ? 'bg-ui-surface-muted' : '',
-                      !option.disabled && selected
-                        ? 'bg-ui-surface-subtle font-semibold'
-                        : 'font-normal',
-                    )
-                  }
-                >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={cn('block truncate', selected ? 'font-semibold' : 'font-normal')}
-                      >
-                        {option.label}
-                      </span>
-                      {!option.disabled && (selected || option.icon) ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-foreground">
-                          <span className="flex h-[18px] w-[18px] items-center justify-center">
-                            {selected ? <CheckIcon /> : option.icon}
-                          </span>
-                        </span>
-                      ) : null}
-                    </>
+      <Listbox value={currentValue} onChange={handleValueChange} name={name} disabled={disabled}>
+        {({ open }) => (
+          <>
+            <ListboxLabel className={formFieldClasses.label}>{label}</ListboxLabel>
+            <div className="relative">
+              <ListboxButton
+                id={selectId}
+                aria-describedby={describedBy}
+                aria-invalid={error ? 'true' : undefined}
+                className={cn(
+                  formFieldClasses.input,
+                  'flex items-center justify-between text-left',
+                  !selectedOption && 'text-subtle-foreground',
+                  error && 'border-ui-danger focus-visible:ring-ui-danger/22',
+                  disabled && 'opacity-50 cursor-not-allowed bg-ui-surface-muted',
+                  className,
+                )}
+              >
+                <span className="flex items-center gap-2 truncate">
+                  {selectedOption?.icon && (
+                    <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-foreground/70">
+                      {selectedOption.icon}
+                    </span>
                   )}
-                </ListboxOption>
-              ))}
-            </ListboxOptions>
-          </Transition>
-        </div>
+                  <span className="block truncate">{selectedOption?.label ?? placeholder}</span>
+                </span>
+                <span className="pointer-events-none flex items-center pr-2 text-foreground/50">
+                  <ChevronDownIcon />
+                </span>
+              </ListboxButton>
+
+              <Transition
+                show={open}
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-ui-border bg-ui-surface p-1 shadow-xl focus:outline-none sm:text-sm">
+                  {options.map((option) => (
+                    <ListboxOption
+                      key={option.value}
+                      value={option.value}
+                      disabled={option.disabled}
+                      className={({ focus, selected }) =>
+                        cn(
+                          'relative select-none transition-colors',
+                          option.disabled
+                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground'
+                            : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
+                          !option.disabled && focus ? 'bg-ui-surface-muted' : '',
+                          !option.disabled && selected
+                            ? 'bg-ui-surface-subtle font-semibold'
+                            : 'font-normal',
+                        )
+                      }
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={cn('block truncate', selected ? 'font-semibold' : 'font-normal')}
+                          >
+                            {option.label}
+                          </span>
+                          {!option.disabled && (selected || option.icon) ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-foreground">
+                              <span className="flex h-[18px] w-[18px] items-center justify-center">
+                                {selected ? <CheckIcon /> : option.icon}
+                              </span>
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </ListboxOption>
+                  ))}
+                </ListboxOptions>
+              </Transition>
+            </div>
+          </>
+        )}
       </Listbox>
 
       {helperText && !error ? (

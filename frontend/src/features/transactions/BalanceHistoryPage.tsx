@@ -3,7 +3,7 @@ import { useGetBalanceHistoryQuery } from '../../app/store/api/transactionApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
-import { ChevronLeft, TrendingUp, TrendingDown } from 'lucide-react'
+import { ChevronLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '../../shared/lib/cn'
 

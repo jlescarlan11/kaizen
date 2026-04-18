@@ -30,7 +30,7 @@ export const paymentMethodApi = baseApi.injectEndpoints({
         url: `/payment-methods/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: 'PaymentMethods', id: 'LIST' },
         { type: 'PaymentMethods', id },
         { type: 'Transactions' }, // Deleting method affects transactions

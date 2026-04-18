@@ -1,11 +1,13 @@
 import Dexie, { type Table } from 'dexie'
 import type { TransactionRequest } from '../../../app/store/api/transactionApi'
 
-export enum SyncStatus {
-  PENDING = 'pending',
-  SYNCED = 'synced',
-  FAILED = 'failed',
-}
+export type SyncStatus = 'pending' | 'synced' | 'failed'
+
+export const SyncStatus = {
+  PENDING: 'pending',
+  SYNCED: 'synced',
+  FAILED: 'failed',
+} as const
 
 export interface LocalTransaction extends TransactionRequest {
   id?: number
