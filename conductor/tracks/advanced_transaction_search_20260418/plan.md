@@ -15,7 +15,7 @@
 - [x] Task: Update API Client and Redux Store f68449b
     - [ ] Write unit tests for the updated Redux Toolkit RTK Query endpoint or thunk to ensure the new query parameters are correctly serialized in the request.
     - [ ] Update the `transactionsApi` definition to include `search`, `category`, `type`, `account`, `from`, and `to` query parameters.
-- [ ] Task: Remove Client-Side Filtering
+- [x] Task: Remove Client-Side Filtering b8300d8
     - [ ] Write unit tests confirming that the client-side transaction selector/reducer no longer filters data in-memory and relies entirely on the API response.
     - [ ] Remove the in-memory filtering logic from the frontend state/selectors.
 - [ ] Task: Integrate UI Controls with Server-Side Filtering
