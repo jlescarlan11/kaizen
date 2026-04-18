@@ -141,16 +141,4 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
         
         request.setAttribute("KZN_AUTH_STATUS", "SUCCESS");
     }
-
-    private void handleAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, 
-                                           AuthenticationException ex, String reason) throws IOException, ServletException {
-        log.debug("Authentication failure [{}]: {}", reason, ex.getMessage());
-        
-        // Expose consistent failure signal for Instruction 5 logger
-        request.setAttribute(AUTH_FAILURE_SIGNAL_ATTR, true);
-        request.setAttribute(AUTH_FAILURE_REASON_ATTR, reason);
-        
-        // Use the configured entry point to return 401 with no payload
-        authenticationEntryPoint.commence(request, response, ex);
-    }
 }

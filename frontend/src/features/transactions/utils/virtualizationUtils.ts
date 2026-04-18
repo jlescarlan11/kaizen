@@ -25,11 +25,3 @@ export function flattenTransactions(
 
   return flattened
 }
-
-/**
- * Height constants for virtualized list items.
- */
-export const ITEM_HEIGHTS = {
-  header: 48, // approximate height of date header
-  transaction: 82, // approximate height of transaction card
-}

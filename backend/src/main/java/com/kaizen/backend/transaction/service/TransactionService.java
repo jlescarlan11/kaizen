@@ -413,21 +413,6 @@ public class TransactionService {
     }
 
     /**
-     * Unwraps a saved transaction's generated ID or throws.
-     * {@code Transaction.getId()} returns boxed {@code Long}, which the checker
-     * treats as nullable. This guard makes the post-persist ID contract explicit.
-     */
-    @NonNull
-    private Long requireTransactionId(@NonNull Transaction transaction) {
-        Long id = transaction.getId();
-        if (id == null) {
-            throw new IllegalStateException(
-                    "Saved transaction has no ID — verify @GeneratedValue is configured on Transaction.id.");
-        }
-        return id;
-    }
-
-    /**
      * Persists a {@link UserAccount} via the repository.
      * {@code JpaRepository.save()} return value intentionally discarded here —
      * the managed entity is already updated in-place within the same transaction.
