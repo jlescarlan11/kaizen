@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaizen.backend.transaction.dto.BalanceHistoryResponse;
-import com.kaizen.backend.transaction.dto.BulkDeleteRequest;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
 import com.kaizen.backend.transaction.service.TransactionService;
@@ -109,19 +108,6 @@ public class TransactionController {
         @PathVariable Long id
     ) {
         transactionService.deleteTransaction(userDetails.getUsername(), id);
-    }
-
-    @Operation(
-        summary = "Bulk delete transactions",
-        description = "Permanently removes multiple transactions and recalculates the user's running balance."
-    )
-    @PostMapping("/bulk-delete")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void bulkDeleteTransactions(
-        @AuthenticationPrincipal UserDetails userDetails,
-        @Valid @RequestBody BulkDeleteRequest request
-    ) {
-        transactionService.bulkDeleteTransactions(userDetails.getUsername(), request.ids());
     }
 
     @Operation(

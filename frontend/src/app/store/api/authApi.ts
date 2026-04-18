@@ -18,7 +18,6 @@ interface User {
   quickAddPreferences?: string
 }
 
-
 export interface InitialBalanceRequest {
   paymentMethodId: number
   amount: number
@@ -135,21 +134,6 @@ export const authApi = baseApi.injectEndpoints({
         }
       },
     }),
-    markFirstTransactionAdded: builder.mutation<User, void>({
-      query: () => ({
-        url: '/users/flags/first-transaction',
-        method: 'POST',
-      }),
-      invalidatesTags: ['User'],
-      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data: user } = await queryFulfilled
-          dispatch(setCredentials({ user }))
-        } catch (error) {
-          console.error('Failed to mark first transaction added', error)
-        }
-      },
-    }),
     resetOnboarding: builder.mutation<User, void>({
       query: () => ({
         url: '/users/onboarding/reset',
@@ -218,13 +202,6 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
-    deleteOnboardingProgress: builder.mutation<void, void>({
-      query: () => ({
-        url: '/users/onboarding/progress',
-        method: 'DELETE',
-      }),
-      invalidatesTags: ['User'],
-    }),
   }),
 })
 
@@ -235,10 +212,8 @@ export const {
   useSkipBudgetSetupMutation,
   useGetOnboardingProgressQuery,
   useUpdateOnboardingProgressMutation,
-  useDeleteOnboardingProgressMutation,
   useMarkTourCompletedMutation,
   useResetTourFlagMutation,
-  useMarkFirstTransactionAddedMutation,
   useResetOnboardingMutation,
   useToggleRemindersMutation,
 } = authApi

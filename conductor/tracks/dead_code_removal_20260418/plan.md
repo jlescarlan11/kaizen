@@ -1,7 +1,7 @@
 # Implementation Plan: Dead Code Removal
 
 ## Phase 1: Remove Unused Imports/Exports
-- [ ] Task: Identify and remove unused imports and exports across the frontend.
+- [~] Task: Identify and remove unused imports and exports across the frontend.
     - [ ] Run static analysis tools to identify unused imports/exports.
     - [ ] Delete identified unused imports/exports.
     - [ ] Run frontend test suite to ensure no regressions.
