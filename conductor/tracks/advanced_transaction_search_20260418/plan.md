@@ -18,7 +18,7 @@
 - [x] Task: Remove Client-Side Filtering b8300d8
     - [ ] Write unit tests confirming that the client-side transaction selector/reducer no longer filters data in-memory and relies entirely on the API response.
     - [ ] Remove the in-memory filtering logic from the frontend state/selectors.
-- [ ] Task: Integrate UI Controls with Server-Side Filtering
+- [x] Task: Integrate UI Controls with Server-Side Filtering 1caaf96
     - [ ] Write unit tests (using React Testing Library) for the transaction list component to ensure that changing UI filters dispatches the updated API query with pagination reset to page 1.
     - [ ] Update the transaction list component to map existing UI filter state to the new API request parameters.
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Frontend Implementation (React / Redux Toolkit)' (Protocol in workflow.md)
