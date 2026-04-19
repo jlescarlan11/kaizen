@@ -14,6 +14,7 @@ Initial monorepo scaffold for backend and frontend development.
 - **Money Flow Analysis:** Dynamic tracking of Income vs. Expense with visual ratio indicators, date-grouped records, and integrated budget expense tracking.- **Advanced Transaction Filtering:** Powerful hybrid date range selectors (Presets + Custom Range) and multi-select filters for categories, accounts, and flow types.
 - **Bulk Management Actions:** Efficient multi-select mode for transactions, enabling rapid bulk deletion and cleanup with persistent action bars and confirmation safeguards.
 - **Burn Rate & Spending Projections:** Proactive spending pace tracking with "Burn Rate", "Daily Allowance", and "Projected Total" metrics to prevent budget overages in real-time.
+- **Real-time Form Validation:** Immediate visual feedback and accessibility-compliant error reporting for transaction entry to ensure data integrity and user confidence.
 - **Comprehensive Balance Summary:**
  Detailed financial analysis page with interactive account breakdowns (filtered navigation), unified trend visualization (Income vs. Expense vs. Net Balance), and adjustable granularity (Daily/Monthly).
 - **High-Signal Transaction Details:** Enhanced detail views with clean "Flat UI" design, high-signal typography, flow indicators, and quick management actions (Edit, Delete).
