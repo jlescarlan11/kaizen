@@ -1,8 +1,0 @@
-{
-  "track_id": "dead_code_removal_20260418",
-  "type": "chore",
-  "status": "new",
-  "created_at": "2026-04-18T00:00:00Z",
-  "updated_at": "2026-04-18T00:00:00Z",
-  "description": "As a developer, I want all 500+ identified dead code items removed so that the codebase is easier to navigate, build times are faster, and dependency manifests only list what is actually used."
-}
