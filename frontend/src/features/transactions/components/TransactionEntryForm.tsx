@@ -161,11 +161,25 @@ export function TransactionEntryForm({
       }
 
       // Special case: insufficient balance is also a real-time error for amount
-      if (field === 'amount') {
-        const val = parseFloat(value)
-        if (type === 'EXPENSE' && !isNaN(val) && val > availableBalance) {
-          next.amount = `Insufficient balance. Available: PHP ${availableBalance.toFixed(2)}`
-        }
+      // We must calculate the balance for the target method to avoid stale closure issues
+      const targetMethodId = field === 'paymentMethodId' ? (value as string) : paymentMethodId
+      const targetType = field === 'type' ? (value as TransactionType) : type
+      const targetAmount = field === 'amount' ? (value as string) : amount
+
+      const methodSummary = balanceSummaries?.find(
+        (s) => s.paymentMethod?.id.toString() === targetMethodId,
+      )
+      const rawBal = methodSummary?.totalAmount ?? 0
+      const currentAvailableBalance =
+        editData?.paymentMethod?.id.toString() === targetMethodId && editData.type === 'EXPENSE'
+          ? rawBal + editData.amount
+          : rawBal
+
+      const val = parseFloat(targetAmount)
+      if (targetType === 'EXPENSE' && !isNaN(val) && val > currentAvailableBalance) {
+        next.amount = `Insufficient balance. Available: PHP ${currentAvailableBalance.toFixed(2)}`
+      } else if (next.amount?.includes('Insufficient balance')) {
+        delete next.amount
       }
 
       return next
