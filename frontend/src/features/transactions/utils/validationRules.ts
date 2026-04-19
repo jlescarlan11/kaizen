@@ -6,6 +6,8 @@ export const ErrorCode = {
   AMOUNT_MAX_DECIMALS: 'AMOUNT_MAX_DECIMALS',
   FUTURE_DATE_REJECT: 'FUTURE_DATE_REJECT',
   TYPE_INVALID: 'TYPE_INVALID',
+  DESCRIPTION_TOO_LONG: 'DESCRIPTION_TOO_LONG',
+  DATE_INVALID: 'DATE_INVALID',
   RECURRING_MULTIPLIER_POSITIVE: 'RECURRING_MULTIPLIER_POSITIVE',
   RECURRING_UNIT_REQUIRED: 'RECURRING_UNIT_REQUIRED',
 } as const
@@ -78,6 +80,18 @@ export function validateTransaction(transaction: Partial<TransactionRequest>): V
     if (transaction.frequencyMultiplier <= 0) {
       errors.push({ field: 'frequencyMultiplier', code: ErrorCode.RECURRING_MULTIPLIER_POSITIVE })
     }
+  }
+
+  if (transaction.description && transaction.description.length > 255) {
+    errors.push({ field: 'description', code: ErrorCode.DESCRIPTION_TOO_LONG })
+  }
+
+  if (
+    transaction.transactionDate === undefined ||
+    transaction.transactionDate === null ||
+    transaction.transactionDate === ''
+  ) {
+    errors.push({ field: 'transactionDate', code: ErrorCode.REQUIRED })
   }
 
   return {
