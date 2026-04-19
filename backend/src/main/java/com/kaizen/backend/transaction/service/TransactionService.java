@@ -293,6 +293,36 @@ public class TransactionService {
     }
 
     @Transactional
+    public void bulkDeleteTransactions(String email, List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+
+        UserAccount account = requireAccount(email);
+        List<Transaction> transactions = transactionRepository.findAllById(ids);
+        
+        // Validate ownership and collect categories
+        java.util.Set<Category> categoriesToUpdate = new java.util.HashSet<>();
+        for (Transaction tx : transactions) {
+            validateTransactionOwnership(account, tx);
+            if (tx.getCategory() != null) {
+                categoriesToUpdate.add(tx.getCategory());
+            }
+            attachmentService.deleteAttachmentsForTransaction(tx.getId());
+            reminderSchedulerService.rescheduleOnFrequencyChange(tx);
+        }
+
+        transactionRepository.deleteAllInBatch(transactions);
+        transactionRepository.flush();
+        
+        recalculateUserBalance(account);
+        for (Category category : categoriesToUpdate) {
+            recalculateBudgetExpenses(account, category);
+        }
+        saveAccount(account);
+    }
+
+    @Transactional
     public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
         budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
             .ifPresent(budget -> {
@@ -312,7 +342,7 @@ public class TransactionService {
                     account.getId(), category.getId(), TransactionType.EXPENSE, start, end);
                 
                 budget.setExpense(totalExpense != null ? totalExpense : java.math.BigDecimal.ZERO);
-                budgetRepository.save(budget);
+                budgetRepository.saveAndFlush(budget);
             });
     }
 
@@ -414,11 +444,9 @@ public class TransactionService {
 
     /**
      * Persists a {@link UserAccount} via the repository.
-     * {@code JpaRepository.save()} return value intentionally discarded here —
-     * the managed entity is already updated in-place within the same transaction.
      */
     private void saveAccount(@NonNull UserAccount account) {
-        userAccountRepository.save(account);
+        userAccountRepository.saveAndFlush(account);
     }
 
     // -------------------------------------------------------------------------

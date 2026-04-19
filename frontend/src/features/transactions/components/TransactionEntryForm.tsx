@@ -11,7 +11,7 @@ import {
   type TransactionType,
   type FrequencyUnit,
 } from '../../../app/store/api/transactionApi'
-import { CategorySelector } from '../../categories'
+import { CategorySelector } from '../../categories/CategorySelector'
 import { PaymentMethodSelector } from '../../payment-methods/PaymentMethodSelector'
 import { useGetPaymentMethodSummaryQuery } from '../../../app/store/api/paymentMethodApi'
 import { ReceiptPicker } from './ReceiptPicker'

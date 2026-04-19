@@ -22,6 +22,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     @Query("DELETE FROM Transaction t WHERE t.userAccount.id = :userAccountId")
     void deleteByUserAccountId(@Param("userAccountId") Long userAccountId);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Transaction t WHERE t.id IN :ids AND t.userAccount.id = :userId")
+    void deleteByIdInAndUserAccountId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
+
     List<Transaction> findByUserAccountIdOrderByTransactionDateDesc(Long userAccountId);
 
     @Query("SELECT SUM(CASE " +

@@ -1,5 +1,7 @@
 import { useState, useMemo, type ReactElement } from 'react'
 import { TransactionList } from './components/TransactionList'
+import { SelectionActionBar } from './components/SelectionActionBar'
+import { ConfirmBulkDeleteDialog } from './components/ConfirmBulkDeleteDialog'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
@@ -9,15 +11,33 @@ import { Download } from 'lucide-react'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
+import { cn } from '../../shared/lib/cn'
+import { useAppSelector, useAppDispatch } from '../../app/store/hooks'
+import { useBulkDeleteTransactionsMutation } from '../../app/store/api/transactionApi'
+import {
+  selectIsSelectionMode,
+  setSelectionMode,
+  clearSelection,
+  selectSelectedIds,
+} from './transactionSlice'
+import { CheckSquare, X } from 'lucide-react'
+import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 
 export function TransactionListPage(): ReactElement {
+  const dispatch = useAppDispatch()
+  const isSelectionMode = useAppSelector(selectIsSelectionMode)
+  const selectedIds = useAppSelector(selectSelectedIds)
   const [sortState] = useSortPersistence()
 
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+
+  const [bulkDelete, { isLoading: isDeleting }] = useBulkDeleteTransactionsMutation()
+
   // 1. The Shared Result Pipeline
-  // Composable data pipeline: backend filter/search → client-side sort
+  // ...
   const {
     transactions: processedTransactions,
     isLoading,
@@ -53,6 +73,42 @@ export function TransactionListPage(): ReactElement {
     clearFilters()
   }
 
+  const toggleSelectionMode = () => {
+    if (isSelectionMode) {
+      dispatch(setSelectionMode(false))
+      dispatch(clearSelection())
+    } else {
+      dispatch(setSelectionMode(true))
+    }
+  }
+
+  const handleBulkDeleteConfirm = async () => {
+    try {
+      await bulkDelete(selectedIds).unwrap()
+
+      dispatch(
+        showAlert({
+          type: 'success',
+          title: 'Transactions Deleted',
+          message: `Successfully deleted ${selectedIds.length} transaction${selectedIds.length === 1 ? '' : 's'}.`,
+        }),
+      )
+
+      setIsConfirmDialogOpen(false)
+      dispatch(setSelectionMode(false))
+      dispatch(clearSelection())
+    } catch (error) {
+      console.error('Failed to bulk delete transactions:', error)
+      dispatch(
+        showAlert({
+          type: 'error',
+          title: 'Deletion Failed',
+          message: 'Failed to delete transactions. Please try again.',
+        }),
+      )
+    }
+  }
+
   return (
     <div className={pageLayout.sectionGap}>
       <header className="space-y-7">
@@ -62,6 +118,18 @@ export function TransactionListPage(): ReactElement {
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
         </div>
+
+        {/* Selection Action Bar */}
+        <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
+
+        {/* Confirmation Dialog */}
+        <ConfirmBulkDeleteDialog
+          isOpen={isConfirmDialogOpen}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={handleBulkDeleteConfirm}
+          count={selectedIds.length}
+          isLoading={isDeleting}
+        />
 
         {/* Money Flow Metrics Visualization */}
         {!isLoading && processedTransactions.length > 0 && (
@@ -88,6 +156,28 @@ export function TransactionListPage(): ReactElement {
                 <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    'h-10 px-4 border transition-all duration-200',
+                    isSelectionMode
+                      ? 'bg-primary border-primary text-white hover:bg-primary-hover shadow-md'
+                      : 'border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30',
+                  )}
+                  onClick={toggleSelectionMode}
+                >
+                  {isSelectionMode ? (
+                    <>
+                      <X className="h-4 w-4 mr-2" />
+                      Exit Select
+                    </>
+                  ) : (
+                    <>
+                      <CheckSquare className="h-4 w-4 mr-2" />
+                      Select
+                    </>
+                  )}
+                </Button>
                 <TransactionFilter
                   filter={filterState}
                   onChange={setFilterState}

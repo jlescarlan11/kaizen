@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react'
-import { useState, useRef, useMemo } from 'react'
+import { useRef, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Badge } from '../../../shared/components/Badge'
@@ -9,13 +9,19 @@ import { groupTransactionsByDate, formatGroupDate } from '../utils/transactionUt
 import { SearchHighlight } from './SearchHighlight'
 import { cn } from '../../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../../app/store/hooks'
-import { selectPendingDeletes, triggerDeleteWithUndo } from '../../../app/store/notificationSlice'
+import { selectPendingDeletes } from '../../../app/store/notificationSlice'
+import {
+  selectIsSelectionMode,
+  selectSelectedIds,
+  setSelectionMode,
+  toggleSelection,
+  setSelectedIds,
+} from '../transactionSlice'
 import { flattenTransactions, type FlattenedTransactionItem } from '../utils/virtualizationUtils'
 import { DataList } from '../../../shared/components/DataList'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { formatTransactionDate } from '../utils/transactionUtils'
-import { Card } from '../../../shared/components/Card'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
@@ -39,9 +45,9 @@ export function TransactionList({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
-  // Selection Mode State
-  const [isSelectionMode, setIsSelectionMode] = useState(false)
-  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  // Selection Mode State from Redux
+  const isSelectionMode = useAppSelector(selectIsSelectionMode)
+  const selectedIds = useAppSelector(selectSelectedIds)
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const pendingDeletes = useAppSelector(selectPendingDeletes)
@@ -51,21 +57,17 @@ export function TransactionList({
 
   const handleRowClick = (tx: TransactionResponse) => {
     if (isSelectionMode) {
-      toggleSelection(tx.id)
+      dispatch(toggleSelection(tx.id))
     } else {
       navigate(`/transactions/${tx.id}`)
     }
   }
 
-  const toggleSelection = (id: number) => {
-    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
-  }
-
   const handleLongPressStart = (id: number) => {
     if (isSelectionMode) return
     longPressTimer.current = setTimeout(() => {
-      setIsSelectionMode(true)
-      setSelectedIds([id])
+      dispatch(setSelectionMode(true))
+      dispatch(setSelectedIds([id]))
     }, 600) // 600ms long press
   }
 
@@ -75,29 +77,23 @@ export function TransactionList({
     }
   }
 
-  const exitSelectionMode = () => {
-    setIsSelectionMode(false)
-    setSelectedIds([])
-  }
-
-  const handleBulkDelete = () => {
-    if (selectedIds.length === 0) return
-
-    const count = selectedIds.length
-    dispatch(
-      triggerDeleteWithUndo({
-        message: `${count} transaction${count > 1 ? 's' : ''} deleted`,
-        transactionIds: selectedIds,
-        timeoutMs: 5000,
-      }),
-    )
-    exitSelectionMode()
-  }
-
   const flattenedItems = useMemo(() => {
     // Always group transactions by date to maintain a clear visual hierarchy.
     return flattenTransactions(visibleTransactions, groupTransactionsByDate)
   }, [visibleTransactions])
+
+  const allVisibleSelected = useMemo(() => {
+    if (visibleTransactions.length === 0) return false
+    return visibleTransactions.every((tx) => selectedIds.includes(tx.id))
+  }, [visibleTransactions, selectedIds])
+
+  const toggleSelectAll = () => {
+    if (allVisibleSelected) {
+      dispatch(setSelectedIds([]))
+    } else {
+      dispatch(setSelectedIds(visibleTransactions.map((tx) => tx.id)))
+    }
+  }
 
   const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
@@ -121,9 +117,9 @@ export function TransactionList({
                 }
                 const allSelected = groupItems.every((id) => selectedIds.includes(id))
                 if (allSelected) {
-                  setSelectedIds((prev) => prev.filter((id) => !groupItems.includes(id)))
+                  dispatch(setSelectedIds(selectedIds.filter((id) => !groupItems.includes(id))))
                 } else {
-                  setSelectedIds((prev) => Array.from(new Set([...prev, ...groupItems])))
+                  dispatch(setSelectedIds(Array.from(new Set([...selectedIds, ...groupItems]))))
                 }
               }}
             >
@@ -149,7 +145,7 @@ export function TransactionList({
           <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200 ml-2">
             <Checkbox
               checked={selectedIds.includes(tx.id)}
-              onCheckedChange={() => toggleSelection(tx.id)}
+              onCheckedChange={() => dispatch(toggleSelection(tx.id))}
             />
           </div>
         )}
@@ -285,40 +281,18 @@ export function TransactionList({
 
   return (
     <div className="w-full pb-24">
-      {/* Selection Mode Toolbar */}
-      {isSelectionMode && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100%-2rem)] max-w-lg">
-          <Card className="bg-ui-surface-strong border-ui-border shadow-2xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300 rounded-2xl">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white"
-                onClick={exitSelectionMode}
-              >
-                <SharedIcon type="ui" name="close" size={18} />
-              </Button>
-              <p className="font-semibold text-white">{selectedIds.length} Selected</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/10"
-                onClick={() => setSelectedIds(visibleTransactions.map((tx) => tx.id))}
-              >
-                Select All
-              </Button>
-              <Button
-                size="sm"
-                className="bg-ui-error hover:bg-ui-error-hover text-white border-0 px-4"
-                onClick={handleBulkDelete}
-                disabled={selectedIds.length === 0}
-              >
-                Delete
-              </Button>
-            </div>
-          </Card>
+      {/* Selection Mode List Header */}
+      {isSelectionMode && visibleTransactions.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 bg-ui-accent-subtle/10 border-b border-ui-border-subtle animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-3">
+            <Checkbox checked={allVisibleSelected} onCheckedChange={toggleSelectAll} />
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+              Select all on page ({visibleTransactions.length})
+            </span>
+          </div>
+          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+            Selection Mode Active
+          </span>
         </div>
       )}
 
