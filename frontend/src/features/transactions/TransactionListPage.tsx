@@ -21,7 +21,7 @@ import {
   selectSelectedIds,
 } from './transactionSlice'
 import { CheckSquare, X } from 'lucide-react'
-import { showNotification } from '../../app/store/notificationSlice'
+import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
@@ -87,8 +87,9 @@ export function TransactionListPage(): ReactElement {
       await bulkDelete(selectedIds).unwrap()
 
       dispatch(
-        showNotification({
+        showAlert({
           type: 'success',
+          title: 'Transactions Deleted',
           message: `Successfully deleted ${selectedIds.length} transaction${selectedIds.length === 1 ? '' : 's'}.`,
         }),
       )
@@ -99,8 +100,9 @@ export function TransactionListPage(): ReactElement {
     } catch (error) {
       console.error('Failed to bulk delete transactions:', error)
       dispatch(
-        showNotification({
+        showAlert({
           type: 'error',
+          title: 'Deletion Failed',
           message: 'Failed to delete transactions. Please try again.',
         }),
       )
