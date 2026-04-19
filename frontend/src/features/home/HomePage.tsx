@@ -305,7 +305,7 @@ const GoalPlaceholderRow = () => {
   )
 }
 
-function ChevronRightIcon({ size }: { size: number }) {
+function ChevronRightIcon({ size, className }: { size: number; className?: string }) {
   return (
     <svg
       width={size}
@@ -316,6 +316,7 @@ function ChevronRightIcon({ size }: { size: number }) {
       strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className={className}
     >
       <path d="m9 18 6-6-6-6" />
     </svg>
