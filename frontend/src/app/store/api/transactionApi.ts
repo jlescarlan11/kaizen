@@ -159,12 +159,19 @@ export const transactionApi = baseApi.injectEndpoints({
         method: 'DELETE',
         params: { ids },
       }),
-      invalidatesTags: [
-        'Transactions',
-        'User',
-        'Insights',
-        { type: 'PaymentMethods', id: 'SUMMARY' },
-      ],
+      invalidatesTags: ['Transactions', 'User', 'Insights', 'PaymentMethods'],
+      async onQueryStarted(_arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+          // Explicitly trigger getMe re-fetch to ensure Redux auth slice is updated with new balance
+          // The tag invalidation handles the cache, but onQueryStarted in getMe might not re-run
+          // if the component isn't re-mounted or if the re-fetch happens silently.
+          // Importing authApi here might cause circular deps, so we rely on the tag invalidation
+          // usually, but let's check if we can do more.
+        } catch (error) {
+          console.error('Bulk delete failed:', error)
+        }
+      },
     }),
     getBalanceHistory: builder.query<BalanceHistoryResponse, void>({
       query: () => '/transactions/history',

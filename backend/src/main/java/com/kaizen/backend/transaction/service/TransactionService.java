@@ -294,9 +294,32 @@ public class TransactionService {
 
     @Transactional
     public void bulkDeleteTransactions(String email, List<Long> ids) {
-        for (Long id : ids) {
-            deleteTransaction(email, id);
+        if (ids == null || ids.isEmpty()) {
+            return;
         }
+
+        UserAccount account = requireAccount(email);
+        List<Transaction> transactions = transactionRepository.findAllById(ids);
+        
+        // Validate ownership and collect categories
+        java.util.Set<Category> categoriesToUpdate = new java.util.HashSet<>();
+        for (Transaction tx : transactions) {
+            validateTransactionOwnership(account, tx);
+            if (tx.getCategory() != null) {
+                categoriesToUpdate.add(tx.getCategory());
+            }
+            attachmentService.deleteAttachmentsForTransaction(tx.getId());
+            reminderSchedulerService.rescheduleOnFrequencyChange(tx);
+        }
+
+        transactionRepository.deleteAllInBatch(transactions);
+        transactionRepository.flush();
+        
+        recalculateUserBalance(account);
+        for (Category category : categoriesToUpdate) {
+            recalculateBudgetExpenses(account, category);
+        }
+        saveAccount(account);
     }
 
     @Transactional
@@ -421,11 +444,9 @@ public class TransactionService {
 
     /**
      * Persists a {@link UserAccount} via the repository.
-     * {@code JpaRepository.save()} return value intentionally discarded here —
-     * the managed entity is already updated in-place within the same transaction.
      */
     private void saveAccount(@NonNull UserAccount account) {
-        userAccountRepository.save(account);
+        userAccountRepository.saveAndFlush(account);
     }
 
     // -------------------------------------------------------------------------
