@@ -48,7 +48,8 @@ public class Budget extends BaseEntity {
     private BigDecimal expense = BigDecimal.ZERO;
 
     @Version
-    private Long version;
+    @Column(name = "version", nullable = false)
+    private Long version = 0L;
 
     public Budget(UserAccount user, Category category, BigDecimal amount, BudgetPeriod period) {
         this(user, category, amount, period, LocalDate.now());

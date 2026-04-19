@@ -319,7 +319,7 @@ public class TransactionService {
                     account.getId(), category.getId(), TransactionType.EXPENSE, start, end);
                 
                 budget.setExpense(totalExpense != null ? totalExpense : java.math.BigDecimal.ZERO);
-                budgetRepository.save(budget);
+                budgetRepository.saveAndFlush(budget);
             });
     }
 
