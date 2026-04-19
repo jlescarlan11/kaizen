@@ -12,6 +12,7 @@ Initial monorepo scaffold for backend and frontend development.
 - **Real-time Data Processing & Storage:** Spring Data JPA, PostgreSQL, and Redis caching.
 - **Interactive Frontend Dashboard:** Vite, Redux Toolkit, and Tailwind for responsive UI.
 - **Money Flow Analysis:** Dynamic tracking of Income vs. Expense with visual ratio indicators, date-grouped records, and integrated budget expense tracking.- **Advanced Transaction Filtering:** Powerful hybrid date range selectors (Presets + Custom Range) and multi-select filters for categories, accounts, and flow types.
+- **Bulk Management Actions:** Efficient multi-select mode for transactions, enabling rapid bulk deletion and cleanup with persistent action bars and confirmation safeguards.
 - **Burn Rate & Spending Projections:** Proactive spending pace tracking with "Burn Rate", "Daily Allowance", and "Projected Total" metrics to prevent budget overages in real-time.
 - **Comprehensive Balance Summary:**
  Detailed financial analysis page with interactive account breakdowns (filtered navigation), unified trend visualization (Income vs. Expense vs. Net Balance), and adjustable granularity (Daily/Monthly).
