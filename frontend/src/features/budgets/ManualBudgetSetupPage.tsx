@@ -379,8 +379,11 @@ export function ManualBudgetSetupPage(): ReactElement | null {
                   navigate('/', { replace: true })
                 } catch (err) {
                   console.error('Final onboarding completion failed:', err)
+                  const backendMessage = (err as { data?: { message?: string }; message?: string })
+                    ?.data?.message
                   setSubmissionError(
-                    'Unable to finish setup. Please check your allocations and try again.',
+                    backendMessage ||
+                      'Unable to finish setup. Please check your allocations and try again.',
                   )
                 }
               }}

@@ -429,7 +429,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
       navigate('/', { replace: true })
     } catch (error) {
       console.error('Onboarding budget completion failed:', error)
-      setSubmissionError('Unable to finish setup right now. Please try again.')
+      const backendMessage = (error as { data?: { message?: string }; message?: string })?.data
+        ?.message
+      setSubmissionError(backendMessage || 'Unable to finish setup right now. Please try again.')
     }
   }
 
