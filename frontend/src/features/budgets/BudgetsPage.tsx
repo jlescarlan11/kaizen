@@ -235,8 +235,7 @@ export function BudgetsPage(): ReactElement {
     )
   }
 
-  const hasNoPoolFunds =
-    (budgetSummary?.availableMonthly ?? 0) === 0 && (budgetSummary?.availableWeekly ?? 0) === 0
+  const hasNoPoolFunds = (budgetSummary?.unallocated ?? 0) <= 0
   const hasBalanceToInject = (budgetSummary?.balance ?? 0) > 0
 
   return (
@@ -253,51 +252,44 @@ export function BudgetsPage(): ReactElement {
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Monthly Pool
+            Balance
           </p>
           <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.availableMonthly ?? 0)}
-          </p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            Unallocated
+            {currencyFormatter.format(budgetSummary?.balance ?? 0)}
           </p>
         </Card>
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Weekly Pool
-          </p>
-          <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.availableWeekly ?? 0)}
-          </p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            Unallocated
-          </p>
-        </Card>
-        <Card className="space-y-1 border border-ui-border-subtle p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Total Allocated
+            Allocated
           </p>
           <p className="text-2xl font-semibold text-foreground">
             {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
           </p>
           <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-            Across {budgets?.length || 0} Categories
+            {budgetSummary?.allocationPercentage ?? 0}% of balance
           </p>
         </Card>
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Plan Capacity
+            Unallocated
           </p>
-          <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(
-              (budgetSummary?.remainingToAllocate ?? 0) + (budgetSummary?.totalAllocated ?? 0),
+          <p
+            className={cn(
+              'text-2xl font-semibold',
+              (budgetSummary?.unallocated ?? 0) < 0 ? 'text-ui-danger' : 'text-foreground',
             )}
+          >
+            {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
           </p>
-          <p className="text-sm text-muted-foreground">
-            {budgetSummary?.allocationPercentage ?? 0}% of capacity assigned
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            {(budgetSummary?.unallocated ?? 0) < 0
+              ? `Over-committed by ${currencyFormatter.format(
+                  Math.abs(budgetSummary?.unallocated ?? 0),
+                )}`
+              : 'available'}
           </p>
         </Card>
       </div>
