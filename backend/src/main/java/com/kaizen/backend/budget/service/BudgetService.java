@@ -85,6 +85,8 @@ public class BudgetService {
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
+        validateBatchFits(user, request.budgets());
+
         // Clear existing budgets for batch replacement
         budgetRepository.deleteByUserId(user.getId());
 
