@@ -6,6 +6,8 @@ const ErrorMessages: Record<ErrorCodeType, string> = {
   [ErrorCode.AMOUNT_MAX_DECIMALS]: 'Amount cannot have more than two decimal places.',
   [ErrorCode.FUTURE_DATE_REJECT]: 'Transactions cannot be set in the future.',
   [ErrorCode.TYPE_INVALID]: 'Selected transaction type is invalid.',
+  [ErrorCode.DESCRIPTION_TOO_LONG]: 'Description cannot exceed 255 characters.',
+  [ErrorCode.DATE_INVALID]: 'Please provide a valid date.',
   [ErrorCode.RECURRING_MULTIPLIER_POSITIVE]: 'Multiplier must be greater than zero.',
   [ErrorCode.RECURRING_UNIT_REQUIRED]: 'Frequency unit is required for recurring transactions.',
 }

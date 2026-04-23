@@ -117,6 +117,75 @@ export function TransactionEntryForm({
 
   const insufficientBalance = type === 'EXPENSE' && parseFloat(amount) > availableBalance
 
+  // Real-time validation helper
+  const validateField = (field: string, value: string | number | boolean | null) => {
+    // Construct a partial payload for validation
+    const currentPayload = {
+      amount: field === 'amount' ? parseFloat(value) : parseFloat(amount),
+      type: field === 'type' ? value : type,
+      transactionDate:
+        field === 'transactionDate' ? value : transactionDate || toLocalISOString(new Date()),
+      description: field === 'description' ? value : description,
+      categoryId:
+        field === 'categoryId'
+          ? value
+            ? parseInt(value)
+            : null
+          : categoryId
+            ? parseInt(categoryId)
+            : null,
+      paymentMethodId:
+        field === 'paymentMethodId'
+          ? value
+            ? parseInt(value)
+            : null
+          : paymentMethodId
+            ? parseInt(paymentMethodId)
+            : null,
+      isRecurring,
+      frequencyUnit,
+      frequencyMultiplier: parseInt(frequencyMultiplier),
+    }
+
+    const { errors: validationErrors } = validationGate(currentPayload)
+    const fieldError = validationErrors.find((e) => e.field === field)
+
+    setErrors((prev) => {
+      const next = { ...prev }
+      const fieldName = field === 'transactionDate' ? 'transactionDate' : field
+
+      if (fieldError) {
+        next[fieldName] = getErrorMessage(fieldError.code, fieldName)
+      } else {
+        delete next[fieldName]
+      }
+
+      // Special case: insufficient balance is also a real-time error for amount
+      // We must calculate the balance for the target method to avoid stale closure issues
+      const targetMethodId = field === 'paymentMethodId' ? (value as string) : paymentMethodId
+      const targetType = field === 'type' ? (value as TransactionType) : type
+      const targetAmount = field === 'amount' ? (value as string) : amount
+
+      const methodSummary = balanceSummaries?.find(
+        (s) => s.paymentMethod?.id.toString() === targetMethodId,
+      )
+      const rawBal = methodSummary?.totalAmount ?? 0
+      const currentAvailableBalance =
+        editData?.paymentMethod?.id.toString() === targetMethodId && editData.type === 'EXPENSE'
+          ? rawBal + editData.amount
+          : rawBal
+
+      const val = parseFloat(targetAmount)
+      if (targetType === 'EXPENSE' && !isNaN(val) && val > currentAvailableBalance) {
+        next.amount = `Insufficient balance. Available: PHP ${currentAvailableBalance.toFixed(2)}`
+      } else if (next.amount?.includes('Insufficient balance')) {
+        delete next.amount
+      }
+
+      return next
+    })
+  }
+
   // Initialize form
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -320,7 +389,15 @@ export function TransactionEntryForm({
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {!lockType && <TransactionTypeToggle value={type} onChange={setType} />}
+      {!lockType && (
+        <TransactionTypeToggle
+          value={type}
+          onChange={(newType) => {
+            setType(newType)
+            validateField('type', newType)
+          }}
+        />
+      )}
 
       <div className="space-y-6">
         <Input
@@ -330,7 +407,10 @@ export function TransactionEntryForm({
           step="0.01"
           placeholder="0.00"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) => {
+            setAmount(e.target.value)
+            validateField('amount', e.target.value)
+          }}
           error={errors.amount}
           startAdornment={
             <span className="text-base font-semibold text-muted-foreground">PHP</span>
@@ -343,7 +423,10 @@ export function TransactionEntryForm({
           <CategorySelector
             label="Category"
             value={categoryId}
-            onChange={setCategoryId}
+            onChange={(newVal) => {
+              setCategoryId(newVal)
+              validateField('categoryId', newVal)
+            }}
             error={errors.categoryId}
             type={type}
           />
@@ -352,7 +435,10 @@ export function TransactionEntryForm({
         <PaymentMethodSelector
           label="Payment Method"
           value={paymentMethodId}
-          onChange={setPaymentMethodId}
+          onChange={(newVal) => {
+            setPaymentMethodId(newVal)
+            validateField('paymentMethodId', newVal)
+          }}
           error={errors.paymentMethodId}
         />
 
@@ -370,7 +456,10 @@ export function TransactionEntryForm({
             label="Date (Optional)"
             type="date"
             value={transactionDate}
-            onChange={(e) => setTransactionDate(e.target.value)}
+            onChange={(e) => {
+              setTransactionDate(e.target.value)
+              validateField('transactionDate', e.target.value)
+            }}
             error={errors.transactionDate}
             helperText={editId ? undefined : 'Captured at submission if not set.'}
           />
@@ -383,7 +472,11 @@ export function TransactionEntryForm({
             label="Description (Optional)"
             placeholder="What was this for?"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value)
+              validateField('description', e.target.value)
+            }}
+            error={errors.description}
           />
 
           <TextArea

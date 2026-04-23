@@ -1,0 +1,8 @@
+{
+  "track_id": "colorblind_accessibility_20260419",
+  "type": "feature",
+  "status": "new",
+  "created_at": "2026-04-19T00:00:00Z",
+  "updated_at": "2026-04-19T00:00:00Z",
+  "description": "As a colorblind user, I want chart data differentiated by patterns and labels — not just color — so I can interpret the breakdown without confusion."
+}
