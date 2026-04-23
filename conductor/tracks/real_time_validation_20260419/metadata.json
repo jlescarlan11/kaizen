@@ -1,8 +1,0 @@
-{
-  "track_id": "real_time_validation_20260419",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-04-19T00:00:00Z",
-  "updated_at": "2026-04-19T00:00:00Z",
-  "description": "As a user entering a transaction, I want to see validation errors as I type so I can fix mistakes before submitting."
-}
