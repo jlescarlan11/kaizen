@@ -36,7 +36,6 @@ import java.time.ZoneOffset;
 import java.time.temporal.TemporalAdjusters;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 @Service
 @Transactional(readOnly = true)
@@ -86,12 +85,6 @@ public class BudgetService {
         UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
 
-        // Refund existing budget amounts back to pools before clearing
-        List<Budget> existingBudgets = budgetRepository.findAllByUserId(user.getId());
-        for (Budget budget : existingBudgets) {
-            refundToPool(user, budget.getPeriod(), budget.getAmount());
-        }
-
         // Clear existing budgets for batch replacement
         budgetRepository.deleteByUserId(user.getId());
 
@@ -104,12 +97,10 @@ public class BudgetService {
             }
 
             BigDecimal amount = createRequest.amount() != null ? createRequest.amount() : BigDecimal.ZERO;
-            deductFromPool(user, createRequest.period(), amount);
-            
+
             budgets.add(new Budget(user, category, amount, createRequest.period()));
         }
 
-        userAccountRepository.save(user);
         return budgetRepository.saveAll(budgets);
     }
 
@@ -130,31 +121,8 @@ public class BudgetService {
         BigDecimal amount = request.amount() != null ? request.amount() : BigDecimal.ZERO;
         budgetValidationService.validateAllocationFits(user, request.period(), amount, editedId);
 
-        // Handle update: refund old amount if category already has a budget
-        budgetRepository.findByUserIdAndCategoryId(user.getId(), category.getId())
-            .ifPresent(existing -> refundToPool(user, existing.getPeriod(), existing.getAmount()));
-
-        deductFromPool(user, request.period(), amount);
-
         Budget budget = new Budget(user, category, amount, request.period());
-        userAccountRepository.save(user);
         return budgetRepository.save(budget);
-    }
-
-    private void refundToPool(UserAccount user, BudgetPeriod period, BigDecimal amount) {
-        if (period == BudgetPeriod.MONTHLY) {
-            user.setAvailableMonthly(user.getAvailableMonthly().add(amount));
-        } else {
-            user.setAvailableWeekly(user.getAvailableWeekly().add(amount));
-        }
-    }
-
-    private void deductFromPool(UserAccount user, BudgetPeriod period, BigDecimal amount) {
-        if (period == BudgetPeriod.MONTHLY) {
-            user.setAvailableMonthly(user.getAvailableMonthly().subtract(amount));
-        } else {
-            user.setAvailableWeekly(user.getAvailableWeekly().subtract(amount));
-        }
     }
 
     private void validateBatchFits(UserAccount user, List<BudgetCreateRequest> requests) {
@@ -204,12 +172,6 @@ public class BudgetService {
 
         validateBatchFits(user, budgetRequests);
 
-        // Refund existing budget amounts back to pools
-        List<Budget> existingBudgets = budgetRepository.findAllByUserId(user.getId());
-        for (Budget budget : existingBudgets) {
-            refundToPool(user, budget.getPeriod(), budget.getAmount());
-        }
-
         // Clear existing budgets
         budgetRepository.deleteByUserId(user.getId());
 
@@ -222,11 +184,9 @@ public class BudgetService {
             }
 
             BigDecimal amount = createRequest.amount() != null ? createRequest.amount() : BigDecimal.ZERO;
-            deductFromPool(user, createRequest.period(), amount);
             budgets.add(new Budget(user, category, amount, createRequest.period()));
         }
 
-        userAccountRepository.save(user);
         return budgetRepository.saveAll(budgets);
     }
 
@@ -309,12 +269,6 @@ public class BudgetService {
 
     @Transactional
     public void deleteAllBudgetsForUser(UserAccount user) {
-        // Refund before deleting
-        List<Budget> existingBudgets = budgetRepository.findAllByUserId(user.getId());
-        for (Budget budget : existingBudgets) {
-            refundToPool(user, budget.getPeriod(), budget.getAmount());
-        }
-        userAccountRepository.save(user);
         budgetRepository.deleteByUserId(user.getId());
     }
 
@@ -346,79 +300,4 @@ public class BudgetService {
         );
     }
 
-    @Transactional
-    public void transferFunds(String email, BudgetPeriod source, BudgetPeriod target, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transfer amount must be positive.");
-        }
-        if (source == target) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Source and target periods must be different.");
-        }
-
-        UserAccount user = userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
-
-        if (source == BudgetPeriod.MONTHLY) {
-            if (user.getAvailableMonthly().compareTo(amount) < 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds in monthly pool.");
-            }
-            user.setAvailableMonthly(user.getAvailableMonthly().subtract(amount));
-            user.setAvailableWeekly(user.getAvailableWeekly().add(amount));
-        } else {
-            if (user.getAvailableWeekly().compareTo(amount) < 0) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient funds in weekly pool.");
-            }
-            user.setAvailableWeekly(user.getAvailableWeekly().subtract(amount));
-            user.setAvailableMonthly(user.getAvailableMonthly().add(amount));
-        }
-
-        try {
-            userAccountRepository.save(user);
-        } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "The account was updated by another process. Please try again.");
-        }
-    }
-
-    @Transactional
-    public void processRollover(UserAccount user, BudgetPeriod period) {
-        BigDecimal currentPoolBalance = (period == BudgetPeriod.MONTHLY) 
-            ? (user.getAvailableMonthly() != null ? user.getAvailableMonthly() : BigDecimal.ZERO)
-            : (user.getAvailableWeekly() != null ? user.getAvailableWeekly() : BigDecimal.ZERO);
-
-        List<Budget> budgets = budgetRepository.findAllByUserIdAndPeriod(user.getId(), period);
-        BigDecimal totalAllocated = budgets.stream()
-            .map(Budget::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalSpent = budgets.stream()
-            .map(Budget::getExpense)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal netRollover = totalAllocated.subtract(totalSpent);
-        BigDecimal newAvailable = currentPoolBalance.add(netRollover);
-        
-        if (period == BudgetPeriod.MONTHLY) {
-            user.setAvailableMonthly(newAvailable.max(BigDecimal.ZERO));
-        } else {
-            user.setAvailableWeekly(newAvailable.max(BigDecimal.ZERO));
-        }
-        
-        // Reset budget expenses for the new period will happen automatically via 
-        // TransactionService.recalculateBudgetExpenses because it uses date-range filtering.
-        // But we might want to explicitly set them to zero here for clarity in the entity.
-        for (Budget budget : budgets) {
-            budget.setExpense(BigDecimal.ZERO);
-        }
-        budgetRepository.saveAll(budgets);
-        userAccountRepository.save(user);
-    }
-
-    @Transactional
-    public void processInitialInjection(UserAccount user) {
-        if (!user.isInitialInjectionProcessed()) {
-            BigDecimal balance = user.getBalance() != null ? user.getBalance() : BigDecimal.ZERO;
-            user.setAvailableMonthly(user.getAvailableMonthly().add(balance));
-            user.setInitialInjectionProcessed(true);
-            userAccountRepository.save(user);
-        }
-    }
 }
