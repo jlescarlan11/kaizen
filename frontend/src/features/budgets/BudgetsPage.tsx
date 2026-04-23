@@ -4,7 +4,6 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@head
 import {
   useGetBudgetsQuery,
   useGetBudgetSummaryQuery,
-  useProcessInitialInjectionMutation,
   type BudgetResponse,
 } from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery, type CategoryResponse } from '../../app/store/api/categoryApi'
@@ -213,18 +212,9 @@ export function BudgetsPage(): ReactElement {
   const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: budgetSummary } = useGetBudgetSummaryQuery()
   const { data: categories = [] } = useGetCategoriesQuery()
-  const [processInitialInjection, { isLoading: isInjecting }] = useProcessInitialInjectionMutation()
 
   const handleNewBudget = () => {
     navigate('/budget/manual')
-  }
-
-  const handleSeedFromBalance = async () => {
-    try {
-      await processInitialInjection().unwrap()
-    } catch (err) {
-      console.error('Failed to seed from balance:', err)
-    }
   }
 
   if (isBudgetsLoading) {
@@ -234,9 +224,6 @@ export function BudgetsPage(): ReactElement {
       </div>
     )
   }
-
-  const hasNoPoolFunds = (budgetSummary?.unallocated ?? 0) <= 0
-  const hasBalanceToInject = (budgetSummary?.balance ?? 0) > 0
 
   return (
     <section className={pageLayout.sectionGap}>
@@ -293,26 +280,6 @@ export function BudgetsPage(): ReactElement {
           </p>
         </Card>
       </div>
-
-      {hasNoPoolFunds && hasBalanceToInject && (
-        <Card className="flex items-center justify-between border-ui-accent/30 bg-ui-accent-subtle p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-action text-white">
-              <SharedIcon type="category" name="wallet" size={20} />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">Ready to start budgeting?</p>
-              <p className="text-xs text-muted-foreground">
-                You have {currencyFormatter.format(budgetSummary?.balance ?? 0)} in your account.
-                Seed your monthly pool to start allocating.
-              </p>
-            </div>
-          </div>
-          <Button size="sm" onClick={handleSeedFromBalance} isLoading={isInjecting}>
-            Seed from Balance
-          </Button>
-        </Card>
-      )}
 
       <DataList
         data={budgets || []}

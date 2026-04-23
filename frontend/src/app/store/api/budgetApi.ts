@@ -73,13 +73,6 @@ export const budgetApi = baseApi.injectEndpoints({
       query: () => '/budgets',
       providesTags: ['Budgets'],
     }),
-    processInitialInjection: builder.mutation<void, void>({
-      query: () => ({
-        url: '/budgets/initial-injection',
-        method: 'POST',
-      }),
-      invalidatesTags: ['Budgets', 'User'],
-    }),
   }),
 })
 
@@ -89,5 +82,4 @@ export const {
   useGetBudgetCountQuery,
   useGetBudgetSummaryQuery,
   useGetBudgetsQuery,
-  useProcessInitialInjectionMutation,
 } = budgetApi
