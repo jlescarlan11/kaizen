@@ -17,15 +17,23 @@ import com.kaizen.backend.budget.dto.BudgetSummaryResponse;
 import com.kaizen.backend.budget.entity.Budget;
 import com.kaizen.backend.budget.entity.BudgetPeriod;
 import com.kaizen.backend.budget.repository.BudgetRepository;
+import com.kaizen.backend.budget.validation.BudgetValidationService;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.category.repository.CategoryRepository;
+import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.transaction.service.TransactionService;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import com.kaizen.backend.user.repository.UserAccountRepository;
 import java.time.Clock;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.time.temporal.TemporalAdjusters;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -39,15 +47,20 @@ public class BudgetService {
     private final CategoryRepository categoryRepository;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final BudgetValidationService budgetValidationService;
+    private final TransactionRepository transactionRepository;
 
     @Autowired
     public BudgetService(
         BudgetRepository budgetRepository,
         UserAccountRepository userAccountRepository,
         CategoryRepository categoryRepository,
-        TransactionService transactionService
+        TransactionService transactionService,
+        BudgetValidationService budgetValidationService,
+        TransactionRepository transactionRepository
     ) {
-        this(budgetRepository, userAccountRepository, categoryRepository, transactionService, Clock.systemUTC());
+        this(budgetRepository, userAccountRepository, categoryRepository, transactionService,
+            Clock.systemUTC(), budgetValidationService, transactionRepository);
     }
 
     public BudgetService(
@@ -55,13 +68,17 @@ public class BudgetService {
         UserAccountRepository userAccountRepository,
         CategoryRepository categoryRepository,
         TransactionService transactionService,
-        Clock clock
+        Clock clock,
+        BudgetValidationService budgetValidationService,
+        TransactionRepository transactionRepository
     ) {
         this.budgetRepository = budgetRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.budgetValidationService = budgetValidationService;
+        this.transactionRepository = transactionRepository;
     }
 
     @Transactional
@@ -107,11 +124,16 @@ public class BudgetService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category is not available for this user.");
         }
 
+        Long editedId = budgetRepository.findByUserIdAndCategoryId(user.getId(), category.getId())
+            .map(Budget::getId)
+            .orElse(null);
+        BigDecimal amount = request.amount() != null ? request.amount() : BigDecimal.ZERO;
+        budgetValidationService.validateAllocationFits(user, request.period(), amount, editedId);
+
         // Handle update: refund old amount if category already has a budget
         budgetRepository.findByUserIdAndCategoryId(user.getId(), category.getId())
             .ifPresent(existing -> refundToPool(user, existing.getPeriod(), existing.getAmount()));
 
-        BigDecimal amount = request.amount() != null ? request.amount() : BigDecimal.ZERO;
         deductFromPool(user, request.period(), amount);
 
         Budget budget = new Budget(user, category, amount, request.period());
@@ -135,11 +157,52 @@ public class BudgetService {
         }
     }
 
+    private void validateBatchFits(UserAccount user, List<BudgetCreateRequest> requests) {
+        BigDecimal balance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
+
+        BigDecimal totalNewCommitment = BigDecimal.ZERO;
+        for (BudgetCreateRequest req : requests) {
+            BigDecimal amount = req.amount() != null ? req.amount() : BigDecimal.ZERO;
+            BigDecimal expectedExpense = computeExpectedExpenseForCategoryInPeriod(
+                user.getId(), req.categoryId(), req.period());
+            totalNewCommitment = totalNewCommitment.add(
+                amount.subtract(expectedExpense).max(BigDecimal.ZERO));
+        }
+
+        if (balance.subtract(totalNewCommitment).compareTo(BigDecimal.ZERO) < 0) {
+            BigDecimal shortfall = totalNewCommitment.subtract(balance)
+                .setScale(2, RoundingMode.HALF_UP);
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                String.format("Batch allocation exceeds available balance by %s.", shortfall)
+            );
+        }
+    }
+
+    private BigDecimal computeExpectedExpenseForCategoryInPeriod(
+            Long userId, Long categoryId, BudgetPeriod period) {
+        LocalDate now = LocalDate.now(clock);
+        OffsetDateTime start;
+        OffsetDateTime end;
+        if (period == BudgetPeriod.MONTHLY) {
+            start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay().atOffset(ZoneOffset.UTC);
+            end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+        } else {
+            start = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay().atOffset(ZoneOffset.UTC);
+            end = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
+        }
+        BigDecimal sum = transactionRepository.sumAmountByCategoryIdAndTypeAndDateRange(
+            userId, categoryId, TransactionType.EXPENSE, start, end);
+        return sum != null ? sum : BigDecimal.ZERO;
+    }
+
     @Transactional
     public List<Budget> saveBudgetsForUser(UserAccount user, List<BudgetCreateRequest> budgetRequests) {
         if (budgetRequests == null || budgetRequests.isEmpty()) {
             return List.of();
         }
+
+        validateBatchFits(user, budgetRequests);
 
         // Refund existing budget amounts back to pools
         List<Budget> existingBudgets = budgetRepository.findAllByUserId(user.getId());
