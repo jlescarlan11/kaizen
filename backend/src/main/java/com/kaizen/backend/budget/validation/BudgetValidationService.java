@@ -4,6 +4,7 @@ import com.kaizen.backend.budget.dto.BudgetBatchRequest;
 import com.kaizen.backend.budget.dto.BudgetCreateRequest;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.budget.entity.Budget;
+import com.kaizen.backend.budget.entity.BudgetPeriod;
 import com.kaizen.backend.budget.repository.BudgetRepository;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.common.constants.ValidationConstants;
@@ -21,7 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 @Component
 public class BudgetValidationService {
@@ -51,6 +54,39 @@ public class BudgetValidationService {
     public void validateSingleBudget(String email, BudgetCreateRequest request) {
         UserAccount user = findUser(email);
         validateSingleBudget(user, request);
+    }
+
+    public void validateAllocationFits(UserAccount user, BudgetPeriod period,
+                                        BigDecimal newAmount, Long budgetIdBeingEdited) {
+        BigDecimal balance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
+        List<Budget> budgets = budgetRepository.findAllByUserId(user.getId());
+
+        BigDecimal outstandingExcludingThis = BigDecimal.ZERO;
+        BigDecimal thisExpense = BigDecimal.ZERO;
+
+        for (Budget b : budgets) {
+            BigDecimal amount = b.getAmount() != null ? b.getAmount() : BigDecimal.ZERO;
+            BigDecimal expense = b.getExpense() != null ? b.getExpense() : BigDecimal.ZERO;
+            if (budgetIdBeingEdited != null && b.getId().equals(budgetIdBeingEdited)) {
+                thisExpense = expense;
+                continue;
+            }
+            outstandingExcludingThis = outstandingExcludingThis
+                .add(amount.subtract(expense).max(BigDecimal.ZERO));
+        }
+
+        BigDecimal newCommitment = newAmount.subtract(thisExpense).max(BigDecimal.ZERO);
+        BigDecimal projectedUnallocated = balance
+            .subtract(outstandingExcludingThis)
+            .subtract(newCommitment);
+
+        if (projectedUnallocated.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                String.format("Allocation exceeds available balance by %s.",
+                    projectedUnallocated.abs())
+            );
+        }
     }
 
     private UserAccount findUser(String email) {
