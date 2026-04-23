@@ -257,35 +257,29 @@ public class BudgetService {
 
     private BudgetSummaryResponse buildBudgetSummary(UserAccount user, List<Budget> budgets) {
         BigDecimal balance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
-        BigDecimal availableMonthly = user.getAvailableMonthly() == null ? BigDecimal.ZERO : user.getAvailableMonthly();
-        BigDecimal availableWeekly = user.getAvailableWeekly() == null ? BigDecimal.ZERO : user.getAvailableWeekly();
 
-        BigDecimal totalAllocated = budgets.stream()
-            .map(Budget::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal totalSpent = budgets.stream()
-            .map(Budget::getExpense)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        BigDecimal remainingToAllocate = availableMonthly.add(availableWeekly);
-        BigDecimal totalCapacity = totalAllocated.add(remainingToAllocate);
-        
-        int allocationPercentage = totalCapacity.compareTo(BigDecimal.ZERO) > 0
-            ? totalAllocated
-                .multiply(BigDecimal.valueOf(100))
-                .divide(totalCapacity, 0, RoundingMode.HALF_UP)
-                .intValue()
+        BigDecimal totalAllocated = BigDecimal.ZERO;
+        BigDecimal totalSpent = BigDecimal.ZERO;
+        BigDecimal outstandingCommitments = BigDecimal.ZERO;
+
+        for (Budget b : budgets) {
+            BigDecimal amount = b.getAmount() != null ? b.getAmount() : BigDecimal.ZERO;
+            BigDecimal expense = b.getExpense() != null ? b.getExpense() : BigDecimal.ZERO;
+            totalAllocated = totalAllocated.add(amount);
+            totalSpent = totalSpent.add(expense);
+            outstandingCommitments = outstandingCommitments
+                .add(amount.subtract(expense).max(BigDecimal.ZERO));
+        }
+
+        BigDecimal unallocated = balance.subtract(outstandingCommitments);
+
+        int allocationPercentage = balance.compareTo(BigDecimal.ZERO) > 0
+            ? totalAllocated.multiply(BigDecimal.valueOf(100))
+                .divide(balance, 0, RoundingMode.HALF_UP).intValue()
             : 0;
 
         return new BudgetSummaryResponse(
-            balance,
-            availableMonthly,
-            availableWeekly,
-            totalAllocated,
-            totalSpent,
-            remainingToAllocate,
-            allocationPercentage,
-            budgets.size()
+            balance, totalAllocated, totalSpent, unallocated, allocationPercentage, budgets.size()
         );
     }
 
