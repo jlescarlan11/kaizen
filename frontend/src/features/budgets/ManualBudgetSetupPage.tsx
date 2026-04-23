@@ -88,7 +88,10 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   )
 
   const totalAllocated = useMemo(
-    () => sessionBudgets.filter(b => b.period === selectedPeriod).reduce((sum, budget) => sum + budget.amount, 0),
+    () =>
+      sessionBudgets
+        .filter((b) => b.period === selectedPeriod)
+        .reduce((sum, budget) => sum + budget.amount, 0),
     [sessionBudgets, selectedPeriod],
   )
 
@@ -296,7 +299,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
-            availablePoolBalance={selectedPeriod === 'MONTHLY' ? (budgetSummary?.availableMonthly ?? 0) : (budgetSummary?.availableWeekly ?? 0)}
+            availablePoolBalance={budgetSummary?.unallocated ?? 0}
             onStatusChange={(status) => setIsOverAllocated(status === 'over')}
           />
         </div>

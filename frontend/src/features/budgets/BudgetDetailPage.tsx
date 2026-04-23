@@ -105,20 +105,23 @@ export function BudgetDetailPage(): ReactElement {
                   Spending Progress
                 </p>
                 <p className="text-2xl font-black text-foreground tabular-nums">
-                  {currencyFormatter.format(budget.expense)} / {currencyFormatter.format(budget.amount)}
+                  {currencyFormatter.format(budget.expense)} /{' '}
+                  {currencyFormatter.format(budget.amount)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
                   Remaining
                 </p>
-                <p className={`text-2xl font-black tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}>
+                <p
+                  className={`text-2xl font-black tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}
+                >
                   {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
                 </p>
               </div>
             </div>
             <div className="h-4 w-full bg-ui-surface-hover rounded-full overflow-hidden border border-ui-border-subtle">
-              <div 
+              <div
                 className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-error' : 'bg-ui-action'}`}
                 style={{ width: `${Math.min(100, (budget.expense / budget.amount) * 100)}%` }}
               />
@@ -126,7 +129,8 @@ export function BudgetDetailPage(): ReactElement {
             {budget.expense > budget.amount && (
               <p className="text-[10px] font-black uppercase tracking-widest text-ui-error flex items-center gap-2">
                 <SharedIcon type="ui" name="error" size={10} />
-                You have exceeded your {budget.period.toLowerCase()} budget by {currencyFormatter.format(budget.expense - budget.amount)}
+                You have exceeded your {budget.period.toLowerCase()} budget by{' '}
+                {currencyFormatter.format(budget.expense - budget.amount)}
               </p>
             )}
           </div>
@@ -148,9 +152,7 @@ export function BudgetDetailPage(): ReactElement {
                 Pool Availability
               </p>
               <p className="text-2xl font-black text-foreground tabular-nums">
-                {budget.period === 'MONTHLY' 
-                  ? currencyFormatter.format(budgetSummary?.availableMonthly ?? 0)
-                  : currencyFormatter.format(budgetSummary?.availableWeekly ?? 0)}
+                {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
               </p>
             </div>
           </div>
