@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
 import {
@@ -15,7 +15,6 @@ import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
-import { TransferFundsModal } from './components/TransferFundsModal'
 import { cn } from '../../shared/lib/cn'
 
 const currencyFormatter = {
@@ -211,7 +210,6 @@ const BudgetRow = ({
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false)
   const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: budgetSummary } = useGetBudgetSummaryQuery()
   const { data: categories = [] } = useGetCategoriesQuery()
@@ -249,9 +247,6 @@ export function BudgetsPage(): ReactElement {
           <p className="text-muted-foreground">Monitor and manage your spending limits.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="ghost" onClick={() => setIsTransferModalOpen(true)}>
-            Transfer
-          </Button>
           <Button onClick={handleNewBudget} className="shrink-0">
             Add Budget
           </Button>
@@ -351,11 +346,6 @@ export function BudgetsPage(): ReactElement {
           const category = categories.find((c) => c.id === budget.categoryId)
           return <BudgetRow budget={budget} category={category} />
         }}
-      />
-
-      <TransferFundsModal
-        isOpen={isTransferModalOpen}
-        onClose={() => setIsTransferModalOpen(false)}
       />
     </section>
   )
