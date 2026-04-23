@@ -97,8 +97,10 @@ class BudgetValidationServiceTest {
         user.setBalance(new BigDecimal("10000"));
         Budget existing = budget(1L, new BigDecimal("5000"), BigDecimal.ZERO);
         when(budgetRepository.findAllByUserId(anyLong())).thenReturn(List.of(existing));
-        assertThrows(ResponseStatusException.class, () ->
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class, () ->
             validator.validateAllocationFits(user, BudgetPeriod.MONTHLY, new BigDecimal("12000"), existing.getId()));
+        assertTrue(ex.getReason().contains("2000"),
+            "shortfall should be 2000: " + ex.getReason());
     }
 
     @Test

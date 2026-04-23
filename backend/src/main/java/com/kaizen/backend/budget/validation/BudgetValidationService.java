@@ -56,8 +56,21 @@ public class BudgetValidationService {
         validateSingleBudget(user, request);
     }
 
+    /**
+     * Verifies that a proposed allocation (create or update) will not push
+     * {@code unallocated = balance − Σ max(0, amount − expense)} below zero.
+     *
+     * <p>The {@code period} parameter is part of the signature for callers'
+     * convenience but is not currently used: the accounting model treats all
+     * budgets (MONTHLY and WEEKLY) as drawing from the single user balance.
+     *
+     * @param budgetIdBeingEdited id of the budget being updated, or {@code null}
+     *     when creating a new budget.
+     * @throws ResponseStatusException with HTTP 400 if the allocation does not fit
+     */
     public void validateAllocationFits(UserAccount user, BudgetPeriod period,
                                         BigDecimal newAmount, Long budgetIdBeingEdited) {
+        java.util.Objects.requireNonNull(newAmount, "newAmount");
         BigDecimal balance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
         List<Budget> budgets = budgetRepository.findAllByUserId(user.getId());
 
@@ -81,10 +94,11 @@ public class BudgetValidationService {
             .subtract(newCommitment);
 
         if (projectedUnallocated.compareTo(BigDecimal.ZERO) < 0) {
+            BigDecimal shortfall = projectedUnallocated.abs()
+                .setScale(2, java.math.RoundingMode.HALF_UP);
             throw new ResponseStatusException(
                 HttpStatus.BAD_REQUEST,
-                String.format("Allocation exceeds available balance by %s.",
-                    projectedUnallocated.abs())
+                String.format("Allocation exceeds available balance by %s.", shortfall)
             );
         }
     }
