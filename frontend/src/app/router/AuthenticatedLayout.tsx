@@ -138,7 +138,7 @@ function AuthenticatedLayoutContent(): ReactElement {
   }
 
   const navItems: ReadonlyArray<NavItem> = [
-    { label: 'Transactions', to: '/', icon: <HomeIcon /> },
+    { label: 'Home', to: '/', icon: <HomeIcon /> },
     { label: 'Budgets', to: '/budget', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
     {
       label: 'Goals',
