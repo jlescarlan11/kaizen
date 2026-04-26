@@ -409,10 +409,8 @@ export function TransactionEntryForm({
           step="0.01"
           placeholder="0.00"
           value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value)
-            validateField('amount', e.target.value)
-          }}
+          onChange={(e) => setAmount(e.target.value)}
+          onBlur={(e) => validateField('amount', e.target.value)}
           error={errors.amount}
           startAdornment={
             <span className="text-base font-semibold text-muted-foreground">PHP</span>
@@ -458,10 +456,8 @@ export function TransactionEntryForm({
             label="Date (Optional)"
             type="date"
             value={transactionDate}
-            onChange={(e) => {
-              setTransactionDate(e.target.value)
-              validateField('transactionDate', e.target.value)
-            }}
+            onChange={(e) => setTransactionDate(e.target.value)}
+            onBlur={(e) => validateField('transactionDate', e.target.value)}
             error={errors.transactionDate}
             helperText={editId ? undefined : 'Captured at submission if not set.'}
           />
@@ -474,10 +470,8 @@ export function TransactionEntryForm({
             label="Description (Optional)"
             placeholder="What was this for?"
             value={description}
-            onChange={(e) => {
-              setDescription(e.target.value)
-              validateField('description', e.target.value)
-            }}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={(e) => validateField('description', e.target.value)}
             error={errors.description}
           />
 
