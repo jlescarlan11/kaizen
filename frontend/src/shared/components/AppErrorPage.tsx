@@ -1,7 +1,9 @@
 import { type ReactElement } from 'react'
-import { Link, useRouteError } from 'react-router-dom'
+import { useRouteError } from 'react-router-dom'
 
 export function AppErrorPage(): ReactElement {
+  // useRouteError returns undefined when rendered outside a React Router context
+  // (e.g. as a Sentry ErrorBoundary fallback), which is handled gracefully below.
   const routeError = useRouteError()
   const message =
     routeError instanceof Error
@@ -29,12 +31,12 @@ export function AppErrorPage(): ReactElement {
           >
             Reload
           </button>
-          <Link
-            to="/"
+          <a
+            href="/"
             className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
           >
             Back to home
-          </Link>
+          </a>
         </div>
       </div>
     </div>

@@ -1,0 +1,67 @@
+name: Frontend Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-deploy-staging.yml"
+
+concurrency:
+  group: frontend-staging
+  cancel-in-progress: true
+
+jobs:
+  deploy-frontend-staging:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight validate staging deploy configuration
+        env:
+          RENDER_FRONTEND_DEPLOY_HOOK_URL: ${{ secrets['RENDER_FRONTEND_DEPLOY_HOOK_URL'] }}
+          VITE_API_BASE_URL: ${{ vars['VITE_API_BASE_URL_STAGING'] }}
+        run: |
+          if [ -z "${RENDER_FRONTEND_DEPLOY_HOOK_URL:-}" ]; then
+            echo "::error::Missing required secret RENDER_FRONTEND_DEPLOY_HOOK_URL."
+            exit 1
+          fi
+          if [ -z "${VITE_API_BASE_URL:-}" ]; then
+            echo "::error::Missing required variable VITE_API_BASE_URL_STAGING."
+            exit 1
+          fi
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Typecheck
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: ${{ vars['VITE_API_BASE_URL_STAGING'] }}
+          VITE_SENTRY_DSN: ${{ secrets['VITE_SENTRY_DSN'] }}
+        run: npm run build
+
+      - name: Trigger Render frontend deploy hook
+        env:
+          RENDER_FRONTEND_DEPLOY_HOOK_URL: ${{ secrets['RENDER_FRONTEND_DEPLOY_HOOK_URL'] }}
+        run: curl -fsS --connect-timeout 5 --max-time 20 --retry 5 --retry-all-errors --retry-delay 2 -X POST "$RENDER_FRONTEND_DEPLOY_HOOK_URL"

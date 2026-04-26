@@ -54,6 +54,13 @@ springdoc:
     enabled: false
     path: /swagger-ui.html
 
+sentry:
+  dsn: ${SENTRY_DSN:}
+  enabled: ${SENTRY_ENABLED:false}
+  environment: ${SENTRY_ENVIRONMENT:dev}
+  send-default-pii: false
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.0}
+
 app:
   security:
     user:
