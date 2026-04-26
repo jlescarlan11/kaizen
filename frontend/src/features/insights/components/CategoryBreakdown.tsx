@@ -3,25 +3,12 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { Card } from '../../../shared/components/Card'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { getCategoricalColor } from '../../../shared/lib/chartTheme'
 
 interface CategoryBreakdownProps {
   breakdown: CategoryBreakdownType
   isLoading: boolean
 }
-
-// Theme-aware categorical palette. Each entry is a CSS variable from
-// shared/styles/index.css; Recharts passes the value into the SVG fill
-// attribute, which accepts var() in modern browsers. The broader chart
-// theming refactor (U-VIS-6) generalises this into a shared hook.
-const COLORS = [
-  'var(--color-primary)',
-  'var(--color-ui-success)',
-  'var(--color-ui-warning)',
-  'var(--color-ui-info)',
-  'var(--color-ui-danger)',
-  'var(--color-primary-light)',
-  'var(--color-primary-dark)',
-] as const
 
 export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownProps) {
   if (isLoading) {
@@ -68,7 +55,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                 dataKey="value"
               >
                 {chartData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell key={`cell-${index}`} fill={getCategoricalColor(index)} />
                 ))}
               </Pie>
               <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
@@ -89,7 +76,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                 >
                   <span
                     className="mr-2 h-3 w-3 rounded-full"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    style={{ backgroundColor: getCategoricalColor(index) }}
                   />
                   {c.categoryName}
                 </Link>

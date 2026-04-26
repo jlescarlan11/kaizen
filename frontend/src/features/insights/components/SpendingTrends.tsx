@@ -3,6 +3,7 @@ import { Card } from '../../../shared/components/Card'
 import { Button } from '../../../shared/components/Button'
 import type { TrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 
 interface SpendingTrendsProps {
   trends: TrendSeries
@@ -75,7 +76,7 @@ export function SpendingTrends({
             <XAxis dataKey="name" fontSize={12} />
             <YAxis fontSize={12} width={60} tickFormatter={(val) => `PHP ${val}`} />
             <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
-            <Bar dataKey="value" fill="var(--color-primary)" />
+            <Bar dataKey="value" fill={CHART_COLORS.primary} />
           </BarChart>
         </ResponsiveContainer>
       </div>

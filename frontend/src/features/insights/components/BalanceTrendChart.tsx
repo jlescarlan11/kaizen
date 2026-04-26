@@ -10,6 +10,7 @@ import {
 } from 'recharts'
 import type { BalanceTrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 import { useState } from 'react'
 
 interface BalanceTrendChartProps {
@@ -236,10 +237,10 @@ export function BalanceTrendChart({
                 type="monotone"
                 dataKey="income"
                 name="Income"
-                stroke="var(--color-income)"
+                stroke={CHART_COLORS.income}
                 strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--color-income)' }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.income }}
               />
             )}
             {!hiddenSeries.includes('expenses') && (
@@ -247,10 +248,10 @@ export function BalanceTrendChart({
                 type="monotone"
                 dataKey="expenses"
                 name="Expenses"
-                stroke="var(--color-expense)"
+                stroke={CHART_COLORS.expense}
                 strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--color-expense)' }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.expense }}
               />
             )}
             {!hiddenSeries.includes('netBalance') && (

@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import type { PaymentMethodSummary } from '../../payment-methods/api'
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts'
+import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 
 interface CompactAccountListProps {
   summaries: PaymentMethodSummary[]
@@ -103,7 +104,7 @@ function Sparkline({ data }: { data: number[] }) {
         <Line
           type="monotone"
           dataKey="value"
-          stroke={isPositive ? 'var(--color-income)' : 'var(--color-expense)'}
+          stroke={isPositive ? CHART_COLORS.income : CHART_COLORS.expense}
           strokeWidth={2.5}
           dot={false}
           isAnimationActive={false}
