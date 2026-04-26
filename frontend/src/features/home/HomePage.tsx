@@ -23,6 +23,7 @@ import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
 import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
 import { cn } from '../../shared/lib/cn'
+import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
@@ -351,6 +352,16 @@ export function HomePage(): ReactElement {
 
   return (
     <>
+      <header>
+        <div className={pageLayout.headerGap}>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-base leading-7 text-muted-foreground">
+            Track your finances at a glance.
+          </p>
+        </div>
+      </header>
       <div className={cn('space-y-7 pb-32')}>
         {/* ───────── TOTAL BALANCE ───────── */}
         <section

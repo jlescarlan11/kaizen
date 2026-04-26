@@ -54,7 +54,7 @@ export function BudgetDetailPage(): ReactElement {
   return (
     <div className={pageLayout.sectionGap}>
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
+      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-black tracking-tight text-foreground uppercase tracking-widest">
@@ -94,7 +94,7 @@ export function BudgetDetailPage(): ReactElement {
             Edit Configuration
           </button>
         </div>
-      </div>
+      </header>
 
       <div className="space-y-16">
         {/* Spending Progress */}

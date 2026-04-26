@@ -71,7 +71,7 @@ export function TransactionDetailPage(): ReactElement {
 
   return (
     <div className={pageLayout.sectionGap}>
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
+      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-4">
           <TransactionDetailHeader
             amount={transaction.amount}
@@ -86,7 +86,7 @@ export function TransactionDetailPage(): ReactElement {
             isProcessing={isDeleting}
           />
         </div>
-      </div>
+      </header>
 
       <div className="space-y-16">
         <section>
