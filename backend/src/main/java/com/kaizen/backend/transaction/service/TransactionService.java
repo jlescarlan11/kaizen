@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.lang.NonNull;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -318,6 +321,11 @@ public class TransactionService {
         saveAccount(account);
     }
 
+    @Retryable(
+        retryFor = OptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50, multiplier = 2.0, maxDelay = 500)
+    )
     @Transactional
     public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
         budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
