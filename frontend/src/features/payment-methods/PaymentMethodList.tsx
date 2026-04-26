@@ -1,6 +1,7 @@
 import { useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import {
   useDeletePaymentMethodMutation,
@@ -35,10 +36,11 @@ export function PaymentMethodList({
   if (paymentMethods.length === 0) {
     const handleAddClick = onAddClick ?? (() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12 text-center text-muted-foreground">
-        <p>No payment methods found.</p>
-        <Button onClick={handleAddClick}>Add Payment Method</Button>
-      </div>
+      <EmptyStateCard
+        title="No payment methods found"
+        description="Add a payment method to start tracking which accounts or cards you use."
+        primaryAction={{ label: 'Add Payment Method', onClick: handleAddClick }}
+      />
     )
   }
 

@@ -14,6 +14,8 @@ import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { LoadingSpinner } from '../../shared/components/LoadingSpinner'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
 
 const currencyFormatter = {
@@ -218,11 +220,7 @@ export function BudgetsPage(): ReactElement {
   }
 
   if (isBudgetsLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   return (
@@ -276,22 +274,16 @@ export function BudgetsPage(): ReactElement {
       <DataList
         data={budgets || []}
         emptyState={
-          <div className="flex flex-col items-center justify-center p-12 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-ui-accent-subtle text-ui-action">
-              <SharedIcon type="category" name="wallet" size={24} />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground">No budgets found</h3>
-            <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-              You haven&apos;t set up any budgets yet. Start with our smart allocation or create one
-              manually.
-            </p>
-            <div className="mt-6 flex gap-3">
-              <Button onClick={() => navigate('/budget/smart')}>Use Smart Allocation</Button>
-              <Button variant="ghost" onClick={handleNewBudget}>
-                Manual Setup
-              </Button>
-            </div>
-          </div>
+          <EmptyStateCard
+            icon={<SharedIcon type="category" name="wallet" size={24} />}
+            title="No budgets found"
+            description="You haven't set up any budgets yet. Start with our smart allocation or create one manually."
+            primaryAction={{
+              label: 'Use Smart Allocation',
+              onClick: () => navigate('/budget/smart'),
+            }}
+            secondaryAction={{ label: 'Manual Setup', onClick: handleNewBudget }}
+          />
         }
         renderItem={(budget) => {
           const category = categories.find((c) => c.id === budget.categoryId)

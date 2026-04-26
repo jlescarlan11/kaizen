@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Input, TextArea, Button, Card } from '../../../shared/components'
+import { Input, TextArea, Button, Card, LoadingSpinner } from '../../../shared/components'
 import { TransactionTypeToggle } from './TransactionTypeToggle'
 import {
   useCreateTransactionMutation,
@@ -383,8 +383,8 @@ export function TransactionEntryForm({
 
   if (isFetching) {
     return (
-      <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <Card className="border border-ui-border-subtle shadow-sm">
+        <LoadingSpinner />
       </Card>
     )
   }

@@ -10,6 +10,8 @@ import {
 } from '../../app/store/api/authApi'
 import { Button } from '../../shared/components/Button'
 import { Input } from '../../shared/components/Input'
+import { SkeletonList } from '../../shared/components/SkeletonList'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { typography } from '../../shared/styles/typography'
 import { useAuthState } from '../../shared/hooks/useAuthState'
@@ -485,34 +487,14 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
           {isLoadingCategories ? (
             <div className="px-4 py-3.5">
-              {[0, 1, 2].map((index) => (
-                <div key={index} className="">
-                  {index > 0 && <hr className="border-ui-border-subtle" />}
-                  <div className="h-20 flex items-center gap-4 py-4 animate-pulse">
-                    <div className="h-10 w-10 rounded-full bg-ui-surface-muted shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 w-24 bg-ui-surface-muted rounded" />
-                      <div className="h-3 w-32 bg-ui-surface-muted rounded" />
-                    </div>
-                  </div>
-                </div>
-              ))}
+              <SkeletonList count={3} itemHeight="h-20" />
             </div>
           ) : pendingBudgets.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-12 text-center">
-              <span
-                className="text-3xl font-bold tracking-tight text-muted-foreground/30"
-                aria-hidden="true"
-              >
-                PHP
-              </span>
-              <div className="space-y-1">
-                <p className="text-base font-bold text-foreground">No budgets yet</p>
-                <p className="text-sm text-subtle-foreground">
-                  Add at least one to finish setup, or skip for now.
-                </p>
-              </div>
-            </div>
+            <EmptyStateCard
+              title="No budgets yet"
+              description="Add at least one to finish setup, or skip for now."
+              className="mx-2 my-3"
+            />
           ) : (
             <div className="">
               {pendingBudgets.map((budget, index) => (
