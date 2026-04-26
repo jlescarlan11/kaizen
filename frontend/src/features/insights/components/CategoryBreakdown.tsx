@@ -9,14 +9,28 @@ interface CategoryBreakdownProps {
   isLoading: boolean
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658']
+// Theme-aware categorical palette. Each entry is a CSS variable from
+// shared/styles/index.css; Recharts passes the value into the SVG fill
+// attribute, which accepts var() in modern browsers. The broader chart
+// theming refactor (U-VIS-6) generalises this into a shared hook.
+const COLORS = [
+  'var(--color-primary)',
+  'var(--color-ui-success)',
+  'var(--color-ui-warning)',
+  'var(--color-ui-info)',
+  'var(--color-ui-danger)',
+  'var(--color-primary-light)',
+  'var(--color-primary-dark)',
+] as const
 
 export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownProps) {
   if (isLoading) {
     return (
       <Card title="Category Breakdown">
-        <div className="h-64 flex items-center justify-center">
-          <p className="text-gray-500 animate-pulse">Loading breakdown...</p>
+        <div className="flex h-64 items-center justify-center">
+          <p className="animate-pulse text-sm leading-6 text-muted-foreground">
+            Loading breakdown...
+          </p>
         </div>
       </Card>
     )
@@ -25,8 +39,10 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
   if (!breakdown.categories || breakdown.categories.length === 0) {
     return (
       <Card title="Category Breakdown">
-        <div className="h-64 flex items-center justify-center">
-          <p className="text-gray-500 italic">No spending data for this period.</p>
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-sm leading-6 italic text-muted-foreground">
+            No spending data for this period.
+          </p>
         </div>
       </Card>
     )
@@ -39,8 +55,8 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
 
   return (
     <Card title="Category Breakdown">
-      <div className="flex flex-col md:flex-row items-center">
-        <div className="w-full md:w-1/2 h-64">
+      <div className="flex flex-col items-center md:flex-row">
+        <div className="h-64 w-full md:w-1/2">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -49,7 +65,6 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                 cy="50%"
                 labelLine={false}
                 outerRadius={80}
-                fill="#8884d8"
                 dataKey="value"
               >
                 {chartData.map((_, index) => (
@@ -61,24 +76,24 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="w-full md:w-1/2 mt-4 md:mt-0">
+        <div className="mt-4 w-full md:mt-0 md:w-1/2">
           <ul className="space-y-2">
             {breakdown.categories.map((c, index) => (
               <li
                 key={c.categoryId || 'uncategorized'}
-                className="flex justify-between items-center text-sm"
+                className="flex items-center justify-between text-sm"
               >
                 <Link
                   to={`/transactions?type=EXPENSE${c.categoryId ? `&category=${c.categoryId}` : ''}`}
-                  className="flex items-center hover:text-indigo-600 transition-colors"
+                  className="flex items-center text-foreground transition-colors hover:text-primary"
                 >
                   <span
-                    className="w-3 h-3 rounded-full mr-2"
+                    className="mr-2 h-3 w-3 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  ></span>
+                  />
                   {c.categoryName}
                 </Link>
-                <span className="font-semibold">
+                <span className="font-semibold text-foreground">
                   {formatCurrency(c.total)} ({c.percentage.toFixed(1)}%)
                 </span>
               </li>
