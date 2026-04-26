@@ -28,6 +28,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.kaizen.backend.auth.config.AuthRateLimitFilter;
 import com.kaizen.backend.auth.config.PersistentSessionFilter;
 import com.kaizen.backend.auth.config.PublicEndpoint;
 
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final AuthRateLimitFilter authRateLimitFilter;
     private final PersistentSessionFilter persistentSessionFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
@@ -71,6 +73,7 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .cacheControl(cache -> cache.disable()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(persistentSessionFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // Anonymous probe gets only the /actuator/health summary endpoint;
