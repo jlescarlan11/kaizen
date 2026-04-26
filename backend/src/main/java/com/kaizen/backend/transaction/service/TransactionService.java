@@ -143,10 +143,6 @@ public class TransactionService {
         }
 
         recalculateUserBalance(account);
-        if (saved.getType() == TransactionType.INCOME) {
-            // Default income to monthly pool
-            account.setAvailableMonthly(account.getAvailableMonthly().add(saved.getAmount()));
-        }
         if (saved.getCategory() != null) {
             recalculateBudgetExpenses(account, saved.getCategory());
         }

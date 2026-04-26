@@ -4,6 +4,7 @@ import com.kaizen.backend.budget.dto.BudgetBatchRequest;
 import com.kaizen.backend.budget.dto.BudgetCreateRequest;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.budget.entity.Budget;
+import com.kaizen.backend.budget.entity.BudgetPeriod;
 import com.kaizen.backend.budget.repository.BudgetRepository;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.common.constants.ValidationConstants;
@@ -21,7 +22,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 
 @Component
 public class BudgetValidationService {
@@ -53,6 +56,53 @@ public class BudgetValidationService {
         validateSingleBudget(user, request);
     }
 
+    /**
+     * Verifies that a proposed allocation (create or update) will not push
+     * {@code unallocated = balance − Σ max(0, amount − expense)} below zero.
+     *
+     * <p>The {@code period} parameter is part of the signature for callers'
+     * convenience but is not currently used: the accounting model treats all
+     * budgets (MONTHLY and WEEKLY) as drawing from the single user balance.
+     *
+     * @param budgetIdBeingEdited id of the budget being updated, or {@code null}
+     *     when creating a new budget.
+     * @throws ResponseStatusException with HTTP 400 if the allocation does not fit
+     */
+    public void validateAllocationFits(UserAccount user, BudgetPeriod period,
+                                        BigDecimal newAmount, Long budgetIdBeingEdited) {
+        java.util.Objects.requireNonNull(newAmount, "newAmount");
+        BigDecimal balance = user.getBalance() == null ? BigDecimal.ZERO : user.getBalance();
+        List<Budget> budgets = budgetRepository.findAllByUserId(user.getId());
+
+        BigDecimal outstandingExcludingThis = BigDecimal.ZERO;
+        BigDecimal thisExpense = BigDecimal.ZERO;
+
+        for (Budget b : budgets) {
+            BigDecimal amount = b.getAmount() != null ? b.getAmount() : BigDecimal.ZERO;
+            BigDecimal expense = b.getExpense() != null ? b.getExpense() : BigDecimal.ZERO;
+            if (budgetIdBeingEdited != null && b.getId().equals(budgetIdBeingEdited)) {
+                thisExpense = expense;
+                continue;
+            }
+            outstandingExcludingThis = outstandingExcludingThis
+                .add(amount.subtract(expense).max(BigDecimal.ZERO));
+        }
+
+        BigDecimal newCommitment = newAmount.subtract(thisExpense).max(BigDecimal.ZERO);
+        BigDecimal projectedUnallocated = balance
+            .subtract(outstandingExcludingThis)
+            .subtract(newCommitment);
+
+        if (projectedUnallocated.compareTo(BigDecimal.ZERO) < 0) {
+            BigDecimal shortfall = projectedUnallocated.abs()
+                .setScale(2, java.math.RoundingMode.HALF_UP);
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                String.format("Allocation exceeds available balance by %s.", shortfall)
+            );
+        }
+    }
+
     private UserAccount findUser(String email) {
         return userAccountRepository.findByEmailIgnoreCase(email)
             .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user."));
@@ -60,39 +110,14 @@ public class BudgetValidationService {
 
     private void validateBudgets(UserAccount user, List<BudgetCreateRequest> budgets, String fieldBase) {
         List<ValidationError> errors = new ArrayList<>();
-        BigDecimal availableMonthly = user.getAvailableMonthly() == null ? BigDecimal.ZERO : user.getAvailableMonthly();
-        BigDecimal availableWeekly = user.getAvailableWeekly() == null ? BigDecimal.ZERO : user.getAvailableWeekly();
 
         for (int i = 0; i < budgets.size(); i++) {
             BudgetCreateRequest budget = budgets.get(i);
             String entryPrefix = String.format("%s[%d]", fieldBase, i);
-            BigDecimal poolBalance = budget.period() == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY ? availableMonthly : availableWeekly;
 
-            if (budget.amount() != null) {
-                if (budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
-                    errors.add(new ValidationError(entryPrefix + ".amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
-                }
-                if (validationProperties.isBudgetBalanceConstraintEnabled()
-                    && budget.amount().compareTo(poolBalance) > 0) {
-                    errors.add(new ValidationError(entryPrefix + ".amount", ValidationConstants.BUDGET_OVER_BALANCE_ERROR));
-                }
+            if (budget.amount() != null && budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
+                errors.add(new ValidationError(entryPrefix + ".amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
             }
-        }
-
-        if (validationProperties.isBudgetBalanceConstraintEnabled()) {
-            Map<com.kaizen.backend.budget.entity.BudgetPeriod, BigDecimal> totals = budgets.stream()
-                .filter(b -> b.amount() != null && b.period() != null)
-                .collect(Collectors.groupingBy(
-                    BudgetCreateRequest::period,
-                    Collectors.reducing(BigDecimal.ZERO, BudgetCreateRequest::amount, BigDecimal::add)
-                ));
-
-            totals.forEach((period, total) -> {
-                BigDecimal poolBalance = period == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY ? availableMonthly : availableWeekly;
-                if (total.compareTo(poolBalance) > 0) {
-                    errors.add(new ValidationError(fieldBase + "." + period.name().toLowerCase() + "Total", ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR));
-                }
-            });
         }
 
         addDuplicateCategoryErrors(errors, budgets, fieldBase);
@@ -105,28 +130,9 @@ public class BudgetValidationService {
 
     private void validateSingleBudget(UserAccount user, BudgetCreateRequest budget) {
         List<ValidationError> errors = new ArrayList<>();
-        BigDecimal poolBalance = budget.period() == com.kaizen.backend.budget.entity.BudgetPeriod.MONTHLY 
-            ? (user.getAvailableMonthly() == null ? BigDecimal.ZERO : user.getAvailableMonthly())
-            : (user.getAvailableWeekly() == null ? BigDecimal.ZERO : user.getAvailableWeekly());
 
-        List<Budget> existingBudgets = budgetRepository.findAllByUserIdAndPeriod(user.getId(), budget.period());
-        BigDecimal existingAllocated = existingBudgets.stream()
-            .map(Budget::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal remainingInPool = poolBalance.subtract(existingAllocated).max(BigDecimal.ZERO);
-
-        if (budget.amount() != null) {
-            if (budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
-                errors.add(new ValidationError("budget.amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
-            }
-            if (validationProperties.isBudgetBalanceConstraintEnabled()
-                && budget.amount().compareTo(remainingInPool) > 0) {
-                errors.add(new ValidationError("budget.amount", ValidationConstants.BUDGET_OVER_BALANCE_ERROR));
-            }
-            if (validationProperties.isBudgetBalanceConstraintEnabled()
-                && existingAllocated.add(budget.amount()).compareTo(poolBalance) > 0) {
-                errors.add(new ValidationError("budget.total", ValidationConstants.BUDGET_TOTAL_OVER_BALANCE_ERROR));
-            }
+        if (budget.amount() != null && budget.amount().compareTo(BigDecimal.ZERO) <= 0) {
+            errors.add(new ValidationError("budget.amount", ValidationConstants.BUDGET_AMOUNT_POSITIVE_ERROR));
         }
 
         if (budget.categoryId() != null

@@ -88,7 +88,10 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   )
 
   const totalAllocated = useMemo(
-    () => sessionBudgets.filter(b => b.period === selectedPeriod).reduce((sum, budget) => sum + budget.amount, 0),
+    () =>
+      sessionBudgets
+        .filter((b) => b.period === selectedPeriod)
+        .reduce((sum, budget) => sum + budget.amount, 0),
     [sessionBudgets, selectedPeriod],
   )
 
@@ -296,7 +299,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
-            availablePoolBalance={selectedPeriod === 'MONTHLY' ? (budgetSummary?.availableMonthly ?? 0) : (budgetSummary?.availableWeekly ?? 0)}
+            available={budgetSummary?.unallocated ?? 0}
             onStatusChange={(status) => setIsOverAllocated(status === 'over')}
           />
         </div>
@@ -376,8 +379,11 @@ export function ManualBudgetSetupPage(): ReactElement | null {
                   navigate('/', { replace: true })
                 } catch (err) {
                   console.error('Final onboarding completion failed:', err)
+                  const backendMessage = (err as { data?: { message?: string }; message?: string })
+                    ?.data?.message
                   setSubmissionError(
-                    'Unable to finish setup. Please check your allocations and try again.',
+                    backendMessage ||
+                      'Unable to finish setup. Please check your allocations and try again.',
                   )
                 }
               }}

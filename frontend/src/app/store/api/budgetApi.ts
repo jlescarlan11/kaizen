@@ -34,19 +34,11 @@ export interface BudgetCountResponse {
 
 export interface BudgetSummaryResponse {
   balance: number
-  availableMonthly: number
-  availableWeekly: number
   totalAllocated: number
   totalSpent: number
-  remainingToAllocate: number
+  unallocated: number
   allocationPercentage: number
   budgetCount: number
-}
-
-export interface BudgetTransferPayload {
-  source: BudgetPeriod
-  target: BudgetPeriod
-  amount: number
 }
 
 export const budgetApi = baseApi.injectEndpoints({
@@ -81,21 +73,6 @@ export const budgetApi = baseApi.injectEndpoints({
       query: () => '/budgets',
       providesTags: ['Budgets'],
     }),
-    transferFunds: builder.mutation<void, BudgetTransferPayload>({
-      query: (payload) => ({
-        url: '/budgets/transfer',
-        method: 'POST',
-        body: payload,
-      }),
-      invalidatesTags: ['Budgets', 'User'],
-    }),
-    processInitialInjection: builder.mutation<void, void>({
-      query: () => ({
-        url: '/budgets/initial-injection',
-        method: 'POST',
-      }),
-      invalidatesTags: ['Budgets', 'User'],
-    }),
   }),
 })
 
@@ -105,6 +82,4 @@ export const {
   useGetBudgetCountQuery,
   useGetBudgetSummaryQuery,
   useGetBudgetsQuery,
-  useTransferFundsMutation,
-  useProcessInitialInjectionMutation,
 } = budgetApi

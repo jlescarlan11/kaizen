@@ -7,8 +7,10 @@ import com.kaizen.backend.budget.dto.BudgetResponse;
 import com.kaizen.backend.budget.entity.Budget;
 import com.kaizen.backend.budget.entity.BudgetPeriod;
 import com.kaizen.backend.budget.repository.BudgetRepository;
+import com.kaizen.backend.budget.validation.BudgetValidationService;
 import com.kaizen.backend.category.entity.Category;
 import com.kaizen.backend.category.repository.CategoryRepository;
+import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.transaction.service.TransactionService;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
@@ -35,6 +37,10 @@ class BudgetProjectionTest {
     private CategoryRepository categoryRepository;
     @Mock
     private TransactionService transactionService;
+    @Mock
+    private BudgetValidationService budgetValidationService;
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @Mock
     private UserAccount user;
@@ -63,7 +69,7 @@ class BudgetProjectionTest {
     void testProjectionsMidMonth() {
         // Set fixed clock to 15th of April 2026 (30 days in month)
         Clock fixedClock = Clock.fixed(Instant.parse("2026-04-15T12:00:00Z"), ZoneId.of("UTC"));
-        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock);
+        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock, budgetValidationService, transactionRepository);
 
         when(budget.getAmount()).thenReturn(BigDecimal.valueOf(300));
         when(budget.getExpense()).thenReturn(BigDecimal.valueOf(150));
@@ -91,7 +97,7 @@ class BudgetProjectionTest {
     void testInsufficientData() {
         // 2nd of April
         Clock fixedClock = Clock.fixed(Instant.parse("2026-04-02T12:00:00Z"), ZoneId.of("UTC"));
-        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock);
+        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock, budgetValidationService, transactionRepository);
 
         when(userAccountRepository.findByEmailIgnoreCase("test@example.com")).thenReturn(Optional.of(user));
         when(budgetRepository.findAllByUserId(1L)).thenReturn(List.of(budget));
@@ -108,7 +114,7 @@ class BudgetProjectionTest {
     void testOverbudget() {
         // 10th of April
         Clock fixedClock = Clock.fixed(Instant.parse("2026-04-10T12:00:00Z"), ZoneId.of("UTC"));
-        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock);
+        budgetService = new BudgetService(budgetRepository, userAccountRepository, categoryRepository, transactionService, fixedClock, budgetValidationService, transactionRepository);
 
         when(budget.getAmount()).thenReturn(BigDecimal.valueOf(100));
         when(budget.getExpense()).thenReturn(BigDecimal.valueOf(150)); // Already overspent

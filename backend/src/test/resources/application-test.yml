@@ -1,0 +1,42 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      # Disable Redis connection pool lifecycle during tests.
+      # No production code currently uses RedisTemplate, but the starter is on
+      # the classpath and would otherwise try to connect on context start.
+      repositories:
+        enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+app:
+  seed:
+    enabled: true
+  security:
+    user:
+      name: test-user
+      password: test-password
+  auth:
+    post-auth-redirect-uri: http://localhost:5173/
+    auth-screen-uri: http://localhost:5173/signin
+    token-encryption-key-base64: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+    google:
+      client-id: test-client-id
+      client-secret: test-client-secret
+      redirect-uri: http://localhost:8080/api/auth/google/callback
+    session:
+      expiry-days: 90
+      cookie-name: kzn_pst
+    validation:
+      max-balance-value: 999999999999.99
+      budget-balance-constraint-enabled: true
