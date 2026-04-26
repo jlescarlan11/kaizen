@@ -166,7 +166,7 @@ export function TransactionList({
               : 'hover:bg-ui-accent-subtle/30',
             !tx.category &&
               !selectedIds.includes(tx.id) &&
-              'border-amber-400 bg-amber-50/20 dark:bg-amber-950/5',
+              'border-ui-warning bg-ui-warning-subtle/30',
           )}
         >
           <div className="flex items-center gap-6">
@@ -186,7 +186,7 @@ export function TransactionList({
                   'flex h-12 w-12 items-center justify-center rounded-full transition-transform group-hover:scale-110',
                   tx.type === 'INCOME'
                     ? 'bg-ui-success/10 text-ui-success'
-                    : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
+                    : 'bg-ui-warning-subtle text-ui-warning-text',
                 )}
               >
                 {tx.type === 'INCOME' ? (
@@ -205,7 +205,7 @@ export function TransactionList({
                     'text-base font-bold transition-colors block leading-tight',
                     tx.category
                       ? 'text-foreground group-hover:text-primary'
-                      : 'text-amber-700 dark:text-amber-500',
+                      : 'text-ui-warning-text',
                   )}
                 />
                 {tx.notes && (
@@ -235,7 +235,7 @@ export function TransactionList({
                   </span>
                 )}
                 {!tx.category && (
-                  <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-bold uppercase tracking-wide">
+                  <span className="ml-2 text-ui-warning-text/80 font-medium uppercase tracking-wide">
                     • Missing category
                   </span>
                 )}
@@ -245,7 +245,7 @@ export function TransactionList({
           <div className="text-right">
             <p
               className={cn(
-                'text-lg font-black tracking-tight',
+                'text-lg font-semibold tracking-tight',
                 tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
               )}
             >
