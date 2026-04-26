@@ -51,16 +51,16 @@ export function CompactAccountList({
             className="group flex items-center justify-between p-4 rounded-2xl hover:bg-ui-surface-muted transition-all cursor-pointer border border-transparent hover:border-ui-border-subtle"
           >
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-black text-xs shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold text-xs shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-all shadow-sm">
                 {(s.paymentMethod?.name ?? 'U').charAt(0).toUpperCase()}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="font-black text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                <p className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
                   {s.paymentMethod?.name ?? 'Unknown'}
                 </p>
                 <div className="flex items-center gap-2.5 mt-0.5">
-                  <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground leading-none">
+                  <p className="text-xs uppercase font-semibold tracking-wide text-muted-foreground leading-none">
                     Asset
                   </p>
                   <div className="h-2 w-px bg-ui-border-subtle" />
@@ -73,10 +73,10 @@ export function CompactAccountList({
 
             <div className="flex items-center gap-6 ml-4">
               <div className="text-right">
-                <p className="text-base font-black text-foreground tabular-nums leading-none">
+                <p className="text-base font-semibold text-foreground tabular-nums leading-none">
                   {formatCurrency(s.totalAmount).replace('PHP', '').trim()}
                 </p>
-                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest text-right mt-1.5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-right mt-1.5">
                   PHP CURRENCY
                 </p>
               </div>

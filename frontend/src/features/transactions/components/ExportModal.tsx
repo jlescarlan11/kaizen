@@ -115,7 +115,7 @@ export function ExportModal({
         {exportType === 'FILTERED' && (
           <div className="space-y-4 p-4 rounded-xl border border-ui-border-subtle bg-ui-surface-muted/30 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 Export Scope
               </p>
               {(filterState.categories.length > 0 ||
@@ -124,7 +124,7 @@ export function ExportModal({
                 searchQuery) && (
                 <button
                   onClick={handleClearFilters}
-                  className="text-[10px] font-bold text-primary hover:text-primary-hover uppercase tracking-widest flex items-center gap-1"
+                  className="text-xs font-semibold text-primary hover:text-primary-hover uppercase tracking-wide flex items-center gap-1"
                 >
                   <X className="h-2.5 w-2.5" />
                   Clear
@@ -142,10 +142,10 @@ export function ExportModal({
 
         {/* Count Preview (Instruction 6) */}
         <div className="flex flex-col items-center justify-center p-8 border border-dashed border-ui-border rounded-2xl bg-ui-surface shadow-inner">
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
             Ready to Export
           </p>
-          <p className="text-5xl font-black text-foreground tracking-tighter">
+          <p className="text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
             {exportRows.length}
           </p>
           <p className="text-sm text-muted-foreground mt-2 font-medium">Transactions matched</p>
@@ -155,13 +155,13 @@ export function ExportModal({
         <div className="flex gap-3 pt-2">
           <Button
             variant="secondary"
-            className="flex-1 h-12 rounded-xl font-bold"
+            className="flex-1 h-12 rounded-xl font-semibold"
             onClick={onClose}
           >
             Cancel
           </Button>
           <Button
-            className="flex-1 h-12 rounded-xl font-bold gap-2"
+            className="flex-1 h-12 rounded-xl font-semibold gap-2"
             onClick={handleExport}
             disabled={exportRows.length === 0 && exportType === 'FILTERED'}
           >

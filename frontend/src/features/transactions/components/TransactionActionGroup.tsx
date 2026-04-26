@@ -20,7 +20,7 @@ export function TransactionActionGroup({
       <button
         onClick={onEdit}
         disabled={isProcessing}
-        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm group"
+        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm group"
       >
         <Pencil
           size={12}
@@ -32,7 +32,7 @@ export function TransactionActionGroup({
       <button
         onClick={onDelete}
         disabled={isProcessing}
-        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-ui-danger hover:border-ui-danger/30 transition-all disabled:opacity-50 shadow-sm group"
+        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-ui-danger hover:border-ui-danger/30 transition-all disabled:opacity-50 shadow-sm group"
       >
         <Trash2
           size={12}

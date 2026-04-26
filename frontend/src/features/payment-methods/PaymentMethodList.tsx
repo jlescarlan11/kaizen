@@ -53,12 +53,12 @@ export function PaymentMethodList({
             className="group flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-bold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold">
                 {pm.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="font-semibold text-foreground">{pm.name}</p>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                <p className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                   {pm.isGlobal ? 'System' : 'Custom'}
                 </p>
               </div>

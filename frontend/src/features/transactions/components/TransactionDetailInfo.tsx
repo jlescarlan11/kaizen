@@ -44,7 +44,7 @@ export function TransactionDetailInfo({
                 size={20}
               />
             </div>
-            <p className="text-lg font-bold text-foreground capitalize">
+            <p className="text-lg font-semibold text-foreground capitalize">
               {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
             </p>
           </div>
@@ -62,7 +62,7 @@ export function TransactionDetailInfo({
               >
                 <SharedIcon type="category" name={category.icon} size={20} />
               </div>
-              <span className="text-lg font-bold text-foreground">{category.name}</span>
+              <span className="text-lg font-semibold text-foreground">{category.name}</span>
             </div>
           ) : (
             <span className="italic text-muted-foreground">No Category</span>
@@ -72,10 +72,10 @@ export function TransactionDetailInfo({
         <InfoBlock label="Account">
           {paymentMethod ? (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-black border border-ui-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-semibold border border-ui-border">
                 {paymentMethod.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-lg font-bold text-foreground">{paymentMethod.name}</span>
+              <span className="text-lg font-semibold text-foreground">{paymentMethod.name}</span>
             </div>
           ) : (
             <span className="italic text-muted-foreground">No Payment Method</span>
@@ -95,9 +95,7 @@ interface InfoBlockProps {
 function InfoBlock({ label, children, fullWidth }: InfoBlockProps) {
   return (
     <div className={cn('flex flex-col gap-2', fullWidth ? 'md:col-span-2' : '')}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
       {children}
     </div>
   )

@@ -119,7 +119,7 @@ export function BalanceSummaryPage(): ReactElement {
           <button
             onClick={handleExportCSV}
             disabled={isTrendsLoading || !balanceTrends.series.length}
-            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm"
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm"
           >
             <Download size={12} />
             Export Data (CSV)
@@ -153,11 +153,11 @@ export function BalanceSummaryPage(): ReactElement {
             <div className="flex items-center justify-between mb-4 px-1">
               <div className="flex items-center gap-2">
                 <div className="h-4 w-1 bg-primary rounded-full" />
-                <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Cash Flow Deep Dive
                 </h2>
               </div>
-              <div className="flex items-center gap-2 text-[10px] font-black uppercase text-primary group-hover:translate-x-1 transition-all">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase text-primary group-hover:translate-x-1 transition-all">
                 {showAccountBreakdown ? 'Collapse Assets' : 'Expand Assets'}
                 {showAccountBreakdown ? (
                   <ChevronUp size={12} strokeWidth={3} />
@@ -172,7 +172,7 @@ export function BalanceSummaryPage(): ReactElement {
           {showAccountBreakdown && (
             <div className="mt-6 animate-in slide-in-from-top-4 duration-500 ease-out">
               <div className="px-1 mb-4">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
                   Individual Account Performance
                 </h3>
               </div>

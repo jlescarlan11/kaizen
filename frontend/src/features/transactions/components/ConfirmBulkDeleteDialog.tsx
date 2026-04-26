@@ -29,12 +29,13 @@ export function ConfirmBulkDeleteDialog({
       title="Delete Transactions?"
       description={
         <>
-          Are you sure you want to delete <span className="font-bold text-foreground">{count}</span>{' '}
-          selected {count === 1 ? 'transaction' : 'transactions'}?
+          Are you sure you want to delete{' '}
+          <span className="font-semibold text-foreground">{count}</span> selected{' '}
+          {count === 1 ? 'transaction' : 'transactions'}?
         </>
       }
       warning={
-        <p className="font-bold uppercase tracking-wider flex items-center gap-2">
+        <p className="font-semibold uppercase tracking-wider flex items-center gap-2">
           <Trash2 className="h-3 w-3 shrink-0" />
           This action cannot be undone
         </p>

@@ -31,10 +31,10 @@ export function BalanceSummaryHero({
 
   return (
     <div className="space-y-2">
-      <h1 className="text-3xl font-black tracking-tight text-foreground">Balance Summary</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-foreground">Balance Summary</h1>
 
       <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-        <p className="text-4xl font-black tracking-tighter text-foreground leading-none">
+        <p className="text-4xl font-semibold tracking-tight text-foreground leading-none">
           {formatCurrency(currentBalance).replace('PHP', '').trim()}
           <span className="ml-1.5 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
             PHP
@@ -47,7 +47,7 @@ export function BalanceSummaryHero({
           className="px-3 py-1 gap-1.5 self-end mb-0.5"
         >
           <SharedIcon type="ui" name={isPositive ? 'income' : 'expense'} size={14} />
-          <span className="font-bold text-xs">{Math.abs(percentage).toFixed(1)}%</span>
+          <span className="font-semibold text-xs">{Math.abs(percentage).toFixed(1)}%</span>
           <span className="text-xs font-medium text-muted-foreground">
             {isPositive ? 'increase' : 'decrease'} from last month
           </span>

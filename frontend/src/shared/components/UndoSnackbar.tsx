@@ -53,7 +53,7 @@ export function UndoSnackbar({ offset = 'standard' }: UndoSnackbarProps): ReactE
         <Button
           variant="ghost"
           size="sm"
-          className="text-primary hover:bg-white/10 font-bold px-4 ml-4"
+          className="text-primary hover:bg-white/10 font-semibold px-4 ml-4"
           onClick={() => dispatch(undoDeletion())}
         >
           UNDO

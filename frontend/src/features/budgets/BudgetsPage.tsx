@@ -59,16 +59,16 @@ const BudgetRow = ({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
+                    <p className="text-sm font-semibold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-[9px] uppercase font-black px-1.5 py-0">
+                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
                         Overbudget
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     {budget.period.toLowerCase()} Budget
                   </p>
                 </div>
@@ -82,12 +82,12 @@ const BudgetRow = ({
                   onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-sm font-semibold text-foreground">
                     {currencyFormatter.format(budget.amount)}
                   </p>
                   <p
                     className={cn(
-                      'text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60',
+                      'text-xs font-semibold uppercase tracking-wide text-muted-foreground/60',
                     )}
                   >
                     Allocated
@@ -123,12 +123,12 @@ const BudgetRow = ({
             </div>
 
             <div className="flex justify-between mt-1.5 px-0.5">
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 Spent: {currencyFormatter.format(budget.expense)}
               </p>
               <p
                 className={cn(
-                  'text-[10px] font-bold uppercase tracking-widest',
+                  'text-xs font-semibold uppercase tracking-wide',
                   isOverBudget ? 'text-ui-danger' : 'text-primary',
                 )}
               >
@@ -148,25 +148,25 @@ const BudgetRow = ({
             <DisclosurePanel className="px-4 pb-4 pt-1 bg-ui-accent-subtle/10 border-t border-ui-border-subtle/50">
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Burn Rate
                   </p>
-                  <p className="text-sm font-black text-foreground tabular-nums">
+                  <p className="text-sm font-semibold text-foreground tabular-nums">
                     {hasInsufficientData
                       ? '—'
                       : currencyFormatter.format(budget.burnRate!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     per day
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Allowance
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-black tabular-nums',
+                      'text-sm font-semibold tabular-nums',
                       isOverBudget ? 'text-ui-danger' : 'text-foreground',
                     )}
                   >
@@ -174,17 +174,17 @@ const BudgetRow = ({
                       ? '—'
                       : currencyFormatter.format(budget.dailyAllowance!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     remaining
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Projection
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-black tabular-nums',
+                      'text-sm font-semibold tabular-nums',
                       isOverBudget
                         ? 'text-ui-danger'
                         : isProjectedOverBudget
@@ -196,7 +196,7 @@ const BudgetRow = ({
                       ? '—'
                       : currencyFormatter.format(budget.projectedTotal!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     est. total
                   </p>
                 </div>
@@ -245,7 +245,7 @@ export function BudgetsPage(): ReactElement {
           <p className="text-2xl font-semibold text-foreground">
             {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
           </p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             {budgetSummary?.allocationPercentage ?? 0}% of balance
           </p>
         </Card>
@@ -261,7 +261,7 @@ export function BudgetsPage(): ReactElement {
           >
             {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
           </p>
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
             {(budgetSummary?.unallocated ?? 0) < 0
               ? `Over-committed by ${currencyFormatter.format(
                   Math.abs(budgetSummary?.unallocated ?? 0),

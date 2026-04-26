@@ -83,7 +83,7 @@ export function InlineCustomCategoryFields({
               className="relative flex h-8 w-8 items-center justify-center rounded-full border border-ui-border-subtle bg-ui-surface text-foreground transition hover:border-ui-border hover:bg-ui-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-focus"
             >
               <CategoryBadge icon={icon} color={color} size={28} label="Selected icon" />
-              <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full border border-ui-border bg-ui-surface-muted text-[9px]">
+              <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full border border-ui-border bg-ui-surface-muted text-xs">
                 <svg
                   width="10"
                   height="10"

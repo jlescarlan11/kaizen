@@ -417,7 +417,7 @@ export function TransactionEntryForm({
           startAdornment={
             <span className="text-base font-semibold text-muted-foreground">PHP</span>
           }
-          className="h-14 text-2xl font-bold tracking-tight"
+          className="h-14 text-2xl font-semibold tracking-tight"
           required
         />
 

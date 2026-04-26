@@ -38,7 +38,7 @@ export function SummaryFilterBar({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">
+      <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground ml-1">
         Account Filter
       </label>
       <Popover className="relative">

@@ -49,7 +49,7 @@ export function PaymentMethodSummaryPage(): ReactElement {
               <p className="text-sm font-semibold text-primary/80 uppercase tracking-wider">
                 Total Expenses
               </p>
-              <p className="text-3xl font-bold text-foreground">
+              <p className="text-3xl font-semibold text-foreground">
                 {currencyFormatter.format(totalExpense)}
               </p>
             </Card>
@@ -58,7 +58,7 @@ export function PaymentMethodSummaryPage(): ReactElement {
               <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 Methods Used
               </p>
-              <p className="text-3xl font-bold text-foreground">{summary.length}</p>
+              <p className="text-3xl font-semibold text-foreground">{summary.length}</p>
             </Card>
           </div>
 
@@ -74,21 +74,21 @@ export function PaymentMethodSummaryPage(): ReactElement {
                   className="p-5 flex flex-col gap-4 border border-ui-border-subtle hover:border-primary/50 transition-all shadow-sm"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-bold shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold shrink-0">
                       {s.paymentMethod ? s.paymentMethod.name.charAt(0).toUpperCase() : '?'}
                     </div>
                     <div className="min-w-0">
                       <p className="font-semibold text-foreground truncate">
                         {s.paymentMethod?.name ?? 'Unspecified'}
                       </p>
-                      <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                      <p className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                         {s.paymentMethod ? (s.paymentMethod.isGlobal ? 'System' : 'Custom') : 'N/A'}
                       </p>
                     </div>
                   </div>
 
                   <div className="pt-2 border-t border-ui-border-subtle">
-                    <p className="text-2xl font-bold text-foreground">
+                    <p className="text-2xl font-semibold text-foreground">
                       {currencyFormatter.format(s.totalAmount)}
                     </p>
                     <div className="mt-2 h-1.5 w-full bg-ui-surface-muted rounded-full overflow-hidden">
@@ -97,7 +97,7 @@ export function PaymentMethodSummaryPage(): ReactElement {
                         style={{ width: `${(s.totalAmount / totalExpense) * 100}%` }}
                       />
                     </div>
-                    <p className="mt-1.5 text-[10px] text-muted-foreground font-medium text-right">
+                    <p className="mt-1.5 text-xs text-muted-foreground font-medium text-right">
                       {((s.totalAmount / totalExpense) * 100).toFixed(1)}% of total
                     </p>
                   </div>

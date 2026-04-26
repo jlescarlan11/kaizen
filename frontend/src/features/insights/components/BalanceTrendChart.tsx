@@ -107,14 +107,14 @@ export function BalanceTrendChart({
           <p className="text-xs leading-5 text-muted-foreground tracking-wide uppercase">
             Financial Trajectory
           </p>
-          <p className="text-xs font-bold text-foreground/60">Income vs Expenses Analysis</p>
+          <p className="text-xs font-semibold text-foreground/60">Income vs Expenses Analysis</p>
         </div>
         <div className="flex bg-ui-surface-muted p-1 rounded-full border border-ui-border-subtle shadow-inner">
           {GRANULARITY_OPTIONS.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => onGranularityChange(value)}
-              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all ${
+              className={`px-4 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full transition-all ${
                 granularity === value
                   ? 'bg-ui-surface text-primary shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -158,7 +158,7 @@ export function BalanceTrendChart({
                   const data = payload[0].payload
                   return (
                     <div className="bg-ui-surface/95 backdrop-blur-md border border-ui-border p-4 rounded-2xl shadow-2xl space-y-3 min-w-[220px]">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground pb-2 border-b border-ui-border-subtle">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pb-2 border-b border-ui-border-subtle">
                         {data.fullDate}
                       </p>
                       <div className="space-y-2.5">
@@ -173,18 +173,18 @@ export function BalanceTrendChart({
                                     className="h-2 w-2 rounded-full shadow-sm"
                                     style={{ backgroundColor: entry.color }}
                                   />
-                                  <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">
+                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     {entry.name}
                                   </span>
                                 </div>
-                                <span className="text-[12px] font-black text-foreground tabular-nums">
+                                <span className="text-sm font-semibold text-foreground tabular-nums">
                                   {formatCurrency(entry.value as number)}
                                 </span>
                               </div>
                               {delta !== null && (
                                 <div className="flex justify-end pr-0.5">
                                   <span
-                                    className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                                    className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
                                       delta >= 0
                                         ? 'bg-success/10 text-success'
                                         : 'bg-error/10 text-error'
@@ -224,7 +224,7 @@ export function BalanceTrendChart({
                         className="h-2 w-2 rounded-full shadow-sm"
                         style={{ backgroundColor: entry.color }}
                       />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/70 group-hover:text-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-foreground/70 group-hover:text-foreground">
                         {entry.value}
                       </span>
                     </div>

@@ -32,7 +32,7 @@ export function PaymentMethodSelector({
       value: '',
       label: 'None (Unspecified)',
       icon: (
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-[10px]">
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-xs">
           —
         </div>
       ),
@@ -41,7 +41,7 @@ export function PaymentMethodSelector({
       value: pm.id.toString(),
       label: pm.name,
       icon: (
-        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-foreground text-[10px]">
+        <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-foreground text-xs">
           {pm.name.charAt(0).toUpperCase()}
         </div>
       ),

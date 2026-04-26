@@ -131,7 +131,7 @@ export function Select({
                         cn(
                           'relative select-none transition-colors',
                           option.disabled
-                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground'
+                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'
                             : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
                           !option.disabled && focus ? 'bg-ui-surface-muted' : '',
                           !option.disabled && selected

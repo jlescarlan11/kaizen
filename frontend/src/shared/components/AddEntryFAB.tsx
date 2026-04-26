@@ -86,7 +86,7 @@ export function AddEntryFAB({
           <div key={index} className="flex items-center gap-3 group">
             <span
               className={cn(
-                'px-2.5 py-1 rounded-lg bg-ui-surface border border-ui-border-subtle text-foreground text-[11px] font-bold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap pointer-events-auto',
+                'px-2.5 py-1 rounded-lg bg-ui-surface border border-ui-border-subtle text-foreground text-xs font-semibold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap pointer-events-auto',
                 isMobile
                   ? isOpen
                     ? 'opacity-100 translate-x-0 scale-100'

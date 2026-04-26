@@ -34,7 +34,7 @@ export function SystemAlert(): ReactElement | null {
         <div className="mt-0.5">{icons[activeAlert.type]}</div>
 
         <div className="flex-1 flex flex-col gap-1">
-          <h4 className="font-bold leading-tight">{activeAlert.title}</h4>
+          <h4 className="font-semibold leading-tight">{activeAlert.title}</h4>
           <p className="text-sm opacity-90">{activeAlert.message}</p>
 
           {(activeAlert.dataSaved !== undefined || activeAlert.autoRetry !== undefined) && (

@@ -47,12 +47,12 @@ export function TransactionDetailPage(): ReactElement {
   if (error || !transaction) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <h2 className="text-xl font-black text-foreground uppercase tracking-widest">
+        <h2 className="text-xl font-semibold text-foreground uppercase tracking-wide">
           Transaction not found
         </h2>
         <button
           onClick={() => navigate('/transactions')}
-          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
         >
           Back to Transactions
         </button>
@@ -117,11 +117,11 @@ export function TransactionDetailPage(): ReactElement {
           <div className="flex items-center justify-between mb-8 px-1">
             <div className="flex items-center gap-2">
               <div className="h-4 w-1 bg-primary rounded-full" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 History & Related
               </h2>
             </div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 px-3 py-1 rounded-full">
+            <div className="text-xs font-semibold uppercase tracking-wide text-primary bg-primary/5 px-3 py-1 rounded-full">
               Same Category
             </div>
           </div>
@@ -136,13 +136,13 @@ export function TransactionDetailPage(): ReactElement {
         footer={
           <div className="flex gap-3 mt-6">
             <button
-              className="flex-1 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-ui-surface-muted transition-all shadow-sm"
+              className="flex-1 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:bg-ui-surface-muted transition-all shadow-sm"
               onClick={() => setIsDeleteModalOpen(false)}
             >
               Cancel
             </button>
             <button
-              className="flex-1 px-4 py-2.5 bg-ui-danger border border-ui-danger/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-ui-danger/90 transition-all shadow-sm disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-ui-danger border border-ui-danger/30 rounded-xl text-xs font-semibold uppercase tracking-wide text-white hover:bg-ui-danger/90 transition-all shadow-sm disabled:opacity-50"
               onClick={handleDelete}
               disabled={isDeleting}
             >

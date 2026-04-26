@@ -23,7 +23,7 @@ export function IncomeVsExpenseWidget({
   return (
     <div className="py-6 space-y-6">
       <div className="space-y-1 px-1">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Cash Flow Metrics
         </h3>
       </div>
@@ -31,12 +31,12 @@ export function IncomeVsExpenseWidget({
       <div className="space-y-6">
         <div className="space-y-2 px-1">
           <div className="flex justify-between items-baseline text-sm">
-            <span className="font-black text-income uppercase tracking-wider text-[11px]">
+            <span className="font-semibold text-income uppercase tracking-wider text-xs">
               Income
             </span>
-            <span className="font-black text-income text-base tabular-nums">
+            <span className="font-semibold text-income text-base tabular-nums">
               +{formatCurrency(totalIncome).replace('PHP', '').trim()}
-              <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
+              <span className="ml-1 text-xs font-normal uppercase">PHP</span>
             </span>
           </div>
           <div className="w-full h-1 bg-ui-surface-muted rounded-full overflow-hidden">
@@ -49,12 +49,12 @@ export function IncomeVsExpenseWidget({
 
         <div className="space-y-2 px-1">
           <div className="flex justify-between items-baseline text-sm">
-            <span className="font-black text-expense uppercase tracking-wider text-[11px]">
+            <span className="font-semibold text-expense uppercase tracking-wider text-xs">
               Expenses
             </span>
-            <span className="font-black text-expense text-base tabular-nums">
+            <span className="font-semibold text-expense text-base tabular-nums">
               -{formatCurrency(totalExpenses).replace('PHP', '').trim()}
-              <span className="ml-1 text-[10px] font-normal uppercase">PHP</span>
+              <span className="ml-1 text-xs font-normal uppercase">PHP</span>
             </span>
           </div>
           <div className="w-full h-1 bg-ui-surface-muted rounded-full overflow-hidden">
@@ -67,17 +67,17 @@ export function IncomeVsExpenseWidget({
       </div>
 
       <div className="pt-6 border-t border-ui-border-subtle flex justify-between items-center px-1">
-        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
           Net Flow Result
         </span>
         <div className="text-right">
           <span
-            className={`text-xl font-black ${netBalance >= 0 ? 'text-income' : 'text-expense'} tabular-nums`}
+            className={`text-xl font-semibold ${netBalance >= 0 ? 'text-income' : 'text-expense'} tabular-nums`}
           >
             {netBalance >= 0 ? '+' : ''}
             {formatCurrency(netBalance).replace('PHP', '').trim()}
           </span>
-          <span className="ml-1 text-[10px] font-black text-muted-foreground uppercase tracking-wider">
+          <span className="ml-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             PHP
           </span>
         </div>

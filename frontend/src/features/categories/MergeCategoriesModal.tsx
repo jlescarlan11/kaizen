@@ -110,18 +110,18 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
           <div className="p-4 rounded-xl bg-ui-surface-muted border border-ui-border-subtle space-y-3">
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">Source:</span>
-              <span className="font-bold text-foreground">{sourceName}</span>
+              <span className="font-semibold text-foreground">{sourceName}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground">Target:</span>
-              <span className="font-bold text-foreground">{targetName}</span>
+              <span className="font-semibold text-foreground">{targetName}</span>
             </div>
             <div className="pt-2 border-t border-ui-border-subtle flex justify-between items-center">
               <span className="text-sm font-medium text-foreground">Affected Transactions:</span>
               {isFetchingCount ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               ) : (
-                <span className="font-bold text-primary">{txCount}</span>
+                <span className="font-semibold text-primary">{txCount}</span>
               )}
             </div>
           </div>

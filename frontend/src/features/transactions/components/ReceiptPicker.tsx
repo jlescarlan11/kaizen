@@ -74,7 +74,7 @@ export function ReceiptPicker({
           )}
         >
           <Camera className="h-6 w-6 text-muted-foreground" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {file || hasExisting ? 'Replace' : 'Attach'}
           </span>
         </button>
@@ -87,7 +87,7 @@ export function ReceiptPicker({
             ) : (
               <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
                 <FileText className="h-8 w-8 text-primary" />
-                <span className="text-[10px] font-medium truncate w-full px-1">{file.name}</span>
+                <span className="text-xs font-medium truncate w-full px-1">{file.name}</span>
               </div>
             )}
             <button
@@ -97,7 +97,7 @@ export function ReceiptPicker({
             >
               <X className="h-4 w-4" />
             </button>
-            <div className="absolute bottom-0 inset-x-0 bg-primary/80 py-0.5 text-[8px] font-bold text-white text-center uppercase">
+            <div className="absolute bottom-0 inset-x-0 bg-primary/80 py-0.5 text-xs font-semibold text-white text-center uppercase">
               New
             </div>
           </div>
@@ -118,12 +118,12 @@ export function ReceiptPicker({
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
                   <FileText className="h-8 w-8 text-primary/60" />
-                  <span className="text-[10px] font-medium truncate w-full px-1 text-muted-foreground">
+                  <span className="text-xs font-medium truncate w-full px-1 text-muted-foreground">
                     {att.filename}
                   </span>
                 </div>
               )}
-              <div className="absolute bottom-0 inset-x-0 bg-ui-border-subtle py-0.5 text-[8px] font-bold text-muted-foreground text-center uppercase">
+              <div className="absolute bottom-0 inset-x-0 bg-ui-border-subtle py-0.5 text-xs font-semibold text-muted-foreground text-center uppercase">
                 Stored
               </div>
             </div>

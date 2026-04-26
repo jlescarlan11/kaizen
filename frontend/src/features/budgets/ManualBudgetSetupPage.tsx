@@ -317,7 +317,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
               Allocated
             </p>
             <p className="text-2xl font-semibold text-foreground">{formatCurrency(allocatedRaw)}</p>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {allocationPercentage}% of balance
             </p>
           </Card>
@@ -332,7 +332,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             >
               {formatCurrency(unallocated)}
             </p>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               {unallocated < 0
                 ? `Over-committed by ${formatCurrency(Math.abs(unallocated))}`
                 : 'available'}

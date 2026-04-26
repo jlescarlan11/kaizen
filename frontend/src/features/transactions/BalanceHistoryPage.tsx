@@ -97,13 +97,13 @@ export function BalanceHistoryPage(): ReactElement {
                   <div className="text-right">
                     <p
                       className={cn(
-                        'text-lg font-bold tracking-tight',
+                        'text-lg font-semibold tracking-tight',
                         entry.balance >= 0 ? 'text-foreground' : 'text-ui-error',
                       )}
                     >
                       {currencyFormatter.format(entry.balance)}
                     </p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       Balance
                     </p>
                   </div>
