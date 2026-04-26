@@ -340,7 +340,8 @@ export function HomePage(): ReactElement {
 
   const hasBudgets = budgets.length > 0
 
-  const { data: transactions = [], isLoading: isTransactionsLoading } = useGetTransactionsQuery()
+  const { data: transactionsData, isLoading: isTransactionsLoading } = useGetTransactionsQuery()
+  const transactions = transactionsData?.items ?? []
   const hasTransactions = transactions.length > 0
 
   const formattedBalance = currencyFormatter.format(user?.balance ?? 0)

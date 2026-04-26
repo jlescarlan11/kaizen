@@ -35,8 +35,8 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
   // Reset and set initial data when filters or initialData change
   useEffect(() => {
     if (initialData) {
-      setTransactions(initialData)
-      setHasMore(initialData.length === TRANSACTION_PAGE_SIZE)
+      setTransactions(initialData.items)
+      setHasMore(initialData.items.length === TRANSACTION_PAGE_SIZE)
     } else if (!isFetching) {
       // If we are not fetching and have no data (e.g. filters changed but query not started)
       // we don't necessarily want to clear, but the query will auto-trigger on filter change.
@@ -64,8 +64,8 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
         lastId: lastTx.id,
       }).unwrap()
 
-      setTransactions((prev) => [...prev, ...result])
-      setHasMore(result.length === TRANSACTION_PAGE_SIZE)
+      setTransactions((prev) => [...prev, ...result.items])
+      setHasMore(result.items.length === TRANSACTION_PAGE_SIZE)
     } catch (error) {
       console.error('Failed to fetch more transactions', error)
     } finally {
@@ -98,7 +98,8 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
   const allTransactions = useMemo(() => {
     // Prevent flickering: If the current state is empty (e.g., during a filter reset)
     // but the backend query already has data (e.g., from cache), use the backend data immediately.
-    const baseTransactions = transactions.length === 0 && initialData ? initialData : transactions
+    const baseTransactions =
+      transactions.length === 0 && initialData ? initialData.items : transactions
 
     const combined = [...mappedPending, ...baseTransactions]
     // Sort by date descending

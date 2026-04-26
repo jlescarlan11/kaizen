@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kaizen.backend.common.dto.PaginatedResponse;
 import com.kaizen.backend.transaction.dto.BalanceHistoryResponse;
 import com.kaizen.backend.transaction.dto.TransactionRequest;
 import com.kaizen.backend.transaction.dto.TransactionResponse;
@@ -54,7 +55,7 @@ public class TransactionController {
         description = "Returns a list of transactions ordered by date descending, supporting various filters and cursor-based pagination."
     )
     @GetMapping
-    public List<TransactionResponse> getTransactions(
+    public PaginatedResponse<TransactionResponse> getTransactions(
         @AuthenticationPrincipal UserDetails userDetails,
         @org.springframework.web.bind.annotation.RequestParam(required = false) String search,
         @org.springframework.web.bind.annotation.RequestParam(name = "category", required = false) List<Long> categoryIds,
@@ -68,8 +69,17 @@ public class TransactionController {
         @org.springframework.web.bind.annotation.RequestParam(required = false) Long lastId,
         @org.springframework.web.bind.annotation.RequestParam(defaultValue = "25") int pageSize
     ) {
-        return transactionService.getTransactionsPaginated(
+        List<TransactionResponse> items = transactionService.getTransactionsPaginated(
             userDetails.getUsername(), search, categoryIds, paymentMethodIds, types, startDate, endDate, minAmount, maxAmount, lastDate, lastId, pageSize);
+        boolean hasMore = items.size() >= pageSize;
+        String nextCursor = null;
+        if (hasMore && !items.isEmpty()) {
+            TransactionResponse last = items.get(items.size() - 1);
+            // Cursor encoded as "{ISO_DATE_TIME}|{id}". The next request decodes it
+            // back into the existing lastDate / lastId query params.
+            nextCursor = last.transactionDate() + "|" + last.id();
+        }
+        return new PaginatedResponse<>(items, hasMore, nextCursor);
     }
 
     @Operation(
