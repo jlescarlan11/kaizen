@@ -16,3 +16,5 @@ app:
     user:
       name: ${APP_SECURITY_USER}
       password: ${APP_SECURITY_PASSWORD}
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}

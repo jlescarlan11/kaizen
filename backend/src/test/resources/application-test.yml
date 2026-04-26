@@ -40,3 +40,5 @@ app:
     validation:
       max-balance-value: 999999999999.99
       budget-balance-constraint-enabled: true
+  cors:
+    allowed-origins: http://localhost

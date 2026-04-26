@@ -118,30 +118,32 @@ export function TransactionEntryForm({
   const insufficientBalance = type === 'EXPENSE' && parseFloat(amount) > availableBalance
 
   // Real-time validation helper
-  const validateField = (field: string, value: string | number | boolean | null) => {
+  const validateField = (field: string, value: string | null) => {
     // Construct a partial payload for validation
     const currentPayload = {
-      amount: field === 'amount' ? parseFloat(value) : parseFloat(amount),
-      type: field === 'type' ? value : type,
+      amount: field === 'amount' ? parseFloat(value ?? '') : parseFloat(amount),
+      type: (field === 'type' ? value : type) as TransactionType,
       transactionDate:
-        field === 'transactionDate' ? value : transactionDate || toLocalISOString(new Date()),
-      description: field === 'description' ? value : description,
+        field === 'transactionDate'
+          ? (value ?? '')
+          : transactionDate || toLocalISOString(new Date()),
+      description: field === 'description' ? (value ?? '') : description,
       categoryId:
         field === 'categoryId'
           ? value
             ? parseInt(value)
-            : null
+            : undefined
           : categoryId
             ? parseInt(categoryId)
-            : null,
+            : undefined,
       paymentMethodId:
         field === 'paymentMethodId'
           ? value
             ? parseInt(value)
-            : null
+            : undefined
           : paymentMethodId
             ? parseInt(paymentMethodId)
-            : null,
+            : undefined,
       isRecurring,
       frequencyUnit,
       frequencyMultiplier: parseInt(frequencyMultiplier),
@@ -162,9 +164,9 @@ export function TransactionEntryForm({
 
       // Special case: insufficient balance is also a real-time error for amount
       // We must calculate the balance for the target method to avoid stale closure issues
-      const targetMethodId = field === 'paymentMethodId' ? (value as string) : paymentMethodId
-      const targetType = field === 'type' ? (value as TransactionType) : type
-      const targetAmount = field === 'amount' ? (value as string) : amount
+      const targetMethodId = field === 'paymentMethodId' ? value : paymentMethodId
+      const targetType = (field === 'type' ? value : type) as TransactionType
+      const targetAmount = field === 'amount' ? (value ?? '') : amount
 
       const methodSummary = balanceSummaries?.find(
         (s) => s.paymentMethod?.id.toString() === targetMethodId,

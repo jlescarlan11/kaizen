@@ -16,6 +16,8 @@ app:
     user:
       name: dev-user
       password: dev-password
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:4173
 
 springdoc:
   api-docs:

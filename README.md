@@ -27,6 +27,10 @@ kaizen/
 3. Create feature branches from `main` and open a pull request for all changes.
 4. Wait for required review approval before merge (enforced by branch protection).
 
+### Frontend package manager
+
+Use **npm** for the frontend. CI runs `npm ci` against `frontend/package-lock.json`. Do not commit `pnpm-lock.yaml` or `yarn.lock`.
+
 ## Suggested first steps
 
 - Add backend runtime and package manager configuration.
