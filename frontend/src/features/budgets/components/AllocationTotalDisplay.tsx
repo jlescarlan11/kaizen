@@ -80,7 +80,7 @@ export function AllocationTotalDisplay({
           {currencyFormatter.format(sanitizedAllocated)} allocated
           <span className="ml-1.5 font-normal opacity-70">({percentLabel}%)</span>
         </span>
-        <span className="text-ui-text-subtle">
+        <span className="text-subtle-foreground">
           {isOver ? (
             <span className="font-medium text-ui-danger-text-soft">
               Over by {currencyFormatter.format(sanitizedAllocated - available)}
@@ -91,7 +91,7 @@ export function AllocationTotalDisplay({
         </span>
       </div>
 
-      <p className="text-xs text-ui-text-subtle">
+      <p className="text-xs text-subtle-foreground">
         of {currencyFormatterFull.format(available)} available
       </p>
 

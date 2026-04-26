@@ -55,7 +55,7 @@ export function Radio({
         {label ? (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium leading-5 text-ui select-none cursor-pointer"
+            className="text-sm font-medium leading-5 text-foreground select-none cursor-pointer"
           >
             {label}
             {props.required ? (

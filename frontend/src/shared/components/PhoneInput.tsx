@@ -105,7 +105,7 @@ export function PhoneInput({
         {/* Fixed Prefix */}
         <span
           className={cn(
-            'absolute left-3 flex h-full items-center text-sm font-medium text-ui-muted transition-colors',
+            'absolute left-3 flex h-full items-center text-sm font-medium text-muted-foreground transition-colors',
             error ? 'text-ui-danger-text-soft' : '',
           )}
           aria-hidden="true"

@@ -80,7 +80,7 @@ export function InlineCustomCategoryFields({
               type="button"
               onClick={openModal}
               aria-label={`Change icon and color — currently ${CATEGORY_ICON_LABELS[icon]}`}
-              className="relative flex h-8 w-8 items-center justify-center rounded-full border border-ui-border-subtle bg-ui-surface text-ui-text transition hover:border-ui-border hover:bg-ui-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-focus"
+              className="relative flex h-8 w-8 items-center justify-center rounded-full border border-ui-border-subtle bg-ui-surface text-foreground transition hover:border-ui-border hover:bg-ui-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-focus"
             >
               <CategoryBadge icon={icon} color={color} size={28} label="Selected icon" />
               <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full border border-ui-border bg-ui-surface-muted text-[9px]">
@@ -143,13 +143,13 @@ export function InlineCustomCategoryFields({
 
           {/* Icon grid */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-ui-text">Icon</p>
+            <p className="text-xs font-semibold text-foreground">Icon</p>
             <CategoryIconPicker value={stagedIcon} color={stagedColor} onChange={setStagedIcon} />
           </div>
 
           {/* Color swatches */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-ui-text">Color</p>
+            <p className="text-xs font-semibold text-foreground">Color</p>
             <CategoryColorPicker value={stagedColor} onChange={setStagedColor} />
           </div>
         </div>
