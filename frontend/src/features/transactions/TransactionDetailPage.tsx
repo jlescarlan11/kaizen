@@ -60,6 +60,7 @@ export function TransactionDetailPage(): ReactElement {
     )
   }
 
+  // Undo infrastructure exists for transactions but is not yet wired here — see UNDO_POLICY.md.
   const handleDelete = async () => {
     try {
       await deleteTransaction(transaction.id).unwrap()

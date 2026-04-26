@@ -33,6 +33,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
     }
   }
 
+  // No undo by design — see UNDO_POLICY.md.
   const handleMerge = async () => {
     if (!sourceId || !targetId) return
 

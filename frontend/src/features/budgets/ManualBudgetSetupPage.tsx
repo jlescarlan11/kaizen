@@ -280,6 +280,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     closeModal()
   }
 
+  // No undo by design — see UNDO_POLICY.md. (Session-local removal; nothing is persisted yet.)
   const handleDeleteBudget = (categoryId: number) => {
     dispatch(removePendingBudget(categoryId))
   }

@@ -82,6 +82,7 @@ export function TransactionListPage(): ReactElement {
     }
   }
 
+  // Undo infrastructure exists for transactions but is not yet wired here — see UNDO_POLICY.md.
   const handleBulkDeleteConfirm = async () => {
     try {
       await bulkDelete(selectedIds).unwrap()
