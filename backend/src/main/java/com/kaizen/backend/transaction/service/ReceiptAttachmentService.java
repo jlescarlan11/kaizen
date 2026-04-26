@@ -6,6 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,11 +42,13 @@ public class ReceiptAttachmentService {
     }
 
     @Transactional
-    public TransactionAttachment attachReceipt(Long transactionId, MultipartFile file) throws IOException {
+    public TransactionAttachment attachReceipt(String username, Long transactionId, MultipartFile file) throws IOException {
         Objects.requireNonNull(transactionId, "transactionId must not be null");
 
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + transactionId));
+
+        verifyOwnership(transaction, username);
 
         validateFile(file);
 
@@ -76,16 +79,19 @@ public class ReceiptAttachmentService {
     }
 
     @Transactional
-    public void deleteAttachment(Long attachmentId) throws IOException {
+    public void deleteAttachment(String username, Long attachmentId) throws IOException {
         Objects.requireNonNull(attachmentId, "attachmentId must not be null");
 
         TransactionAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
 
+        verifyOwnership(attachment.getTransaction(), username);
+
         storageService.delete(attachment.getStorageReference());
         attachmentRepository.delete(attachment);
     }
 
+    // Internal: caller must already have verified transaction ownership.
     @Transactional
     public void deleteAttachmentsForTransaction(Long transactionId) {
         List<TransactionAttachment> attachments = attachmentRepository.findByTransactionId(transactionId);
@@ -99,16 +105,34 @@ public class ReceiptAttachmentService {
         }
     }
 
+    public List<TransactionAttachment> getAttachmentsForTransaction(String username, Long transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found with id: " + transactionId));
+
+        verifyOwnership(transaction, username);
+
+        return attachmentRepository.findByTransactionId(transactionId);
+    }
+
+    // Internal: caller must already have verified transaction ownership.
     public List<TransactionAttachment> getAttachmentsForTransaction(Long transactionId) {
         return attachmentRepository.findByTransactionId(transactionId);
     }
 
-    public byte[] loadAttachmentContent(Long attachmentId) throws IOException {
+    public byte[] loadAttachmentContent(String username, Long attachmentId) throws IOException {
         Objects.requireNonNull(attachmentId, "attachmentId must not be null");
 
         TransactionAttachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Attachment not found with id: " + attachmentId));
 
+        verifyOwnership(attachment.getTransaction(), username);
+
         return storageService.load(attachment.getStorageReference());
+    }
+
+    private void verifyOwnership(Transaction transaction, String username) {
+        if (!transaction.getUserAccount().getEmail().equalsIgnoreCase(username)) {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 }

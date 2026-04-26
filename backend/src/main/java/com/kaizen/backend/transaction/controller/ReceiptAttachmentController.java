@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,27 +36,34 @@ public class ReceiptAttachmentController {
     @PostMapping("/{transactionId}/attachments")
     @ResponseStatus(HttpStatus.CREATED)
     public AttachmentResponse uploadAttachment(
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable Long transactionId,
             @RequestParam("file") MultipartFile file) throws IOException {
-        TransactionAttachment attachment = attachmentService.attachReceipt(transactionId, file);
+        TransactionAttachment attachment = attachmentService.attachReceipt(userDetails.getUsername(), transactionId, file);
         return mapToResponse(attachment);
     }
 
     @GetMapping("/{transactionId}/attachments")
-    public ResponseEntity<List<AttachmentResponse>> getAttachments(@PathVariable Long transactionId) {
-        List<TransactionAttachment> attachments = attachmentService.getAttachmentsForTransaction(transactionId);
+    public ResponseEntity<List<AttachmentResponse>> getAttachments(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long transactionId) {
+        List<TransactionAttachment> attachments = attachmentService.getAttachmentsForTransaction(userDetails.getUsername(), transactionId);
         return ResponseEntity.ok(attachments.stream().map(this::mapToResponse).collect(Collectors.toList()));
     }
 
     @DeleteMapping("/attachments/{attachmentId}")
-    public ResponseEntity<Void> deleteAttachment(@PathVariable Long attachmentId) throws IOException {
-        attachmentService.deleteAttachment(attachmentId);
+    public ResponseEntity<Void> deleteAttachment(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long attachmentId) throws IOException {
+        attachmentService.deleteAttachment(userDetails.getUsername(), attachmentId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/attachments/{attachmentId}/content")
-    public ResponseEntity<byte[]> getAttachmentContent(@PathVariable Long attachmentId) throws IOException {
-        byte[] content = attachmentService.loadAttachmentContent(attachmentId);
+    public ResponseEntity<byte[]> getAttachmentContent(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable Long attachmentId) throws IOException {
+        byte[] content = attachmentService.loadAttachmentContent(userDetails.getUsername(), attachmentId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                 .body(content);
