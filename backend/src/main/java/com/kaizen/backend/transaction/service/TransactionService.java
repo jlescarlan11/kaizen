@@ -13,10 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.lang.NonNull;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +47,7 @@ public class TransactionService {
     private final ReminderSchedulerService reminderSchedulerService;
     private final com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository;
     private final com.kaizen.backend.budget.repository.BudgetRepository budgetRepository;
+    private final BudgetRecalcService budgetRecalcService;
 
     public TransactionService(
             TransactionRepository transactionRepository,
@@ -59,7 +57,8 @@ public class TransactionService {
             ReceiptAttachmentService attachmentService,
             ReminderSchedulerService reminderSchedulerService,
             com.kaizen.backend.transaction.repository.ReminderScheduleRepository reminderScheduleRepository,
-            com.kaizen.backend.budget.repository.BudgetRepository budgetRepository) {
+            com.kaizen.backend.budget.repository.BudgetRepository budgetRepository,
+            BudgetRecalcService budgetRecalcService) {
         this.transactionRepository = transactionRepository;
         this.userAccountRepository = userAccountRepository;
         this.categoryRepository = categoryRepository;
@@ -68,6 +67,7 @@ public class TransactionService {
         this.reminderSchedulerService = reminderSchedulerService;
         this.reminderScheduleRepository = reminderScheduleRepository;
         this.budgetRepository = budgetRepository;
+        this.budgetRecalcService = budgetRecalcService;
     }
 
     @Transactional
@@ -147,7 +147,7 @@ public class TransactionService {
 
         recalculateUserBalance(account);
         if (saved.getCategory() != null) {
-            recalculateBudgetExpenses(account, saved.getCategory());
+            budgetRecalcService.recalculateBudgetExpenses(account, saved.getCategory());
         }
         if (!account.isFirstTransactionAdded()) {
             account.setFirstTransactionAdded(true);
@@ -265,10 +265,10 @@ public class TransactionService {
 
         recalculateUserBalance(account);
         if (oldCategory != null) {
-            recalculateBudgetExpenses(account, oldCategory);
+            budgetRecalcService.recalculateBudgetExpenses(account, oldCategory);
         }
         if (newCategory != null && !newCategory.equals(oldCategory)) {
-            recalculateBudgetExpenses(account, newCategory);
+            budgetRecalcService.recalculateBudgetExpenses(account, newCategory);
         }
         saveAccount(account);
 
@@ -286,7 +286,7 @@ public class TransactionService {
         transactionRepository.delete(transaction);
         recalculateUserBalance(account);
         if (category != null) {
-            recalculateBudgetExpenses(account, category);
+            budgetRecalcService.recalculateBudgetExpenses(account, category);
         }
         saveAccount(account);
     }
@@ -316,38 +316,9 @@ public class TransactionService {
         
         recalculateUserBalance(account);
         for (Category category : categoriesToUpdate) {
-            recalculateBudgetExpenses(account, category);
+            budgetRecalcService.recalculateBudgetExpenses(account, category);
         }
         saveAccount(account);
-    }
-
-    @Retryable(
-        retryFor = OptimisticLockingFailureException.class,
-        maxAttempts = 3,
-        backoff = @Backoff(delay = 50, multiplier = 2.0, maxDelay = 500)
-    )
-    @Transactional
-    public void recalculateBudgetExpenses(@NonNull UserAccount account, @NonNull Category category) {
-        budgetRepository.findByUserIdAndCategoryId(account.getId(), category.getId())
-            .ifPresent(budget -> {
-                LocalDate now = LocalDate.now(ZoneOffset.UTC);
-                OffsetDateTime start;
-                OffsetDateTime end;
-
-                if (budget.getPeriod() == BudgetPeriod.MONTHLY) {
-                    start = now.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay().atOffset(ZoneOffset.UTC);
-                    end = now.with(TemporalAdjusters.lastDayOfMonth()).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
-                } else { // WEEKLY
-                    start = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)).atStartOfDay().atOffset(ZoneOffset.UTC);
-                    end = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)).atTime(LocalTime.MAX).atOffset(ZoneOffset.UTC);
-                }
-
-                java.math.BigDecimal totalExpense = transactionRepository.sumAmountByCategoryIdAndTypeAndDateRange(
-                    account.getId(), category.getId(), TransactionType.EXPENSE, start, end);
-                
-                budget.setExpense(totalExpense != null ? totalExpense : java.math.BigDecimal.ZERO);
-                budgetRepository.saveAndFlush(budget);
-            });
     }
 
     public java.math.BigDecimal calculatePeriodicIncome(Long userId, BudgetPeriod period) {
