@@ -4,6 +4,7 @@ import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/ap
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { SharedIcon } from '../../shared/components/IconRegistry'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { pageLayout } from '../../shared/styles/layout'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -51,7 +52,7 @@ export function BudgetDetailPage(): ReactElement {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-32">
+    <div className={pageLayout.sectionGap}>
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-6">
