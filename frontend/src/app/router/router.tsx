@@ -135,7 +135,7 @@ export const router = createBrowserRouter([
         element: <SigninPage />,
         handle: {
           backButton: {
-            label: 'Back',
+            label: 'Home',
             // Default fallback if no state.from is present
             fallbackPath: '/',
           },
@@ -176,7 +176,7 @@ export const router = createBrowserRouter([
                 ),
                 handle: {
                   backButton: {
-                    label: 'Back',
+                    label: 'Balance setup',
                     fallbackPath: '/onboarding/balance',
                   },
                 },
@@ -193,7 +193,7 @@ export const router = createBrowserRouter([
             element: <TransactionEntryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -203,7 +203,7 @@ export const router = createBrowserRouter([
             element: <TransactionDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
               actions: <TransactionDetailActions />,
@@ -218,7 +218,7 @@ export const router = createBrowserRouter([
             element: <TransactionEntryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
             },
@@ -228,7 +228,7 @@ export const router = createBrowserRouter([
             element: <BalanceHistoryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
             },
@@ -238,7 +238,7 @@ export const router = createBrowserRouter([
             element: <TransactionListPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -248,7 +248,7 @@ export const router = createBrowserRouter([
             element: <PaymentMethodSummaryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -258,7 +258,7 @@ export const router = createBrowserRouter([
             element: <BudgetDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Budgets',
                 fallbackPath: '/budget',
               },
             },
@@ -268,7 +268,7 @@ export const router = createBrowserRouter([
             element: <BudgetsPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -278,7 +278,7 @@ export const router = createBrowserRouter([
             element: <ManualBudgetSetupPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Budgets',
                 fallbackPath: '/budget',
               },
             },
@@ -288,7 +288,7 @@ export const router = createBrowserRouter([
             element: <GoalDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -298,7 +298,7 @@ export const router = createBrowserRouter([
             element: <InsightsPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -308,7 +308,7 @@ export const router = createBrowserRouter([
             element: <BalanceSummaryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -318,7 +318,7 @@ export const router = createBrowserRouter([
             element: <YourAccountPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
