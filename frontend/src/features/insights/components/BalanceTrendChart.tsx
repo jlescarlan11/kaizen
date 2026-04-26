@@ -103,9 +103,9 @@ export function BalanceTrendChart({
     <div className="flex flex-col gap-8 py-6">
       <div className="flex items-center justify-between px-1">
         <div className="space-y-1">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          <p className="text-xs leading-5 text-muted-foreground tracking-wide uppercase">
             Financial Trajectory
-          </h3>
+          </p>
           <p className="text-xs font-bold text-foreground/60">Income vs Expenses Analysis</p>
         </div>
         <div className="flex bg-ui-surface-muted p-1 rounded-full border border-ui-border-subtle shadow-inner">

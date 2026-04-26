@@ -19,6 +19,7 @@ export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
       <Select
         id="period-selector"
         label="Analysis Period"
+        aria-label="Analysis period"
         options={OPTIONS}
         value={value}
         onChange={(val) => onChange(val as PeriodOption)}

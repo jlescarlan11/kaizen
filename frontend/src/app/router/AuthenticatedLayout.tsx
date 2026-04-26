@@ -273,7 +273,9 @@ function AuthenticatedLayoutContent(): ReactElement {
                       className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
                       aria-label="Notifications"
                     >
-                      <NotificationIcon />
+                      <span aria-hidden="true">
+                        <NotificationIcon />
+                      </span>
                       <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
                     </button>
 
@@ -316,6 +318,7 @@ function AuthenticatedLayoutContent(): ReactElement {
             <Outlet />
           </div>
         </main>
+        {/* No global <footer> — there is no global footer content. Per-page <footer> can be added by individual pages if needed. */}
       </div>
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}

@@ -30,6 +30,7 @@ export interface SelectProps {
   className?: string
   name?: string
   disabled?: boolean
+  'aria-label'?: string
 }
 
 export function Select({
@@ -45,6 +46,7 @@ export function Select({
   onChange,
   name,
   disabled,
+  'aria-label': ariaLabel,
 }: SelectProps): ReactElement {
   const generatedId = useId()
   const selectId = id ?? generatedId
@@ -80,6 +82,7 @@ export function Select({
                 id={selectId}
                 aria-describedby={describedBy}
                 aria-invalid={error ? 'true' : undefined}
+                aria-label={ariaLabel}
                 className={cn(
                   formFieldClasses.input,
                   'flex items-center justify-between text-left',
@@ -131,7 +134,10 @@ export function Select({
                       {({ selected }) => (
                         <>
                           <span
-                            className={cn('block truncate', selected ? 'font-semibold' : 'font-normal')}
+                            className={cn(
+                              'block truncate',
+                              selected ? 'font-semibold' : 'font-normal',
+                            )}
                           >
                             {option.label}
                           </span>

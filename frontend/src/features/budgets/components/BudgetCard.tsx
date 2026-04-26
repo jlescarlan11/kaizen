@@ -73,9 +73,9 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
             fluidLayout.touchTarget,
             'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}
-          aria-label={`Remove ${budget.categoryName} budget`}
+          aria-label={`Delete ${budget.categoryName} budget`}
         >
-          Remove
+          Delete
         </button>
       </div>
     </div>
