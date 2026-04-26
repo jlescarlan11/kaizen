@@ -1,11 +1,12 @@
-import type { HTMLAttributes, ReactElement, ForwardedRef } from 'react'
+import type { HTMLAttributes, ReactElement, ReactNode, ForwardedRef } from 'react'
 import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
 type CardTone = 'neutral' | 'accent' | 'success' | 'error' | 'warning' | 'info'
 
-export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   tone?: CardTone
+  title?: ReactNode
 }
 
 const toneStyles: Record<CardTone, string> = {
@@ -18,11 +19,16 @@ const toneStyles: Record<CardTone, string> = {
 }
 
 export const Card = forwardRef(function Card(
-  { children, className, tone = 'neutral', ...props }: CardProps,
+  { children, className, tone = 'neutral', title, ...props }: CardProps,
   ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   return (
     <div ref={ref} className={cn('rounded-xl border p-6', toneStyles[tone], className)} {...props}>
+      {title ? (
+        <h3 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground mb-4">
+          {title}
+        </h3>
+      ) : null}
       {children}
     </div>
   )

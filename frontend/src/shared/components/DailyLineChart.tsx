@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactElement } from 'react'
 import { useMemo } from 'react'
 import { cn } from '../lib/cn'
+import { CHART_COLORS } from '../lib/chartTheme'
 
 export interface DailyDataPoint {
   day: number
@@ -27,10 +28,8 @@ export function DailyLineChart({
   const width = 1200 // Wider internal system for more points
   const padding = useMemo(() => ({ top: 10, right: 10, bottom: 50, left: 10 }), []) // Increased bottom padding
   const selectorY = height - 40 // Moved up
-  const activeColor =
-    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-text-primary)'
-  const trendColor =
-    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-border-strong)'
+  const activeColor = colorScheme === 'primary' ? CHART_COLORS.primary : CHART_COLORS.textPrimary
+  const trendColor = colorScheme === 'primary' ? CHART_COLORS.primary : CHART_COLORS.borderStrong
 
   const points = useMemo(() => {
     if (data.length === 0) return []

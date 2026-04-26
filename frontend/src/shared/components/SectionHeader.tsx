@@ -15,7 +15,7 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, seeAllHref, className }: SectionHeaderProps): ReactElement {
   return (
     <div className={cn('flex items-center justify-between', className)}>
-      <h3 className="text-xl font-bold text-foreground">{title}</h3>
+      <h3 className="text-xl font-semibold text-foreground">{title}</h3>
       {seeAllHref && (
         <Link
           to={seeAllHref}

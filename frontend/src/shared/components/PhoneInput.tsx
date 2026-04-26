@@ -94,13 +94,18 @@ export function PhoneInput({
       {label ? (
         <label htmlFor={inputId} className={formFieldClasses.label}>
           {label}
+          {props.required ? (
+            <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+              *
+            </span>
+          ) : null}
         </label>
       ) : null}
       <div className="relative flex items-center">
         {/* Fixed Prefix */}
         <span
           className={cn(
-            'absolute left-3 flex h-full items-center text-sm font-medium text-ui-muted transition-colors',
+            'absolute left-3 flex h-full items-center text-sm font-medium text-muted-foreground transition-colors',
             error ? 'text-ui-danger-text-soft' : '',
           )}
           aria-hidden="true"

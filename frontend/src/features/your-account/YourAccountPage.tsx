@@ -419,46 +419,55 @@ export function YourAccountPage(): ReactElement {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div>
-      <LogoutConfirmationModal
-        isOpen={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={handleLogout}
-        isLoading={isLoggingOut}
-      />
+    <>
+      <header>
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+          Your Account
+        </h1>
+      </header>
+      <div>
+        <LogoutConfirmationModal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setIsLogoutModalOpen(false)}
+          onConfirm={handleLogout}
+          isLoading={isLoggingOut}
+        />
 
-      <div
-        className={cn('flex flex-col gap-8', !isMobile && 'md:flex-row md:items-start md:gap-10')}
-      >
-        {/* Left — sticky profile card (desktop) or open hero (mobile) */}
-        <div className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}>
-          {isMobile ? mobileProfileHero : desktopProfileCard}
-        </div>
+        <div
+          className={cn('flex flex-col gap-8', !isMobile && 'md:flex-row md:items-start md:gap-10')}
+        >
+          {/* Left — sticky profile card (desktop) or open hero (mobile) */}
+          <div
+            className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}
+          >
+            {isMobile ? mobileProfileHero : desktopProfileCard}
+          </div>
 
-        {/* Right — menu sections */}
-        <div className="flex-1 min-w-0 space-y-7">
-          {accountSections.map((section) => (
-            <div key={section.title}>
-              <h4 className="text-lg font-medium leading-snug text-foreground mb-3">
-                {section.title}
-              </h4>
-              <div className="divide-y divide-ui-border-subtle">
-                {section.items.map((item) => (
-                  <AccountRow key={item.label} item={item} />
-                ))}
-              </div>
-            </div>
-          ))}
+          {/* Right — menu sections */}
+          <div className="flex-1 min-w-0 space-y-7">
+            {accountSections.map((section) => (
+              <section key={section.title}>
+                <h2 className="text-lg font-medium leading-snug text-foreground mb-3">
+                  {section.title}
+                </h2>
+                <div className="divide-y divide-ui-border-subtle">
+                  {section.items.map((item) => (
+                    <AccountRow key={item.label} item={item} />
+                  ))}
+                </div>
+              </section>
+            ))}
 
-          {/* Member footer — mobile only; desktop profile card already shows this */}
-          {isMobile && (
-            <p className="text-xs leading-5 text-subtle-foreground text-center pb-4">
-              Member since {memberSince}
-            </p>
-          )}
+            {/* Member footer — mobile only; desktop profile card already shows this */}
+            {isMobile && (
+              <p className="text-xs leading-5 text-subtle-foreground text-center pb-4">
+                Member since {memberSince}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -10,6 +10,7 @@ import {
 } from 'recharts'
 import type { BalanceTrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 import { useState } from 'react'
 
 interface BalanceTrendChartProps {
@@ -103,17 +104,17 @@ export function BalanceTrendChart({
     <div className="flex flex-col gap-8 py-6">
       <div className="flex items-center justify-between px-1">
         <div className="space-y-1">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+          <p className="text-xs leading-5 text-muted-foreground tracking-wide uppercase">
             Financial Trajectory
-          </h3>
-          <p className="text-xs font-bold text-foreground/60">Income vs Expenses Analysis</p>
+          </p>
+          <p className="text-xs font-semibold text-foreground/60">Income vs Expenses Analysis</p>
         </div>
         <div className="flex bg-ui-surface-muted p-1 rounded-full border border-ui-border-subtle shadow-inner">
           {GRANULARITY_OPTIONS.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => onGranularityChange(value)}
-              className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full transition-all ${
+              className={`px-4 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full transition-all ${
                 granularity === value
                   ? 'bg-ui-surface text-primary shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
@@ -157,7 +158,7 @@ export function BalanceTrendChart({
                   const data = payload[0].payload
                   return (
                     <div className="bg-ui-surface/95 backdrop-blur-md border border-ui-border p-4 rounded-2xl shadow-2xl space-y-3 min-w-[220px]">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground pb-2 border-b border-ui-border-subtle">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pb-2 border-b border-ui-border-subtle">
                         {data.fullDate}
                       </p>
                       <div className="space-y-2.5">
@@ -172,18 +173,18 @@ export function BalanceTrendChart({
                                     className="h-2 w-2 rounded-full shadow-sm"
                                     style={{ backgroundColor: entry.color }}
                                   />
-                                  <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">
+                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                                     {entry.name}
                                   </span>
                                 </div>
-                                <span className="text-[12px] font-black text-foreground tabular-nums">
+                                <span className="text-sm font-semibold text-foreground tabular-nums">
                                   {formatCurrency(entry.value as number)}
                                 </span>
                               </div>
                               {delta !== null && (
                                 <div className="flex justify-end pr-0.5">
                                   <span
-                                    className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                                    className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
                                       delta >= 0
                                         ? 'bg-success/10 text-success'
                                         : 'bg-error/10 text-error'
@@ -223,7 +224,7 @@ export function BalanceTrendChart({
                         className="h-2 w-2 rounded-full shadow-sm"
                         style={{ backgroundColor: entry.color }}
                       />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/70 group-hover:text-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-foreground/70 group-hover:text-foreground">
                         {entry.value}
                       </span>
                     </div>
@@ -236,10 +237,10 @@ export function BalanceTrendChart({
                 type="monotone"
                 dataKey="income"
                 name="Income"
-                stroke="var(--color-income)"
+                stroke={CHART_COLORS.income}
                 strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--color-income)' }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.income }}
               />
             )}
             {!hiddenSeries.includes('expenses') && (
@@ -247,10 +248,10 @@ export function BalanceTrendChart({
                 type="monotone"
                 dataKey="expenses"
                 name="Expenses"
-                stroke="var(--color-expense)"
+                stroke={CHART_COLORS.expense}
                 strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--color-expense)' }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.expense }}
               />
             )}
             {!hiddenSeries.includes('netBalance') && (

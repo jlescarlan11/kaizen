@@ -41,7 +41,7 @@ export function SelectionActionBar({
           >
             <X size={18} />
           </Button>
-          <p className="font-bold text-white tracking-tight">
+          <p className="font-semibold text-white tracking-tight">
             <span className="text-primary-light mr-1">{selectedIds.length}</span>
             Selected
           </p>
@@ -49,7 +49,7 @@ export function SelectionActionBar({
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            className="bg-ui-error hover:bg-ui-error-hover text-white border-0 px-4 font-bold uppercase tracking-widest text-[11px] h-9 shadow-lg shadow-ui-error/20"
+            className="bg-ui-error hover:bg-ui-error-hover text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-lg shadow-ui-error/20"
             onClick={onDeleteRequest}
             disabled={selectedIds.length === 0}
           >

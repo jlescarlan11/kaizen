@@ -105,6 +105,7 @@ const GoalDetailPage = lazy(() =>
 )
 
 import { TransactionDetailActions } from '../../features/transactions/components/TransactionDetailActions'
+import { BudgetIdRedirect } from './BudgetIdRedirect'
 
 export const router = createBrowserRouter([
   {
@@ -135,7 +136,7 @@ export const router = createBrowserRouter([
         element: <SigninPage />,
         handle: {
           backButton: {
-            label: 'Back',
+            label: 'Home',
             // Default fallback if no state.from is present
             fallbackPath: '/',
           },
@@ -176,7 +177,7 @@ export const router = createBrowserRouter([
                 ),
                 handle: {
                   backButton: {
-                    label: 'Back',
+                    label: 'Balance setup',
                     fallbackPath: '/onboarding/balance',
                   },
                 },
@@ -193,7 +194,7 @@ export const router = createBrowserRouter([
             element: <TransactionEntryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -203,7 +204,7 @@ export const router = createBrowserRouter([
             element: <TransactionDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
               actions: <TransactionDetailActions />,
@@ -218,7 +219,7 @@ export const router = createBrowserRouter([
             element: <TransactionEntryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
             },
@@ -228,7 +229,7 @@ export const router = createBrowserRouter([
             element: <BalanceHistoryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Transactions',
                 fallbackPath: '/transactions',
               },
             },
@@ -238,7 +239,7 @@ export const router = createBrowserRouter([
             element: <TransactionListPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -248,47 +249,51 @@ export const router = createBrowserRouter([
             element: <PaymentMethodSummaryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
           },
           {
-            path: 'budget/:id',
+            path: 'budgets/:id',
             element: <BudgetDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
-                fallbackPath: '/budget',
+                label: 'Budgets',
+                fallbackPath: '/budgets',
               },
             },
           },
           {
-            path: 'budget',
+            path: 'budgets',
             element: <BudgetsPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
           },
           {
-            path: 'budget/add',
+            path: 'budgets/add',
             element: <ManualBudgetSetupPage />,
             handle: {
               backButton: {
-                label: 'Back',
-                fallbackPath: '/budget',
+                label: 'Budgets',
+                fallbackPath: '/budgets',
               },
             },
           },
+          // Redirects from old singular paths (U-COPY-6) — preserves bookmarks
+          { path: 'budget', element: <Navigate to="/budgets" replace /> },
+          { path: 'budget/add', element: <Navigate to="/budgets/add" replace /> },
+          { path: 'budget/:id', element: <BudgetIdRedirect /> },
           {
             path: 'goals/:id',
             element: <GoalDetailPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -298,7 +303,7 @@ export const router = createBrowserRouter([
             element: <InsightsPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -308,7 +313,7 @@ export const router = createBrowserRouter([
             element: <BalanceSummaryPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },
@@ -318,7 +323,7 @@ export const router = createBrowserRouter([
             element: <YourAccountPage />,
             handle: {
               backButton: {
-                label: 'Back',
+                label: 'Home',
                 fallbackPath: '/',
               },
             },

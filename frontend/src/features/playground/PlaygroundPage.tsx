@@ -389,7 +389,9 @@ export function PlaygroundPage(): ReactElement {
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Progress Bar
               </p>
-              <span className="text-xs font-medium text-ui-text-muted">{progress}% complete</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                {progress}% complete
+              </span>
             </div>
             <ProgressBar value={progress} colorScheme="primary" />
             <div className="flex gap-2">

@@ -23,7 +23,7 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
   if (insights.length === 0) {
     return (
       <div className="py-6 border-y border-ui-border-subtle flex items-center justify-center">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground italic">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground italic">
           Monitoring trends...
         </p>
       </div>
@@ -34,7 +34,7 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
     <div className="py-6 border-y border-ui-border-subtle space-y-5">
       <div className="flex items-center gap-2 px-1">
         <SharedIcon type="ui" name="insight" size={12} className="text-primary" />
-        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Intelligent Observations
         </h3>
       </div>
@@ -68,10 +68,10 @@ function InsightItem({ insight }: { insight: Insight }) {
         />
       </div>
       <div className="space-y-0.5">
-        <p className="text-[11px] font-black uppercase tracking-wider text-foreground/40 leading-none">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground/40 leading-none">
           {insight.type}
         </p>
-        <p className="text-xs font-bold text-foreground/80 leading-relaxed pt-0.5">
+        <p className="text-xs font-semibold text-foreground/80 leading-relaxed pt-0.5">
           {insight.message}
         </p>
       </div>

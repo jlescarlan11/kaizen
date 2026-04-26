@@ -11,6 +11,13 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
 
+management:
+  endpoint:
+    health:
+      # In prod, never reveal component-level health detail to anonymous
+      # (or even authenticated) callers — the summary status is enough.
+      show-details: never
+
 app:
   security:
     user:

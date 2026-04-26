@@ -1,5 +1,6 @@
 import { baseApi } from './baseApi'
 import { setCredentials, logout, setLoading } from '../authSlice'
+import { db } from '../../../features/transactions/lib/localStore'
 import { type OnboardingStep } from '../../../features/onboarding/onboardingStep'
 import { type FundingSourceType } from '../../../features/onboarding/fundingSource'
 
@@ -49,6 +50,9 @@ export const authApi = baseApi.injectEndpoints({
         dispatch(setLoading(true))
         try {
           await queryFulfilled
+          await db.transactions.clear().catch((err) => {
+            console.error('Failed to clear local transaction cache on logout', err)
+          })
           dispatch(logout())
         } catch (error) {
           console.error('Logout failed', error)

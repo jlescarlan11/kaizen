@@ -99,7 +99,7 @@ export function TransactionList({
     if (item.type === 'header') {
       return (
         <div className="pt-8 pb-3 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 border-b-2 border-ui-border-strong/60 flex items-center justify-between pr-4">
-          <h2 className="px-4 text-[11px] font-black text-muted-foreground uppercase tracking-[0.15em] flex items-center gap-2">
+          <h2 className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <span className="h-px w-6 bg-ui-border-strong/50 inline-block" />
             {formatGroupDate(item.date)}
           </h2>
@@ -166,7 +166,7 @@ export function TransactionList({
               : 'hover:bg-ui-accent-subtle/30',
             !tx.category &&
               !selectedIds.includes(tx.id) &&
-              'border-amber-400 bg-amber-50/20 dark:bg-amber-950/5',
+              'border-ui-warning bg-ui-warning-subtle',
           )}
         >
           <div className="flex items-center gap-6">
@@ -186,13 +186,13 @@ export function TransactionList({
                   'flex h-12 w-12 items-center justify-center rounded-full transition-transform group-hover:scale-110',
                   tx.type === 'INCOME'
                     ? 'bg-ui-success/10 text-ui-success'
-                    : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-500',
+                    : 'bg-ui-warning-subtle text-ui-warning-text',
                 )}
               >
                 {tx.type === 'INCOME' ? (
                   <SharedIcon type="ui" name="income" size={24} />
                 ) : (
-                  <span className="text-xl font-bold">?</span>
+                  <span className="text-xl font-semibold">?</span>
                 )}
               </div>
             )}
@@ -202,10 +202,10 @@ export function TransactionList({
                   text={tx.description || tx.category?.name || 'Uncategorized'}
                   query={searchQuery}
                   className={cn(
-                    'text-base font-bold transition-colors block leading-tight',
+                    'text-base font-semibold transition-colors block leading-tight',
                     tx.category
                       ? 'text-foreground group-hover:text-primary'
-                      : 'text-amber-700 dark:text-amber-500',
+                      : 'text-ui-warning-text',
                   )}
                 />
                 {tx.notes && (
@@ -221,7 +221,7 @@ export function TransactionList({
                 {tx.id === -1 && (
                   <Badge
                     tone="warning"
-                    className="text-[9px] animate-pulse font-black uppercase tracking-widest px-1.5"
+                    className="text-xs animate-pulse font-semibold uppercase tracking-wide px-1.5"
                   >
                     Syncing
                   </Badge>
@@ -235,7 +235,7 @@ export function TransactionList({
                   </span>
                 )}
                 {!tx.category && (
-                  <span className="ml-2 text-amber-600/70 dark:text-amber-500/50 font-bold uppercase tracking-wide">
+                  <span className="ml-2 text-ui-warning-text/80 font-medium uppercase tracking-wide">
                     • Missing category
                   </span>
                 )}
@@ -245,7 +245,7 @@ export function TransactionList({
           <div className="text-right">
             <p
               className={cn(
-                'text-lg font-black tracking-tight',
+                'text-lg font-semibold tracking-tight',
                 tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
               )}
             >
@@ -254,13 +254,13 @@ export function TransactionList({
                 text={currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
                 query={searchQuery}
               />
-              <span className="ml-1 text-[11px] text-muted-foreground font-black uppercase tracking-wider">
+              <span className="ml-1 text-xs text-muted-foreground font-semibold uppercase tracking-wide">
                 PHP
               </span>
             </p>
             <Badge
               tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
-              className="text-[10px] uppercase font-black tracking-widest px-2.5 py-0.5 mt-2"
+              className="text-xs uppercase font-semibold tracking-wide px-2.5 py-0.5 mt-2"
             >
               {tx.type === 'INCOME' ? 'Income' : 'Expense'}{' '}
             </Badge>
@@ -286,11 +286,11 @@ export function TransactionList({
         <div className="flex items-center justify-between px-4 py-3 bg-ui-accent-subtle/10 border-b border-ui-border-subtle animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center gap-3">
             <Checkbox checked={allVisibleSelected} onCheckedChange={toggleSelectAll} />
-            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Select all on page ({visibleTransactions.length})
             </span>
           </div>
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+          <span className="text-xs font-semibold text-primary uppercase tracking-wide">
             Selection Mode Active
           </span>
         </div>

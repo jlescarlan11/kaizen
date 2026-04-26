@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Input, TextArea, Button, Card } from '../../../shared/components'
+import { Input, TextArea, Button, Card, LoadingSpinner } from '../../../shared/components'
 import { TransactionTypeToggle } from './TransactionTypeToggle'
 import {
   useCreateTransactionMutation,
@@ -383,11 +383,13 @@ export function TransactionEntryForm({
 
   if (isFetching) {
     return (
-      <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <Card className="border border-ui-border-subtle shadow-sm">
+        <LoadingSpinner />
       </Card>
     )
   }
+
+  const balanceTone = insufficientBalance ? 'text-error' : 'text-primary'
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -409,15 +411,13 @@ export function TransactionEntryForm({
           step="0.01"
           placeholder="0.00"
           value={amount}
-          onChange={(e) => {
-            setAmount(e.target.value)
-            validateField('amount', e.target.value)
-          }}
+          onChange={(e) => setAmount(e.target.value)}
+          onBlur={(e) => validateField('amount', e.target.value)}
           error={errors.amount}
           startAdornment={
             <span className="text-base font-semibold text-muted-foreground">PHP</span>
           }
-          className="h-14 text-2xl font-bold tracking-tight"
+          className="h-14 text-2xl font-semibold tracking-tight"
           required
         />
 
@@ -446,9 +446,7 @@ export function TransactionEntryForm({
 
         {paymentMethodId && type === 'EXPENSE' && (
           <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
-            <span
-              className={`text-xs font-bold ${insufficientBalance ? 'text-error' : 'text-primary'}`}
-            >
+            <span className={`text-xs font-semibold ${balanceTone}`}>
               Balance: PHP {availableBalance.toLocaleString()}
             </span>
           </div>
@@ -458,10 +456,8 @@ export function TransactionEntryForm({
             label="Date (Optional)"
             type="date"
             value={transactionDate}
-            onChange={(e) => {
-              setTransactionDate(e.target.value)
-              validateField('transactionDate', e.target.value)
-            }}
+            onChange={(e) => setTransactionDate(e.target.value)}
+            onBlur={(e) => validateField('transactionDate', e.target.value)}
             error={errors.transactionDate}
             helperText={editId ? undefined : 'Captured at submission if not set.'}
           />
@@ -474,10 +470,8 @@ export function TransactionEntryForm({
             label="Description (Optional)"
             placeholder="What was this for?"
             value={description}
-            onChange={(e) => {
-              setDescription(e.target.value)
-              validateField('description', e.target.value)
-            }}
+            onChange={(e) => setDescription(e.target.value)}
+            onBlur={(e) => validateField('description', e.target.value)}
             error={errors.description}
           />
 

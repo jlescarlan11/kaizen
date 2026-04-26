@@ -1,7 +1,8 @@
 import { useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
-import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
+import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
 import {
   useDeletePaymentMethodMutation,
   useGetPaymentMethodTransactionCountQuery,
@@ -11,11 +12,14 @@ import type { PaymentMethod } from './types'
 interface PaymentMethodListProps {
   paymentMethods: PaymentMethod[]
   isLoading: boolean
+  /** Called when the user clicks "Add Payment Method" in the empty state. Defaults to scrolling to the top of the page. */
+  onAddClick?: () => void
 }
 
 export function PaymentMethodList({
   paymentMethods,
   isLoading,
+  onAddClick,
 }: PaymentMethodListProps): ReactElement {
   const [deletingPm, setDeletingPm] = useState<PaymentMethod | null>(null)
 
@@ -30,10 +34,13 @@ export function PaymentMethodList({
   }
 
   if (paymentMethods.length === 0) {
+    const handleAddClick = onAddClick ?? (() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
-        <p>No payment methods found.</p>
-      </div>
+      <EmptyStateCard
+        title="No payment methods found"
+        description="Add a payment method to start tracking which accounts or cards you use."
+        primaryAction={{ label: 'Add Payment Method', onClick: handleAddClick }}
+      />
     )
   }
 
@@ -46,12 +53,12 @@ export function PaymentMethodList({
             className="group flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-bold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold">
                 {pm.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <p className="font-semibold text-foreground">{pm.name}</p>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                <p className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
                   {pm.isGlobal ? 'System' : 'Custom'}
                 </p>
               </div>
@@ -77,6 +84,10 @@ export function PaymentMethodList({
   )
 }
 
+/**
+ * Thin wrapper around DestructiveActionDialog — see U-FRM-8.
+ * No undo by design — see UNDO_POLICY.md.
+ */
 function DeleteConfirmationModal({
   pm,
   onClose,
@@ -88,52 +99,51 @@ function DeleteConfirmationModal({
   const [deletePaymentMethod, { isLoading: isDeleting }] = useDeletePaymentMethodMutation()
   const [error, setError] = useState<string | null>(null)
 
+  // No undo by design — see UNDO_POLICY.md.
   const handleDelete = async () => {
     try {
       await deletePaymentMethod(pm.id).unwrap()
       onClose()
     } catch (err) {
-      const error = err as { data?: { message?: string }; message?: string }
-      setError(error.data?.message || error.message || 'Failed to delete payment method.')
+      const apiError = err as { data?: { message?: string }; message?: string }
+      setError(apiError.data?.message || apiError.message || 'Failed to delete payment method.')
     }
   }
 
+  const warningContent =
+    !isLoadingCount && count && count > 0 ? (
+      <span>
+        Warning: {count} transaction{count > 1 ? 's' : ''} currently reference this method. Deleting
+        it will leave these transactions without an assigned method.
+      </span>
+    ) : null
+
   return (
-    <ResponsiveModal open={true} onClose={onClose} title={`Delete ${pm.name}?`}>
-      <div className="space-y-4">
-        {isLoadingCount ? (
-          <div className="h-4 w-full animate-pulse bg-ui-surface-muted rounded" />
+    <DestructiveActionDialog
+      isOpen={true}
+      onClose={onClose}
+      onConfirm={handleDelete}
+      title={`Delete ${pm.name}?`}
+      description={
+        isLoadingCount ? (
+          <span className="block h-4 w-full animate-pulse bg-ui-surface-muted rounded" />
         ) : (
-          <p className="text-muted-foreground">
+          <>
             Are you sure you want to delete this payment method?
-            {count && count > 0 ? (
-              <span className="block mt-2 font-medium text-amber-600 dark:text-amber-500">
-                Warning: {count} transaction{count > 1 ? 's' : ''} currently reference this method.
-                Deleting it will leave these transactions without an assigned method.
-              </span>
-            ) : (
+            {!warningContent && (
               <span className="block mt-2">No transactions currently reference this method.</span>
             )}
-          </p>
-        )}
-
-        {error && <p className="text-sm text-ui-error text-center font-medium">{error}</p>}
-
-        <div className="flex gap-3 pt-4">
-          <Button variant="ghost" className="flex-1" onClick={onClose} disabled={isDeleting}>
-            Cancel
-          </Button>
-          <Button
-            className="flex-1 bg-ui-error hover:bg-ui-error-hover text-white border-0"
-            onClick={handleDelete}
-            isLoading={isDeleting}
-            disabled={isLoadingCount}
-          >
-            Delete
-          </Button>
-        </div>
-      </div>
-    </ResponsiveModal>
+            {error && (
+              <span className="block mt-2 text-ui-error font-medium text-center">{error}</span>
+            )}
+          </>
+        )
+      }
+      warning={warningContent ?? undefined}
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      isConfirming={isDeleting || isLoadingCount}
+    />
   )
 }
 

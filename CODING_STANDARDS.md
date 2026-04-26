@@ -518,7 +518,10 @@ Rules:
 ### 2.3 API & DTO Rules
 
 - Validate all external inputs (`@Valid`, `@NotNull`, `@Size`, etc.).
-- Define clear structured JSON error responses: `code`, `message`, `details`, `traceId`.
+- All error responses use one of two envelopes:
+  - **General error:** `ErrorResponse { code: string, message: string, details: object, traceId: string }` — returned for auth, access, business-logic, and unexpected errors.
+  - **Validation error:** `ValidationErrorResponse { code: string, message: string, errors: [{ field: string, message: string, code: string }], traceId: string }` — returned when request field validation fails.
+  - Controllers throw domain exceptions; `GlobalExceptionHandler` constructs these envelopes; the frontend consumes both via a single error-handling helper.
 - Version APIs when needed: `/api/v1/...`.
 
 ### 2.4 Transaction Rules

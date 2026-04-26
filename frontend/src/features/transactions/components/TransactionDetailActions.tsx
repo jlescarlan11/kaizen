@@ -10,7 +10,7 @@ export function TransactionDetailActions(): ReactElement {
     <Button
       onClick={() => navigate(`/transactions/edit/${id}`)}
       variant="ghost"
-      className="h-9 px-4 border border-ui-border-subtle text-[10px] font-bold uppercase tracking-widest hover:bg-ui-surface-muted hover:border-ui-border-strong transition-all"
+      className="h-9 px-4 border border-ui-border-subtle text-xs font-semibold uppercase tracking-wide hover:bg-ui-surface-muted hover:border-ui-border-strong transition-all"
     >
       Edit
     </Button>

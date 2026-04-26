@@ -23,6 +23,7 @@ import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
 import { ADD_TRANSACTION_ROUTE } from './routes'
 import { DEFERRED_BUDGET_SETUP_ROUTE } from '../budgets/routes'
 import { cn } from '../../shared/lib/cn'
+import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
@@ -66,7 +67,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
               {tx.type === 'INCOME' ? (
                 <SharedIcon type="category" name="banknote" size={20} />
               ) : (
-                <span className="text-lg font-bold">?</span>
+                <span className="text-lg font-semibold">?</span>
               )}
             </div>
           )}
@@ -88,15 +89,18 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
       </div>
       <div className="text-right">
         <p
-          className={cn('font-bold', tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success')}
+          className={cn(
+            'font-semibold',
+            tx.type === 'EXPENSE' ? 'text-foreground' : 'text-ui-success',
+          )}
         >
           {tx.type === 'EXPENSE' ? '-' : '+'}
           {currencyFormatter.format(tx.amount).replace('PHP', '').trim()}
-          <span className="ml-1 text-[10px] text-muted-foreground font-normal">PHP</span>
+          <span className="ml-1 text-xs text-muted-foreground font-normal">PHP</span>
         </p>
         <Badge
           tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
-          className="text-[10px] uppercase font-bold px-2 py-0.5 mt-1"
+          className="text-xs uppercase font-semibold px-2 py-0.5 mt-1"
         >
           {tx.type}
         </Badge>
@@ -127,8 +131,8 @@ const BudgetRow = ({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => navigate(`/budget/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                onClick={() => navigate(`/budgets/${budget.id}`)}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                 className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
               >
                 <div
@@ -142,16 +146,16 @@ const BudgetRow = ({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
+                    <p className="text-sm font-semibold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-[9px] uppercase font-black px-1.5 py-0">
+                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
                         Overbudget
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {budget.period}
                   </p>
                 </div>
@@ -161,16 +165,16 @@ const BudgetRow = ({
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/budget/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                  onClick={() => navigate(`/budgets/${budget.id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
-                  <p className="text-sm font-bold text-foreground">
+                  <p className="text-sm font-semibold text-foreground">
                     {currencyFormatter.format(budget.expense)}
                   </p>
                   <p
                     className={cn(
-                      'text-[10px] font-bold uppercase tracking-wider',
+                      'text-xs font-semibold uppercase tracking-wider',
                       isOverBudget ? 'text-ui-danger' : 'text-primary',
                     )}
                   >
@@ -193,8 +197,8 @@ const BudgetRow = ({
             <div
               role="button"
               tabIndex={0}
-              onClick={() => navigate(`/budget/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+              onClick={() => navigate(`/budgets/${budget.id}`)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
               className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
             >
               <div
@@ -218,25 +222,25 @@ const BudgetRow = ({
             <DisclosurePanel className="px-4 pb-4 pt-1 bg-ui-accent-subtle/10 border-t border-ui-border-subtle/50">
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Burn Rate
                   </p>
-                  <p className="text-sm font-black text-foreground tabular-nums">
+                  <p className="text-sm font-semibold text-foreground tabular-nums">
                     {hasInsufficientData
                       ? '—'
                       : currencyFormatter.format(budget.burnRate!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     per day
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Allowance
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-black tabular-nums',
+                      'text-sm font-semibold tabular-nums',
                       isOverBudget ? 'text-ui-danger' : 'text-foreground',
                     )}
                   >
@@ -244,17 +248,17 @@ const BudgetRow = ({
                       ? '—'
                       : currencyFormatter.format(budget.dailyAllowance!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     remaining
                   </p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-subtle-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
                     Projection
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-black tabular-nums',
+                      'text-sm font-semibold tabular-nums',
                       isOverBudget
                         ? 'text-ui-danger'
                         : isProjectedOverBudget
@@ -266,7 +270,7 @@ const BudgetRow = ({
                       ? '—'
                       : currencyFormatter.format(budget.projectedTotal!).replace('PHP', '').trim()}
                   </p>
-                  <p className="text-[8px] font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
                     est. total
                   </p>
                 </div>
@@ -293,12 +297,12 @@ const GoalPlaceholderRow = () => {
         <SharedIcon type="category" name="sparkles" size={24} className="text-primary" />
       </div>
       <div>
-        <p className="text-sm font-bold text-foreground">Savings Goals</p>
+        <p className="text-sm font-semibold text-foreground">Savings Goals</p>
         <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
           Track your progress towards big purchases or emergency funds.
         </p>
       </div>
-      <Badge tone="neutral" className="text-[10px] uppercase font-black tracking-widest px-3 py-1">
+      <Badge tone="neutral" className="text-xs uppercase font-semibold tracking-wide px-3 py-1">
         Coming Soon
       </Badge>
     </div>
@@ -351,6 +355,16 @@ export function HomePage(): ReactElement {
 
   return (
     <>
+      <header>
+        <div className={pageLayout.headerGap}>
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-base leading-7 text-muted-foreground">
+            Track your finances at a glance.
+          </p>
+        </div>
+      </header>
       <div className={cn('space-y-7 pb-32')}>
         {/* ───────── TOTAL BALANCE ───────── */}
         <section
@@ -361,8 +375,8 @@ export function HomePage(): ReactElement {
             Total Balance
           </p>
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-bold text-muted-foreground">PHP</span>
-            <h2 className="text-4xl font-black tracking-tight text-foreground">
+            <span className="text-lg font-semibold text-muted-foreground">PHP</span>
+            <h2 className="text-4xl font-semibold tracking-tight text-foreground">
               {formattedBalance.replace('PHP', '').trim()}
             </h2>
             <BalanceSummaryIcon />
@@ -390,7 +404,7 @@ export function HomePage(): ReactElement {
 
         {/* ───────── BUDGET SECTION ───────── */}
         <section className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-          <SectionHeader title="Budget" seeAllHref="/budget" />
+          <SectionHeader title="Budget" seeAllHref="/budgets" />
 
           {isBudgetSummaryLoading || isBudgetsLoading ? (
             <SkeletonList count={2} itemHeight="h-24" />

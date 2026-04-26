@@ -139,7 +139,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
   const navItems: ReadonlyArray<NavItem> = [
     { label: 'Home', to: '/', icon: <HomeIcon /> },
-    { label: 'Budgets', to: '/budget', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
+    { label: 'Budgets', to: '/budgets', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
     {
       label: 'Goals',
       to: '/goals',
@@ -176,7 +176,7 @@ function AuthenticatedLayoutContent(): ReactElement {
           <div className="h-20 flex items-center px-8">
             <NavLink to="/" className="flex items-center gap-3">
               <KaizenLogo className="h-7 w-7" />
-              <span className="text-lg font-bold tracking-tight text-foreground">Kaizen</span>
+              <span className="text-lg font-semibold tracking-tight text-foreground">Kaizen</span>
             </NavLink>
           </div>
 
@@ -195,7 +195,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                   end={item.to === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-4 px-4 py-3 rounded-xl text-[14px] font-medium transition-all duration-200',
+                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive
                         ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
                         : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
@@ -248,7 +248,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                     >
                       <path d="m15 18-6-6 6-6" />
                     </svg>
-                    <span className="text-[15px] font-medium leading-none">
+                    <span className="text-base font-medium leading-none">
                       {backButtonConfig.label}
                     </span>
                   </button>
@@ -273,7 +273,9 @@ function AuthenticatedLayoutContent(): ReactElement {
                       className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
                       aria-label="Notifications"
                     >
-                      <NotificationIcon />
+                      <span aria-hidden="true">
+                        <NotificationIcon />
+                      </span>
                       <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
                     </button>
 
@@ -281,7 +283,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                       to="/your-account"
                       className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-black/5 transition-colors"
                     >
-                      <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-[12px] font-bold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-sm font-semibold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
                         {user?.picture && !imageError ? (
                           <img
                             src={user.picture}
@@ -296,7 +298,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                       </div>
                       {!isMobile && (
                         <div className="flex items-center gap-1 hidden sm:flex">
-                          <span className="text-[13px] font-semibold text-foreground">
+                          <span className="text-sm font-semibold text-foreground">
                             {user?.name || 'User'}
                           </span>
                           <ChevronRightIcon />
@@ -316,6 +318,7 @@ function AuthenticatedLayoutContent(): ReactElement {
             <Outlet />
           </div>
         </main>
+        {/* No global <footer> — there is no global footer content. Per-page <footer> can be added by individual pages if needed. */}
       </div>
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
@@ -354,7 +357,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                     >
                       {item.icon}
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider">
+                    <span className="text-xs font-semibold uppercase tracking-wide">
                       {item.label}
                     </span>
                   </>
@@ -369,7 +372,7 @@ function AuthenticatedLayoutContent(): ReactElement {
       <ConnectivityIndicator />
       <AddEntryFAB
         onAddTransaction={() => navigate('/transactions/add')}
-        onCreateBudget={() => navigate('/budget/add')}
+        onCreateBudget={() => navigate('/budgets/add')}
         onCreateGoal={() => navigate('/goals')}
         onHoldPurchase={() =>
           void dispatch(

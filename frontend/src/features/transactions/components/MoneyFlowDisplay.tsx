@@ -19,23 +19,23 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
     <div className="space-y-4" data-testid="money-flow-display">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Income
           </p>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-xs font-bold text-muted-foreground">PHP</span>
-            <p className="text-2xl font-black tracking-tight text-foreground">
+            <span className="text-xs font-semibold text-muted-foreground">PHP</span>
+            <p className="text-2xl font-semibold tracking-tight text-foreground">
               {formatCurrency(incoming).replace('PHP', '').trim()}
             </p>
           </div>
         </div>
         <div className="space-y-1 text-right">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Expense
           </p>
           <div className="flex items-baseline justify-end gap-1.5">
-            <span className="text-xs font-bold text-muted-foreground">PHP</span>
-            <p className="text-2xl font-black tracking-tight text-foreground">
+            <span className="text-xs font-semibold text-muted-foreground">PHP</span>
+            <p className="text-2xl font-semibold tracking-tight text-foreground">
               {formatCurrency(outgoing).replace('PHP', '').trim()}
             </p>
           </div>

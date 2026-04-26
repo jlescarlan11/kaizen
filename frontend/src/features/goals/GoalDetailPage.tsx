@@ -39,7 +39,7 @@ export function GoalDetailPage(): ReactElement {
             <circle cx="12" cy="12" r="2" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-foreground">Coming Soon</h2>
+        <h2 className="text-2xl font-semibold text-foreground">Coming Soon</h2>
         <p className="text-muted-foreground mt-2 max-w-xs text-center">
           We&apos;re working on bringing you full-page goal tracking and visualization. Stay tuned!
         </p>

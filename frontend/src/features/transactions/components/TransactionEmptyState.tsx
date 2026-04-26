@@ -36,7 +36,7 @@ export function TransactionEmptyState({
         <EmptyIcon />
       </div>
       <div className="space-y-2 max-w-sm">
-        <h3 className="text-xl font-bold text-foreground">{title}</h3>
+        <h3 className="text-xl font-semibold text-foreground">{title}</h3>
         <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
       </div>
 

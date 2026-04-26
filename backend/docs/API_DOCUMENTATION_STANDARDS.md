@@ -16,6 +16,10 @@ This project uses Springdoc OpenAPI for backend API documentation.
 - Include example error payloads aligned with project standards: `code`, `message`, `details`, `traceId`.
 - If an endpoint uses framework-default errors today, still document the intended error format in OpenAPI examples.
 
+## Boolean Field Naming Convention
+
+Boolean fields in DTOs use the `is*` prefix. Avoid `has*`, `with*`, `*Active`, `*Enabled` — they invite drift and make it harder to grep for all boolean fields as a group. Existing canonical usage: `isGlobal` (Category), `isRecurring` (Transaction). Any new boolean DTO field added to this project must follow the same `is*` prefix.
+
 ## Naming Conventions
 
 - Tags: domain-based names such as `Health`, `Auth`, `Users`.

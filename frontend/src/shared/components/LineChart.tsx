@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactElement } from 'react'
 import { useMemo } from 'react'
 import { cn } from '../lib/cn'
+import { CHART_COLORS } from '../lib/chartTheme'
 
 export interface DataPoint {
   label: string
@@ -28,10 +29,8 @@ export function LineChart({
   const width = 1000 // Fixed internal coordinate system
   const padding = useMemo(() => ({ top: 20, right: 20, bottom: 60, left: 20 }), []) // Increased bottom padding
   const selectorY = height - 45 // Moved up to create space below it
-  const activeColor =
-    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-text-primary)'
-  const trendColor =
-    colorScheme === 'primary' ? 'var(--color-primary)' : 'var(--color-border-strong)'
+  const activeColor = colorScheme === 'primary' ? CHART_COLORS.primary : CHART_COLORS.textPrimary
+  const trendColor = colorScheme === 'primary' ? CHART_COLORS.primary : CHART_COLORS.borderStrong
 
   // 1. Calculate Coordinates
   const points = useMemo(() => {

@@ -94,7 +94,7 @@ export function TransactionFilter({
               <SharedIcon type="ui" name="filter" size={18} />
               <span>Filter</span>
               {hasActiveFilters && (
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
                   {filter.categories.length +
                     filter.types.length +
                     filter.paymentMethods.length +
@@ -117,7 +117,7 @@ export function TransactionFilter({
             <PopoverPanel className="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-2xl border border-ui-border bg-ui-surface p-4 shadow-2xl focus:outline-none">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-foreground">Filters</h3>
+                  <h3 className="font-semibold text-foreground">Filters</h3>
                   {hasActiveFilters && (
                     <button
                       onClick={onClear}
@@ -130,7 +130,7 @@ export function TransactionFilter({
 
                 {/* Date Range Presets */}
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Date Range
                   </p>
                   <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none -mx-1 px-1">
@@ -143,7 +143,7 @@ export function TransactionFilter({
                       <button
                         key={preset.value}
                         onClick={() => applyPreset(preset.value)}
-                        className="flex-none flex items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-ui-border transition-all whitespace-nowrap"
+                        className="flex-none flex items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:border-ui-border transition-all whitespace-nowrap"
                       >
                         {preset.label}
                       </button>
@@ -153,7 +153,7 @@ export function TransactionFilter({
                   {/* Custom Date Inputs */}
                   <div className="grid grid-cols-2 gap-3 pt-1">
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide ml-1">
                         From
                       </label>
                       <input
@@ -164,13 +164,15 @@ export function TransactionFilter({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest ml-1">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide ml-1">
                         To
                       </label>
                       <input
                         type="date"
                         value={filter.endDate || ''}
-                        onChange={(e) => setDateRange(filter.startDate, e.target.value || undefined)}
+                        onChange={(e) =>
+                          setDateRange(filter.startDate, e.target.value || undefined)
+                        }
                         className="w-full bg-ui-surface-muted border border-ui-border-subtle rounded-lg px-2 py-1.5 text-xs font-medium text-foreground focus:outline-none focus:border-primary transition-colors"
                       />
                     </div>
@@ -179,7 +181,7 @@ export function TransactionFilter({
 
                 {/* Transaction Type Filter */}
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Transaction Type
                   </p>
                   <div className="grid grid-cols-2 gap-2">
@@ -202,7 +204,7 @@ export function TransactionFilter({
 
                 {/* Categories Filter */}
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Categories
                   </p>
                   <div className="max-h-40 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
@@ -241,7 +243,7 @@ export function TransactionFilter({
 
                 {/* Payment Methods Filter */}
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Payment Methods
                   </p>
                   <div className="max-h-40 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
@@ -260,7 +262,7 @@ export function TransactionFilter({
                             checked={filter.paymentMethods.includes(pm.id)}
                             onCheckedChange={() => togglePaymentMethod(pm.id)}
                           />
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-bold text-[10px]">
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold text-xs">
                             {pm.name.charAt(0).toUpperCase()}
                           </div>
                           <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">

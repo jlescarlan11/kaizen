@@ -18,7 +18,7 @@ export function TransactionNoteSection({
     <div className={cn('space-y-8', className)}>
       {description && (
         <div className="space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Description
           </p>
           <p className="text-lg font-medium text-foreground leading-relaxed whitespace-pre-wrap">
@@ -29,7 +29,7 @@ export function TransactionNoteSection({
 
       {notes && (
         <div className="space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
             Internal Notes
           </p>
           <div className="pl-4 border-l-2 border-primary/20">

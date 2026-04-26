@@ -27,7 +27,7 @@ export function SearchHighlight({ text, query, className }: SearchHighlightProps
           key={i}
           className={cn(
             part.toLowerCase() === normalizedQuery &&
-              'bg-primary/20 text-primary font-bold px-0.5 rounded-sm',
+              'bg-primary/20 text-primary font-semibold px-0.5 rounded-sm',
           )}
         >
           {part}

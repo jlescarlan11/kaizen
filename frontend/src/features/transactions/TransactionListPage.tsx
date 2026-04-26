@@ -82,6 +82,7 @@ export function TransactionListPage(): ReactElement {
     }
   }
 
+  // Undo infrastructure exists for transactions but is not yet wired here — see UNDO_POLICY.md.
   const handleBulkDeleteConfirm = async () => {
     try {
       await bulkDelete(selectedIds).unwrap()
@@ -114,7 +115,9 @@ export function TransactionListPage(): ReactElement {
       <header className="space-y-7">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tight text-foreground">All Transactions</h1>
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground">
+              All Transactions
+            </h1>
             <p className="text-muted-foreground">A complete record of your income and expenses.</p>
           </div>
         </div>
@@ -197,13 +200,13 @@ export function TransactionListPage(): ReactElement {
             {/* Active Filter Indicators (Optional, but good for UX) */}
             {isFilterActive && (
               <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mr-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1">
                   Active Filters:
                 </p>
                 {filterState.types.map((type) => (
                   <span
                     key={type}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase"
                   >
                     {type === 'INCOME' ? 'Income' : 'Expense'}
                     <button
@@ -220,7 +223,7 @@ export function TransactionListPage(): ReactElement {
                   </span>
                 ))}
                 {filterState.startDate && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     From: {filterState.startDate}
                     <button
                       onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
@@ -231,7 +234,7 @@ export function TransactionListPage(): ReactElement {
                   </span>
                 )}
                 {filterState.endDate && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     To: {filterState.endDate}
                     <button
                       onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
@@ -244,7 +247,7 @@ export function TransactionListPage(): ReactElement {
                 {/* Note: Showing category names would require mapping IDs to categories, 
                     leaving as simple indicator for now to keep focus on pipeline */}
                 {filterState.categories.length > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.categories.length} Categories
                     <button
                       onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
@@ -255,7 +258,7 @@ export function TransactionListPage(): ReactElement {
                   </span>
                 )}
                 {filterState.paymentMethods.length > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.paymentMethods.length} Accounts
                     <button
                       onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}

@@ -16,7 +16,7 @@ export function AttachmentViewer({
 
   return (
     <div className={cn('space-y-3', className)}>
-      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         Attachments
       </p>
       <div className="flex flex-wrap gap-3">
@@ -33,7 +33,7 @@ export function AttachmentViewer({
             ) : (
               <FileText className="h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />
             )}
-            <span className="mt-1 text-[10px] font-medium truncate w-full px-1 text-muted-foreground group-hover:text-foreground transition-colors">
+            <span className="mt-1 text-xs font-medium truncate w-full px-1 text-muted-foreground group-hover:text-foreground transition-colors">
               {att.filename}
             </span>
             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">

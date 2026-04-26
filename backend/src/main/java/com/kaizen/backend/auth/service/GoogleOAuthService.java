@@ -118,8 +118,8 @@ private void revokeTokenAtProvider(String token) {
             Objects.requireNonNull(tokenResponse.accessToken(), "accessToken must not be null")
         );
 
-        log.info("Google User Info: email={}, name={}, picture={}", 
-            userInfoResponse.email(), userInfoResponse.name(), userInfoResponse.picture());
+        // Log only the Google-issued subject (stable user ID); never email/name/picture (PII).
+        log.info("Google user info received: sub={}", userInfoResponse.subject());
 
         String email = Objects.requireNonNull(userInfoResponse.email(), "email must not be null");
         String providerUserId = userInfoResponse.subject();

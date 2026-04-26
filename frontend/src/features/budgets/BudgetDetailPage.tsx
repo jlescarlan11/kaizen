@@ -30,12 +30,12 @@ export function BudgetDetailPage(): ReactElement {
   if (!budget) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <h2 className="text-xl font-black text-foreground uppercase tracking-widest">
+        <h2 className="text-xl font-semibold text-foreground uppercase tracking-wide">
           Budget not found
         </h2>
         <button
-          onClick={() => navigate('/budget')}
-          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+          onClick={() => navigate('/budgets')}
+          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
         >
           Back to Budgets
         </button>
@@ -48,16 +48,16 @@ export function BudgetDetailPage(): ReactElement {
   const handleEdit = () => {
     // Navigating to smart setup as per BudgetsPage logic,
     // but in a real app this would likely go to a specific edit page if it existed.
-    navigate('/budget/add')
+    navigate('/budgets/add')
   }
 
   return (
     <div className={pageLayout.sectionGap}>
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
+      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-black tracking-tight text-foreground uppercase tracking-widest">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground uppercase tracking-wide">
               Budget Details
             </h1>
             <p className="text-muted-foreground font-medium">
@@ -66,14 +66,14 @@ export function BudgetDetailPage(): ReactElement {
           </div>
 
           <div className="space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {budget.period.toLowerCase()} Budget
             </p>
             <div className="flex items-baseline gap-2">
-              <p className="text-6xl font-black tracking-tighter text-foreground tabular-nums">
+              <p className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground tabular-nums">
                 {currencyFormatter.format(budget.amount).replace('PHP', '').trim()}
               </p>
-              <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">
+              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 PHP
               </span>
             </div>
@@ -83,7 +83,7 @@ export function BudgetDetailPage(): ReactElement {
         <div className="flex flex-col gap-4 w-full md:w-auto">
           <button
             onClick={handleEdit}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
+            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
           >
             <SharedIcon
               type="ui"
@@ -94,7 +94,7 @@ export function BudgetDetailPage(): ReactElement {
             Edit Configuration
           </button>
         </div>
-      </div>
+      </header>
 
       <div className="space-y-16">
         {/* Spending Progress */}
@@ -102,20 +102,20 @@ export function BudgetDetailPage(): ReactElement {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
                   Spending Progress
                 </p>
-                <p className="text-2xl font-black text-foreground tabular-nums">
+                <p className="text-2xl font-semibold text-foreground tabular-nums">
                   {currencyFormatter.format(budget.expense)} /{' '}
                   {currencyFormatter.format(budget.amount)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
                   Remaining
                 </p>
                 <p
-                  className={`text-2xl font-black tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}
+                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}
                 >
                   {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
                 </p>
@@ -128,7 +128,7 @@ export function BudgetDetailPage(): ReactElement {
               />
             </div>
             {budget.expense > budget.amount && (
-              <p className="text-[10px] font-black uppercase tracking-widest text-ui-error flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ui-error flex items-center gap-2">
                 <SharedIcon type="ui" name="error" size={10} />
                 You have exceeded your {budget.period.toLowerCase()} budget by{' '}
                 {currencyFormatter.format(budget.expense - budget.amount)}
@@ -141,18 +141,18 @@ export function BudgetDetailPage(): ReactElement {
         <section className="py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
                 Total Allocated
               </p>
-              <p className="text-2xl font-black text-foreground tabular-nums">
+              <p className="text-2xl font-semibold text-foreground tabular-nums">
                 {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
               </p>
             </div>
             <div className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
                 Unallocated
               </p>
-              <p className="text-2xl font-black text-foreground tabular-nums">
+              <p className="text-2xl font-semibold text-foreground tabular-nums">
                 {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
               </p>
             </div>
@@ -163,7 +163,7 @@ export function BudgetDetailPage(): ReactElement {
         <section className="space-y-12">
           <div className="flex items-center gap-2 mb-8 px-1">
             <div className="h-4 w-1 bg-primary rounded-full" />
-            <h2 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Core Configuration
             </h2>
           </div>
@@ -187,10 +187,10 @@ export function BudgetDetailPage(): ReactElement {
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl font-black text-foreground">
+                    <span className="text-xl font-semibold text-foreground">
                       {budget.categoryName}
                     </span>
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       ID: {budget.categoryId}
                     </span>
                   </div>
@@ -220,13 +220,13 @@ interface DetailRowProps {
 function DetailRow({ label, value, content }: DetailRowProps) {
   return (
     <div className="space-y-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
         {label}
       </p>
       {content ? (
         content
       ) : (
-        <p className="text-xl text-foreground font-black tabular-nums">{value}</p>
+        <p className="text-xl text-foreground font-semibold tabular-nums">{value}</p>
       )}
     </div>
   )

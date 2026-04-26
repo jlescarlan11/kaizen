@@ -2,9 +2,13 @@ package com.kaizen.backend.auth.controller;
 
 import java.net.URI;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +40,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +63,11 @@ public class GoogleOAuthController {
     private final PersistentSessionService persistentSessionService;
     private final com.kaizen.backend.auth.config.SessionProperties sessionProperties;
 
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOriginsRaw;
+
+    private Set<String> allowedOrigins;
+
     public GoogleOAuthController(
         AuthFlowProperties authFlowProperties,
         GoogleOAuthService googleOAuthService,
@@ -70,6 +80,33 @@ public class GoogleOAuthController {
         this.userDetailsService = userDetailsService;
         this.persistentSessionService = persistentSessionService;
         this.sessionProperties = sessionProperties;
+    }
+
+    @PostConstruct
+    void initAllowedOrigins() {
+        this.allowedOrigins = Arrays.stream(allowedOriginsRaw.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(this::normalizeOrigin)
+            .collect(Collectors.toUnmodifiableSet());
+    }
+
+    private String normalizeOrigin(String s) {
+        // Strip trailing slash; everything else stays.
+        return s.endsWith("/") ? s.substring(0, s.length() - 1) : s;
+    }
+
+    private String sanitizeRedirectUri(String candidate) {
+        if (candidate == null || candidate.isBlank()) return null;
+        try {
+            URI uri = URI.create(candidate);
+            if (uri.getScheme() == null || uri.getHost() == null) return null;
+            String origin = uri.getScheme() + "://" + uri.getHost()
+                + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
+            return allowedOrigins.contains(origin) ? candidate : null;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @Operation(
@@ -104,11 +141,15 @@ public class GoogleOAuthController {
 
         session.setAttribute(STATE_SESSION_ATTRIBUTE, state);
         
-        // Store the dynamic redirect URI from the frontend in the session
-        if (redirectUriParam != null && !redirectUriParam.isBlank()) {
-            session.setAttribute(REDIRECT_URI_SESSION_ATTRIBUTE, redirectUriParam);
+        // Store the dynamic redirect URI from the frontend in the session — whitelist-validated only
+        String safeRedirectUri = sanitizeRedirectUri(redirectUriParam);
+        if (safeRedirectUri != null) {
+            session.setAttribute(REDIRECT_URI_SESSION_ATTRIBUTE, safeRedirectUri);
         } else {
             session.removeAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
+            if (redirectUriParam != null && !redirectUriParam.isBlank()) {
+                log.warn("Google OAuth authorize: redirect_uri not in allowed-origins whitelist; dropping.");
+            }
         }
 
         URI redirectUri = Objects.requireNonNull(
@@ -152,8 +193,12 @@ public class GoogleOAuthController {
         HttpServletRequest request,
         HttpSession session
     ) {
-        // Retrieve dynamic redirect URI from session or use fallback from properties
-        String dynamicBaseUri = (String) session.getAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
+        // Retrieve dynamic redirect URI from session — re-validate as defense-in-depth
+        String storedRedirectUri = (String) session.getAttribute(REDIRECT_URI_SESSION_ATTRIBUTE);
+        String dynamicBaseUri = sanitizeRedirectUri(storedRedirectUri);
+        if (dynamicBaseUri == null && storedRedirectUri != null) {
+            log.warn("Google OAuth callback: stored redirect_uri failed re-validation; falling back to default.");
+        }
         
         try {
             String storedState = (String) session.getAttribute(STATE_SESSION_ATTRIBUTE);

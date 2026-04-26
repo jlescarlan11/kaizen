@@ -26,20 +26,20 @@ export function TransactionDetailHeader({
   return (
     <div className={cn('flex flex-col gap-6', className)}>
       <div className="space-y-2">
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Transaction Amount
         </p>
         <div className="flex items-baseline gap-2">
           <h2
             className={cn(
-              'text-6xl font-black tracking-tighter tabular-nums',
+              'text-4xl md:text-5xl font-semibold tracking-tight tabular-nums',
               isExpense ? 'text-foreground' : isIncome ? 'text-ui-success' : 'text-foreground',
             )}
           >
             {isExpense ? '-' : isIncome ? '+' : ''}
             {formatCurrency(amount).replace('PHP', '').trim()}
           </h2>
-          <span className="text-sm font-bold text-muted-foreground tracking-widest uppercase">
+          <span className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">
             PHP
           </span>
         </div>
@@ -47,10 +47,10 @@ export function TransactionDetailHeader({
 
       <div className="flex items-center gap-6">
         <div className="space-y-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
             Settled On
           </p>
-          <p className="text-base font-bold text-foreground">
+          <p className="text-base font-semibold text-foreground">
             {dateFormatter.format(new Date(date))}
           </p>
         </div>

@@ -55,7 +55,7 @@ export function RelatedTransactionsList({
   if (transactions.length === 0) {
     return (
       <div className={cn('py-12 text-center', className)}>
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground/40 italic">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/40 italic">
           No related activity found in this category.
         </p>
       </div>
@@ -85,15 +85,15 @@ export function RelatedTransactionsList({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-base text-foreground truncate group-hover:text-primary transition-colors leading-tight">
+              <p className="font-semibold text-base text-foreground truncate group-hover:text-primary transition-colors leading-tight">
                 {transaction.description || 'No description'}
               </p>
               <div className="flex items-center gap-3 mt-1.5">
-                <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 leading-none">
+                <p className="text-xs uppercase font-semibold tracking-wide text-muted-foreground/60 leading-none">
                   {transaction.category?.name || 'Uncategorized'}
                 </p>
                 <div className="h-2 w-px bg-ui-border-subtle" />
-                <p className="text-[10px] uppercase font-black tracking-[0.15em] text-muted-foreground/40 leading-none">
+                <p className="text-xs uppercase font-semibold tracking-wide text-muted-foreground/40 leading-none">
                   {dateFormatter.format(new Date(transaction.transactionDate))}
                 </p>
               </div>
@@ -102,14 +102,14 @@ export function RelatedTransactionsList({
           <div className="text-right ml-4">
             <p
               className={cn(
-                'text-lg font-black tracking-tight tabular-nums leading-none',
+                'text-lg font-semibold tracking-tight tabular-nums leading-none',
                 transaction.type === 'INCOME' ? 'text-ui-success' : 'text-foreground',
               )}
             >
               {transaction.type === 'EXPENSE' ? '-' : transaction.type === 'INCOME' ? '+' : ''}
               {formatCurrency(transaction.amount).replace('PHP', '').trim()}
             </p>
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest text-right mt-1.5 opacity-50">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide text-right mt-1.5 opacity-50">
               PHP RECORD
             </p>
           </div>

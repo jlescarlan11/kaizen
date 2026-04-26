@@ -6,7 +6,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react'
-import type { ReactElement, ReactNode } from 'react'
+import type { MutableRefObject, ReactElement, ReactNode } from 'react'
 import { Fragment } from 'react'
 
 export interface ModalProps {
@@ -15,12 +15,30 @@ export interface ModalProps {
   children: ReactNode
   onClose: () => void
   footer?: ReactNode
+  /**
+   * Optional ref forwarded to Headless UI's `initialFocus` prop.
+   *
+   * Headless UI manages focus trap and restoration. Pass `initialFocus` to
+   * choose which element receives focus on open; defaults to the first
+   * focusable element. Focus returns to the trigger on close automatically.
+   *
+   * Forms inside a Modal should call onClose() in the success branch of their
+   * submit handler — the modal does not auto-close on success.
+   */
+  initialFocus?: MutableRefObject<HTMLElement | null>
 }
 
-export function Modal({ children, footer, onClose, open, title }: ModalProps): ReactElement {
+export function Modal({
+  children,
+  footer,
+  initialFocus,
+  onClose,
+  open,
+  title,
+}: ModalProps): ReactElement {
   return (
     <Transition show={open} as={Fragment}>
-      <Dialog className="relative z-50" onClose={onClose}>
+      <Dialog className="relative z-50" onClose={onClose} initialFocus={initialFocus}>
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-200"

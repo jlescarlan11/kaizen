@@ -41,7 +41,7 @@ export function CategorySelector({
         value: '',
         label: 'None (Uncategorized)',
         icon: (
-          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-[10px]">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-ui-surface-muted text-muted-foreground text-xs">
             —
           </div>
         ),
@@ -51,7 +51,7 @@ export function CategorySelector({
         label: cat.name,
         icon: (
           <div
-            className="flex h-5 w-5 items-center justify-center rounded-full text-[12px]"
+            className="flex h-5 w-5 items-center justify-center rounded-full text-sm"
             style={{
               backgroundColor: cat.color + '22',
               color: cat.color,

@@ -30,6 +30,8 @@ export interface SelectProps {
   className?: string
   name?: string
   disabled?: boolean
+  required?: boolean
+  'aria-label'?: string
 }
 
 export function Select({
@@ -45,6 +47,8 @@ export function Select({
   onChange,
   name,
   disabled,
+  required,
+  'aria-label': ariaLabel,
 }: SelectProps): ReactElement {
   const generatedId = useId()
   const selectId = id ?? generatedId
@@ -74,12 +78,20 @@ export function Select({
       <Listbox value={currentValue} onChange={handleValueChange} name={name} disabled={disabled}>
         {({ open }) => (
           <>
-            <ListboxLabel className={formFieldClasses.label}>{label}</ListboxLabel>
+            <ListboxLabel className={formFieldClasses.label}>
+              {label}
+              {required ? (
+                <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+                  *
+                </span>
+              ) : null}
+            </ListboxLabel>
             <div className="relative">
               <ListboxButton
                 id={selectId}
                 aria-describedby={describedBy}
                 aria-invalid={error ? 'true' : undefined}
+                aria-label={ariaLabel}
                 className={cn(
                   formFieldClasses.input,
                   'flex items-center justify-between text-left',
@@ -119,7 +131,7 @@ export function Select({
                         cn(
                           'relative select-none transition-colors',
                           option.disabled
-                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground'
+                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'
                             : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
                           !option.disabled && focus ? 'bg-ui-surface-muted' : '',
                           !option.disabled && selected
@@ -131,7 +143,10 @@ export function Select({
                       {({ selected }) => (
                         <>
                           <span
-                            className={cn('block truncate', selected ? 'font-semibold' : 'font-normal')}
+                            className={cn(
+                              'block truncate',
+                              selected ? 'font-semibold' : 'font-normal',
+                            )}
                           >
                             {option.label}
                           </span>
