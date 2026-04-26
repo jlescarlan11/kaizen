@@ -11,11 +11,14 @@ import type { PaymentMethod } from './types'
 interface PaymentMethodListProps {
   paymentMethods: PaymentMethod[]
   isLoading: boolean
+  /** Called when the user clicks "Add Payment Method" in the empty state. Defaults to scrolling to the top of the page. */
+  onAddClick?: () => void
 }
 
 export function PaymentMethodList({
   paymentMethods,
   isLoading,
+  onAddClick,
 }: PaymentMethodListProps): ReactElement {
   const [deletingPm, setDeletingPm] = useState<PaymentMethod | null>(null)
 
@@ -30,9 +33,11 @@ export function PaymentMethodList({
   }
 
   if (paymentMethods.length === 0) {
+    const handleAddClick = onAddClick ?? (() => window.scrollTo({ top: 0, behavior: 'smooth' }))
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+      <div className="flex flex-col items-center justify-center gap-4 py-12 text-center text-muted-foreground">
         <p>No payment methods found.</p>
+        <Button onClick={handleAddClick}>Add Payment Method</Button>
       </div>
     )
   }

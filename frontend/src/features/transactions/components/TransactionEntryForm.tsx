@@ -389,6 +389,8 @@ export function TransactionEntryForm({
     )
   }
 
+  const balanceTone = insufficientBalance ? 'text-error' : 'text-primary'
+
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-8">
       {!lockType && (
@@ -444,9 +446,7 @@ export function TransactionEntryForm({
 
         {paymentMethodId && type === 'EXPENSE' && (
           <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
-            <span
-              className={`text-xs font-bold ${insufficientBalance ? 'text-error' : 'text-primary'}`}
-            >
+            <span className={`text-xs font-semibold ${balanceTone}`}>
               Balance: PHP {availableBalance.toLocaleString()}
             </span>
           </div>

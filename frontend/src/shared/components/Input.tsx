@@ -36,6 +36,11 @@ export function Input({
       {label ? (
         <label htmlFor={inputId} className={formFieldClasses.label}>
           {label}
+          {props.required ? (
+            <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+              *
+            </span>
+          ) : null}
         </label>
       ) : null}
       <div className="relative flex items-center">

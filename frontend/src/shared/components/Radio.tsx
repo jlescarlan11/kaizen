@@ -58,6 +58,11 @@ export function Radio({
             className="text-sm font-medium leading-5 text-ui select-none cursor-pointer"
           >
             {label}
+            {props.required ? (
+              <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+                *
+              </span>
+            ) : null}
           </label>
         ) : null}
       </div>

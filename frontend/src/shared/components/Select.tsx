@@ -30,6 +30,7 @@ export interface SelectProps {
   className?: string
   name?: string
   disabled?: boolean
+  required?: boolean
   'aria-label'?: string
 }
 
@@ -46,6 +47,7 @@ export function Select({
   onChange,
   name,
   disabled,
+  required,
   'aria-label': ariaLabel,
 }: SelectProps): ReactElement {
   const generatedId = useId()
@@ -76,7 +78,14 @@ export function Select({
       <Listbox value={currentValue} onChange={handleValueChange} name={name} disabled={disabled}>
         {({ open }) => (
           <>
-            <ListboxLabel className={formFieldClasses.label}>{label}</ListboxLabel>
+            <ListboxLabel className={formFieldClasses.label}>
+              {label}
+              {required ? (
+                <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+                  *
+                </span>
+              ) : null}
+            </ListboxLabel>
             <div className="relative">
               <ListboxButton
                 id={selectId}
