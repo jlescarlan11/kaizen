@@ -76,7 +76,7 @@ public class SessionController {
             // Security check: ensure the session belongs to the user
             if (session.getUserAccount().getId().equals(user.getId())) {
                 persistentSessionRepository.delete(session);
-                return ResponseEntity.ok().build();
+                return ResponseEntity.noContent().build();
             }
         }
 
