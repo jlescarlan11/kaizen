@@ -48,7 +48,7 @@ export function BudgetDetailPage(): ReactElement {
   const handleEdit = () => {
     // Navigating to smart setup as per BudgetsPage logic,
     // but in a real app this would likely go to a specific edit page if it existed.
-    navigate('/budget/manual')
+    navigate('/budget/add')
   }
 
   return (
