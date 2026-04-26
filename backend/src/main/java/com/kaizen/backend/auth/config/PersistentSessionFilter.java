@@ -124,7 +124,8 @@ public class PersistentSessionFilter extends OncePerRequestFilter {
 
     private void restoreSecurityContext(PersistentSession session, HttpServletRequest request) {
         String email = session.getUserAccount().getEmail();
-        log.debug("Restoring security context from persistent session for user: {}", email);
+        // Log user id, not email: emails are PII and CODING_STANDARDS §2.6 forbids logging them.
+        log.debug("Restoring security context from persistent session for userId={}", session.getUserAccount().getId());
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
