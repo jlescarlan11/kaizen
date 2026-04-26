@@ -139,7 +139,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
   const navItems: ReadonlyArray<NavItem> = [
     { label: 'Home', to: '/', icon: <HomeIcon /> },
-    { label: 'Budgets', to: '/budget', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
+    { label: 'Budgets', to: '/budgets', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
     {
       label: 'Goals',
       to: '/goals',
@@ -372,7 +372,7 @@ function AuthenticatedLayoutContent(): ReactElement {
       <ConnectivityIndicator />
       <AddEntryFAB
         onAddTransaction={() => navigate('/transactions/add')}
-        onCreateBudget={() => navigate('/budget/add')}
+        onCreateBudget={() => navigate('/budgets/add')}
         onCreateGoal={() => navigate('/goals')}
         onHoldPurchase={() =>
           void dispatch(

@@ -105,6 +105,7 @@ const GoalDetailPage = lazy(() =>
 )
 
 import { TransactionDetailActions } from '../../features/transactions/components/TransactionDetailActions'
+import { BudgetIdRedirect } from './BudgetIdRedirect'
 
 export const router = createBrowserRouter([
   {
@@ -254,17 +255,17 @@ export const router = createBrowserRouter([
             },
           },
           {
-            path: 'budget/:id',
+            path: 'budgets/:id',
             element: <BudgetDetailPage />,
             handle: {
               backButton: {
                 label: 'Budgets',
-                fallbackPath: '/budget',
+                fallbackPath: '/budgets',
               },
             },
           },
           {
-            path: 'budget',
+            path: 'budgets',
             element: <BudgetsPage />,
             handle: {
               backButton: {
@@ -274,15 +275,19 @@ export const router = createBrowserRouter([
             },
           },
           {
-            path: 'budget/add',
+            path: 'budgets/add',
             element: <ManualBudgetSetupPage />,
             handle: {
               backButton: {
                 label: 'Budgets',
-                fallbackPath: '/budget',
+                fallbackPath: '/budgets',
               },
             },
           },
+          // Redirects from old singular paths (U-COPY-6) — preserves bookmarks
+          { path: 'budget', element: <Navigate to="/budgets" replace /> },
+          { path: 'budget/add', element: <Navigate to="/budgets/add" replace /> },
+          { path: 'budget/:id', element: <BudgetIdRedirect /> },
           {
             path: 'goals/:id',
             element: <GoalDetailPage />,

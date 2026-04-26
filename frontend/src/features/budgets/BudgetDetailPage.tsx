@@ -34,7 +34,7 @@ export function BudgetDetailPage(): ReactElement {
           Budget not found
         </h2>
         <button
-          onClick={() => navigate('/budget')}
+          onClick={() => navigate('/budgets')}
           className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
         >
           Back to Budgets
@@ -48,7 +48,7 @@ export function BudgetDetailPage(): ReactElement {
   const handleEdit = () => {
     // Navigating to smart setup as per BudgetsPage logic,
     // but in a real app this would likely go to a specific edit page if it existed.
-    navigate('/budget/add')
+    navigate('/budgets/add')
   }
 
   return (

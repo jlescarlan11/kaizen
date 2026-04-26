@@ -44,8 +44,8 @@ const BudgetRow = ({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => navigate(`/budget/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                onClick={() => navigate(`/budgets/${budget.id}`)}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                 className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
               >
                 <div
@@ -78,8 +78,8 @@ const BudgetRow = ({
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/budget/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                  onClick={() => navigate(`/budgets/${budget.id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
                   <p className="text-sm font-bold text-foreground">
@@ -109,8 +109,8 @@ const BudgetRow = ({
             <div
               role="button"
               tabIndex={0}
-              onClick={() => navigate(`/budget/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+              onClick={() => navigate(`/budgets/${budget.id}`)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
               className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
             >
               <div
@@ -216,7 +216,7 @@ export function BudgetsPage(): ReactElement {
   const { data: categories = [] } = useGetCategoriesQuery()
 
   const handleNewBudget = () => {
-    navigate('/budget/add')
+    navigate('/budgets/add')
   }
 
   if (isBudgetsLoading) {
@@ -280,7 +280,7 @@ export function BudgetsPage(): ReactElement {
             description="You haven't set up any budgets yet. Start with our smart allocation or create one manually."
             primaryAction={{
               label: 'Use Smart Allocation',
-              onClick: () => navigate('/budget/smart'),
+              onClick: () => navigate('/budgets/smart'),
             }}
             secondaryAction={{ label: 'Manual Setup', onClick: handleNewBudget }}
           />

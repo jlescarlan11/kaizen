@@ -128,8 +128,8 @@ const BudgetRow = ({
               <div
                 role="button"
                 tabIndex={0}
-                onClick={() => navigate(`/budget/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                onClick={() => navigate(`/budgets/${budget.id}`)}
+                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                 className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
               >
                 <div
@@ -162,8 +162,8 @@ const BudgetRow = ({
                 <div
                   role="button"
                   tabIndex={0}
-                  onClick={() => navigate(`/budget/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+                  onClick={() => navigate(`/budgets/${budget.id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
                   <p className="text-sm font-bold text-foreground">
@@ -194,8 +194,8 @@ const BudgetRow = ({
             <div
               role="button"
               tabIndex={0}
-              onClick={() => navigate(`/budget/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budget/${budget.id}`)}
+              onClick={() => navigate(`/budgets/${budget.id}`)}
+              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
               className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
             >
               <div
@@ -401,7 +401,7 @@ export function HomePage(): ReactElement {
 
         {/* ───────── BUDGET SECTION ───────── */}
         <section className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-          <SectionHeader title="Budget" seeAllHref="/budget" />
+          <SectionHeader title="Budget" seeAllHref="/budgets" />
 
           {isBudgetSummaryLoading || isBudgetsLoading ? (
             <SkeletonList count={2} itemHeight="h-24" />
