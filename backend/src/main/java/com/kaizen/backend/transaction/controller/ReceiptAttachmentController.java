@@ -19,10 +19,20 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.kaizen.backend.common.dto.ErrorResponse;
 import com.kaizen.backend.transaction.dto.AttachmentResponse;
 import com.kaizen.backend.transaction.entity.TransactionAttachment;
 import com.kaizen.backend.transaction.service.ReceiptAttachmentService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Receipt Attachment", description = "Transaction receipt attachment management.")
 @RestController
 @RequestMapping("/api/transactions")
 public class ReceiptAttachmentController {
@@ -33,6 +43,29 @@ public class ReceiptAttachmentController {
         this.attachmentService = attachmentService;
     }
 
+    @Operation(summary = "Upload a receipt attachment", description = "Attaches a receipt file to the specified transaction.")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "201",
+            description = "Attachment uploaded successfully.",
+            content = @Content(schema = @Schema(implementation = AttachmentResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid file or payload.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Transaction not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
     @PostMapping("/{transactionId}/attachments")
     @ResponseStatus(HttpStatus.CREATED)
     public AttachmentResponse uploadAttachment(
@@ -43,6 +76,24 @@ public class ReceiptAttachmentController {
         return mapToResponse(attachment);
     }
 
+    @Operation(summary = "List attachments for a transaction", description = "Returns all receipt attachments associated with the specified transaction.")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Attachments returned successfully.",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = AttachmentResponse.class)))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Transaction not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
     @GetMapping("/{transactionId}/attachments")
     public ResponseEntity<List<AttachmentResponse>> getAttachments(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -51,6 +102,23 @@ public class ReceiptAttachmentController {
         return ResponseEntity.ok(attachments.stream().map(this::mapToResponse).collect(Collectors.toList()));
     }
 
+    @Operation(summary = "Delete a receipt attachment", description = "Removes the specified attachment from storage and the database.")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "204",
+            description = "Attachment deleted successfully."
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Attachment not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
     @DeleteMapping("/attachments/{attachmentId}")
     public ResponseEntity<Void> deleteAttachment(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -59,6 +127,24 @@ public class ReceiptAttachmentController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Download attachment content", description = "Returns the raw file bytes for the specified attachment.")
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "File content returned successfully.",
+            content = @Content(schema = @Schema(type = "string", format = "binary"))
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        ),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Attachment not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
     @GetMapping("/attachments/{attachmentId}/content")
     public ResponseEntity<byte[]> getAttachmentContent(
             @AuthenticationPrincipal UserDetails userDetails,

@@ -520,7 +520,9 @@ public class TransactionService {
                                 a.getMimeType(),
                                 a.getStorageReference()))
                         .collect(Collectors.toList()),
-                transaction.getClientGeneratedId());
+                transaction.getClientGeneratedId(),
+                transaction.getCreatedAt(),
+                transaction.getUpdatedAt());
     }
 
     private void validatePaymentMethodBalance(UserAccount account, PaymentMethod paymentMethod, java.math.BigDecimal amount, Long transactionId) {

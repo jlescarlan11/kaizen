@@ -1,6 +1,7 @@
 package com.kaizen.backend.transaction.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 
 import com.kaizen.backend.category.dto.CategoryResponse;
@@ -25,5 +26,7 @@ public record TransactionResponse(
     Integer frequencyMultiplier,
     Boolean remindersEnabled,
     java.util.List<AttachmentResponse> attachments,
-    String clientGeneratedId
+    String clientGeneratedId,
+    Instant createdAt,
+    Instant updatedAt
 ) {}
