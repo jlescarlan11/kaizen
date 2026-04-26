@@ -274,7 +274,7 @@ export const router = createBrowserRouter([
             },
           },
           {
-            path: 'budget/manual',
+            path: 'budget/add',
             element: <ManualBudgetSetupPage />,
             handle: {
               backButton: {

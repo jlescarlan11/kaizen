@@ -32,15 +32,10 @@ import {
 } from './ManualBudgetCategoryPicker'
 import { SMART_BUDGET_PERIOD } from './constants'
 import type { BudgetPeriod } from './constants'
-import { AllocationTotalDisplay } from './components/AllocationTotalDisplay'
 import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
-import {
-  useGetBudgetsQuery,
-  useSaveSmartBudgetsMutation,
-  useGetBudgetSummaryQuery,
-} from '../../app/store/api/budgetApi'
+import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 
@@ -51,7 +46,6 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   const [complete, { isLoading: isCompleting }] = useCompleteOnboardingMutation()
   const [saveBatch, { isLoading: isSavingBatch }] = useSaveSmartBudgetsMutation()
   const { data: existingBudgets, isLoading: isLoadingBudgets } = useGetBudgetsQuery()
-  const { data: budgetSummary } = useGetBudgetSummaryQuery()
 
   const reduxBalance = useAppSelector(selectBalanceValue)
   const fundingSourceType = useAppSelector(selectFundingSourceType)
@@ -79,7 +73,6 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   const sessionBudgets = useAppSelector(selectPendingBudgets)
   const hasHydratedRef = useRef(false)
 
-  const [isOverAllocated, setIsOverAllocated] = useState(false)
   const [selectedPeriod, setSelectedPeriod] = useState<BudgetPeriod>(SMART_BUDGET_PERIOD)
 
   const disabledCategoryIds = useMemo(
@@ -87,13 +80,31 @@ export function ManualBudgetSetupPage(): ReactElement | null {
     [sessionBudgets],
   )
 
+  const existingExpenseByCategory = useMemo(() => {
+    const map = new Map<number, number>()
+    existingBudgets?.forEach((b) => map.set(b.categoryId, b.expense ?? 0))
+    return map
+  }, [existingBudgets])
+
+  const outstandingFor = (budget: PendingBudget) => {
+    const expense = existingExpenseByCategory.get(budget.categoryId) ?? 0
+    return Math.max(budget.amount - expense, 0)
+  }
+
   const totalAllocated = useMemo(
-    () =>
-      sessionBudgets
-        .filter((b) => b.period === selectedPeriod)
-        .reduce((sum, budget) => sum + budget.amount, 0),
-    [sessionBudgets, selectedPeriod],
+    () => sessionBudgets.reduce((sum, budget) => sum + outstandingFor(budget), 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessionBudgets, existingExpenseByCategory],
   )
+
+  const allocatedRaw = useMemo(
+    () => sessionBudgets.reduce((sum, budget) => sum + budget.amount, 0),
+    [sessionBudgets],
+  )
+
+  const unallocated = balance - totalAllocated
+  const allocationPercentage = balance > 0 ? Math.round((allocatedRaw / balance) * 100) : 0
+  const isOverAllocated = unallocated < 0
 
   const invalidBudgetIds = useMemo(
     () =>
@@ -200,11 +211,12 @@ export function ManualBudgetSetupPage(): ReactElement | null {
       return
     }
 
-    const otherBudgetsTotal = sessionBudgets
+    const otherOutstanding = sessionBudgets
       .filter((b) => b.categoryId !== selectedBudgetId)
-      .reduce((sum, b) => sum + b.amount, 0)
-
-    const available = balance - otherBudgetsTotal
+      .reduce((sum, b) => sum + outstandingFor(b), 0)
+    const thisExpense =
+      selectedBudgetId !== null ? (existingExpenseByCategory.get(selectedBudgetId) ?? 0) : 0
+    const available = balance - otherOutstanding + thisExpense
     if (parsedAmount > available) {
       setAmountValidationError(
         `Amount cannot exceed your remaining balance of ${formatCurrency(Math.max(available, 0))}.`,
@@ -273,11 +285,14 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   }
 
   const availableForCurrent = useMemo(() => {
-    const otherBudgetsTotal = sessionBudgets
+    const otherOutstanding = sessionBudgets
       .filter((b) => b.categoryId !== selectedBudgetId)
-      .reduce((sum, b) => sum + b.amount, 0)
-    return Math.max(balance - otherBudgetsTotal, 0)
-  }, [balance, sessionBudgets, selectedBudgetId])
+      .reduce((sum, b) => sum + outstandingFor(b), 0)
+    const thisExpense =
+      selectedBudgetId !== null ? (existingExpenseByCategory.get(selectedBudgetId) ?? 0) : 0
+    return Math.max(balance - otherOutstanding + thisExpense, 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance, sessionBudgets, selectedBudgetId, existingExpenseByCategory])
 
   if (!user || isLoadingBudgets) {
     return null
@@ -295,13 +310,33 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           </p>
         </header>
 
-        <div className="rounded-2xl border border-ui-border-subtle p-4">
-          {/* Instruction 4 integration slot: render the allocation total display here. */}
-          <AllocationTotalDisplay
-            totalAllocated={totalAllocated}
-            available={budgetSummary?.unallocated ?? 0}
-            onStatusChange={(status) => setIsOverAllocated(status === 'over')}
-          />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="space-y-1 border border-ui-border-subtle p-5">
+            <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+              Allocated
+            </p>
+            <p className="text-2xl font-semibold text-foreground">{formatCurrency(allocatedRaw)}</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              {allocationPercentage}% of balance
+            </p>
+          </Card>
+          <Card className="space-y-1 border border-ui-border-subtle p-5">
+            <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+              Unallocated
+            </p>
+            <p
+              className={`text-2xl font-semibold ${
+                unallocated < 0 ? 'text-ui-danger' : 'text-foreground'
+              }`}
+            >
+              {formatCurrency(unallocated)}
+            </p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+              {unallocated < 0
+                ? `Over-committed by ${formatCurrency(Math.abs(unallocated))}`
+                : 'available'}
+            </p>
+          </Card>
         </div>
 
         <Card className="space-y-4 p-6">
@@ -393,10 +428,11 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             </Button>
           </div>
 
-          {/* Instruction 6 placement stub (PRD Open Question 5) — confirm whether Skip belongs on this screen before final placement. */}
-          <div className="flex justify-end text-sm">
-            <SkipBudgetTrigger />
-          </div>
+          {!user.onboardingCompleted && (
+            <div className="flex justify-end text-sm">
+              <SkipBudgetTrigger />
+            </div>
+          )}
         </Card>
       </section>
 

@@ -214,7 +214,7 @@ export function BudgetsPage(): ReactElement {
   const { data: categories = [] } = useGetCategoriesQuery()
 
   const handleNewBudget = () => {
-    navigate('/budget/manual')
+    navigate('/budget/add')
   }
 
   if (isBudgetsLoading) {
@@ -239,15 +239,7 @@ export function BudgetsPage(): ReactElement {
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="space-y-1 border border-ui-border-subtle p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-            Balance
-          </p>
-          <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.balance ?? 0)}
-          </p>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-1 border border-ui-border-subtle p-5">
           <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
             Allocated

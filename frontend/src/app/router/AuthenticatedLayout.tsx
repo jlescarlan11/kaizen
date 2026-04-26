@@ -369,7 +369,7 @@ function AuthenticatedLayoutContent(): ReactElement {
       <ConnectivityIndicator />
       <AddEntryFAB
         onAddTransaction={() => navigate('/transactions/add')}
-        onCreateBudget={() => navigate('/budget/manual')}
+        onCreateBudget={() => navigate('/budget/add')}
         onCreateGoal={() => navigate('/goals')}
         onHoldPurchase={() =>
           void dispatch(
