@@ -299,7 +299,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           {/* Instruction 4 integration slot: render the allocation total display here. */}
           <AllocationTotalDisplay
             totalAllocated={totalAllocated}
-            availablePoolBalance={budgetSummary?.unallocated ?? 0}
+            available={budgetSummary?.unallocated ?? 0}
             onStatusChange={(status) => setIsOverAllocated(status === 'over')}
           />
         </div>

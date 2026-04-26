@@ -90,7 +90,7 @@ function AllocationBar({ allocated, balance, onOver }: AllocationBarProps): Reac
   return (
     <AllocationTotalDisplay
       totalAllocated={allocated}
-      availablePoolBalance={balance}
+      available={balance}
       onStatusChange={(status) => onOver(status === 'over')}
     />
   )

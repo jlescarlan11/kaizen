@@ -194,7 +194,7 @@ public class BudgetController {
 
   @Operation(
       summary = "Get budget allocation summary",
-      description = "Returns the authenticated user's actual balance, total allocated budgets, remaining allocatable amount, allocation percentage, and budget count.",
+      description = "Returns the authenticated user's actual balance, total allocated budgets, total spent, unallocated amount (balance minus the sum of max(0, amount - expense) per budget; may be negative when post-allocation drift occurs), allocation percentage, and budget count.",
       operationId = "getBudgetSummary"
   )
   @ApiResponses({

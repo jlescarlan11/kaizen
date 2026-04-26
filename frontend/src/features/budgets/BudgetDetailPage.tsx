@@ -149,7 +149,7 @@ export function BudgetDetailPage(): ReactElement {
             </div>
             <div className="space-y-2">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
-                Pool Availability
+                Unallocated
               </p>
               <p className="text-2xl font-black text-foreground tabular-nums">
                 {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
