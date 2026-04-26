@@ -166,7 +166,7 @@ export function TransactionList({
               : 'hover:bg-ui-accent-subtle/30',
             !tx.category &&
               !selectedIds.includes(tx.id) &&
-              'border-ui-warning bg-ui-warning-subtle/30',
+              'border-ui-warning bg-ui-warning-subtle',
           )}
         >
           <div className="flex items-center gap-6">
