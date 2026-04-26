@@ -8,6 +8,7 @@ import {
   useGetPaymentMethodTransactionCountQuery,
 } from '../../app/store/api/paymentMethodApi'
 import type { PaymentMethod } from './types'
+import { getErrorMessage } from '../../app/store/api/errors'
 
 interface PaymentMethodListProps {
   paymentMethods: PaymentMethod[]
@@ -105,8 +106,7 @@ function DeleteConfirmationModal({
       await deletePaymentMethod(pm.id).unwrap()
       onClose()
     } catch (err) {
-      const apiError = err as { data?: { message?: string }; message?: string }
-      setError(apiError.data?.message || apiError.message || 'Failed to delete payment method.')
+      setError(getErrorMessage(err, 'Failed to delete payment method.'))
     }
   }
 

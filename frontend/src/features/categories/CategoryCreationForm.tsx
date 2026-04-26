@@ -12,6 +12,7 @@ import {
   type CategoryIconName,
 } from './designSystem'
 import type { Category } from './types'
+import { getErrorMessage } from '../../app/store/api/errors'
 
 interface CategoryCreationFormProps {
   categories: Category[]
@@ -103,9 +104,12 @@ export function CategoryCreationForm({
     } catch (error) {
       console.error(`Category ${isEditMode ? 'update' : 'creation'} failed:`, error)
       setServerError(
-        isEditMode
-          ? 'Unable to update category. Please try again.'
-          : 'Unable to save category. Please try again.',
+        getErrorMessage(
+          error,
+          isEditMode
+            ? 'Unable to update category. Please try again.'
+            : 'Unable to save category. Please try again.',
+        ),
       )
     } finally {
       setIsSubmitting(false)
