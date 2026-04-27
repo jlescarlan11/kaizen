@@ -38,6 +38,7 @@ import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
+import { getErrorMessage } from '../../app/store/api/errors'
 
 export function ManualBudgetSetupPage(): ReactElement | null {
   const { user } = useAuthState()
@@ -415,11 +416,11 @@ export function ManualBudgetSetupPage(): ReactElement | null {
                   navigate('/', { replace: true })
                 } catch (err) {
                   console.error('Final onboarding completion failed:', err)
-                  const backendMessage = (err as { data?: { message?: string }; message?: string })
-                    ?.data?.message
                   setSubmissionError(
-                    backendMessage ||
+                    getErrorMessage(
+                      err,
                       'Unable to finish setup. Please check your allocations and try again.',
+                    ),
                   )
                 }
               }}

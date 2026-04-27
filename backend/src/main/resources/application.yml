@@ -54,6 +54,13 @@ springdoc:
     enabled: false
     path: /swagger-ui.html
 
+sentry:
+  dsn: ${SENTRY_DSN:}
+  enabled: ${SENTRY_ENABLED:false}
+  environment: ${SENTRY_ENVIRONMENT:dev}
+  send-default-pii: false
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.0}
+
 app:
   security:
     user:
@@ -71,10 +78,13 @@ app:
       token-uri: https://oauth2.googleapis.com/token
       user-info-uri: https://openidconnect.googleapis.com/v1/userinfo
     session:
-      # PRD Open Question 3: The session expiry duration. 
+      # PRD Open Question 3: The session expiry duration.
       # Substitute confirmed value here.
       expiry-days: ${APP_AUTH_SESSION_EXPIRY_DAYS:90}
       cookie-name: kzn_pst
+    rate-limit:
+      auth-post-capacity: ${APP_AUTH_RATE_LIMIT_CAPACITY:10}
+      auth-post-refill-period-seconds: ${APP_AUTH_RATE_LIMIT_REFILL_SECONDS:60}
     validation:
       max-balance-value: ${APP_VALIDATION_MAX_BALANCE_VALUE:999999999999.99}
       budget-balance-constraint-enabled: ${APP_VALIDATION_BUDGET_BALANCE_CONSTRAINT_ENABLED:true}

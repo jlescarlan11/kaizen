@@ -57,6 +57,12 @@ export interface BalanceHistoryResponse {
   history: BalanceHistoryEntry[]
 }
 
+export interface PaginatedTransactionsResponse {
+  items: TransactionResponse[]
+  hasMore: boolean
+  nextCursor?: string
+}
+
 export interface TransactionFilters {
   search?: string
   categoryIds?: number[]
@@ -91,7 +97,7 @@ export const transactionApi = baseApi.injectEndpoints({
         { type: 'PaymentMethods', id: 'SUMMARY' },
       ],
     }),
-    getTransactions: builder.query<TransactionResponse[], TransactionFilters | void>({
+    getTransactions: builder.query<PaginatedTransactionsResponse, TransactionFilters | void>({
       query: (params) => {
         const queryParams: Record<string, unknown> = { ...(params as Record<string, unknown>) }
 
@@ -117,8 +123,11 @@ export const transactionApi = baseApi.injectEndpoints({
         }
       },
       providesTags: (result) =>
-        result
-          ? [...result.map(({ id }) => ({ type: 'Transactions' as const, id })), 'Transactions']
+        result?.items
+          ? [
+              ...result.items.map(({ id }) => ({ type: 'Transactions' as const, id })),
+              'Transactions',
+            ]
           : ['Transactions'],
     }),
     getTransaction: builder.query<TransactionResponse, number>({

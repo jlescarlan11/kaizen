@@ -3,6 +3,7 @@ import { Input } from '../../shared/components/Input'
 import { Button } from '../../shared/components/Button'
 import { useCreatePaymentMethodMutation } from '../../app/store/api/paymentMethodApi'
 import type { PaymentMethod } from './types'
+import { getErrorMessage } from '../../app/store/api/errors'
 
 interface PaymentMethodCreationFormProps {
   paymentMethods: PaymentMethod[]
@@ -43,8 +44,7 @@ export function PaymentMethodCreationForm({
       setName('')
       onPaymentMethodSaved?.(result)
     } catch (err) {
-      const error = err as { data?: { message?: string }; message?: string }
-      setError(error.data?.message || error.message || 'Failed to create payment method.')
+      setError(getErrorMessage(err, 'Failed to create payment method.'))
     }
   }
 

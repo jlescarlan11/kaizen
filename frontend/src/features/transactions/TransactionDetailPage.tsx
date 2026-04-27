@@ -20,7 +20,7 @@ export function TransactionDetailPage(): ReactElement {
   const transactionId = Number(id)
 
   const { data: transaction, isLoading, error } = useGetTransactionQuery(transactionId)
-  const { data: allTransactions, isLoading: isLoadingAll } = useGetTransactionsQuery({
+  const { data: allTransactionsData, isLoading: isLoadingAll } = useGetTransactionsQuery({
     pageSize: 50,
   })
 
@@ -30,11 +30,12 @@ export function TransactionDetailPage(): ReactElement {
 
   // Filter related transactions (same category, excluding current one)
   const relatedTransactions = useMemo(() => {
-    if (!transaction || !allTransactions) return []
-    return allTransactions
+    const items = allTransactionsData?.items ?? []
+    if (!transaction || items.length === 0) return []
+    return items
       .filter((t) => t.id !== transaction.id && t.category?.id === transaction.category?.id)
       .slice(0, 3) // Only show top 3
-  }, [transaction, allTransactions])
+  }, [transaction, allTransactionsData])
 
   if (isLoading) {
     return (

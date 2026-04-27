@@ -28,6 +28,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.kaizen.backend.auth.config.AuthRateLimitFilter;
 import com.kaizen.backend.auth.config.PersistentSessionFilter;
 import com.kaizen.backend.auth.config.PublicEndpoint;
 
@@ -41,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final AuthRateLimitFilter authRateLimitFilter;
     private final PersistentSessionFilter persistentSessionFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
     private final AccessDeniedHandler accessDeniedHandler;
@@ -56,10 +58,22 @@ public class SecurityConfig {
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                // CSRF disabled by design. Threat model:
+                //  - This server hosts only an /api/* surface consumed by the SPA frontend
+                //    via fetch with credentials: 'include' (cookie auth) or persistent
+                //    session token. There are no server-rendered HTML forms.
+                //  - The session cookie is HttpOnly + Secure + SameSite=Lax (see
+                //    SessionProperties / GoogleOAuthController), which blocks third-party
+                //    sites from forging requests that include the cookie.
+                //  - Combined: SameSite=Lax provides effective CSRF protection without
+                //    requiring a token round-trip. Re-evaluate if any state-changing GET
+                //    is added (SameSite=Lax allows top-level navigation GETs).
+                // See backend/docs/SECURITY_DECISIONS.md for the full write-up.
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers
                         .cacheControl(cache -> cache.disable()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(persistentSessionFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // Anonymous probe gets only the /actuator/health summary endpoint;

@@ -47,6 +47,7 @@ import { type OnboardingStep } from './onboardingStep'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
 import { cn } from '../../shared/lib/cn'
 import { fluidLayout } from '../../shared/styles/layout'
+import { getErrorMessage } from '../../app/store/api/errors'
 
 function roundCurrency(value: number): number {
   return Number(value.toFixed(2))
@@ -431,9 +432,9 @@ export function OnboardingBudgetStep(): ReactElement | null {
       navigate('/', { replace: true })
     } catch (error) {
       console.error('Onboarding budget completion failed:', error)
-      const backendMessage = (error as { data?: { message?: string }; message?: string })?.data
-        ?.message
-      setSubmissionError(backendMessage || 'Unable to finish setup right now. Please try again.')
+      setSubmissionError(
+        getErrorMessage(error, 'Unable to finish setup right now. Please try again.'),
+      )
     }
   }
 

@@ -2,6 +2,7 @@ package com.kaizen.backend.auth.service;
 
 import com.kaizen.backend.auth.config.AuthFlowProperties;
 import jakarta.annotation.Nullable;
+import jakarta.annotation.PostConstruct;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -11,6 +12,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,12 +24,47 @@ public class OAuthTokenCipher {
     private static final int IV_LENGTH_BYTES = 12;
     private static final String VERSION_PREFIX = "v1";
 
+    /**
+     * The base64-encoded public test key shipped as the development default in application.yml.
+     * Decodes to "0123456789abcdef0123456789abcdef". The application refuses to start
+     * in prod/staging profiles when this key is still active.
+     */
+    private static final String FORBIDDEN_DEFAULT_KEY_BASE64 =
+            "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=";
+
     private final SecureRandom secureRandom = new SecureRandom();
     private final SecretKey secretKey;
+    private final String configuredKey;
+    private final Environment env;
 
-    public OAuthTokenCipher(AuthFlowProperties authFlowProperties) {
-        byte[] decodedKey = Base64.getDecoder().decode(authFlowProperties.tokenEncryptionKeyBase64());
+    public OAuthTokenCipher(AuthFlowProperties authFlowProperties, Environment env) {
+        this.configuredKey = authFlowProperties.tokenEncryptionKeyBase64();
+        this.env = env;
+        byte[] decodedKey = Base64.getDecoder().decode(this.configuredKey);
         this.secretKey = new SecretKeySpec(decodedKey, KEY_ALGORITHM);
+    }
+
+    @PostConstruct
+    void validateKey() {
+        if (configuredKey == null || configuredKey.isBlank()) {
+            throw new IllegalStateException(
+                    "APP_AUTH_TOKEN_ENCRYPTION_KEY_BASE64 must be set");
+        }
+        String[] activeProfiles = env.getActiveProfiles();
+        boolean isProdLike = false;
+        for (String p : activeProfiles) {
+            if (p.equalsIgnoreCase("prod") || p.equalsIgnoreCase("staging")) {
+                isProdLike = true;
+                break;
+            }
+        }
+        if (isProdLike && FORBIDDEN_DEFAULT_KEY_BASE64.equals(configuredKey)) {
+            throw new IllegalStateException(
+                    "APP_AUTH_TOKEN_ENCRYPTION_KEY_BASE64 is the public test default; "
+                    + "set a unique 256-bit base64-encoded key for the '"
+                    + String.join(",", activeProfiles)
+                    + "' profile.");
+        }
     }
 
     public String encrypt(String tokenValue) {

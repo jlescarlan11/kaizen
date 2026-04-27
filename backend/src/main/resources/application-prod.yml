@@ -18,6 +18,9 @@ management:
       # (or even authenticated) callers — the summary status is enough.
       show-details: never
 
+sentry:
+  enabled: true
+
 app:
   security:
     user:

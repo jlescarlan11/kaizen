@@ -24,6 +24,11 @@ import { useAppDispatch } from '../../../app/store/hooks'
 import { showAlert } from '../../../app/store/notificationSlice'
 import { validationGate } from '../lib/validationGate'
 import { getErrorMessage, SystemMessages } from '../utils/errorMessages'
+import {
+  getErrorMessage as getApiErrorMessage,
+  getFieldErrors,
+  hasFieldErrors,
+} from '../../../app/store/api/errors'
 
 interface TransactionEntryFormProps {
   editId?: number
@@ -340,13 +345,7 @@ export function TransactionEntryForm({
       }
     } catch (err: unknown) {
       console.error('Failed to save transaction:', err)
-      const error = err as {
-        status?: number | 'FETCH_ERROR'
-        data?: {
-          message?: string
-          errors?: Array<{ field: string; message: string; code: string }>
-        }
-      }
+      const fetchErr = err as { status?: number | 'FETCH_ERROR' }
 
       // Handle specific system-level errors
       let alertProps = {
@@ -357,27 +356,25 @@ export function TransactionEntryForm({
         autoRetry: false,
       }
 
-      if (error.status === 'FETCH_ERROR') {
+      if (fetchErr.status === 'FETCH_ERROR') {
         alertProps = {
           ...SystemMessages.NETWORK_TIMEOUT,
           type: 'error',
           dataSaved: false,
           autoRetry: true,
         }
-      } else if (error.data?.errors && Array.isArray(error.data.errors)) {
+      } else if (hasFieldErrors(err)) {
         // Handle structured validation errors from backend
-        const backendErrors: Record<string, string> = {}
-        error.data.errors.forEach((e: { field: string; message: string; code: string }) => {
-          backendErrors[e.field] = e.message
-        })
-        setErrors(backendErrors)
+        setErrors(getFieldErrors(err))
         alertProps.message = 'Please correct the highlighted errors.'
-      } else if (error.data?.message) {
-        alertProps.message = error.data.message
+      } else {
+        alertProps.message = getApiErrorMessage(err, 'An unexpected error occurred while saving.')
       }
 
       dispatch(showAlert(alertProps))
-      setErrors({ form: alertProps.message })
+      if (!hasFieldErrors(err)) {
+        setErrors({ form: alertProps.message })
+      }
     }
   }
 
