@@ -392,7 +392,7 @@ Same as Task 0 Step 6.
 
 - [ ] **Step 4: Confirm Session C target surfaces**
 
-Tell the user: *"Session C covers Insights (spending summary, category breakdown, trends, period selector) plus the settings cluster: Categories (list, create, edit, merge), Payment Methods (list, create, edit, delete), Goals (list, detail, create, edit). ~45 min."*
+Tell the user: *"Session C covers Insights (spending summary, category breakdown, trends, period selector) plus the settings cluster: Categories (list, create, edit, merge) and Payment Methods (list, create, edit, delete). ~30 min. Goals is excluded as WIP."*
 
 Wait for confirmation.
 
@@ -400,11 +400,11 @@ Wait for confirmation.
 
 ## Task 7: Session C — Walk Insights + settings cluster
 
-**Goal:** complete the walk for surfaces 7, 8, 9, 10. Append findings to spec §7 → Session C subsection.
+**Goal:** complete the walk for surfaces 7, 8, 9. Append findings to spec §7 → Session C subsection. (Goals is excluded as WIP.)
 
 **Files:**
 - Modify: `docs/superpowers/specs/2026-04-28-uiux-best-in-class-sweep-design.md`
-- Read: `frontend/src/features/insights/**`, `frontend/src/features/categories/**`, `frontend/src/features/payment-methods/**`, `frontend/src/features/goals/**`
+- Read: `frontend/src/features/insights/**`, `frontend/src/features/categories/**`, `frontend/src/features/payment-methods/**`
 
 - [ ] **Step 1: Walk Insights spending summary**
 
@@ -452,15 +452,9 @@ Walk each flow. Rhythm. Watch for: empty state (Apr 26 flagged missing CTA — v
 
 Append findings.
 
-- [ ] **Step 8: Walk Goals list + detail + create + edit**
+- [ ] **Step 8: Doc-state assertion**
 
-Walk each flow. Rhythm. Watch for: progress visualization, hero treatment on detail, form treatment, completion-state treatment.
-
-Append findings.
-
-- [ ] **Step 9: Doc-state assertion**
-
-Re-read spec §7 → Session C subsection. Verify coverage and field-completeness as in prior sessions.
+Re-read spec §7 → Session C subsection. Verify coverage and field-completeness as in prior sessions. (Goals is excluded as WIP — no Goals walk.)
 
 ---
 
@@ -485,8 +479,9 @@ git commit -m "$(cat <<'EOF'
 docs(audit): Session C findings — Insights + settings cluster
 
 Walked Insights (spending summary, category breakdown, trends, period
-selector), Categories, Payment Methods, and Goals against the eight-
-layer coverage rhythm. Foundation auto-promotion pass updated tags.
+selector), Categories, and Payment Methods against the eight-layer
+coverage rhythm. Goals excluded as WIP. Foundation auto-promotion
+pass updated tags.
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 EOF

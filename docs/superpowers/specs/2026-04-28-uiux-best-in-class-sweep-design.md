@@ -28,7 +28,7 @@
 
 ## 2. Page inventory and walk order
 
-### Surfaces in scope (12 surfaces + the global shell)
+### Surfaces in scope (11 surfaces + the global shell)
 
 | # | Surface | Sub-views to cover |
 |---|---------|--------------------|
@@ -42,18 +42,22 @@
 | 7 | **Insights** | Spending summary, category breakdown, trends, period selector |
 | 8 | **Categories** | List, create, edit, merge |
 | 9 | **Payment Methods** | List, create, edit, delete confirm |
-| 10 | **Goals** | List, detail, create, edit |
-| 11 | **Your Account** | Profile, sessions, settings groups |
-| 12 | **404 / Not Found** | The page itself + how it's reached |
+| 10 | **Your Account** | Profile, sessions, settings groups (incl. Appearance / theme toggle) |
+| 11 | **404 / Not Found** | The page itself + how it's reached |
 
-`playground` is excluded as internal-only.
+**Excluded from the walk** (treated as WIP / internal-only):
+- `playground` — internal-only
+- `Vault` — WIP placeholder; routed in the sidebar but not user-ready
+- `Goals` — WIP placeholder; routed in the sidebar but feature not yet implemented
+
+When excluded surfaces ship in a future release, they get their own targeted polish pass — they are NOT folded into the per-surface waves below.
 
 ### Suggested session boundaries (~2.5–3 hrs total)
 
 - **Session A (~45 min)** — logged-out (1, 2) + onboarding (3) + shell (0) + Home (4). The first-impression block.
 - **Session B (~45 min)** — money flows: Transactions (5) + Budgets (6).
-- **Session C (~45 min)** — Insights (7) + settings cluster (8, 9, 10).
-- **Session D (~30 min)** — Your Account (11), 404 (12), shell re-walk for cross-page issues.
+- **Session C (~30 min)** — Insights (7) + settings cluster (8, 9). (Reduced from ~45 min after Goals excluded.)
+- **Session D (~30 min)** — Your Account (10), 404 (11), shell re-walk for cross-page issues.
 
 **Order rationale.** Logged-out + onboarding first because the first-impression bar is highest there. Money flows second because they're highest-traffic and densest. Settings last because they're predictable. Shell findings get logged whenever they surface and revisited at the end.
 
@@ -184,7 +188,7 @@ A wave = the QUALITY + POLISH findings for one surface or one tight cluster. Sug
 - **Wave 4** — Transactions cluster (list, detail, filters, add/edit, bulk-delete)
 - **Wave 5** — Budgets cluster (list, detail, add/edit, manual setup)
 - **Wave 6** — Insights cluster
-- **Wave 7** — Settings cluster (Categories + Payment Methods + Goals + Your Account)
+- **Wave 7** — Settings cluster (Categories + Payment Methods + Your Account)
 - **Wave 8** — 404 + cross-cutting micro-fixes left over
 
 Cluster boundaries are starting points; the walk may suggest re-bundling.
@@ -245,7 +249,7 @@ Realistic total: **9–14 PRs.** That's the price of "best-in-class," but spread
 
 *(awaiting Session B)*
 
-### Session C — Insights + Categories + Payment Methods + Goals
+### Session C — Insights + Categories + Payment Methods
 
 *(awaiting Session C)*
 
