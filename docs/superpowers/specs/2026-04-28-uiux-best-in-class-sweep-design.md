@@ -5,28 +5,30 @@
 **Predecessors:** `docs/superpowers/specs/2026-04-26-pre-prod-audit.md`, `docs/superpowers/specs/2026-04-26-uiux-consistency-audit.md`
 **Quality bar:** Best-in-class — Linear / Vercel / Stripe. The app should *feel designed*, not merely correct.
 
+**Methodology:** Agent-orchestrated code-read audit. Same shape as the Apr 26 audit (parallel exploration agents per surface area, orchestrator-verified BLOCKERs) but raised to the higher quality bar and extended with a new `OPPORTUNITY` severity tier. No live walkthroughs, no synchronous user time required during discovery. Findings are produced from source-code reading; visual-only judgement (e.g., "this card feels cramped") is a deliberate gap that can be filled later with a lightweight screenshot pass if the user wants.
+
 ---
 
 ## 1. Goal and deliverable
 
-**What this spec produces:** an *audit document* — methodology, severity rubric, finding inventory with `file:line` citations, foundation-vs-page categorization, and a wave decomposition. This is the same shape as the Apr 26 audit but conducted via live walkthrough, against a higher quality bar, and across more coverage axes.
+**What this spec produces:** an *audit document* — methodology, severity rubric, finding inventory with `file:line` citations, foundation-vs-surface categorization, and a wave decomposition. Same shape as the Apr 26 audit, raised to the higher quality bar (best-in-class) and extended with a new OPPORTUNITY severity tier.
 
 **What this spec does NOT produce:** the fixes themselves. Each downstream wave (foundation, per-surface, cross-cutting opportunity) becomes its own `writing-plans → implementation` cycle, the same shape as Wave U-1a / U-1bcd shipped last week. This spec is the map; the journeys come after.
 
-**Why this framing.** "Best-in-class + live walkthrough + every coverage axis" will plausibly surface 80–150 findings. Fixing them as we walk would yield a half-finished mega-PR with no review boundary. Categorizing them into a finding inventory + wave plan keeps each downstream PR reviewable, lets the team pause/resume between waves, and means the walk itself can be done in 2–4 sittings instead of dragging across days of fix work.
+**Why this framing.** "Best-in-class" against a real codebase will plausibly surface 60–120 findings. Fixing them in one mega-PR would have no review boundary. Categorizing into a finding inventory + wave plan keeps each downstream PR reviewable, lets the team pause/resume between waves, and lets each wave plan land independently.
 
 **Doc lifecycle.** This document has two states:
 
-- **At spec-write time (now):** methodology, severity rubric, page inventory, walk protocol, wave principle, sequencing constraint. Sections 7 and 8 are intentionally empty and act as the output target for the walk.
-- **At end of Session D:** sections 7 and 8 fully populated; foundation auto-promotion run; cross-references filed. The "complete" state is the final deliverable.
+- **At spec-write time (now):** methodology, severity rubric, surface inventory, audit protocol, wave principle, sequencing constraint. Sections 7 and 8 are intentionally empty and act as the output target for the audit run.
+- **At end of audit run:** sections 7 and 8 fully populated; foundation auto-promotion run; cross-references filed. The "complete" state is the final deliverable.
 
-**Success criterion for the spec-write state:** sections 1–6 + 9–10 stable; severity rubric, finding format, and wave principle agreed; page inventory and session boundaries confirmed; open kickoff items enumerated.
+**Success criterion for the spec-write state:** sections 1–6 + 9–10 stable; severity rubric, finding format, and wave principle agreed; surface inventory locked.
 
-**Success criterion for the end-of-walk state:** finding inventory complete; every finding has citation (or visual-only marker), foundation/page tag, severity, fix sketch, effort; waves decomposed and prioritized; sequencing constraint applied to actual findings; cross-references to Apr 26 audit filed.
+**Success criterion for the end-of-audit state:** finding inventory complete; every finding has citation, foundation/surface tag, severity, fix sketch, effort; waves decomposed and prioritized; sequencing constraint applied to actual findings; cross-references to Apr 26 audit filed.
 
 ---
 
-## 2. Page inventory and walk order
+## 2. Surface inventory and audit dispatch order
 
 ### Surfaces in scope (11 surfaces + the global shell)
 
@@ -52,56 +54,66 @@
 
 When excluded surfaces ship in a future release, they get their own targeted polish pass — they are NOT folded into the per-surface waves below.
 
-### Suggested session boundaries (~2.5–3 hrs total)
+### Agent dispatch grouping
 
-- **Session A (~45 min)** — logged-out (1, 2) + onboarding (3) + shell (0) + Home (4). The first-impression block.
-- **Session B (~45 min)** — money flows: Transactions (5) + Budgets (6).
-- **Session C (~30 min)** — Insights (7) + settings cluster (8, 9). (Reduced from ~45 min after Goals excluded.)
-- **Session D (~30 min)** — Your Account (10), 404 (11), shell re-walk for cross-page issues.
+Surfaces are grouped into five parallel agent jobs (mirroring the Apr 26 audit's five-slice approach, scoped to UI/UX only):
 
-**Order rationale.** Logged-out + onboarding first because the first-impression bar is highest there. Money flows second because they're highest-traffic and densest. Settings last because they're predictable. Shell findings get logged whenever they surface and revisited at the end.
+- **Agent 1 — First impression cluster:** Shell (0), Signin (1), Register / OAuth callback (2), Onboarding (3).
+- **Agent 2 — Money flows:** Transactions (5), Budgets (6).
+- **Agent 3 — Insights & charts:** Insights (7) — including the chart-color primitives.
+- **Agent 4 — Settings cluster:** Categories (8), Payment Methods (9), Your Account (10), 404 (11).
+- **Agent 5 — Foundation primitives (cross-cutting):** `frontend/src/shared/components/**`, `frontend/src/styles/**`, `frontend/src/shared/styles/**`, the typography role catalog in `CODING_STANDARDS.md`, ESLint config — looking for primitive gaps, token-vocabulary drift, missing motion/density tokens, and any pattern that would be a foundation finding.
+
+**Surface 4 (Home / Dashboard)** is read by both Agent 1 (first-impression slice) and Agent 2 (data display slice) since it straddles both concerns. Duplicates are deduplicated during consolidation.
+
+**Why this split:** keeps each agent scoped to ~3–6 source dirs so no single agent runs out of context; mirrors the natural seams in the codebase; produces independent finding sets that consolidate cleanly.
 
 ---
 
-## 3. Walk methodology
+## 3. Audit methodology
 
-### Per-page rhythm (~15 min/page)
+### Process overview
 
-Instead of testing all 96 axis combinations per page, layer them in this order:
+1. **Brief preparation.** Orchestrator drafts a per-agent brief that includes (a) the surface scope, (b) the four-tier severity rubric (§ 4), (c) the finding-format template (§ 4), (d) a list of relevant Apr 26 audit findings to *reference but not re-discover*, (e) explicit "look for these patterns" prompts pegged to the higher quality bar.
+2. **Parallel dispatch.** All five agents run concurrently. Each returns a draft finding list against its surface scope.
+3. **Orchestrator verification.** For every BLOCKER claim *and* every claim flagged as "mandatory-standard violation," orchestrator independently re-reads the cited `file:line` to confirm the finding is real and the citation is correct. Agent claims are treated as high-confidence leads, not facts, until verified.
+4. **Consolidation.** Cross-agent duplicates are merged (e.g., the same shell finding may appear in Agents 1, 2, 3, 4 — collapses to one with `Recurrence: seen by 4 agents`). Foundation auto-promotion (§ 4) runs over the consolidated set.
+5. **Wave decomposition.** Findings are routed into Φ / Wave 1 / Wave 2..N / Ω per the principle in § 5. Each wave gets a finding list, effort estimate, sequencing position.
+6. **Doc commit.** Audit doc is fully populated and committed to `audit/uiux-best-in-class-sweep`.
 
-1. **Light + Desktop + Populated** — primary view. Composition, hierarchy, density, rhythm. ~3 min.
-2. **Toggle dark** (same window) — contrast, semantic-token slips, dark-only issues. ~1 min.
-3. **Resize to ~375px** (mobile, light mode) — overflow, nav shift, touch-target sizing. ~2 min.
-4. **Resize to ~768px** (tablet, quick check) — usually catches breakpoints mobile didn't. ~1 min.
-5. **Empty state** — clear data or use the empty-state route; quick light+dark glance. ~2 min.
-6. **Loading state** — throttle network in DevTools or trigger a slow query; capture skeleton/spinner treatment. ~1 min.
-7. **Error state** — force a failure (block request in DevTools or kill backend briefly) on the page's key call; capture how the page degrades. ~2 min.
-8. **Keyboard pass** — tab through every interactive; check focus rings, hover affordance, disabled treatment, modal focus traps. ~3 min.
+### Per-agent brief template
 
-### Roles during a session
+Each dispatched agent receives a brief in roughly this shape:
 
-- **User:** drives browser, toggles theme, resizes, navigates, pastes screenshots when something looks off (or when asked), describes what feels wrong.
-- **Claude:** reads source for the surface in view, cross-references descriptions to exact `file:line`, logs findings into a running draft of the audit doc, pushes proposed-fix mockups to the visual companion when before/after will help us decide.
+> **Surface scope:** `<list of feature dirs + shared dirs the agent owns>`.
+> **Reference docs (do not re-discover):** `CODING_STANDARDS.md` §1.7, `AGENTS.md`, `docs/superpowers/specs/2026-04-26-uiux-consistency-audit.md` (still-open finding IDs are: `<list>`).
+> **Severity rubric:** BLOCKER / QUALITY / POLISH / OPPORTUNITY (definitions inline).
+> **What to look for, in priority order:**
+> 1. Mandatory-standard violations (forbidden font weights, off-token colors, arbitrary sizes/tracking, missing landmarks).
+> 2. Visible inconsistency (parallel implementations of the same UX role, copy/terminology drift, mixed loading/empty/error patterns).
+> 3. Dark-mode token slips (any color reference that isn't a semantic token; any token that's been verified to fail dark-mode AAA contrast).
+> 4. Component-primitive opportunities (places where the same JSX shape is repeated 3+ times and should be a `shared/components` primitive).
+> 5. Motion / micro-interaction OPPORTUNITY findings (places where the absence of a transition or hover affordance is *noticeable* against the best-in-class bar).
+> 6. Data-display OPPORTUNITY findings (dense tables/lists/charts where density modes, smarter sorting, or richer empty states would meaningfully raise quality).
+> **Output format:** one Markdown block per finding with the fields in § 4. Cite `file:line` for every finding. If a finding lacks a citation, drop it.
+> **Quality bar reminder:** we're at "Linear / Vercel / Stripe" not "no obvious bugs". If a surface looks correct-but-uninspired, that's an OPPORTUNITY finding worth filing.
 
-**Constraint to honour.** Claude cannot see the user's browser directly. Findings driven by visual-only judgement (spacing rhythm, density feel, contrast under dark mode) require the user to paste a screenshot or describe explicitly. Code-traceable findings are augmented with `file:line` citations from source reading.
+### Tooling
 
-### Tooling expectations
+- Agents use Read, Grep, Glob (read-only). No edits during discovery.
+- Orchestrator uses Read, Bash (grep/find), Edit (only for the audit doc).
+- Visual companion at `http://localhost:53177` is available for the orchestrator to push proposed-fix mockups during downstream wave-planning, not during the audit run itself.
 
-- DevTools open the entire walk: responsive mode, network throttle, request blocking, device emulation.
-- Screenshots: `cmd+shift+ctrl+4` (or OS equivalent) → paste directly into chat.
-- Theme toggle: whatever the shell exposes; OS-level fallback if needed.
-- Test data: a logged-in account with a few budgets, ~20+ transactions across multiple categories, ≥1 goal, ≥2 payment methods. If absent, write a one-time seed script before Session A.
-- Visual companion at `http://localhost:63537` (or whichever port the brainstorming server reports for this session) for mockup pushes.
+### What this methodology gives up (deliberate gap)
 
-### Real-time logging
+Pure-visual findings — those that require seeing pixels in the browser — won't surface from code-read alone. Examples:
 
-- Maintain a working draft of this same doc throughout the walk — append findings under the per-session section (§ 7).
-- Each finding gets ID, severity, citation (or visual-only marker), foundation/page tag, evidence, impact, fix sketch, effort.
-- After each session, commit the running doc to the `audit/uiux-best-in-class-sweep` branch.
+- Spacing rhythm at specific breakpoints that "feels off" without violating a token.
+- Dark-mode contrast that passes math but feels muddy.
+- Animation timing that feels sluggish.
+- Density that feels cramped or sparse without a measurable token violation.
 
-### Pause/resume contract
-
-If a session pauses, the doc state is the resumption point. The next session starts by reading "where we left off" from the doc + the task list — no oral handoff required.
+Estimated 10–15% of total findings would fall in this gap. If the user wants to close the gap later, an optional lightweight screenshot pass can fill it in: user pastes ~10–15 screenshots of pages that "feel off"; orchestrator files visual-only findings against them. This is **out of scope for the initial audit run** but explicitly preserved as a follow-on option.
 
 ---
 
@@ -239,23 +251,31 @@ Realistic total: **9–14 PRs.** That's the price of "best-in-class," but spread
 
 ## 7. Finding inventory
 
-> **Output target.** This section is intentionally empty at spec-write time and gets filled in during sessions A–D. Each session appends its findings under the matching subheading. Foundation auto-promotion (§ 4) is run at end of session, not mid-walk.
+> **Output target.** This section is intentionally empty at spec-write time. After the agent dispatch + orchestrator consolidation finishes, findings land here grouped by the agent that surfaced them (with cross-agent duplicates merged). Foundation auto-promotion (§ 4) runs over the consolidated set before this section is finalised.
 
-### Session A — logged-out + onboarding + shell + Home
+### Agent 1 — First impression (Shell, Signin, Register/OAuth, Onboarding, Home)
 
-*(awaiting Session A)*
+*(awaiting consolidation)*
 
-### Session B — Transactions + Budgets
+### Agent 2 — Money flows (Transactions, Budgets, Home)
 
-*(awaiting Session B)*
+*(awaiting consolidation)*
 
-### Session C — Insights + Categories + Payment Methods
+### Agent 3 — Insights & charts
 
-*(awaiting Session C)*
+*(awaiting consolidation)*
 
-### Session D — Your Account + 404 + cross-cutting cleanup
+### Agent 4 — Settings cluster (Categories, Payment Methods, Your Account, 404)
 
-*(awaiting Session D)*
+*(awaiting consolidation)*
+
+### Agent 5 — Foundation primitives
+
+*(awaiting consolidation)*
+
+### Cross-cutting (consolidated from multiple agents)
+
+*(awaiting consolidation)*
 
 ---
 
@@ -274,9 +294,10 @@ Realistic total: **9–14 PRs.** That's the price of "best-in-class," but spread
 
 **For this spec (the audit doc):**
 
-- Every page in the inventory walked across all four coverage axes (light/dark, desktop/tablet/mobile, populated/empty/loading/error, hover/focus/active/disabled).
-- Every finding has ID, severity, foundation/page tag, citation (or visual-only marker), evidence, impact, fix sketch, effort.
-- Foundation findings deduplicated and recurrence-counted.
+- Every surface in the inventory was assigned to and read by an agent.
+- Every BLOCKER finding has been independently re-verified by the orchestrator (re-read at the cited `file:line`).
+- Every finding has ID, severity, foundation/surface tag, `file:line` citation, evidence, impact, fix sketch, effort.
+- Cross-agent duplicates merged; foundation findings deduplicated and recurrence-counted.
 - Wave decomposition concrete: each wave has a name, a finding list, an estimated effort, a sequencing position.
 - Cross-references to Apr 26 findings filed.
 
@@ -284,19 +305,16 @@ Realistic total: **9–14 PRs.** That's the price of "best-in-class," but spread
 
 - Φ landed: one canonical token vocabulary; ESLint guards in place; typography roles enforced; dark-mode contrast verified; motion primitives defined.
 - All BLOCKER and QUALITY findings closed.
-- Re-walk of any 3 randomly-picked surfaces produces zero new BLOCKER/QUALITY findings.
+- Re-audit (re-running 1–2 of the agents from this spec, or a fresh agent on a previously-clean surface) produces zero new BLOCKER/QUALITY findings.
 - POLISH and OPPORTUNITY findings tracked but not gating.
-- Deployment-ready: app feels intentional and cohesive across pages, themes, breakpoints, and states.
+- Deployment-ready: app feels intentional and cohesive across pages, themes, and states.
 
 ---
 
-## 10. Open kickoff items (to confirm at Session A start)
+## 10. Open kickoff items
 
-Not blocking the spec. Blocking the first walk:
+Most kickoff friction was eliminated by the pivot to agent-orchestrated audit (no live walkthrough → no test-data seeding, screenshot flow, theme toggle path, or dev-server bring-up needed for discovery). What remains:
 
-1. **Test data state** — does a logged-in account already exist with a few budgets, ~20+ transactions, ≥1 goal, ≥2 payment methods? If not, write a one-time seed script before Session A.
-2. **Screenshot flow** — confirm `cmd+shift+ctrl+4` (or OS equivalent) → paste-into-chat works.
-3. **Theme toggle path** — confirm where the light/dark toggle lives in the shell.
-4. **Dev server bring-up** — `npm run dev` in `frontend/` and the backend equivalent come up clean.
-5. **Branch** — `audit/uiux-best-in-class-sweep` already created and is the working branch for the audit doc + per-session commits. Confirm naming is OK or rename before Session A.
-6. **Housekeeping** — add `.superpowers/` to `.gitignore` so brainstorm session files don't get tracked.
+1. **Branch** — `audit/uiux-best-in-class-sweep` already created and is the working branch.
+2. **Housekeeping** — `.superpowers/` already added to `.gitignore` (commit `c2c5a46`).
+3. **Optional follow-on screenshot pass** — if the user wants to fill the visual-only gap (~10–15% of findings), they can paste 10–15 screenshots of pages that "feel off" *after* the audit run completes; orchestrator will file visual-only findings as a supplementary section in § 7.
