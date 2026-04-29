@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { Button } from '../../shared/components/Button'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
 
@@ -81,9 +82,10 @@ export function BudgetDetailPage(): ReactElement {
         </div>
 
         <div className="flex flex-col gap-4 w-full md:w-auto">
-          <button
+          <Button
+            variant="secondaryLg"
             onClick={handleEdit}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
+            className="flex items-center gap-2 group"
           >
             <SharedIcon
               type="ui"
@@ -91,8 +93,8 @@ export function BudgetDetailPage(): ReactElement {
               size={12}
               className="text-muted-foreground group-hover:text-primary transition-colors"
             />
-            Edit Configuration
-          </button>
+            Edit Budget
+          </Button>
         </div>
       </header>
 

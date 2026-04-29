@@ -63,7 +63,10 @@ const BudgetRow = ({
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
+                      <Badge
+                        variant="error"
+                        className="text-xs uppercase font-semibold px-1.5 py-0"
+                      >
                         Overbudget
                       </Badge>
                     )}

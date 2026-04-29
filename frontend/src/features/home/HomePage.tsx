@@ -99,7 +99,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
           <span className="ml-1 text-xs text-muted-foreground font-normal">PHP</span>
         </p>
         <Badge
-          tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+          variant={tx.type === 'INCOME' ? 'success' : 'neutral'}
           className="text-xs uppercase font-semibold px-2 py-0.5 mt-1"
         >
           {tx.type}
@@ -150,7 +150,10 @@ const BudgetRow = ({
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
+                      <Badge
+                        variant="error"
+                        className="text-xs uppercase font-semibold px-1.5 py-0"
+                      >
                         Overbudget
                       </Badge>
                     )}
@@ -302,7 +305,7 @@ const GoalPlaceholderRow = () => {
           Track your progress towards big purchases or emergency funds.
         </p>
       </div>
-      <Badge tone="neutral" className="text-xs uppercase font-semibold tracking-wide px-3 py-1">
+      <Badge variant="neutral" className="text-xs uppercase font-semibold tracking-wide px-3 py-1">
         Coming Soon
       </Badge>
     </div>

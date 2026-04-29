@@ -51,6 +51,7 @@ export function Input({
               startAdornmentPointerEvents === 'auto'
                 ? 'pointer-events-auto'
                 : 'pointer-events-none',
+              props.disabled && 'opacity-60',
             )}
           >
             {startAdornment}
@@ -71,7 +72,12 @@ export function Input({
           )}
         />
         {endAdornment ? (
-          <div className="pointer-events-none absolute right-3 flex items-center text-sm font-medium text-subtle-foreground uppercase">
+          <div
+            className={cn(
+              'pointer-events-none absolute right-3 flex items-center text-sm font-medium text-subtle-foreground uppercase',
+              props.disabled && 'opacity-60',
+            )}
+          >
             {endAdornment}
           </div>
         ) : null}

@@ -68,7 +68,7 @@ export function CategoryManagementPage(): ReactElement {
       </header>
 
       {error && (
-        <Card tone="warning">
+        <Card variant="warning">
           <p className="text-sm text-foreground">{error}</p>
         </Card>
       )}

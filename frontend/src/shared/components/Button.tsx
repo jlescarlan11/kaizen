@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactElement, ForwardedRef } from 'react'
 import { forwardRef } from 'react'
 import { cn } from '../lib/cn'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive' | 'outline' | 'secondaryLg'
 
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl'
 
@@ -18,11 +18,13 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     'border border-ui-border bg-ui-surface text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface disabled:text-foreground disabled:opacity-60',
   ghost:
-    'border border-transparent bg-transparent text-foreground hover:bg-ui-surface-muted hover:text-foreground focus-visible:ring-ui-focus disabled:text-foreground disabled:opacity-60',
+    'border border-transparent bg-transparent text-foreground hover:bg-ui-surface-muted hover:text-foreground focus-visible:ring-ui-focus focus-visible:ring-offset-1 disabled:text-foreground disabled:opacity-60',
   destructive:
     'border border-transparent bg-ui-danger text-ui-danger-text hover:bg-ui-danger-hover active:bg-ui-danger-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
   outline:
-    'border border-ui-border bg-transparent text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-transparent disabled:text-foreground disabled:opacity-60',
+    'border border-ui-border bg-transparent text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus focus-visible:ring-offset-1 disabled:border-ui-border disabled:bg-transparent disabled:text-foreground disabled:opacity-60',
+  secondaryLg:
+    'border border-ui-border bg-ui-surface rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 focus-visible:ring-ui-focus focus-visible:ring-offset-1 shadow-sm disabled:opacity-50',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {

@@ -42,7 +42,7 @@ export function BalanceSummaryHero({
         </p>
 
         <Badge
-          tone={isPositive ? 'success' : 'error'}
+          variant={isPositive ? 'success' : 'error'}
           emphasis="soft"
           className="px-3 py-1 gap-1.5 self-end mb-0.5"
         >

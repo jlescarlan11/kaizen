@@ -343,10 +343,10 @@ export function PlaygroundPage(): ReactElement {
           <div className="flex flex-wrap gap-2">
             <Badge>Draft</Badge>
             <Badge>Announcement</Badge>
-            <Badge tone="success">Paid</Badge>
-            <Badge tone="warning">Pending review</Badge>
-            <Badge tone="error">Failed</Badge>
-            <Badge tone="error" emphasis="solid">
+            <Badge variant="success">Paid</Badge>
+            <Badge variant="warning">Pending review</Badge>
+            <Badge variant="error">Failed</Badge>
+            <Badge variant="error" emphasis="solid">
               Blocked
             </Badge>
           </div>
@@ -357,13 +357,13 @@ export function PlaygroundPage(): ReactElement {
             Callout Recipes
           </h2>
           <div className="space-y-3">
-            <Card tone="accent" className="rounded-lg p-4">
+            <Card variant="accent" className="rounded-lg p-4">
               <p className="text-sm font-medium leading-none">Accent highlight</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Use the green brand system for selection, focus, and emphasis.
               </p>
             </Card>
-            <Card tone="warning" className="rounded-lg p-4">
+            <Card variant="warning" className="rounded-lg p-4">
               <p className="text-sm font-medium leading-none">Warning callout</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
                 Reserve orange and red for the rare cases where meaning truly matters.

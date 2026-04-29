@@ -6,6 +6,7 @@ import {
   useGetTransactionsQuery,
 } from '../../app/store/api/transactionApi'
 import { Modal } from '../../shared/components/Modal'
+import { Button } from '../../shared/components/Button'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionDetailHeader } from './components/TransactionDetailHeader'
 import { TransactionDetailInfo } from './components/TransactionDetailInfo'
@@ -51,12 +52,9 @@ export function TransactionDetailPage(): ReactElement {
         <h2 className="text-xl font-semibold text-foreground uppercase tracking-wide">
           Transaction not found
         </h2>
-        <button
-          onClick={() => navigate('/transactions')}
-          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
-        >
+        <Button variant="secondaryLg" onClick={() => navigate('/transactions')}>
           Back to Transactions
-        </button>
+        </Button>
       </div>
     )
   }
