@@ -144,6 +144,9 @@
 body {
   margin: 0;
   min-width: 320px;
+  transition-property: color, background-color, border-color;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-ease-standard);
 }
 
 @layer utilities {
