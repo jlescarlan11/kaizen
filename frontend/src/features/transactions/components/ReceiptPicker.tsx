@@ -1,6 +1,6 @@
 import { type ReactElement, useRef, useState, useEffect } from 'react'
 import { cn } from '../../../shared/lib/cn'
-import { Camera, X, Image as ImageIcon, FileText } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 import type { AttachmentResponse } from '../../../app/store/api/transactionApi'
 
 interface ReceiptPickerProps {
@@ -73,7 +73,7 @@ export function ReceiptPicker({
             file && 'border-primary/30 bg-primary/5',
           )}
         >
-          <Camera className="h-6 w-6 text-muted-foreground" />
+          <SharedIcon type="ui" name="camera" size={24} className="text-muted-foreground" />
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {file || hasExisting ? 'Replace' : 'Attach'}
           </span>
@@ -86,7 +86,7 @@ export function ReceiptPicker({
               <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
-                <FileText className="h-8 w-8 text-primary" />
+                <SharedIcon type="ui" name="note" size={32} className="text-primary" />
                 <span className="text-xs font-medium truncate w-full px-1">{file.name}</span>
               </div>
             )}
@@ -95,7 +95,7 @@ export function ReceiptPicker({
               onClick={removeFile}
               className="absolute top-1 right-1 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <X className="h-4 w-4" />
+              <SharedIcon type="ui" name="close" size={16} />
             </button>
             <div className="absolute bottom-0 inset-x-0 bg-primary/80 py-0.5 text-xs font-semibold text-white text-center uppercase">
               New
@@ -112,12 +112,17 @@ export function ReceiptPicker({
             >
               {att.mimeType.startsWith('image/') ? (
                 <div className="h-full w-full flex items-center justify-center bg-muted/20">
-                  <ImageIcon className="h-8 w-8 text-muted-foreground/40" />
+                  <SharedIcon
+                    type="ui"
+                    name="image"
+                    size={32}
+                    className="text-muted-foreground/40"
+                  />
                   {/* In a real app we'd show the actual image here, but for now just an icon */}
                 </div>
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
-                  <FileText className="h-8 w-8 text-primary/60" />
+                  <SharedIcon type="ui" name="note" size={32} className="text-primary/60" />
                   <span className="text-xs font-medium truncate w-full px-1 text-muted-foreground">
                     {att.filename}
                   </span>

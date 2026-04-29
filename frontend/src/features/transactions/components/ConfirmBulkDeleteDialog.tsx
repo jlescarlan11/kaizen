@@ -1,6 +1,6 @@
 import { type ReactElement } from 'react'
-import { Trash2 } from 'lucide-react'
 import { DestructiveActionDialog } from '../../../shared/components/DestructiveActionDialog'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 
 interface ConfirmBulkDeleteDialogProps {
   isOpen: boolean
@@ -36,7 +36,7 @@ export function ConfirmBulkDeleteDialog({
       }
       warning={
         <p className="font-semibold uppercase tracking-wider flex items-center gap-2">
-          <Trash2 className="h-3 w-3 shrink-0" />
+          <SharedIcon type="ui" name="trash" size={12} className="shrink-0" />
           This action cannot be undone
         </p>
       }

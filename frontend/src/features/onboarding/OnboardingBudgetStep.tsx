@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { BudgetCard } from '../budgets/components/BudgetCard'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
@@ -549,7 +549,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
               aria-label="Finish setup"
             >
               <span className="hidden sm:inline">Finish setup</span>
-              <Check className="h-6 w-6 sm:hidden" />
+              <SharedIcon type="ui" name="check" size={24} className="sm:hidden" />
             </Button>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { type ReactElement, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { useUpdateOnboardingProgressMutation } from '../../app/store/api/authApi'
 import { ONBOARDING_STEP_ROUTE_MAP, type OnboardingStep } from './onboardingStep'
@@ -164,7 +164,7 @@ export function BalanceSetupStep(): ReactElement {
             aria-label="Continue to budgets"
           >
             <span className="hidden sm:inline">Continue to budgets</span>
-            <ArrowRight className="h-6 w-6 sm:hidden" />
+            <SharedIcon type="ui" name="arrow-right" size={24} className="sm:hidden" />
           </Button>
         </div>
 

@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
-import { Pencil, Trash2 } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { cn } from '../../../shared/lib/cn'
 import { Button } from '../../../shared/components/Button'
 
@@ -24,7 +24,9 @@ export function TransactionActionGroup({
         disabled={isProcessing}
         className="flex items-center gap-2 group"
       >
-        <Pencil
+        <SharedIcon
+          type="ui"
+          name="edit"
           size={12}
           className="text-muted-foreground group-hover:text-primary transition-colors"
         />
@@ -37,7 +39,9 @@ export function TransactionActionGroup({
         disabled={isProcessing}
         className="flex items-center gap-2 group hover:text-ui-danger hover:border-ui-danger/30"
       >
-        <Trash2
+        <SharedIcon
+          type="ui"
+          name="trash"
           size={12}
           className="text-muted-foreground group-hover:text-ui-danger transition-colors"
         />

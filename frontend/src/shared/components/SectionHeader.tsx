@@ -1,6 +1,6 @@
 import { type ReactElement } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { SharedIcon } from './IconRegistry'
 import { cn } from '../lib/cn'
 
 interface SectionHeaderProps {
@@ -21,7 +21,7 @@ export function SectionHeader({ title, seeAllHref, className }: SectionHeaderPro
           to={seeAllHref}
           className="text-sm font-semibold text-primary hover:underline flex items-center gap-0.5"
         >
-          See all <ChevronRight className="h-4 w-4" />
+          See all <SharedIcon type="ui" name="chevron-right" size={16} />
         </Link>
       )}
     </div>

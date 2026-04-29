@@ -1,5 +1,5 @@
 import { type ReactElement, useState } from 'react'
-import { Plus, X, Receipt, Wallet, Target, Hand } from 'lucide-react'
+import { SharedIcon } from './IconRegistry'
 import { cn } from '../lib/cn'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 
@@ -29,7 +29,7 @@ export function AddEntryFAB({
 
   const actions = [
     {
-      icon: <Receipt className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="receipt" size={20} />,
       label: 'Add Transaction',
       onClick: () => {
         onAddTransaction()
@@ -38,7 +38,7 @@ export function AddEntryFAB({
       color: 'bg-ui-action text-ui-action-text',
     },
     {
-      icon: <Wallet className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="wallet" size={20} />,
       label: 'Create Budget',
       onClick: () => {
         onCreateBudget()
@@ -47,7 +47,7 @@ export function AddEntryFAB({
       color: 'bg-ui-accent text-foreground',
     },
     {
-      icon: <Target className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="target" size={20} />,
       label: 'Create Goal',
       onClick: () => {
         onCreateGoal()
@@ -56,7 +56,7 @@ export function AddEntryFAB({
       color: 'bg-ui-success text-ui-success-text',
     },
     {
-      icon: <Hand className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="hand" size={20} />,
       label: 'Hold Purchase',
       onClick: () => {
         onHoldPurchase()
@@ -124,9 +124,9 @@ export function AddEntryFAB({
         )}
       >
         {isOpen ? (
-          <X className="h-5 w-5" strokeWidth={2.5} />
+          <SharedIcon type="ui" name="close" size={20} />
         ) : (
-          <Plus className="h-5 w-5" strokeWidth={2.5} />
+          <SharedIcon type="ui" name="plus" size={20} />
         )}
       </button>
     </div>

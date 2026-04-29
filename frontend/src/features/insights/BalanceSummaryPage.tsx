@@ -13,7 +13,7 @@ import { SummaryFilterBar } from './components/SummaryFilterBar'
 import { TrendInsights } from './components/TrendInsights'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
-import { ChevronDown, ChevronUp, Download } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { deliverExportFile } from '../transactions/export/exportDelivery'
 
 export function BalanceSummaryPage(): ReactElement {
@@ -121,7 +121,7 @@ export function BalanceSummaryPage(): ReactElement {
             disabled={isTrendsLoading || !balanceTrends.series.length}
             className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm"
           >
-            <Download size={12} />
+            <SharedIcon type="ui" name="download" size={12} />
             Export Data (CSV)
           </button>
         </div>
@@ -160,9 +160,9 @@ export function BalanceSummaryPage(): ReactElement {
               <div className="flex items-center gap-2 text-xs font-semibold uppercase text-primary group-hover:translate-x-1 transition-all">
                 {showAccountBreakdown ? 'Collapse Assets' : 'Expand Assets'}
                 {showAccountBreakdown ? (
-                  <ChevronUp size={12} strokeWidth={3} />
+                  <SharedIcon type="ui" name="chevron-up" size={12} />
                 ) : (
-                  <ChevronDown size={12} strokeWidth={3} />
+                  <SharedIcon type="ui" name="chevron-down" size={12} />
                 )}
               </div>
             </div>

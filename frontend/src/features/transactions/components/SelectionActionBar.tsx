@@ -8,7 +8,7 @@ import {
 } from '../transactionSlice'
 import { Button } from '../../../shared/components/Button'
 import { Card } from '../../../shared/components/Card'
-import { Trash2, X } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 
 interface SelectionActionBarProps {
   onDeleteRequest: () => void
@@ -39,7 +39,7 @@ export function SelectionActionBar({
             onClick={handleExit}
             title="Exit selection mode"
           >
-            <X size={18} />
+            <SharedIcon type="ui" name="close" size={18} />
           </Button>
           <p className="font-semibold text-white tracking-tight">
             <span className="text-primary-light mr-1">{selectedIds.length}</span>
@@ -53,7 +53,7 @@ export function SelectionActionBar({
             onClick={onDeleteRequest}
             disabled={selectedIds.length === 0}
           >
-            <Trash2 className="h-3.5 w-3.5 mr-2" />
+            <SharedIcon type="ui" name="trash" size={14} className="mr-2" />
             Delete
           </Button>
         </div>

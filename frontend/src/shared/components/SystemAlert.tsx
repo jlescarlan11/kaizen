@@ -3,7 +3,7 @@ import { Card } from './Card'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { selectActiveAlert, setAlert } from '../../app/store/notificationSlice'
 import { cn } from '../lib/cn'
-import { X, CheckCircle, AlertCircle, Info, RefreshCw } from 'lucide-react'
+import { SharedIcon } from './IconRegistry'
 
 export function SystemAlert(): ReactElement | null {
   const dispatch = useAppDispatch()
@@ -18,9 +18,9 @@ export function SystemAlert(): ReactElement | null {
   }
 
   const icons = {
-    success: <CheckCircle className="h-5 w-5" />,
-    error: <AlertCircle className="h-5 w-5" />,
-    info: <Info className="h-5 w-5" />,
+    success: <SharedIcon type="ui" name="check-circle" size={20} />,
+    error: <SharedIcon type="ui" name="alert-circle" size={20} />,
+    info: <SharedIcon type="ui" name="info" size={20} />,
   }
 
   return (
@@ -46,7 +46,12 @@ export function SystemAlert(): ReactElement | null {
                 <span className="flex items-center gap-1">
                   {activeAlert.autoRetry ? (
                     <>
-                      <RefreshCw className="h-3 w-3 animate-spin-slow" />
+                      <SharedIcon
+                        type="ui"
+                        name="refresh"
+                        size={12}
+                        className="animate-spin-slow"
+                      />
                       Automatic Retry Pending
                     </>
                   ) : (
@@ -63,7 +68,7 @@ export function SystemAlert(): ReactElement | null {
           className="h-fit p-1 hover:bg-current/10 rounded-full transition-colors"
           aria-label="Close alert"
         >
-          <X className="h-4 w-4" />
+          <SharedIcon type="ui" name="close" size={16} />
         </button>
       </Card>
     </div>

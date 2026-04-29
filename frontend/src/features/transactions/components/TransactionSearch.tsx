@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { Input } from '../../../shared/components/Input'
-import { Search, X } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 
 interface TransactionSearchProps {
   value: string
@@ -15,7 +15,7 @@ export function TransactionSearch({ value, onChange }: TransactionSearchProps): 
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="h-10 border-ui-border-subtle bg-ui-surface-muted/30 focus:bg-ui-surface transition-colors"
-        startAdornment={<Search className="h-4 w-4" strokeWidth={2.5} />}
+        startAdornment={<SharedIcon type="ui" name="search" size={16} />}
         endAdornment={
           value ? (
             <button
@@ -23,7 +23,7 @@ export function TransactionSearch({ value, onChange }: TransactionSearchProps): 
               className="text-muted-foreground hover:text-foreground transition-colors p-1 pointer-events-auto"
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" strokeWidth={2.5} />
+              <SharedIcon type="ui" name="close" size={16} />
             </button>
           ) : null
         }

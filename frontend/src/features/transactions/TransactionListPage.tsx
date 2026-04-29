@@ -7,7 +7,7 @@ import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
 import { ExportModal } from './components/ExportModal'
-import { Download } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
@@ -20,7 +20,6 @@ import {
   clearSelection,
   selectSelectedIds,
 } from './transactionSlice'
-import { CheckSquare, X } from 'lucide-react'
 import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
@@ -171,12 +170,12 @@ export function TransactionListPage(): ReactElement {
                 >
                   {isSelectionMode ? (
                     <>
-                      <X className="h-4 w-4 mr-2" />
+                      <SharedIcon type="ui" name="close" size={16} className="mr-2" />
                       Exit Select
                     </>
                   ) : (
                     <>
-                      <CheckSquare className="h-4 w-4 mr-2" />
+                      <SharedIcon type="ui" name="check-square" size={16} className="mr-2" />
                       Select
                     </>
                   )}
@@ -191,7 +190,7 @@ export function TransactionListPage(): ReactElement {
                   className="h-10 px-4 border border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30"
                   onClick={() => setIsExportModalOpen(true)}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <SharedIcon type="ui" name="download" size={16} className="mr-2" />
                   Export
                 </Button>
               </div>
