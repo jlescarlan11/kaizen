@@ -37,7 +37,7 @@ export function ConfirmBulkDeleteDialog({
       warning={
         <p className="font-semibold uppercase tracking-wider flex items-center gap-2">
           <SharedIcon type="ui" name="trash" size={12} className="shrink-0" />
-          This action cannot be undone
+          You can undo this immediately after
         </p>
       }
       confirmLabel={`Delete ${count} ${count === 1 ? 'Transaction' : 'Transactions'}`}

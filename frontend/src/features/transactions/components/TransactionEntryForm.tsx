@@ -29,6 +29,7 @@ import {
   getFieldErrors,
   hasFieldErrors,
 } from '../../../app/store/api/errors'
+import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
 interface TransactionEntryFormProps {
   editId?: number
@@ -184,7 +185,7 @@ export function TransactionEntryForm({
 
       const val = parseFloat(targetAmount)
       if (targetType === 'EXPENSE' && !isNaN(val) && val > currentAvailableBalance) {
-        next.amount = `Insufficient balance. Available: PHP ${currentAvailableBalance.toFixed(2)}`
+        next.amount = `Insufficient balance. Available: ${formatCurrency(currentAvailableBalance)}`
       } else if (next.amount?.includes('Insufficient balance')) {
         delete next.amount
       }
@@ -268,7 +269,7 @@ export function TransactionEntryForm({
       })
 
       if (type === 'EXPENSE' && insufficientBalance) {
-        newErrors.amount = `Insufficient balance. Available: PHP ${availableBalance.toFixed(2)}`
+        newErrors.amount = `Insufficient balance. Available: ${formatCurrency(availableBalance)}`
       }
 
       setErrors(newErrors)
@@ -386,7 +387,7 @@ export function TransactionEntryForm({
     )
   }
 
-  const balanceTone = insufficientBalance ? 'text-error' : 'text-primary'
+  const balanceTone = insufficientBalance ? 'text-ui-danger-text-soft' : 'text-primary'
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -395,7 +396,6 @@ export function TransactionEntryForm({
           value={type}
           onChange={(newType) => {
             setType(newType)
-            validateField('type', newType)
           }}
         />
       )}
@@ -444,7 +444,7 @@ export function TransactionEntryForm({
         {paymentMethodId && type === 'EXPENSE' && (
           <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
             <span className={`text-xs font-semibold ${balanceTone}`}>
-              Balance: PHP {availableBalance.toLocaleString()}
+              Balance: {formatCurrency(availableBalance)}
             </span>
           </div>
         )}

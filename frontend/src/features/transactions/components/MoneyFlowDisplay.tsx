@@ -15,6 +15,14 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
 }) => {
   const percentage = Math.min(Math.max(ratio * 100, 0), 100)
 
+  if (incoming === 0 && outgoing === 0) {
+    return (
+      <p className="text-sm text-muted-foreground text-center py-4 italic">
+        No transactions this period
+      </p>
+    )
+  }
+
   return (
     <div className="space-y-4" data-testid="money-flow-display">
       <div className="grid grid-cols-2 gap-4">
