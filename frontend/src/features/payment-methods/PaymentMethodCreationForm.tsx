@@ -60,7 +60,7 @@ export function PaymentMethodCreationForm({
         required
       />
       <Button type="submit" className="w-full" isLoading={isLoading}>
-        Add Payment Method
+        Create payment method
       </Button>
     </form>
   )

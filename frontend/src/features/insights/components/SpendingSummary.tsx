@@ -1,4 +1,5 @@
 import { Card } from '../../../shared/components/Card'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { SpendingSummary as SpendingSummaryType } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 
@@ -10,9 +11,11 @@ interface SpendingSummaryProps {
 export function SpendingSummary({ summary, isLoading }: SpendingSummaryProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 animate-pulse">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-32 rounded-lg bg-ui-surface-muted" />
+          <Card key={i}>
+            <ChartSkeleton variant="bar" className="h-16" />
+          </Card>
         ))}
       </div>
     )

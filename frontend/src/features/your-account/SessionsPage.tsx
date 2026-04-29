@@ -30,14 +30,14 @@ export function SessionsPage(): ReactElement {
 
   return (
     <section className={pageLayout.sectionGap}>
-      <div className={pageLayout.headerGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Active sessions
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           View and manage devices currently signed in to your account.
         </p>
-      </div>
+      </header>
 
       <div>
         {sessions?.length === 0 && (

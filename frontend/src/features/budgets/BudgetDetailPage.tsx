@@ -58,7 +58,7 @@ export function BudgetDetailPage(): ReactElement {
       <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground uppercase tracking-wide">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Budget Details
             </h1>
             <p className="text-muted-foreground font-medium">
@@ -98,7 +98,7 @@ export function BudgetDetailPage(): ReactElement {
         </div>
       </header>
 
-      <div className="space-y-16">
+      <main className="space-y-16">
         {/* Spending Progress */}
         <section className="py-8 border-y border-ui-border-subtle">
           <div className="space-y-6">
@@ -208,7 +208,7 @@ export function BudgetDetailPage(): ReactElement {
             />
           </div>
         </section>
-      </div>
+      </main>
     </div>
   )
 }

@@ -11,6 +11,7 @@ import {
 import type { BalanceTrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { CHART_COLORS } from '../../../shared/lib/chartTheme'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import { useState } from 'react'
 
 interface BalanceTrendChartProps {
@@ -55,14 +56,7 @@ export function BalanceTrendChart({
   }
 
   if (isLoading) {
-    return (
-      <div className="h-[400px] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground animate-pulse">Analyzing trends...</p>
-        </div>
-      </div>
-    )
+    return <ChartSkeleton variant="line" className="h-[400px]" />
   }
 
   if (!trends.series || trends.series.length === 0) {

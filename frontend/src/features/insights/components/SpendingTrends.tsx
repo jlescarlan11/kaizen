@@ -76,8 +76,13 @@ export function SpendingTrends({
               stroke="var(--color-ui-border-subtle)"
               strokeOpacity={0.6}
             />
-            <XAxis dataKey="name" fontSize={12} />
-            <YAxis fontSize={12} width={60} tickFormatter={(val) => `PHP ${val}`} />
+            <XAxis dataKey="name" fontSize={12} tick={{ fill: 'var(--color-text-secondary)' }} />
+            <YAxis
+              fontSize={12}
+              width={60}
+              tick={{ fill: 'var(--color-text-secondary)' }}
+              tickFormatter={(val) => `PHP ${val}`}
+            />
             <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
             <Bar dataKey="value" fill={CHART_COLORS.primary} />
           </BarChart>

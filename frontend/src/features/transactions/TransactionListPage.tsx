@@ -209,6 +209,7 @@ export function TransactionListPage(): ReactElement {
                   >
                     {type === 'INCOME' ? 'Income' : 'Expense'}
                     <button
+                      aria-label={`Remove ${type === 'INCOME' ? 'Income' : 'Expense'} filter`}
                       onClick={() =>
                         setFilterState((prev) => ({
                           ...prev,
@@ -225,6 +226,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     From: {filterState.startDate}
                     <button
+                      aria-label="Remove start date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
                       className="hover:text-primary-hover"
                     >
@@ -236,6 +238,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     To: {filterState.endDate}
                     <button
+                      aria-label="Remove end date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
                       className="hover:text-primary-hover"
                     >
@@ -243,12 +246,11 @@ export function TransactionListPage(): ReactElement {
                     </button>
                   </span>
                 )}
-                {/* Note: Showing category names would require mapping IDs to categories, 
-                    leaving as simple indicator for now to keep focus on pipeline */}
                 {filterState.categories.length > 0 && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.categories.length} Categories
                     <button
+                      aria-label="Remove category filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
                       className="hover:text-primary-hover"
                     >
@@ -260,6 +262,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.paymentMethods.length} Accounts
                     <button
+                      aria-label="Remove payment method filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}
                       className="hover:text-primary-hover"
                     >

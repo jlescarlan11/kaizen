@@ -150,9 +150,7 @@ export function TransactionDetailPage(): ReactElement {
           </div>
         }
       >
-        <p className="text-muted-foreground">
-          Are you sure you want to delete this transaction? This action cannot be undone.
-        </p>
+        <p className="text-muted-foreground">Are you sure you want to delete this transaction?</p>
       </Modal>
     </div>
   )
