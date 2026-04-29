@@ -103,10 +103,10 @@ export function SiteHeader(): ReactElement {
             <div className="absolute inset-0 overflow-hidden">
               <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
                 <TransitionChild
-                  enter="transform transition ease-in-out duration-350"
+                  enter="transform transition ease-in-out duration-300"
                   enterFrom="translate-x-full"
                   enterTo="translate-x-0"
-                  leave="transform transition ease-in-out duration-350"
+                  leave="transform transition ease-in-out duration-300"
                   leaveFrom="translate-x-0"
                   leaveTo="translate-x-full"
                 >

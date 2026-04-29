@@ -39,7 +39,7 @@ export function UndoSnackbar({ offset = 'standard' }: UndoSnackbarProps): ReactE
         offset === 'mobile-nav' ? 'bottom-28' : 'bottom-6',
       )}
     >
-      <Card className="bg-ui-surface-strong border-ui-border shadow-2xl p-4 flex items-center justify-between animate-in fade-in slide-in-from-bottom-4 duration-300 rounded-2xl overflow-hidden">
+      <Card className="bg-ui-surface-strong border-ui-border shadow-2xl p-4 flex items-center justify-between animate-entrance-slide-up rounded-2xl overflow-hidden">
         <div className="flex flex-col flex-1 gap-1">
           <p className="font-semibold text-white">{activeUndo.message}</p>
           <div className="h-0.5 w-full bg-white/10 rounded-full overflow-hidden">
