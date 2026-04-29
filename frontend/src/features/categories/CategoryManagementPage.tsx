@@ -50,7 +50,7 @@ export function CategoryManagementPage(): ReactElement {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Category management
+              Category Management
             </h1>
             <p className="text-sm leading-6 text-muted-foreground">
               Create categories tailored to your workflow. They will appear immediately anywhere you
@@ -75,17 +75,17 @@ export function CategoryManagementPage(): ReactElement {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
         <Card className="space-y-4">
-          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-foreground">
             Add a custom category
-          </h2>
+          </h3>
           <CategoryCreationForm categories={categories} onCategorySaved={handleCategoryCreated} />
         </Card>
 
         <Card className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            <h3 className="text-lg md:text-xl font-semibold tracking-tight text-foreground">
               Your categories
-            </h2>
+            </h3>
             <p className="text-xs uppercase text-subtle-foreground">Automatic refresh</p>
           </div>
           <CategoryList
