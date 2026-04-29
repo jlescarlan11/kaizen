@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card } from '../../../shared/components/Card'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { getCategoricalColor } from '../../../shared/lib/chartTheme'
@@ -14,11 +15,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
   if (isLoading) {
     return (
       <Card title="Category Breakdown">
-        <div className="flex h-64 items-center justify-center">
-          <p className="animate-pulse text-sm leading-6 text-muted-foreground">
-            Loading breakdown...
-          </p>
-        </div>
+        <ChartSkeleton variant="pie" className="h-64" />
       </Card>
     )
   }
@@ -53,6 +50,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                 labelLine={false}
                 outerRadius={80}
                 dataKey="value"
+                fill={getCategoricalColor(0)}
               >
                 {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={getCategoricalColor(index)} />

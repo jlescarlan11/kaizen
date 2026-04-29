@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import { Button } from '../../../shared/components/Button'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { TrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { CHART_COLORS } from '../../../shared/lib/chartTheme'
@@ -21,9 +22,7 @@ export function SpendingTrends({
   if (isLoading) {
     return (
       <Card title="Spending Trends">
-        <div className="flex h-64 items-center justify-center">
-          <p className="animate-pulse text-sm leading-6 text-muted-foreground">Loading trends...</p>
-        </div>
+        <ChartSkeleton variant="bar" className="h-64" />
       </Card>
     )
   }
@@ -72,7 +71,11 @@ export function SpendingTrends({
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="var(--color-ui-border-subtle)"
+              strokeOpacity={0.6}
+            />
             <XAxis dataKey="name" fontSize={12} />
             <YAxis fontSize={12} width={60} tickFormatter={(val) => `PHP ${val}`} />
             <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
