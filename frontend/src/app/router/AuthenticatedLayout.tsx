@@ -195,10 +195,10 @@ function AuthenticatedLayoutContent(): ReactElement {
                   end={item.to === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
                       isActive
-                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
-                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground',
+                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong font-semibold'
+                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground font-medium',
                     )
                   }
                   ref={anchorRef}

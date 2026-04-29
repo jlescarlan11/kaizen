@@ -128,12 +128,10 @@ const BudgetRow = ({
         <>
           <div className="flex flex-col px-4 py-4 hover:bg-ui-accent-subtle/30 transition-colors group relative">
             <div className="flex items-center justify-between mb-3">
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
                 onClick={() => navigate(`/budgets/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-                className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
+                className="flex items-center gap-4 cursor-pointer flex-1 min-w-0 text-left"
               >
                 <div
                   className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 shrink-0"
@@ -162,14 +160,12 @@ const BudgetRow = ({
                     {budget.period}
                   </p>
                 </div>
-              </div>
+              </button>
 
               <div className="flex items-center gap-2 sm:gap-4 ml-2">
-                <div
-                  role="button"
-                  tabIndex={0}
+                <button
+                  type="button"
                   onClick={() => navigate(`/budgets/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
                   <p className="text-sm font-semibold text-foreground">
@@ -183,7 +179,7 @@ const BudgetRow = ({
                   >
                     {usagePercent}% used
                   </p>
-                </div>
+                </button>
 
                 <DisclosureButton
                   className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-colors focus:outline-none"
@@ -197,13 +193,7 @@ const BudgetRow = ({
               </div>
             </div>
 
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/budgets/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-              className="w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden cursor-pointer"
-            >
+            <div className="w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full transition-all duration-500 ease-out',
@@ -374,11 +364,13 @@ export function HomePage(): ReactElement {
         <section
           ref={balanceCardRef}
           className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          role="status"
+          aria-label={`Total Balance: ${formattedBalance}`}
         >
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             Total Balance
           </p>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2" aria-hidden="true">
             <span className="text-lg font-semibold text-muted-foreground">PHP</span>
             <h2 className="text-4xl font-semibold tracking-tight text-foreground">
               {formattedBalance.replace('PHP', '').trim()}
