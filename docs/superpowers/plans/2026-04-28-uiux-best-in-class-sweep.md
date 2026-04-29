@@ -1,6 +1,6 @@
 # UI/UX Best-in-Class Sweep — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Run the agent-orchestrated code-read audit described in `docs/superpowers/specs/2026-04-28-uiux-best-in-class-sweep-design.md` and populate sections 7 (finding inventory) and 8 (wave plan) of that doc.
 
@@ -33,7 +33,7 @@ No new code modules, no test files, no scripts. Entire deliverable is documentat
 
 **Files:** none modified yet — briefs live in this session's working memory until dispatch.
 
-- [ ] **Step 1: Inventory still-open Apr 26 findings**
+- [x] **Step 1: Inventory still-open Apr 26 findings**
 
 Read `docs/superpowers/specs/2026-04-26-uiux-consistency-audit.md` § BLOCKERS, QUALITY, POLISH. Cross-reference against recent commits on `main` to identify which findings are *still open* (not yet fixed). Build a list per agent slice:
 
@@ -45,27 +45,27 @@ Read `docs/superpowers/specs/2026-04-26-uiux-consistency-audit.md` § BLOCKERS, 
 
 The point: agents reference these instead of re-discovering them. Saves context, reduces duplicate findings.
 
-- [ ] **Step 2: Draft Agent 1 brief — first impression cluster**
+- [x] **Step 2: Draft Agent 1 brief — first impression cluster**
 
 Compose a self-contained prompt with the structure specified in spec § 3 "Per-agent brief template". Surface scope: `frontend/src/app/router/AuthenticatedLayout.tsx`, `frontend/src/features/signin/**`, `frontend/src/features/onboarding/**`, `frontend/src/features/home/**`. Reference docs + still-open Apr 26 IDs from Step 1's Agent 1 list. Include the four-tier severity rubric inline. Tell the agent to output one Markdown finding per item with the exact field set from spec § 4.
 
-- [ ] **Step 3: Draft Agent 2 brief — money flows**
+- [x] **Step 3: Draft Agent 2 brief — money flows**
 
 Same template. Surface scope: `frontend/src/features/transactions/**`, `frontend/src/features/budgets/**`, plus `frontend/src/features/home/**` (data-display slice — the dashboard's transaction/budget widgets specifically).
 
-- [ ] **Step 4: Draft Agent 3 brief — insights & charts**
+- [x] **Step 4: Draft Agent 3 brief — insights & charts**
 
 Same template. Surface scope: `frontend/src/features/insights/**`, plus chart-color primitives in `frontend/src/shared/components/` (anything matching `*Chart*`, `*Trend*`, `*Line*`).
 
-- [ ] **Step 5: Draft Agent 4 brief — settings cluster**
+- [x] **Step 5: Draft Agent 4 brief — settings cluster**
 
 Same template. Surface scope: `frontend/src/features/categories/**`, `frontend/src/features/payment-methods/**`, `frontend/src/features/your-account/**`, `frontend/src/features/not-found/**`.
 
-- [ ] **Step 6: Draft Agent 5 brief — foundation primitives**
+- [x] **Step 6: Draft Agent 5 brief — foundation primitives**
 
 Same template, but with a sharper focus on cross-cutting concerns. Surface scope: `frontend/src/shared/components/**`, `frontend/src/styles/**`, `frontend/src/shared/styles/**`, `CODING_STANDARDS.md` § 1.7 (typography rules), `frontend/eslint.config.js`, the `tsconfig.app.json` design-system-relevant settings. Look specifically for: token-vocabulary drift (the Apr 26 `text-ui` vs `text-foreground` finding), missing component primitives, motion/transition primitive gaps, dark-mode token coverage, Tailwind config issues.
 
-- [ ] **Step 7: Doc-state assertion**
+- [x] **Step 7: Doc-state assertion**
 
 Five complete agent briefs exist in working memory. Each contains: surface scope, reference docs, severity rubric, "look for" list, output format, quality bar reminder. None reference a missing source dir.
 
@@ -77,15 +77,15 @@ Five complete agent briefs exist in working memory. Each contains: surface scope
 
 **Files:** none modified — agents are read-only.
 
-- [ ] **Step 1: Dispatch all five agents in one message**
+- [x] **Step 1: Dispatch all five agents in one message**
 
 Send a single assistant message containing five `Agent` tool calls (one per brief). All set `subagent_type: Explore`. Each prompt is the corresponding brief from Task 1. They run concurrently.
 
-- [ ] **Step 2: Receive and stash agent outputs**
+- [x] **Step 2: Receive and stash agent outputs**
 
 When all five return, capture each agent's finding list into working memory tagged by agent ID. Do not yet edit the audit doc — consolidation runs in Task 3.
 
-- [ ] **Step 3: Doc-state assertion**
+- [x] **Step 3: Doc-state assertion**
 
 Five agent finding lists exist in working memory. Each is a Markdown block of findings with the § 4 field structure. Agent finding counts noted (e.g., "Agent 1: 12 findings; Agent 2: 18 findings; …").
 
@@ -99,7 +99,7 @@ If any agent returned without findings or with malformed output, re-dispatch tha
 
 **Files:** the audit doc gets the finding inventory written into § 7.
 
-- [ ] **Step 1: Re-verify every BLOCKER finding**
+- [x] **Step 1: Re-verify every BLOCKER finding**
 
 For each BLOCKER across all five agent outputs:
 
@@ -112,7 +112,7 @@ For each BLOCKER across all five agent outputs:
 
 This step IS the audit's quality bar. Don't skip.
 
-- [ ] **Step 2: Identify cross-agent duplicates**
+- [x] **Step 2: Identify cross-agent duplicates**
 
 Walk all five lists looking for the same root cause cited in multiple agents (e.g., the shell's profile-menu likely shows up in both Agent 1 and Agent 4). For each duplicate cluster:
 
@@ -121,15 +121,15 @@ Walk all five lists looking for the same root cause cited in multiple agents (e.
 - Add `Recurrence: seen by N agents — A1, A4`.
 - Drop the sibling findings.
 
-- [ ] **Step 3: Run foundation auto-promotion**
+- [x] **Step 3: Run foundation auto-promotion**
 
 Re-tag any finding whose root cause spans 3+ surfaces (across the consolidated set) as `[FOUNDATION]`, replacing whatever surface tag it had. This usually surfaces the token-vocabulary drift, missing primitives, motion gaps, etc.
 
-- [ ] **Step 4: Write findings into audit doc § 7**
+- [x] **Step 4: Write findings into audit doc § 7**
 
 Edit `docs/superpowers/specs/2026-04-28-uiux-best-in-class-sweep-design.md` § 7. For each agent subsection (Agent 1, …, Agent 5, Cross-cutting), insert the consolidated findings that originated there (or, for cross-cutting, the merged findings). Use the field format from spec § 4. Cross-references to Apr 26 audit go in the `Cross-ref:` line.
 
-- [ ] **Step 5: Doc-state assertion**
+- [x] **Step 5: Doc-state assertion**
 
 Spec § 7 contains all consolidated findings. Every BLOCKER has been re-verified. Every duplicate has been merged. Foundation tags are applied. Sub-section counts noted in working memory for the wave decomposition.
 
@@ -141,7 +141,7 @@ Spec § 7 contains all consolidated findings. Every BLOCKER has been re-verified
 
 **Files:** `docs/superpowers/specs/2026-04-28-uiux-best-in-class-sweep-design.md` (modify § 8).
 
-- [ ] **Step 1: Catalog by tag**
+- [x] **Step 1: Catalog by tag**
 
 Group all consolidated findings:
 - `[FOUNDATION]` set → Wave Φ candidates.
@@ -151,15 +151,15 @@ Group all consolidated findings:
 
 Within `[FOUNDATION]`, sub-group by theme: *tokens*, *typography*, *components*, *dark-mode contrast*, *motion*, *charts*, *other*. Each non-trivial sub-group becomes a Φ sub-wave (Φ1, Φ2, …).
 
-- [ ] **Step 2: Identify surgical BLOCKERs for Wave 1**
+- [x] **Step 2: Identify surgical BLOCKERs for Wave 1**
 
 Re-read every `BLOCKER`-severity finding. For each, ask: *can this be fixed surgically without depending on foundation work?* If yes → Wave 1. If no → fold into the appropriate Φ sub-wave.
 
-- [ ] **Step 3: Catalog OPPORTUNITY findings into Wave Ω sub-themes**
+- [x] **Step 3: Catalog OPPORTUNITY findings into Wave Ω sub-themes**
 
 Group all `OPPORTUNITY`-severity findings by theme: *motion*, *micro-interactions*, *empty-state delight*, *density*, *other*. Each non-trivial theme becomes an Ω sub-wave.
 
-- [ ] **Step 4: Populate spec § 8**
+- [x] **Step 4: Populate spec § 8**
 
 Replace placeholder content of § 8 with concrete entries. Format per wave:
 
@@ -175,7 +175,7 @@ Replace placeholder content of § 8 with concrete entries. Format per wave:
 
 Repeat for every wave (Φ sub-waves, Wave 1, Waves 2..N, Ω sub-waves).
 
-- [ ] **Step 5: Sanity-check totals**
+- [x] **Step 5: Sanity-check totals**
 
 Verify:
 - Every finding from § 7 appears under exactly one wave in § 8.
@@ -192,11 +192,11 @@ Verify:
 - Modify: `docs/superpowers/specs/2026-04-28-uiux-best-in-class-sweep-design.md` (final state).
 - Modify: `docs/superpowers/plans/2026-04-28-uiux-best-in-class-sweep.md` (final tick).
 
-- [ ] **Step 1: Tick all plan checkboxes**
+- [x] **Step 1: Tick all plan checkboxes**
 
 Mark every checkbox in this plan as done.
 
-- [ ] **Step 2: Final commit on the audit branch**
+- [x] **Step 2: Final commit on the audit branch**
 
 ```bash
 cd "/Users/johnlesterescarlan/Personal Projects/kaizen"
@@ -221,7 +221,7 @@ EOF
 
 Expected: clean working tree on `audit/uiux-best-in-class-sweep`.
 
-- [ ] **Step 3: Present audit summary to the user**
+- [x] **Step 3: Present audit summary to the user**
 
 Report concisely:
 - Total finding count by severity (e.g., "12 BLOCKER, 41 QUALITY, 18 POLISH, 23 OPPORTUNITY").
@@ -230,13 +230,13 @@ Report concisely:
 - Cross-references to Apr 26 audit (how many still-open were re-confirmed; how many were closed by recent commits).
 - Whether the optional screenshot pass is recommended given what the audit surfaced.
 
-- [ ] **Step 4: Decide PR or merge strategy with the user**
+- [x] **Step 4: Decide PR or merge strategy with the user**
 
 Ask: *"The audit branch is ready. Two options: (a) open a PR for review or (b) merge directly to main since it's docs-only. Which?"*
 
 Carry out whichever is chosen.
 
-- [ ] **Step 5: Inventory next-step writing-plans cycles**
+- [x] **Step 5: Inventory next-step writing-plans cycles**
 
 For each wave in spec § 8, write a one-line entry naming the next `writing-plans` cycle to spawn. Most natural starting point: Φ1 (token consolidation), since it has hard-rule sequencing precedence over per-surface waves.
 
