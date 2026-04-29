@@ -66,6 +66,7 @@
   --ui-surface: var(--color-surface);
   --ui-surface-muted: var(--color-surface-secondary);
   --ui-surface-subtle: var(--color-primary-light);
+  --ui-surface-strong: #1a2420;
   --ui-border: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
   --ui-border-muted: var(--color-border);
@@ -178,6 +179,7 @@
   --ui-surface: var(--color-surface);
   --ui-surface-muted: var(--color-surface-secondary);
   --ui-surface-subtle: rgb(39 92 52 / 0.14);
+  --ui-surface-strong: #2c3a30;
   --ui-border: var(--color-border);
   --ui-border-strong: var(--color-border-strong);
   --ui-border-muted: var(--color-border);
@@ -289,6 +291,7 @@
     --ui-surface: var(--color-surface);
     --ui-surface-muted: var(--color-surface-secondary);
     --ui-surface-subtle: rgb(39 92 52 / 0.14);
+    --ui-surface-strong: #2c3a30;
     --ui-border: var(--color-border);
     --ui-border-strong: var(--color-border-strong);
     --ui-border-muted: var(--color-border);
