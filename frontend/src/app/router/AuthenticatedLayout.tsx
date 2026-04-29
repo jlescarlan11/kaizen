@@ -198,7 +198,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                       'flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive
                         ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
-                        : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
+                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground',
                     )
                   }
                   ref={anchorRef}
@@ -270,18 +270,18 @@ function AuthenticatedLayoutContent(): ReactElement {
                 {!isSecondDegree && (
                   <>
                     <button
-                      className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
+                      className="p-2 rounded-full hover:bg-ui-surface-hover transition-colors relative"
                       aria-label="Notifications"
                     >
                       <span aria-hidden="true">
                         <NotificationIcon />
                       </span>
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-ui-danger rounded-full border-2 border-background" />
                     </button>
 
                     <NavLink
                       to="/your-account"
-                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-black/5 transition-colors"
+                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-ui-surface-hover transition-colors"
                     >
                       <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-sm font-semibold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
                         {user?.picture && !imageError ? (

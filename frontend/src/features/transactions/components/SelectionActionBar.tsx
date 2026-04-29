@@ -49,7 +49,7 @@ export function SelectionActionBar({
         <div className="flex items-center gap-2">
           <Button
             size="sm"
-            className="bg-ui-error hover:bg-ui-error-hover text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-lg shadow-ui-error/20"
+            className="bg-ui-danger hover:bg-ui-danger-hover text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-lg shadow-ui-danger/20"
             onClick={onDeleteRequest}
             disabled={selectedIds.length === 0}
           >

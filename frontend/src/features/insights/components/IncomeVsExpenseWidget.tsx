@@ -12,7 +12,7 @@ export function IncomeVsExpenseWidget({
   isLoading,
 }: IncomeVsExpenseWidgetProps): ReactElement {
   if (isLoading || !summary) {
-    return <div className="h-48 rounded-2xl bg-black/5 animate-pulse" />
+    return <div className="h-48 rounded-2xl bg-ui-border-subtle animate-pulse" />
   }
 
   const { totalIncome, totalExpenses, netBalance } = summary

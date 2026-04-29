@@ -13,6 +13,8 @@
   --color-ui-surface-muted: var(--ui-surface-muted);
   --color-ui-surface-subtle: var(--ui-surface-subtle);
   --color-ui-surface-strong: var(--ui-surface-strong);
+  --color-ui-surface-hover: var(--ui-surface-hover);
+  --color-ui-bg-overlay: var(--ui-bg-overlay);
 
   /* Borders */
   --color-border: var(--color-border);

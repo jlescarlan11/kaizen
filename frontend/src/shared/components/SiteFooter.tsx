@@ -40,7 +40,7 @@ export function SiteFooter(): ReactElement {
                 </span>
               </div>
               {isDev && (
-                <span className="text-xs font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border border-ui-border bg-black/5 text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border border-ui-border bg-ui-surface-muted text-muted-foreground">
                   {envName}
                 </span>
               )}

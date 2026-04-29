@@ -18,9 +18,9 @@ export function BalanceSummaryHero({
   if (isLoading) {
     return (
       <div className="space-y-3">
-        <div className="h-8 w-48 rounded-lg bg-black/5 animate-pulse" />
-        <div className="h-12 w-72 rounded-lg bg-black/5 animate-pulse" />
-        <div className="h-6 w-32 rounded-full bg-black/5 animate-pulse" />
+        <div className="h-8 w-48 rounded-lg bg-ui-border-subtle animate-pulse" />
+        <div className="h-12 w-72 rounded-lg bg-ui-border-subtle animate-pulse" />
+        <div className="h-6 w-32 rounded-full bg-ui-border-subtle animate-pulse" />
       </div>
     )
   }

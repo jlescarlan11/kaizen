@@ -16,7 +16,7 @@ import type { ReactElement } from 'react'
 export function LoadingSpinner(): ReactElement {
   return (
     <div className="flex h-64 items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-ui-action border-t-transparent" />
     </div>
   )
 }

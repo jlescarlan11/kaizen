@@ -111,7 +111,7 @@ const BudgetRow = ({
               tabIndex={0}
               onClick={() => navigate(`/budgets/${budget.id}`)}
               onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-              className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
+              className="w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden cursor-pointer"
             >
               <div
                 className={cn(
@@ -188,7 +188,7 @@ const BudgetRow = ({
                       isOverBudget
                         ? 'text-ui-danger'
                         : isProjectedOverBudget
-                          ? 'text-amber-500'
+                          ? 'text-warning-dark'
                           : 'text-foreground',
                     )}
                   >

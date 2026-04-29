@@ -21,7 +21,7 @@ export function SkeletonList({
         <div
           key={i}
           data-testid="skeleton"
-          className={cn('w-full animate-pulse rounded-2xl bg-black/5', itemHeight)}
+          className={cn('w-full animate-pulse rounded-2xl bg-ui-border-subtle', itemHeight)}
         />
       ))}
     </div>

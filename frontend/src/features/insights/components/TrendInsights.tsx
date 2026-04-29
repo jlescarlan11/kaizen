@@ -12,8 +12,8 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
   if (isLoading) {
     return (
       <div className="py-4 space-y-3 animate-pulse">
-        <div className="h-3 w-24 rounded bg-black/5" />
-        <div className="h-8 w-full rounded bg-black/5" />
+        <div className="h-3 w-24 rounded bg-ui-border-subtle" />
+        <div className="h-8 w-full rounded bg-ui-border-subtle" />
       </div>
     )
   }
@@ -50,7 +50,7 @@ export function TrendInsights({ trends, isLoading }: TrendInsightsProps): ReactE
 
 function InsightItem({ insight }: { insight: Insight }) {
   const config = {
-    trend: { icon: 'trend', color: 'text-blue-500' },
+    trend: { icon: 'trend', color: 'text-primary' },
     anomaly: { icon: 'expense', color: 'text-error' },
     success: { icon: 'income', color: 'text-success' },
   }[insight.type]

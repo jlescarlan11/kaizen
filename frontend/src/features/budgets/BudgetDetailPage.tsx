@@ -115,7 +115,7 @@ export function BudgetDetailPage(): ReactElement {
                   Remaining
                 </p>
                 <p
-                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}
+                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-danger' : 'text-ui-action'}`}
                 >
                   {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
                 </p>
@@ -123,12 +123,12 @@ export function BudgetDetailPage(): ReactElement {
             </div>
             <div className="h-4 w-full bg-ui-surface-hover rounded-full overflow-hidden border border-ui-border-subtle">
               <div
-                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-error' : 'bg-ui-action'}`}
+                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-danger' : 'bg-ui-action'}`}
                 style={{ width: `${Math.min(100, (budget.expense / budget.amount) * 100)}%` }}
               />
             </div>
             {budget.expense > budget.amount && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-ui-error flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ui-danger flex items-center gap-2">
                 <SharedIcon type="ui" name="error" size={10} />
                 You have exceeded your {budget.period.toLowerCase()} budget by{' '}
                 {currencyFormatter.format(budget.expense - budget.amount)}

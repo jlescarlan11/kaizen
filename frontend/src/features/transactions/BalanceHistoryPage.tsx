@@ -74,7 +74,7 @@ export function BalanceHistoryPage(): ReactElement {
                         entry.transactionType === 'INCOME'
                           ? 'bg-ui-success/10 text-ui-success'
                           : entry.transactionType === 'EXPENSE'
-                            ? 'bg-ui-error/10 text-ui-error'
+                            ? 'bg-ui-danger/10 text-ui-danger'
                             : 'bg-ui-warning/10 text-ui-warning',
                       )}
                     >
@@ -98,7 +98,7 @@ export function BalanceHistoryPage(): ReactElement {
                     <p
                       className={cn(
                         'text-lg font-semibold tracking-tight',
-                        entry.balance >= 0 ? 'text-foreground' : 'text-ui-error',
+                        entry.balance >= 0 ? 'text-foreground' : 'text-ui-danger',
                       )}
                     >
                       {currencyFormatter.format(entry.balance)}

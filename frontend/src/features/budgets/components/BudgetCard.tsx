@@ -69,7 +69,7 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
           type="button"
           onClick={onRemove}
           className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-danger active:scale-95',
+            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-ui-danger-text-soft active:scale-95',
             fluidLayout.touchTarget,
             'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}

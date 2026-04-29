@@ -96,7 +96,7 @@ export function SiteHeader(): ReactElement {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-black/18 transition-opacity" aria-hidden="true" />
+            <div className="fixed inset-0 bg-ui-bg-overlay transition-opacity" aria-hidden="true" />
           </TransitionChild>
 
           <div className="fixed inset-0 overflow-hidden">
@@ -125,7 +125,7 @@ export function SiteHeader(): ReactElement {
                         </Link>
                         <button
                           type="button"
-                          className="rounded-md p-2 text-foreground hover:bg-black/5 transition-colors"
+                          className="rounded-md p-2 text-foreground hover:bg-ui-surface-hover transition-colors"
                           onClick={() => setIsDrawerOpen(false)}
                         >
                           <span className="sr-only">Close menu</span>
@@ -157,7 +157,7 @@ export function SiteHeader(): ReactElement {
                             <Link
                               key={item.to + item.label}
                               to={item.to}
-                              className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-black/5 transition-colors text-foreground"
+                              className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-ui-surface-hover transition-colors text-foreground"
                               onClick={() => setIsDrawerOpen(false)}
                             >
                               {item.label}
@@ -234,8 +234,8 @@ export function SiteHeader(): ReactElement {
                     return [
                       'rounded-md px-3 py-1.5 text-sm font-medium transition-all',
                       isLinkActive
-                        ? 'bg-black/5 text-foreground'
-                        : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
+                        ? 'bg-ui-surface-hover text-foreground'
+                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground',
                     ].join(' ')
                   }}
                 >
@@ -254,7 +254,7 @@ export function SiteHeader(): ReactElement {
 
             <button
               type="button"
-              className="md:hidden flex h-10 w-10 items-center justify-center rounded-md text-foreground hover:bg-black/5 transition-colors"
+              className="md:hidden flex h-10 w-10 items-center justify-center rounded-md text-foreground hover:bg-ui-surface-hover transition-colors"
               onClick={() => setIsDrawerOpen(true)}
               aria-expanded={isDrawerOpen}
               aria-label="Open menu"
