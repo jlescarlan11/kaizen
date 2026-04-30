@@ -9,12 +9,17 @@ import { getCategoricalColor } from '../../../shared/lib/chartTheme'
 interface CategoryBreakdownProps {
   breakdown: CategoryBreakdownType
   isLoading: boolean
+  title?: string
 }
 
-export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownProps) {
+export function CategoryBreakdown({
+  breakdown,
+  isLoading,
+  title = 'Category Breakdown',
+}: CategoryBreakdownProps) {
   if (isLoading) {
     return (
-      <Card title="Category Breakdown">
+      <Card title={title}>
         <ChartSkeleton variant="pie" className="h-64" />
       </Card>
     )
@@ -22,7 +27,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
 
   if (!breakdown.categories || breakdown.categories.length === 0) {
     return (
-      <Card title="Category Breakdown">
+      <Card title={title}>
         <div className="flex h-64 items-center justify-center">
           <p className="text-sm leading-6 italic text-muted-foreground">
             No spending data for this period.

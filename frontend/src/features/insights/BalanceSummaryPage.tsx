@@ -157,6 +157,7 @@ export function BalanceSummaryPage(): ReactElement {
           <CategoryBreakdown
             breakdown={breakdown ?? { categories: [] }}
             isLoading={isBreakdownLoading && !breakdown}
+            title="Spending Breakdown"
           />
           <SpendingTrends
             trends={spendingTrends ?? { series: [] }}
