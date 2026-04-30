@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactElement } from 'react'
+import { useMemo, type ReactElement } from 'react'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
 import {
   useGetSpendingSummaryQuery,
@@ -18,14 +18,13 @@ import { useInsightsPeriod } from './hooks/useInsightsPeriod'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { Button } from '../../shared/components/Button'
 import { deliverExportFile } from '../transactions/export/exportDelivery'
-import type { Granularity } from './types'
 
 export function BalanceSummaryPage(): ReactElement {
   const dispatch = useAppDispatch()
   const { selectedAccountIds, granularity } = useAppSelector((state) => state.balanceSummary)
   const { period, dateRange, updatePeriod } = useInsightsPeriod()
-  const [spendingGranularity, setSpendingGranularity] = useState<Granularity>('MONTHLY')
 
   const { data: accountSummaries = [], isLoading: isAccountsLoading } =
     useGetPaymentMethodSummaryQuery()
@@ -60,7 +59,7 @@ export function BalanceSummaryPage(): ReactElement {
 
   const { data: spendingTrends, isLoading: isSpendingTrendsLoading } = useGetSpendingTrendsQuery({
     ...apiParams,
-    granularity: spendingGranularity,
+    granularity,
   })
 
   const filteredAccountSummaries = useMemo(() => {
@@ -111,6 +110,23 @@ export function BalanceSummaryPage(): ReactElement {
             accounts={accounts}
           />
         </div>
+        <div
+          className="flex items-center gap-1 bg-ui-surface border border-ui-border rounded-xl px-2 py-1.5 shadow-sm"
+          role="group"
+          aria-label="Chart granularity"
+        >
+          {(['DAILY', 'WEEKLY', 'MONTHLY'] as const).map((g) => (
+            <Button
+              key={g}
+              size="sm"
+              variant={granularity === g ? 'primary' : 'ghost'}
+              aria-pressed={granularity === g}
+              onClick={() => dispatch(setGranularity(g))}
+            >
+              {g.charAt(0) + g.slice(1).toLowerCase()}
+            </Button>
+          ))}
+        </div>
         <button
           type="button"
           onClick={handleExportCSV}
@@ -128,7 +144,6 @@ export function BalanceSummaryPage(): ReactElement {
           <BalanceTrendChart
             trends={balanceTrends}
             granularity={granularity}
-            onGranularityChange={(g) => dispatch(setGranularity(g))}
             isLoading={isTrendsLoading}
           />
         </section>
@@ -141,8 +156,7 @@ export function BalanceSummaryPage(): ReactElement {
           />
           <SpendingTrends
             trends={spendingTrends ?? { series: [] }}
-            granularity={spendingGranularity}
-            onGranularityChange={setSpendingGranularity}
+            granularity={granularity}
             isLoading={isSpendingTrendsLoading && !spendingTrends}
           />
         </section>

@@ -13,20 +13,12 @@ import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import { Card } from '../../../shared/components/Card'
-import { Button } from '../../../shared/components/Button'
 
 interface BalanceTrendChartProps {
   trends: BalanceTrendSeries
   granularity: Granularity
-  onGranularityChange: (g: Granularity) => void
   isLoading: boolean
 }
-
-const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
-  { label: 'Daily', value: 'DAILY' },
-  { label: 'Weekly', value: 'WEEKLY' },
-  { label: 'Monthly', value: 'MONTHLY' },
-]
 
 const SERIES = [
   { key: 'balance', name: 'Balance', color: CHART_COLORS.income },
@@ -47,12 +39,7 @@ function formatFullDate(date: Date, granularity: Granularity): string {
   return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-export function BalanceTrendChart({
-  trends,
-  granularity,
-  onGranularityChange,
-  isLoading,
-}: BalanceTrendChartProps) {
+export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTrendChartProps) {
   if (isLoading) {
     return (
       <Card title="Financial Trajectory">
@@ -119,20 +106,6 @@ export function BalanceTrendChart({
 
   return (
     <Card title="Financial Trajectory">
-      <div className="mb-4 flex justify-end gap-2" role="group" aria-label="Trend granularity">
-        {GRANULARITY_OPTIONS.map(({ label, value }) => (
-          <Button
-            key={value}
-            size="sm"
-            variant={granularity === value ? 'primary' : 'ghost'}
-            aria-pressed={granularity === value}
-            onClick={() => onGranularityChange(value)}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
