@@ -43,7 +43,7 @@ export function CategoryBreakdown({
   }))
 
   return (
-    <Card title="Category Breakdown">
+    <Card title={title}>
       <div className="flex flex-col items-center md:flex-row">
         <div className="h-64 w-full md:w-1/2">
           <ResponsiveContainer width="100%" height="100%">
