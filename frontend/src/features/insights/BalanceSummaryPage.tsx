@@ -143,9 +143,6 @@ export function BalanceSummaryPage(): ReactElement {
       {/* Main Analysis Section */}
       <div className="space-y-12">
         <section>
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-            Financial Trajectory
-          </p>
           <BalanceTrendChart
             trends={balanceTrends}
             granularity={granularity}
