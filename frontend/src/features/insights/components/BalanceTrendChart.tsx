@@ -77,26 +77,39 @@ export function BalanceTrendChart({
     (a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
   )
 
-  // Drop trailing periods with no activity — API often generates empty
-  // placeholder entries for days at the end of the range with no transactions yet.
+  // Trim leading and trailing periods that have no activity.
+  // Leading zeros are timezone-offset artifacts (backend start.toLocalDate() lands
+  // one UTC day early for GMT+8 users). Trailing zeros are API-generated placeholders
+  // for days in the range that have no transactions yet.
+  // Both kinds cause label collisions on the categorical X-axis (e.g., two "Apr 29"
+  // entries — one from 2025, one from 2026) which made Recharts show 0 when hovering.
+  let start = 0
+  while (
+    start < sorted.length &&
+    sorted[start].income === 0 &&
+    sorted[start].expenses === 0 &&
+    sorted[start].netBalance === 0
+  ) {
+    start++
+  }
   let end = sorted.length
   while (
-    end > 0 &&
+    end > start &&
     sorted[end - 1].income === 0 &&
     sorted[end - 1].expenses === 0 &&
     sorted[end - 1].netBalance === 0
   ) {
     end--
   }
-  const activeSeries = sorted.slice(0, end)
+  const activeSeries = sorted.slice(start, end)
 
   const chartData = activeSeries.reduce<
-    { name: string; balance: number; expenses: number; fullDate: string }[]
+    { date: string; balance: number; expenses: number; fullDate: string }[]
   >((acc, t) => {
     const prev = acc.length > 0 ? acc[acc.length - 1] : { balance: 0, expenses: 0 }
     const date = new Date(t.periodStart)
     acc.push({
-      name: formatPeriodLabel(date, granularity),
+      date: t.periodStart,
       balance: prev.balance + t.netBalance,
       expenses: prev.expenses + t.expenses,
       fullDate: formatFullDate(date, granularity),
@@ -130,11 +143,12 @@ export function BalanceTrendChart({
               strokeOpacity={0.6}
             />
             <XAxis
-              dataKey="name"
+              dataKey="date"
               fontSize={12}
               axisLine={false}
               tickLine={false}
               tick={{ fill: 'var(--color-text-secondary)' }}
+              tickFormatter={(val) => formatPeriodLabel(new Date(val), granularity)}
             />
             <YAxis
               fontSize={12}
