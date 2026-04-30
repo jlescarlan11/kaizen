@@ -221,7 +221,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         {!hideHeader && (
           <header
             className={cn(
-              'fixed top-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-md z-20 px-5 md:px-10',
+              'fixed top-0 left-0 right-0 h-20 bg-background z-20 px-5 md:px-10',
               !isMobile && 'md:left-64',
               isAnimating && 'transition-transform duration-200 ease-in-out',
             )}
@@ -323,7 +323,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
+        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'
