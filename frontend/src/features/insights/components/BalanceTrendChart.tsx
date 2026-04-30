@@ -21,8 +21,8 @@ interface BalanceTrendChartProps {
 }
 
 const SERIES = [
-  { key: 'balance', name: 'Balance', color: CHART_COLORS.income },
-  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense },
+  { key: 'balance', name: 'Balance', color: CHART_COLORS.income, axis: 'left' },
+  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense, axis: 'right' },
 ] as const
 
 function formatPeriodLabel(date: Date, granularity: Granularity): string {
@@ -108,7 +108,7 @@ export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTre
     <Card title="Financial Trajectory">
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+          <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
@@ -124,6 +124,17 @@ export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTre
               tickFormatter={(val) => formatPeriodLabel(new Date(val), granularity)}
             />
             <YAxis
+              yAxisId="left"
+              fontSize={12}
+              width={60}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: 'var(--color-text-secondary)' }}
+              tickFormatter={(val) => `₱${val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val}`}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
               fontSize={12}
               width={60}
               axisLine={false}
@@ -179,9 +190,10 @@ export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTre
                 </div>
               )}
             />
-            {SERIES.map(({ key, name, color }) => (
+            {SERIES.map(({ key, name, color, axis }) => (
               <Line
                 key={key}
+                yAxisId={axis}
                 type="monotone"
                 dataKey={key}
                 name={name}
