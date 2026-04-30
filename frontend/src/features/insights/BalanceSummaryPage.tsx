@@ -19,17 +19,7 @@ import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { setGranularity, setSelectedAccountIds } from './balanceSummarySlice'
 import { SharedIcon } from '../../shared/components/IconRegistry'
 import { deliverExportFile } from '../transactions/export/exportDelivery'
-import type { Granularity, PeriodOption } from './types'
-
-const PERIOD_LABELS: Record<PeriodOption, string> = {
-  CURRENT_MONTH: 'Current Month',
-  LAST_MONTH: 'Last Month',
-  LAST_3_MONTHS: 'Last 3 Months',
-  ALL_TIME: 'One Year',
-  YTD: 'Year to Date',
-  LAST_12_MONTHS: 'Last 12 Months',
-  CUSTOM: 'Custom Period',
-}
+import type { Granularity } from './types'
 
 export function BalanceSummaryPage(): ReactElement {
   const dispatch = useAppDispatch()
@@ -83,10 +73,6 @@ export function BalanceSummaryPage(): ReactElement {
   const currentBalance = filteredAccountSummaries.reduce((acc, s) => acc + s.totalAmount, 0)
   const currentNetFlow = currentSummary?.netBalance ?? 0
   const previousBalance = currentBalance - currentNetFlow
-  const totalIncome = currentSummary?.totalIncome ?? 0
-  const totalSpent = currentSummary?.totalExpenses ?? 0
-  const periodLabel = PERIOD_LABELS[period]
-
   const handleExportCSV = () => {
     if (!balanceTrends.series.length) return
 
@@ -110,10 +96,6 @@ export function BalanceSummaryPage(): ReactElement {
       <BalanceSummaryHero
         currentBalance={currentBalance}
         previousBalance={previousBalance}
-        periodLabel={periodLabel}
-        accountCount={filteredAccountSummaries.length}
-        totalIncome={totalIncome}
-        totalSpent={totalSpent}
         isLoading={isAccountsLoading || isCurrentSummaryLoading}
       />
 
