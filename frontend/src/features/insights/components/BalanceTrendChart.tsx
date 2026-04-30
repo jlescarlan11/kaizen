@@ -21,8 +21,8 @@ interface BalanceTrendChartProps {
 }
 
 const SERIES = [
-  { key: 'balance', name: 'Balance', color: CHART_COLORS.income, axis: 'left' },
-  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense, axis: 'right' },
+  { key: 'balance', name: 'Balance', color: CHART_COLORS.income },
+  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense },
 ] as const
 
 function formatPeriodLabel(date: Date, granularity: Granularity): string {
@@ -124,17 +124,6 @@ export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTre
               tickFormatter={(val) => formatPeriodLabel(new Date(val), granularity)}
             />
             <YAxis
-              yAxisId="left"
-              fontSize={12}
-              width={60}
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: 'var(--color-text-secondary)' }}
-              tickFormatter={(val) => `₱${val >= 1000 ? (val / 1000).toFixed(0) + 'k' : val}`}
-            />
-            <YAxis
-              yAxisId="right"
-              orientation="right"
               fontSize={12}
               width={60}
               axisLine={false}
@@ -190,10 +179,9 @@ export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTre
                 </div>
               )}
             />
-            {SERIES.map(({ key, name, color, axis }) => (
+            {SERIES.map(({ key, name, color }) => (
               <Line
                 key={key}
-                yAxisId={axis}
                 type="monotone"
                 dataKey={key}
                 name={name}
