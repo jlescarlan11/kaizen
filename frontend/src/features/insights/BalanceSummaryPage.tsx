@@ -130,6 +130,7 @@ export function BalanceSummaryPage(): ReactElement {
           />
         </div>
         <button
+          type="button"
           onClick={handleExportCSV}
           disabled={isTrendsLoading || !balanceTrends.series.length}
           className="flex items-center justify-center gap-2 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all disabled:opacity-50 shadow-sm"

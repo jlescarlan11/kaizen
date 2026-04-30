@@ -28,6 +28,13 @@ export function useInsightsPeriod() {
       case 'ALL_TIME':
         start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
         break
+      case 'YTD':
+        start = new Date(now.getFullYear(), 0, 1)
+        break
+      case 'LAST_12_MONTHS':
+        start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+        break
+      case 'CUSTOM':
       default:
         start = new Date(now.getFullYear(), now.getMonth(), 1)
     }
