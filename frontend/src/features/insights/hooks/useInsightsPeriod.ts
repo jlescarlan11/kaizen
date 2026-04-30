@@ -26,7 +26,7 @@ export function useInsightsPeriod() {
         start = new Date(now.getFullYear(), now.getMonth() - 3, 1)
         break
       case 'ALL_TIME':
-        start = new Date(2000, 0, 1) // some reasonable start date
+        start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
         break
       default:
         start = new Date(now.getFullYear(), now.getMonth(), 1)
