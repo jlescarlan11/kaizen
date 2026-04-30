@@ -24,7 +24,7 @@ export function BalanceSummaryHero({
 }: BalanceSummaryHeroProps): ReactElement {
   if (isLoading) {
     return (
-      <div className="rounded-2xl bg-ui-surface border border-ui-border p-6 space-y-4 animate-pulse">
+      <div className="rounded-2xl bg-gradient-to-br from-ui-surface to-ui-surface-muted border border-ui-border p-6 space-y-4 animate-pulse">
         <div className="h-3 w-32 rounded bg-ui-border-subtle" />
         <div className="h-10 w-56 rounded bg-ui-border-subtle" />
         <div className="h-7 w-28 rounded-full bg-ui-border-subtle" />
@@ -42,7 +42,7 @@ export function BalanceSummaryHero({
   const isPositive = diff >= 0
 
   return (
-    <div className="rounded-2xl bg-ui-surface border border-ui-border p-6 space-y-4 bg-gradient-to-br from-ui-surface to-ui-surface-muted">
+    <div className="rounded-2xl bg-gradient-to-br from-ui-surface to-ui-surface-muted border border-ui-border p-6 space-y-4">
       <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
         Balance Summary
       </p>
