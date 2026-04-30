@@ -8,9 +8,8 @@ interface PeriodSelectorProps {
 
 const OPTIONS = [
   { value: 'CURRENT_MONTH', label: 'Current Month' },
-  { value: 'LAST_MONTH', label: 'Last Month' },
   { value: 'LAST_3_MONTHS', label: 'Last 3 Months' },
-  { value: 'ALL_TIME', label: 'One Year' },
+  { value: 'YTD', label: 'Current Year' },
 ]
 
 export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
