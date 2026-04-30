@@ -30,7 +30,7 @@ const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
 
 const SERIES = [
   { key: 'balance', name: 'Balance', color: CHART_COLORS.income },
-  { key: 'expenses', name: 'Expenses', color: CHART_COLORS.expense },
+  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense },
 ] as const
 
 function formatPeriodLabel(date: Date, granularity: Granularity): string {
@@ -77,16 +77,15 @@ export function BalanceTrendChart({
     (a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
   )
 
-  // Cumulative running balance — periods with no income don't dip negative
   const chartData = sortedSeries.reduce<
     { name: string; balance: number; expenses: number; fullDate: string }[]
   >((acc, t) => {
-    const prev = acc.length > 0 ? acc[acc.length - 1].balance : 0
+    const prev = acc.length > 0 ? acc[acc.length - 1] : { balance: 0, expenses: 0 }
     const date = new Date(t.periodStart)
     acc.push({
       name: formatPeriodLabel(date, granularity),
-      balance: Math.max(0, prev + t.netBalance),
-      expenses: t.expenses,
+      balance: Math.max(0, prev.balance + t.netBalance),
+      expenses: prev.expenses + t.expenses,
       fullDate: formatFullDate(date, granularity),
     })
     return acc
