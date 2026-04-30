@@ -73,18 +73,31 @@ export function BalanceTrendChart({
     )
   }
 
-  const sortedSeries = [...trends.series].sort(
+  const sorted = [...trends.series].sort(
     (a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
   )
 
-  const chartData = sortedSeries.reduce<
+  // Drop trailing periods with no activity — API often generates empty
+  // placeholder entries for days at the end of the range with no transactions yet.
+  let end = sorted.length
+  while (
+    end > 0 &&
+    sorted[end - 1].income === 0 &&
+    sorted[end - 1].expenses === 0 &&
+    sorted[end - 1].netBalance === 0
+  ) {
+    end--
+  }
+  const activeSeries = sorted.slice(0, end)
+
+  const chartData = activeSeries.reduce<
     { name: string; balance: number; expenses: number; fullDate: string }[]
   >((acc, t) => {
     const prev = acc.length > 0 ? acc[acc.length - 1] : { balance: 0, expenses: 0 }
     const date = new Date(t.periodStart)
     acc.push({
       name: formatPeriodLabel(date, granularity),
-      balance: Math.max(0, prev.balance + t.netBalance),
+      balance: prev.balance + t.netBalance,
       expenses: prev.expenses + t.expenses,
       fullDate: formatFullDate(date, granularity),
     })
