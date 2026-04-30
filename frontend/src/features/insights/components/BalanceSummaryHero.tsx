@@ -1,4 +1,3 @@
-// frontend/src/features/insights/components/BalanceSummaryHero.tsx
 import type { ReactElement } from 'react'
 import { Badge } from '../../../shared/components/Badge'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
@@ -18,9 +17,9 @@ export function BalanceSummaryHero({
   if (isLoading) {
     return (
       <div className="space-y-3">
-        <div className="h-8 w-48 rounded-lg bg-black/5 animate-pulse" />
-        <div className="h-12 w-72 rounded-lg bg-black/5 animate-pulse" />
-        <div className="h-6 w-32 rounded-full bg-black/5 animate-pulse" />
+        <div className="h-3 w-32 rounded bg-ui-border-subtle animate-pulse" />
+        <div className="h-12 w-72 rounded bg-ui-border-subtle animate-pulse" />
+        <div className="h-7 w-28 rounded-full bg-ui-border-subtle animate-pulse" />
       </div>
     )
   }
@@ -31,28 +30,28 @@ export function BalanceSummaryHero({
 
   return (
     <div className="space-y-2">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground">Balance Summary</h1>
+      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+        Balance Summary
+      </p>
 
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-        <p className="text-4xl font-semibold tracking-tight text-foreground leading-none">
+      <div className="flex items-baseline gap-2" aria-hidden="true">
+        <span className="text-lg font-semibold text-muted-foreground">PHP</span>
+        <h1 className="text-4xl font-semibold tracking-tight text-foreground">
           {formatCurrency(currentBalance).replace('PHP', '').trim()}
-          <span className="ml-1.5 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            PHP
-          </span>
-        </p>
-
-        <Badge
-          tone={isPositive ? 'success' : 'error'}
-          emphasis="soft"
-          className="px-3 py-1 gap-1.5 self-end mb-0.5"
-        >
-          <SharedIcon type="ui" name={isPositive ? 'income' : 'expense'} size={14} />
-          <span className="font-semibold text-xs">{Math.abs(percentage).toFixed(1)}%</span>
-          <span className="text-xs font-medium text-muted-foreground">
-            {isPositive ? 'increase' : 'decrease'} from last month
-          </span>
-        </Badge>
+        </h1>
       </div>
+
+      <Badge
+        variant={isPositive ? 'success' : 'error'}
+        emphasis="soft"
+        className="px-3 py-1 gap-1.5"
+      >
+        <SharedIcon type="ui" name={isPositive ? 'income' : 'expense'} size={14} />
+        <span className="font-semibold text-xs">{Math.abs(percentage).toFixed(1)}%</span>
+        <span className="text-xs font-medium text-muted-foreground">
+          {isPositive ? 'increase' : 'decrease'} from prior period
+        </span>
+      </Badge>
     </div>
   )
 }

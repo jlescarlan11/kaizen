@@ -15,6 +15,14 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
 }) => {
   const percentage = Math.min(Math.max(ratio * 100, 0), 100)
 
+  if (incoming === 0 && outgoing === 0) {
+    return (
+      <p className="text-sm text-muted-foreground text-center py-4 italic">
+        No transactions this period
+      </p>
+    )
+  }
+
   return (
     <div className="space-y-4" data-testid="money-flow-display">
       <div className="grid grid-cols-2 gap-4">
@@ -41,12 +49,12 @@ export const MoneyFlowDisplay: React.FC<MoneyFlowDisplayProps> = ({
           </div>
         </div>
       </div>
-      <div className="h-2 w-full bg-black/5 rounded-full overflow-hidden">
+      <div className="h-2 w-full bg-ui-border-subtle/40 rounded-full overflow-hidden">
         <div
           data-testid="money-flow-progress"
           className={cn(
             'h-full transition-all duration-700 ease-out',
-            percentage > 90 ? 'bg-ui-error' : percentage > 75 ? 'bg-ui-warning' : 'bg-ui-action',
+            percentage > 90 ? 'bg-ui-danger' : percentage > 75 ? 'bg-ui-warning' : 'bg-ui-action',
           )}
           style={{ width: `${percentage}%` }}
         />

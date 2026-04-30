@@ -11,24 +11,23 @@ import {
 import type { BalanceTrendSeries, Granularity } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { CHART_COLORS } from '../../../shared/lib/chartTheme'
-import { useState } from 'react'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
+import { Card } from '../../../shared/components/Card'
 
 interface BalanceTrendChartProps {
   trends: BalanceTrendSeries
   granularity: Granularity
-  onGranularityChange: (g: Granularity) => void
   isLoading: boolean
 }
 
-const GRANULARITY_OPTIONS: { label: string; value: Granularity }[] = [
-  { label: 'Daily', value: 'DAILY' },
-  { label: 'Weekly', value: 'WEEKLY' },
-  { label: 'Monthly', value: 'MONTHLY' },
-]
+const SERIES = [
+  { key: 'balance', name: 'Balance', color: CHART_COLORS.income },
+  { key: 'expenses', name: 'Total Expenses', color: CHART_COLORS.expense },
+] as const
 
 function formatPeriodLabel(date: Date, granularity: Granularity): string {
   if (granularity === 'MONTHLY') {
-    return date.toLocaleDateString(undefined, { month: 'short' })
+    return date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' })
   }
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
@@ -40,113 +39,93 @@ function formatFullDate(date: Date, granularity: Granularity): string {
   return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-export function BalanceTrendChart({
-  trends,
-  granularity,
-  onGranularityChange,
-  isLoading,
-}: BalanceTrendChartProps) {
-  const [hiddenSeries, setHiddenSeries] = useState<string[]>([])
-
-  const toggleSeries = (dataKey: string) => {
-    setHiddenSeries((prev) =>
-      prev.includes(dataKey) ? prev.filter((s) => s !== dataKey) : [...prev, dataKey],
-    )
-  }
-
+export function BalanceTrendChart({ trends, granularity, isLoading }: BalanceTrendChartProps) {
   if (isLoading) {
     return (
-      <div className="h-[400px] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          <p className="text-sm text-muted-foreground animate-pulse">Analyzing trends...</p>
-        </div>
-      </div>
+      <Card title="Financial Trajectory">
+        <ChartSkeleton variant="line" className="h-64" />
+      </Card>
     )
   }
 
   if (!trends.series || trends.series.length === 0) {
     return (
-      <div className="h-[400px] flex items-center justify-center border border-dashed border-ui-border-subtle rounded-2xl">
-        <p className="text-muted-foreground italic text-sm">
-          No trend data available for this period.
-        </p>
-      </div>
+      <Card title="Financial Trajectory">
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-sm leading-6 italic text-muted-foreground">
+            No trend data available for this period.
+          </p>
+        </div>
+      </Card>
     )
   }
 
-  const sortedSeries = [...trends.series].sort(
+  const sorted = [...trends.series].sort(
     (a, b) => new Date(a.periodStart).getTime() - new Date(b.periodStart).getTime(),
   )
 
-  const chartData = sortedSeries.map((t, index) => {
+  // Trim leading and trailing periods that have no activity.
+  // Leading zeros are timezone-offset artifacts (backend start.toLocalDate() lands
+  // one UTC day early for GMT+8 users). Trailing zeros are API-generated placeholders
+  // for days in the range that have no transactions yet.
+  // Both kinds cause label collisions on the categorical X-axis (e.g., two "Apr 29"
+  // entries — one from 2025, one from 2026) which made Recharts show 0 when hovering.
+  let start = 0
+  while (
+    start < sorted.length &&
+    sorted[start].income === 0 &&
+    sorted[start].expenses === 0 &&
+    sorted[start].netBalance === 0
+  ) {
+    start++
+  }
+  let end = sorted.length
+  while (
+    end > start &&
+    sorted[end - 1].income === 0 &&
+    sorted[end - 1].expenses === 0 &&
+    sorted[end - 1].netBalance === 0
+  ) {
+    end--
+  }
+  const activeSeries = sorted.slice(start, end)
+
+  const chartData = activeSeries.reduce<
+    { date: string; balance: number; expenses: number; fullDate: string }[]
+  >((acc, t) => {
+    const prev = acc.length > 0 ? acc[acc.length - 1] : { balance: 0, expenses: 0 }
     const date = new Date(t.periodStart)
-    const prev = index > 0 ? sortedSeries[index - 1] : null
-
-    const calculateDelta = (curr: number, p: number | null) => {
-      if (p === null || p === 0) return null
-      return ((curr - p) / Math.abs(p)) * 100
-    }
-
-    return {
-      name: formatPeriodLabel(date, granularity),
-      income: t.income,
-      incomeDelta: calculateDelta(t.income, prev?.income ?? null),
-      expenses: t.expenses,
-      expensesDelta: calculateDelta(t.expenses, prev?.expenses ?? null),
-      netBalance: t.netBalance,
-      netBalanceDelta: calculateDelta(t.netBalance, prev?.netBalance ?? null),
+    acc.push({
+      date: t.periodStart,
+      balance: prev.balance + t.netBalance,
+      expenses: prev.expenses + t.expenses,
       fullDate: formatFullDate(date, granularity),
-    }
-  })
+    })
+    return acc
+  }, [])
 
   return (
-    <div className="flex flex-col gap-8 py-6">
-      <div className="flex items-center justify-between px-1">
-        <div className="space-y-1">
-          <p className="text-xs leading-5 text-muted-foreground tracking-wide uppercase">
-            Financial Trajectory
-          </p>
-          <p className="text-xs font-semibold text-foreground/60">Income vs Expenses Analysis</p>
-        </div>
-        <div className="flex bg-ui-surface-muted p-1 rounded-full border border-ui-border-subtle shadow-inner">
-          {GRANULARITY_OPTIONS.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => onGranularityChange(value)}
-              className={`px-4 py-1.5 text-xs font-semibold uppercase tracking-wide rounded-full transition-all ${
-                granularity === value
-                  ? 'bg-ui-surface text-primary shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="h-[350px] w-full">
+    <Card title="Financial Trajectory">
+      <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+          <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="var(--ui-border-subtle)"
-              opacity={0.5}
+              stroke="var(--color-ui-border-subtle)"
+              strokeOpacity={0.6}
             />
             <XAxis
-              dataKey="name"
-              fontSize={10}
-              fontWeight={800}
+              dataKey="date"
+              fontSize={12}
               axisLine={false}
               tickLine={false}
               tick={{ fill: 'var(--color-text-secondary)' }}
-              dy={15}
+              tickFormatter={(val) => formatPeriodLabel(new Date(val), granularity)}
             />
             <YAxis
-              fontSize={10}
-              fontWeight={800}
+              fontSize={12}
+              width={60}
               axisLine={false}
               tickLine={false}
               tick={{ fill: 'var(--color-text-secondary)' }}
@@ -154,77 +133,45 @@ export function BalanceTrendChart({
             />
             <Tooltip
               content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload
-                  return (
-                    <div className="bg-ui-surface/95 backdrop-blur-md border border-ui-border p-4 rounded-2xl shadow-2xl space-y-3 min-w-[220px]">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pb-2 border-b border-ui-border-subtle">
-                        {data.fullDate}
-                      </p>
-                      <div className="space-y-2.5">
-                        {payload.map((entry) => {
-                          const deltaKey = `${entry.dataKey}Delta`
-                          const delta = data[deltaKey] as number | null
-                          return (
-                            <div key={entry.name} className="flex flex-col gap-1">
-                              <div className="flex items-center justify-between gap-8">
-                                <div className="flex items-center gap-2.5">
-                                  <div
-                                    className="h-2 w-2 rounded-full shadow-sm"
-                                    style={{ backgroundColor: entry.color }}
-                                  />
-                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                                    {entry.name}
-                                  </span>
-                                </div>
-                                <span className="text-sm font-semibold text-foreground tabular-nums">
-                                  {formatCurrency(entry.value as number)}
-                                </span>
-                              </div>
-                              {delta !== null && (
-                                <div className="flex justify-end pr-0.5">
-                                  <span
-                                    className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                                      delta >= 0
-                                        ? 'bg-success/10 text-success'
-                                        : 'bg-error/10 text-error'
-                                    }`}
-                                  >
-                                    {delta >= 0 ? '↑' : '↓'} {Math.abs(delta).toFixed(1)}%
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })}
+                if (!active || !payload?.length) return null
+                const data = payload[0].payload
+                return (
+                  <div className="bg-ui-surface border border-ui-border p-4 rounded-2xl shadow-2xl space-y-2.5 min-w-[200px]">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pb-2 border-b border-ui-border-subtle">
+                      {data.fullDate}
+                    </p>
+                    {payload.map((entry) => (
+                      <div key={entry.name} className="flex items-center justify-between gap-8">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: entry.color }}
+                          />
+                          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            {entry.name}
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold text-foreground tabular-nums">
+                          {formatCurrency(entry.value as number)}
+                        </span>
                       </div>
-                    </div>
-                  )
-                }
-                return null
+                    ))}
+                  </div>
+                )
               }}
             />
             <Legend
-              verticalAlign="top"
-              align="right"
-              iconType="circle"
+              verticalAlign="bottom"
+              align="center"
               content={({ payload }) => (
-                <div className="flex gap-6 justify-end mb-6">
+                <div className="flex gap-5 justify-center mt-3">
                   {payload?.map((entry) => (
-                    <div
-                      key={entry.value}
-                      className={`flex items-center gap-2 cursor-pointer transition-all ${
-                        hiddenSeries.includes(entry.dataKey as string)
-                          ? 'opacity-20 grayscale'
-                          : 'opacity-100'
-                      }`}
-                      onClick={() => toggleSeries(entry.dataKey as string)}
-                    >
+                    <div key={entry.value} className="flex items-center gap-1.5">
                       <div
-                        className="h-2 w-2 rounded-full shadow-sm"
+                        className="h-2.5 w-2.5 rounded-full"
                         style={{ backgroundColor: entry.color }}
                       />
-                      <span className="text-xs font-semibold uppercase tracking-wide text-foreground/70 group-hover:text-foreground">
+                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {entry.value}
                       </span>
                     </div>
@@ -232,42 +179,21 @@ export function BalanceTrendChart({
                 </div>
               )}
             />
-            {!hiddenSeries.includes('income') && (
+            {SERIES.map(({ key, name, color }) => (
               <Line
+                key={key}
                 type="monotone"
-                dataKey="income"
-                name="Income"
-                stroke={CHART_COLORS.income}
+                dataKey={key}
+                name={name}
+                stroke={color}
                 strokeWidth={3}
                 dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.income }}
+                activeDot={{ r: 5, strokeWidth: 0, fill: color }}
               />
-            )}
-            {!hiddenSeries.includes('expenses') && (
-              <Line
-                type="monotone"
-                dataKey="expenses"
-                name="Expenses"
-                stroke={CHART_COLORS.expense}
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: CHART_COLORS.expense }}
-              />
-            )}
-            {!hiddenSeries.includes('netBalance') && (
-              <Line
-                type="monotone"
-                dataKey="netBalance"
-                name="Net Balance"
-                stroke="var(--color-text-secondary)"
-                strokeWidth={3}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 0, fill: 'var(--color-text-secondary)' }}
-              />
-            )}
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   )
 }

@@ -220,7 +220,7 @@ export function TransactionList({
                 )}
                 {tx.id === -1 && (
                   <Badge
-                    tone="warning"
+                    variant="warning"
                     className="text-xs animate-pulse font-semibold uppercase tracking-wide px-1.5"
                   >
                     Syncing
@@ -259,7 +259,7 @@ export function TransactionList({
               </span>
             </p>
             <Badge
-              tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+              variant={tx.type === 'INCOME' ? 'success' : 'neutral'}
               className="text-xs uppercase font-semibold tracking-wide px-2.5 py-0.5 mt-2"
             >
               {tx.type === 'INCOME' ? 'Income' : 'Expense'}{' '}

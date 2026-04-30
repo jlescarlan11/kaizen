@@ -7,7 +7,7 @@ import { TransactionSearch } from './components/TransactionSearch'
 import { TransactionFilter } from './components/TransactionFilter'
 import { TransactionEmptyState } from './components/TransactionEmptyState'
 import { ExportModal } from './components/ExportModal'
-import { Download } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
@@ -20,7 +20,6 @@ import {
   clearSelection,
   selectSelectedIds,
 } from './transactionSlice'
-import { CheckSquare, X } from 'lucide-react'
 import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
@@ -171,12 +170,12 @@ export function TransactionListPage(): ReactElement {
                 >
                   {isSelectionMode ? (
                     <>
-                      <X className="h-4 w-4 mr-2" />
+                      <SharedIcon type="ui" name="close" size={16} className="mr-2" />
                       Exit Select
                     </>
                   ) : (
                     <>
-                      <CheckSquare className="h-4 w-4 mr-2" />
+                      <SharedIcon type="ui" name="check-square" size={16} className="mr-2" />
                       Select
                     </>
                   )}
@@ -191,7 +190,7 @@ export function TransactionListPage(): ReactElement {
                   className="h-10 px-4 border border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30"
                   onClick={() => setIsExportModalOpen(true)}
                 >
-                  <Download className="h-4 w-4 mr-2" />
+                  <SharedIcon type="ui" name="download" size={16} className="mr-2" />
                   Export
                 </Button>
               </div>
@@ -210,6 +209,7 @@ export function TransactionListPage(): ReactElement {
                   >
                     {type === 'INCOME' ? 'Income' : 'Expense'}
                     <button
+                      aria-label={`Remove ${type === 'INCOME' ? 'Income' : 'Expense'} filter`}
                       onClick={() =>
                         setFilterState((prev) => ({
                           ...prev,
@@ -226,6 +226,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     From: {filterState.startDate}
                     <button
+                      aria-label="Remove start date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
                       className="hover:text-primary-hover"
                     >
@@ -237,6 +238,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     To: {filterState.endDate}
                     <button
+                      aria-label="Remove end date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
                       className="hover:text-primary-hover"
                     >
@@ -244,12 +246,11 @@ export function TransactionListPage(): ReactElement {
                     </button>
                   </span>
                 )}
-                {/* Note: Showing category names would require mapping IDs to categories, 
-                    leaving as simple indicator for now to keep focus on pipeline */}
                 {filterState.categories.length > 0 && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.categories.length} Categories
                     <button
+                      aria-label="Remove category filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
                       className="hover:text-primary-hover"
                     >
@@ -261,6 +262,7 @@ export function TransactionListPage(): ReactElement {
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
                     {filterState.paymentMethods.length} Accounts
                     <button
+                      aria-label="Remove payment method filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}
                       className="hover:text-primary-hover"
                     >

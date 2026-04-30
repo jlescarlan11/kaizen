@@ -1,16 +1,22 @@
 import type { ReactElement } from 'react'
+import { useState } from 'react'
 import { useGetSessionsQuery, useRevokeSessionMutation } from '../../app/store/api/sessionApi'
+import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
 import { pageLayout } from '../../shared/styles/layout'
 
 export function SessionsPage(): ReactElement {
   const { data: sessions, isLoading } = useGetSessionsQuery()
   const [revokeSession, { isLoading: isRevoking }] = useRevokeSessionMutation()
+  const [revokeTargetId, setRevokeTargetId] = useState<number | null>(null)
 
-  const handleRevoke = async (id: number): Promise<void> => {
+  const handleRevoke = async (): Promise<void> => {
+    if (revokeTargetId == null) return
     try {
-      await revokeSession(id).unwrap()
+      await revokeSession(revokeTargetId).unwrap()
     } catch (error) {
       console.error('Failed to revoke session', error)
+    } finally {
+      setRevokeTargetId(null)
     }
   }
 
@@ -24,14 +30,14 @@ export function SessionsPage(): ReactElement {
 
   return (
     <section className={pageLayout.sectionGap}>
-      <div className={pageLayout.headerGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Active sessions
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           View and manage devices currently signed in to your account.
         </p>
-      </div>
+      </header>
 
       <div>
         {sessions?.length === 0 && (
@@ -82,7 +88,7 @@ export function SessionsPage(): ReactElement {
                 {!session.isCurrent && (
                   <button
                     type="button"
-                    onClick={() => handleRevoke(session.id)}
+                    onClick={() => setRevokeTargetId(session.id)}
                     disabled={isRevoking}
                     className="shrink-0 text-xs leading-5 font-medium text-ui-danger-text-soft hover:text-ui-danger-text-soft hover:bg-ui-danger-subtle px-3 py-1.5 rounded-lg border border-ui-border-subtle transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
@@ -94,6 +100,16 @@ export function SessionsPage(): ReactElement {
           </div>
         )}
       </div>
+
+      <DestructiveActionDialog
+        isOpen={revokeTargetId != null}
+        onClose={() => setRevokeTargetId(null)}
+        onConfirm={handleRevoke}
+        title="Revoke session?"
+        description="This device will be signed out immediately. Any unsaved work on that device will be lost."
+        confirmLabel="Revoke"
+        isConfirming={isRevoking}
+      />
     </section>
   )
 }

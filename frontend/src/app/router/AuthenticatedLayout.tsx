@@ -195,10 +195,10 @@ function AuthenticatedLayoutContent(): ReactElement {
                   end={item.to === '/'}
                   className={({ isActive }) =>
                     cn(
-                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
                       isActive
-                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong'
-                        : 'text-muted-foreground hover:bg-black/5 hover:text-foreground',
+                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong font-semibold'
+                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground font-medium',
                     )
                   }
                   ref={anchorRef}
@@ -221,7 +221,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         {!hideHeader && (
           <header
             className={cn(
-              'fixed top-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-md z-20 px-5 md:px-10',
+              'fixed top-0 left-0 right-0 h-20 bg-background z-20 px-5 md:px-10',
               !isMobile && 'md:left-64',
               isAnimating && 'transition-transform duration-200 ease-in-out',
             )}
@@ -270,18 +270,18 @@ function AuthenticatedLayoutContent(): ReactElement {
                 {!isSecondDegree && (
                   <>
                     <button
-                      className="p-2 rounded-full hover:bg-black/5 transition-colors relative"
+                      className="p-2 rounded-full hover:bg-ui-surface-hover transition-colors relative"
                       aria-label="Notifications"
                     >
                       <span aria-hidden="true">
                         <NotificationIcon />
                       </span>
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-ui-danger rounded-full border-2 border-background" />
                     </button>
 
                     <NavLink
                       to="/your-account"
-                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-black/5 transition-colors"
+                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-ui-surface-hover transition-colors"
                     >
                       <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-sm font-semibold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
                         {user?.picture && !imageError ? (
@@ -323,7 +323,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background/95 backdrop-blur-md border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
+        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'

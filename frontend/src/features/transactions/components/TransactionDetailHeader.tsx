@@ -29,8 +29,13 @@ export function TransactionDetailHeader({
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Transaction Amount
         </p>
-        <div className="flex items-baseline gap-2">
+        <div
+          className="flex items-baseline gap-2"
+          role="status"
+          aria-label={`${isExpense ? 'Expense' : isIncome ? 'Income' : 'Amount'}: ${formatCurrency(amount)}`}
+        >
           <h2
+            aria-hidden="true"
             className={cn(
               'text-4xl md:text-5xl font-semibold tracking-tight tabular-nums',
               isExpense ? 'text-foreground' : isIncome ? 'text-ui-success' : 'text-foreground',
@@ -39,7 +44,10 @@ export function TransactionDetailHeader({
             {isExpense ? '-' : isIncome ? '+' : ''}
             {formatCurrency(amount).replace('PHP', '').trim()}
           </h2>
-          <span className="text-sm font-semibold text-muted-foreground tracking-wide uppercase">
+          <span
+            aria-hidden="true"
+            className="text-sm font-semibold text-muted-foreground tracking-wide uppercase"
+          >
             PHP
           </span>
         </div>

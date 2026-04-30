@@ -1,6 +1,6 @@
 import { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronRight } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import type { PaymentMethodSummary } from '../../payment-methods/api'
 import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts'
@@ -81,7 +81,7 @@ export function CompactAccountList({
                 </p>
               </div>
               <div className="p-1 rounded-full bg-ui-surface-muted group-hover:bg-primary/10 group-hover:text-primary transition-all">
-                <ChevronRight className="h-3 w-3" />
+                <SharedIcon type="ui" name="chevron-right" size={12} />
               </div>
             </div>
           </div>

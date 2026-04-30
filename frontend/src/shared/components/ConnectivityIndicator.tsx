@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { WifiOff, Wifi } from 'lucide-react'
+import { SharedIcon } from './IconRegistry'
 import { cn } from '../../shared/lib/cn'
 
 export function ConnectivityIndicator() {
@@ -34,17 +34,17 @@ export function ConnectivityIndicator() {
     <div
       className={cn(
         'fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-semibold transition-all animate-in fade-in slide-in-from-top-2',
-        isOnline ? 'bg-ui-success text-white' : 'bg-ui-error text-white',
+        isOnline ? 'bg-ui-success text-white' : 'bg-ui-danger text-white',
       )}
     >
       {isOnline ? (
         <>
-          <Wifi className="h-4 w-4" />
+          <SharedIcon type="ui" name="wifi" size={16} />
           <span>Back Online. Syncing...</span>
         </>
       ) : (
         <>
-          <WifiOff className="h-4 w-4" />
+          <SharedIcon type="ui" name="wifi-off" size={16} />
           <span>Offline Mode. Transactions will be saved locally.</span>
         </>
       )}

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
 import { Card } from '../../../shared/components/Card'
+import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { getCategoricalColor } from '../../../shared/lib/chartTheme'
@@ -8,24 +9,25 @@ import { getCategoricalColor } from '../../../shared/lib/chartTheme'
 interface CategoryBreakdownProps {
   breakdown: CategoryBreakdownType
   isLoading: boolean
+  title?: string
 }
 
-export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownProps) {
+export function CategoryBreakdown({
+  breakdown,
+  isLoading,
+  title = 'Category Breakdown',
+}: CategoryBreakdownProps) {
   if (isLoading) {
     return (
-      <Card title="Category Breakdown">
-        <div className="flex h-64 items-center justify-center">
-          <p className="animate-pulse text-sm leading-6 text-muted-foreground">
-            Loading breakdown...
-          </p>
-        </div>
+      <Card title={title}>
+        <ChartSkeleton variant="pie" className="h-64" />
       </Card>
     )
   }
 
   if (!breakdown.categories || breakdown.categories.length === 0) {
     return (
-      <Card title="Category Breakdown">
+      <Card title={title}>
         <div className="flex h-64 items-center justify-center">
           <p className="text-sm leading-6 italic text-muted-foreground">
             No spending data for this period.
@@ -41,7 +43,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
   }))
 
   return (
-    <Card title="Category Breakdown">
+    <Card title={title}>
       <div className="flex flex-col items-center md:flex-row">
         <div className="h-64 w-full md:w-1/2">
           <ResponsiveContainer width="100%" height="100%">
@@ -53,6 +55,7 @@ export function CategoryBreakdown({ breakdown, isLoading }: CategoryBreakdownPro
                 labelLine={false}
                 outerRadius={80}
                 dataKey="value"
+                fill={getCategoricalColor(0)}
               >
                 {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={getCategoricalColor(index)} />

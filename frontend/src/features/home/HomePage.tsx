@@ -61,7 +61,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
                 'flex h-full w-full items-center justify-center rounded-full',
                 tx.type === 'INCOME'
                   ? 'bg-ui-success/10 text-ui-success'
-                  : 'bg-ui-error/10 text-ui-error',
+                  : 'bg-ui-danger/10 text-ui-danger',
               )}
             >
               {tx.type === 'INCOME' ? (
@@ -99,7 +99,7 @@ const TransactionRow = ({ transaction: tx }: { transaction: TransactionResponse 
           <span className="ml-1 text-xs text-muted-foreground font-normal">PHP</span>
         </p>
         <Badge
-          tone={tx.type === 'INCOME' ? 'success' : 'neutral'}
+          variant={tx.type === 'INCOME' ? 'success' : 'neutral'}
           className="text-xs uppercase font-semibold px-2 py-0.5 mt-1"
         >
           {tx.type}
@@ -128,12 +128,10 @@ const BudgetRow = ({
         <>
           <div className="flex flex-col px-4 py-4 hover:bg-ui-accent-subtle/30 transition-colors group relative">
             <div className="flex items-center justify-between mb-3">
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
                 onClick={() => navigate(`/budgets/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-                className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
+                className="flex items-center gap-4 cursor-pointer flex-1 min-w-0 text-left"
               >
                 <div
                   className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 shrink-0"
@@ -150,7 +148,10 @@ const BudgetRow = ({
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
+                      <Badge
+                        variant="error"
+                        className="text-xs uppercase font-semibold px-1.5 py-0"
+                      >
                         Overbudget
                       </Badge>
                     )}
@@ -159,14 +160,12 @@ const BudgetRow = ({
                     {budget.period}
                   </p>
                 </div>
-              </div>
+              </button>
 
               <div className="flex items-center gap-2 sm:gap-4 ml-2">
-                <div
-                  role="button"
-                  tabIndex={0}
+                <button
+                  type="button"
                   onClick={() => navigate(`/budgets/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
                   className="text-right cursor-pointer"
                 >
                   <p className="text-sm font-semibold text-foreground">
@@ -180,7 +179,7 @@ const BudgetRow = ({
                   >
                     {usagePercent}% used
                   </p>
-                </div>
+                </button>
 
                 <DisclosureButton
                   className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-colors focus:outline-none"
@@ -194,13 +193,7 @@ const BudgetRow = ({
               </div>
             </div>
 
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/budgets/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-              className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
-            >
+            <div className="w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full transition-all duration-500 ease-out',
@@ -262,7 +255,7 @@ const BudgetRow = ({
                       isOverBudget
                         ? 'text-ui-danger'
                         : isProjectedOverBudget
-                          ? 'text-amber-500'
+                          ? 'text-warning-dark'
                           : 'text-foreground',
                     )}
                   >
@@ -302,7 +295,7 @@ const GoalPlaceholderRow = () => {
           Track your progress towards big purchases or emergency funds.
         </p>
       </div>
-      <Badge tone="neutral" className="text-xs uppercase font-semibold tracking-wide px-3 py-1">
+      <Badge variant="neutral" className="text-xs uppercase font-semibold tracking-wide px-3 py-1">
         Coming Soon
       </Badge>
     </div>
@@ -371,11 +364,13 @@ export function HomePage(): ReactElement {
         <section
           ref={balanceCardRef}
           className="space-y-1 animate-in fade-in slide-in-from-bottom-2 duration-500"
+          role="status"
+          aria-label={`Total Balance: ${formattedBalance}`}
         >
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
             Total Balance
           </p>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2" aria-hidden="true">
             <span className="text-lg font-semibold text-muted-foreground">PHP</span>
             <h2 className="text-4xl font-semibold tracking-tight text-foreground">
               {formattedBalance.replace('PHP', '').trim()}

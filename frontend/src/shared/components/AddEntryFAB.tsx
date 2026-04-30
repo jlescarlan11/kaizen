@@ -1,5 +1,5 @@
 import { type ReactElement, useState } from 'react'
-import { Plus, X, Receipt, Wallet, Target, Hand } from 'lucide-react'
+import { SharedIcon } from './IconRegistry'
 import { cn } from '../lib/cn'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 
@@ -25,11 +25,14 @@ export function AddEntryFAB({
   const [isOpen, setIsOpen] = useState(false)
   const isMobile = useMediaQuery('(max-width: 768px)')
 
-  const toggle = () => setIsOpen(!isOpen)
+  const toggle = () => {
+    setIsOpen(!isOpen)
+    navigator.vibrate?.(8)
+  }
 
   const actions = [
     {
-      icon: <Receipt className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="receipt" size={20} />,
       label: 'Add Transaction',
       onClick: () => {
         onAddTransaction()
@@ -38,7 +41,7 @@ export function AddEntryFAB({
       color: 'bg-ui-action text-ui-action-text',
     },
     {
-      icon: <Wallet className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="wallet" size={20} />,
       label: 'Create Budget',
       onClick: () => {
         onCreateBudget()
@@ -47,7 +50,7 @@ export function AddEntryFAB({
       color: 'bg-ui-accent text-foreground',
     },
     {
-      icon: <Target className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="target" size={20} />,
       label: 'Create Goal',
       onClick: () => {
         onCreateGoal()
@@ -56,7 +59,7 @@ export function AddEntryFAB({
       color: 'bg-ui-success text-ui-success-text',
     },
     {
-      icon: <Hand className="h-5 w-5" />,
+      icon: <SharedIcon type="ui" name="hand" size={20} />,
       label: 'Hold Purchase',
       onClick: () => {
         onHoldPurchase()
@@ -102,7 +105,7 @@ export function AddEntryFAB({
               onClick={action.onClick}
               aria-label={action.label}
               className={cn(
-                'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 shrink-0 pointer-events-auto',
+                'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 active:brightness-90 shrink-0 pointer-events-auto',
                 action.color,
               )}
             >
@@ -119,14 +122,14 @@ export function AddEntryFAB({
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close quick actions' : 'Open quick actions'}
         className={cn(
-          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-ui-border-strong bg-ui-surface text-foreground shadow-2xl transition-all hover:bg-ui-surface-muted active:scale-95 pointer-events-auto',
+          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-ui-border-strong bg-ui-surface text-foreground shadow-2xl transition-all hover:bg-ui-surface-muted active:scale-95 active:brightness-90 pointer-events-auto',
           isOpen && 'rotate-45 bg-ui-surface-muted',
         )}
       >
         {isOpen ? (
-          <X className="h-5 w-5" strokeWidth={2.5} />
+          <SharedIcon type="ui" name="close" size={20} />
         ) : (
-          <Plus className="h-5 w-5" strokeWidth={2.5} />
+          <SharedIcon type="ui" name="plus" size={20} />
         )}
       </button>
     </div>

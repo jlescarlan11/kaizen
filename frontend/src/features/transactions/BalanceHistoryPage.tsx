@@ -3,7 +3,7 @@ import { useGetBalanceHistoryQuery } from '../../app/store/api/transactionApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
-import { ChevronLeft, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '../../shared/lib/cn'
 
@@ -31,7 +31,7 @@ export function BalanceHistoryPage(): ReactElement {
       <header className={pageLayout.headerGap}>
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="h-8 w-8 p-0">
-            <ChevronLeft className="h-4 w-4" />
+            <SharedIcon type="ui" name="chevron-left" size={16} />
           </Button>
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
@@ -53,7 +53,7 @@ export function BalanceHistoryPage(): ReactElement {
           ) : history.length === 0 ? (
             <Card className="p-12 flex flex-col items-center text-center">
               <div className="h-12 w-12 rounded-full bg-ui-surface-muted flex items-center justify-center mb-4">
-                <RefreshCw className="h-6 w-6 text-subtle-foreground" />
+                <SharedIcon type="ui" name="refresh" size={24} className="text-subtle-foreground" />
               </div>
               <h3 className="text-lg font-medium text-foreground mb-1">No history yet</h3>
               <p className="text-sm text-subtle-foreground">
@@ -74,14 +74,14 @@ export function BalanceHistoryPage(): ReactElement {
                         entry.transactionType === 'INCOME'
                           ? 'bg-ui-success/10 text-ui-success'
                           : entry.transactionType === 'EXPENSE'
-                            ? 'bg-ui-error/10 text-ui-error'
+                            ? 'bg-ui-danger/10 text-ui-danger'
                             : 'bg-ui-warning/10 text-ui-warning',
                       )}
                     >
                       {entry.transactionType === 'INCOME' ? (
-                        <TrendingUp className="h-5 w-5" />
+                        <SharedIcon type="ui" name="trending-up" size={20} />
                       ) : (
-                        <TrendingDown className="h-5 w-5" />
+                        <SharedIcon type="ui" name="trending-down" size={20} />
                       )}
                     </div>
                     <div>
@@ -98,7 +98,7 @@ export function BalanceHistoryPage(): ReactElement {
                     <p
                       className={cn(
                         'text-lg font-semibold tracking-tight',
-                        entry.balance >= 0 ? 'text-foreground' : 'text-ui-error',
+                        entry.balance >= 0 ? 'text-foreground' : 'text-ui-danger',
                       )}
                     >
                       {currencyFormatter.format(entry.balance)}

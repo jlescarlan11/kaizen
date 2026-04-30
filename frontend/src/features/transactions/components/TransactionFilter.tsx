@@ -189,6 +189,8 @@ export function TransactionFilter({
                       <button
                         key={type}
                         onClick={() => toggleType(type)}
+                        aria-label={`${filter.types.includes(type) ? 'Remove' : 'Add'} ${type === 'INCOME' ? 'Income' : 'Expense'} filter`}
+                        aria-pressed={filter.types.includes(type)}
                         className={cn(
                           'flex items-center justify-center rounded-lg border py-2 text-sm font-medium transition-all',
                           filter.types.includes(type)

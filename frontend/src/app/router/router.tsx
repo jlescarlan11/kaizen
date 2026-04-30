@@ -145,6 +145,7 @@ export const router = createBrowserRouter([
       // Protected routes
       {
         element: <ProtectedRoute />,
+        errorElement: <AppErrorPage />,
         children: [
           {
             path: 'onboarding',
@@ -380,11 +381,10 @@ export const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: '*',
+        element: <NotFoundPage />,
+      },
     ],
-  },
-
-  {
-    path: '*',
-    element: <NotFoundPage />,
   },
 ])

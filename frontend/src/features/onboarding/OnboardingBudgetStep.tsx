@@ -1,6 +1,6 @@
 import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Check } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { BudgetCard } from '../budgets/components/BudgetCard'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
@@ -539,17 +539,12 @@ export function OnboardingBudgetStep(): ReactElement | null {
             <Button
               variant="primary"
               onClick={handleFinishSetup}
-              className={cn(
-                fluidLayout.touchTarget,
-                'rounded-full p-0 sm:rounded-xl sm:px-8',
-                'h-12 w-12 sm:h-auto sm:w-auto',
-              )}
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-8 gap-2')}
               isLoading={isCompleting}
               disabled={!canFinish}
-              aria-label="Finish setup"
             >
-              <span className="hidden sm:inline">Finish setup</span>
-              <Check className="h-6 w-6 sm:hidden" />
+              <span>Finish setup</span>
+              <SharedIcon type="ui" name="check" size={18} />
             </Button>
           </div>
         </div>

@@ -39,15 +39,15 @@ const BudgetRow = ({
     <Disclosure as="div" className="border-b border-ui-border-subtle last:border-0 overflow-hidden">
       {({ open }) => (
         <>
-          <div className="flex flex-col px-4 py-4 hover:bg-ui-surface-hover transition-colors group relative">
-            <div className="flex items-center justify-between mb-3">
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => navigate(`/budgets/${budget.id}`)}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-                className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
-              >
+          <div className="relative flex flex-col px-4 py-4 hover:bg-ui-surface-hover transition-colors group">
+            <button
+              type="button"
+              className="absolute inset-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset rounded-sm"
+              onClick={() => navigate(`/budgets/${budget.id}`)}
+              aria-label={`View ${budget.categoryName} budget`}
+            />
+            <div className="relative flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div
                   className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 shrink-0"
                   style={{
@@ -63,7 +63,10 @@ const BudgetRow = ({
                       {budget.categoryName}
                     </p>
                     {isOverBudget && (
-                      <Badge tone="error" className="text-xs uppercase font-semibold px-1.5 py-0">
+                      <Badge
+                        variant="error"
+                        className="text-xs uppercase font-semibold px-1.5 py-0"
+                      >
                         Overbudget
                       </Badge>
                     )}
@@ -74,14 +77,8 @@ const BudgetRow = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-4 ml-2">
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => navigate(`/budgets/${budget.id}`)}
-                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-                  className="text-right cursor-pointer"
-                >
+              <div className="relative z-10 flex items-center gap-2 sm:gap-4 ml-2">
+                <div className="text-right">
                   <p className="text-sm font-semibold text-foreground">
                     {currencyFormatter.format(budget.amount)}
                   </p>
@@ -96,7 +93,7 @@ const BudgetRow = ({
 
                 <DisclosureButton
                   className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-colors focus:outline-none"
-                  aria-label="Toggle Insights"
+                  aria-label={`Toggle insights for ${budget.categoryName}`}
                 >
                   <ChevronRightIcon
                     size={20}
@@ -106,13 +103,7 @@ const BudgetRow = ({
               </div>
             </div>
 
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/budgets/${budget.id}`)}
-              onKeyDown={(e) => e.key === 'Enter' && navigate(`/budgets/${budget.id}`)}
-              className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden cursor-pointer"
-            >
+            <div className="relative w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden">
               <div
                 className={cn(
                   'h-full transition-all duration-500 ease-out',
@@ -188,7 +179,7 @@ const BudgetRow = ({
                       isOverBudget
                         ? 'text-ui-danger'
                         : isProjectedOverBudget
-                          ? 'text-amber-500'
+                          ? 'text-warning-dark'
                           : 'text-foreground',
                     )}
                   >
@@ -224,10 +215,15 @@ export function BudgetsPage(): ReactElement {
   }
 
   return (
-    <section className={pageLayout.sectionGap}>
+    <section className={pageLayout.sectionGap} aria-labelledby="budgets-heading">
       <header className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Budgets</h1>
+          <h1
+            id="budgets-heading"
+            className="text-4xl font-semibold tracking-tight text-foreground"
+          >
+            Budgets
+          </h1>
           <p className="text-muted-foreground">Monitor and manage your spending limits.</p>
         </div>
         <div className="flex gap-2">

@@ -12,6 +12,9 @@
   --color-ui-surface: var(--ui-surface);
   --color-ui-surface-muted: var(--ui-surface-muted);
   --color-ui-surface-subtle: var(--ui-surface-subtle);
+  --color-ui-surface-strong: var(--ui-surface-strong);
+  --color-ui-surface-hover: var(--ui-surface-hover);
+  --color-ui-bg-overlay: var(--ui-bg-overlay);
 
   /* Borders */
   --color-border: var(--color-border);
@@ -104,6 +107,14 @@
   --color-income: var(--color-income);
   --color-expense: var(--color-expense);
 
+  /* Motion */
+  --duration-fast: var(--motion-fast);
+  --duration-standard: var(--motion-standard);
+  --duration-slow: var(--motion-slow);
+  --ease-standard: var(--motion-ease-standard);
+  --ease-enter: var(--motion-ease-enter);
+  --ease-exit: var(--motion-ease-exit);
+
   /* Shadows */
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
@@ -133,6 +144,38 @@
 body {
   margin: 0;
   min-width: 320px;
+  transition-property: color, background-color, border-color;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-ease-standard);
+}
+
+@layer utilities {
+  .animate-entrance-fade {
+    animation: fade-in var(--motion-standard) var(--motion-ease-enter) both;
+  }
+  .animate-entrance-slide-up {
+    animation:
+      fade-in var(--motion-standard) var(--motion-ease-enter) both,
+      slide-up var(--motion-standard) var(--motion-ease-enter) both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(1rem);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* Ensure native date and time picker icons are visible in dark mode */

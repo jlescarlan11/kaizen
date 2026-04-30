@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useGetBudgetsQuery, useGetBudgetSummaryQuery } from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { SharedIcon } from '../../shared/components/IconRegistry'
+import { Button } from '../../shared/components/Button'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
 
@@ -57,7 +58,7 @@ export function BudgetDetailPage(): ReactElement {
       <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground uppercase tracking-wide">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Budget Details
             </h1>
             <p className="text-muted-foreground font-medium">
@@ -81,9 +82,10 @@ export function BudgetDetailPage(): ReactElement {
         </div>
 
         <div className="flex flex-col gap-4 w-full md:w-auto">
-          <button
+          <Button
+            variant="secondaryLg"
             onClick={handleEdit}
-            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm group"
+            className="flex items-center gap-2 group"
           >
             <SharedIcon
               type="ui"
@@ -91,12 +93,12 @@ export function BudgetDetailPage(): ReactElement {
               size={12}
               className="text-muted-foreground group-hover:text-primary transition-colors"
             />
-            Edit Configuration
-          </button>
+            Edit Budget
+          </Button>
         </div>
       </header>
 
-      <div className="space-y-16">
+      <main className="space-y-16">
         {/* Spending Progress */}
         <section className="py-8 border-y border-ui-border-subtle">
           <div className="space-y-6">
@@ -115,7 +117,7 @@ export function BudgetDetailPage(): ReactElement {
                   Remaining
                 </p>
                 <p
-                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-error' : 'text-ui-action'}`}
+                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-danger' : 'text-ui-action'}`}
                 >
                   {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
                 </p>
@@ -123,12 +125,12 @@ export function BudgetDetailPage(): ReactElement {
             </div>
             <div className="h-4 w-full bg-ui-surface-hover rounded-full overflow-hidden border border-ui-border-subtle">
               <div
-                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-error' : 'bg-ui-action'}`}
+                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-danger' : 'bg-ui-action'}`}
                 style={{ width: `${Math.min(100, (budget.expense / budget.amount) * 100)}%` }}
               />
             </div>
             {budget.expense > budget.amount && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-ui-error flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ui-danger flex items-center gap-2">
                 <SharedIcon type="ui" name="error" size={10} />
                 You have exceeded your {budget.period.toLowerCase()} budget by{' '}
                 {currencyFormatter.format(budget.expense - budget.amount)}
@@ -206,7 +208,7 @@ export function BudgetDetailPage(): ReactElement {
             />
           </div>
         </section>
-      </div>
+      </main>
     </div>
   )
 }

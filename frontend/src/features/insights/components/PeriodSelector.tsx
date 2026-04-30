@@ -8,14 +8,13 @@ interface PeriodSelectorProps {
 
 const OPTIONS = [
   { value: 'CURRENT_MONTH', label: 'Current Month' },
-  { value: 'LAST_MONTH', label: 'Last Month' },
   { value: 'LAST_3_MONTHS', label: 'Last 3 Months' },
-  { value: 'ALL_TIME', label: 'All Time' },
+  { value: 'YTD', label: 'Current Year' },
 ]
 
 export function PeriodSelector({ value, onChange }: PeriodSelectorProps) {
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full">
       <Select
         id="period-selector"
         label="Analysis Period"

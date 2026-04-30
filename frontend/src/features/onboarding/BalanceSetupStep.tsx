@@ -1,6 +1,6 @@
 import { type ReactElement, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { useAppDispatch, useAppSelector } from '../../app/store/hooks'
 import { useUpdateOnboardingProgressMutation } from '../../app/store/api/authApi'
 import { ONBOARDING_STEP_ROUTE_MAP, type OnboardingStep } from './onboardingStep'
@@ -155,16 +155,11 @@ export function BalanceSetupStep(): ReactElement {
           <Button
             onClick={handleContinue}
             variant="primary"
-            className={cn(
-              fluidLayout.touchTarget,
-              'rounded-full p-0 sm:rounded-xl sm:px-8',
-              'h-12 w-12 sm:h-auto sm:w-auto',
-            )}
+            className={cn(fluidLayout.touchTarget, 'rounded-xl px-8 gap-2')}
             disabled={!hasAnyBalance}
-            aria-label="Continue to budgets"
           >
-            <span className="hidden sm:inline">Continue to budgets</span>
-            <ArrowRight className="h-6 w-6 sm:hidden" />
+            <span>Continue to budgets</span>
+            <SharedIcon type="ui" name="arrow-right" size={18} />
           </Button>
         </div>
 

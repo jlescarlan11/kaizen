@@ -68,7 +68,7 @@ export function PaymentMethodList({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-ui-error hover:bg-ui-error/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-ui-danger hover:bg-ui-danger/10 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => setDeletingPm(pm)}
               >
                 <DeleteIcon />
@@ -134,7 +134,7 @@ function DeleteConfirmationModal({
               <span className="block mt-2">No transactions currently reference this method.</span>
             )}
             {error && (
-              <span className="block mt-2 text-ui-error font-medium text-center">{error}</span>
+              <span className="block mt-2 text-ui-danger font-medium text-center">{error}</span>
             )}
           </>
         )

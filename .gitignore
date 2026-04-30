@@ -1,6 +1,7 @@
 # --- AI / Tools ---
 .gemini/
 .codex/
+.superpowers/
 
 # --- OS / Editor ---
 .DS_Store

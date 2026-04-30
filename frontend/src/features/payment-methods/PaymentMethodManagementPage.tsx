@@ -20,7 +20,7 @@ export function PaymentMethodManagementPage(): ReactElement {
       </header>
 
       {error && (
-        <Card tone="warning">
+        <Card variant="warning">
           <p className="text-sm text-foreground font-medium">Unable to load payment methods.</p>
         </Card>
       )}

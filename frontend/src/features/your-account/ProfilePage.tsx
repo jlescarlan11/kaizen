@@ -9,14 +9,14 @@ import { ProfileDisplay } from './ProfileDisplay'
 export function ProfilePage(): ReactElement {
   return (
     <section className={pageLayout.sectionGap}>
-      <div className={pageLayout.headerGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Personal details
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           Review the account information associated with your profile.
         </p>
-      </div>
+      </header>
 
       <ProfileDisplay />
     </section>

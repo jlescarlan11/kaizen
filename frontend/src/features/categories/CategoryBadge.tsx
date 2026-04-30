@@ -9,15 +9,23 @@ interface CategoryBadgeProps {
   label?: string
 }
 
+function contrastColor(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16) / 255
+  const g = parseInt(hex.slice(3, 5), 16) / 255
+  const b = parseInt(hex.slice(5, 7), 16) / 255
+  return 0.299 * r + 0.587 * g + 0.114 * b > 0.55 ? '#1f2a21' : '#ffffff'
+}
+
 export function CategoryBadge({ icon, color, size = 40, label }: CategoryBadgeProps): ReactElement {
   const IconComponent = CATEGORY_ICON_COMPONENTS[icon] ?? DefaultCategoryIcon
   const iconSize = Math.max(12, Math.round(size * 0.55))
+  const iconColor = contrastColor(color)
 
   // PRD Story 8 (minimum icon render sizes) is still pending; the `size` prop allows tuning once the requirement is clarified.
   return (
     <div
-      className="flex items-center justify-center rounded-full text-white shadow-sm"
-      style={{ backgroundColor: color, width: size, height: size }}
+      className="flex items-center justify-center rounded-full shadow-sm"
+      style={{ backgroundColor: color, color: iconColor, width: size, height: size }}
       aria-label={label ?? 'Category icon'}
     >
       <IconComponent size={iconSize} />

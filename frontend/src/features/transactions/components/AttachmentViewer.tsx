@@ -1,5 +1,5 @@
 import { type ReactElement } from 'react'
-import { FileText, Image as ImageIcon, ExternalLink } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 import type { AttachmentResponse } from '../../../app/store/api/transactionApi'
 import { cn } from '../../../shared/lib/cn'
 
@@ -29,15 +29,30 @@ export function AttachmentViewer({
             className="relative h-24 w-24 rounded-2xl border border-ui-border-subtle overflow-hidden bg-ui-surface group hover:border-ui-border transition-colors flex flex-col items-center justify-center p-2 text-center"
           >
             {att.mimeType.startsWith('image/') ? (
-              <ImageIcon className="h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />
+              <SharedIcon
+                type="ui"
+                name="image"
+                size={32}
+                className="text-primary/60 group-hover:text-primary transition-colors"
+              />
             ) : (
-              <FileText className="h-8 w-8 text-primary/60 group-hover:text-primary transition-colors" />
+              <SharedIcon
+                type="ui"
+                name="note"
+                size={32}
+                className="text-primary/60 group-hover:text-primary transition-colors"
+              />
             )}
             <span className="mt-1 text-xs font-medium truncate w-full px-1 text-muted-foreground group-hover:text-foreground transition-colors">
               {att.filename}
             </span>
             <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <ExternalLink className="h-3 w-3 text-muted-foreground" />
+              <SharedIcon
+                type="ui"
+                name="external-link"
+                size={12}
+                className="text-muted-foreground"
+              />
             </div>
           </a>
         ))}

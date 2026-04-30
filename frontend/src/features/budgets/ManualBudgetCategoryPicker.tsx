@@ -1,10 +1,8 @@
 import type { ReactElement } from 'react'
 import { useMemo } from 'react'
 import { Select } from '../../shared/components/Select'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { cn } from '../../shared/lib/cn'
-import { CATEGORY_ICON_COMPONENTS } from '../categories/categoryIconMap'
-import { SparklesIcon } from '../categories/categoryIcons'
-import type { CategoryIconName } from '../categories/designSystem'
 import type { Category } from '../categories/types'
 
 export const CUSTOM_CATEGORY_OPTION_VALUE = '__custom__'
@@ -32,22 +30,18 @@ export function ManualBudgetCategoryPicker({
     return [
       ...[...categories]
         .sort((first, second) => first.name.localeCompare(second.name))
-        .map((category) => {
-          const Icon = CATEGORY_ICON_COMPONENTS[category.icon as CategoryIconName]
-
-          return {
-            value: String(category.id),
-            label: disabledIds.includes(category.id)
-              ? `${category.name} (already added)`
-              : category.name,
-            disabled: disabledIds.includes(category.id),
-            icon: Icon ? <Icon size={18} /> : null,
-          }
-        }),
+        .map((category) => ({
+          value: String(category.id),
+          label: disabledIds.includes(category.id)
+            ? `${category.name} (already added)`
+            : category.name,
+          disabled: disabledIds.includes(category.id),
+          icon: <SharedIcon type="category" name={category.icon} size={18} />,
+        })),
       {
         value: CUSTOM_CATEGORY_OPTION_VALUE,
         label: 'Custom category',
-        icon: <SparklesIcon size={18} />,
+        icon: <SharedIcon type="category" name="sparkles" size={18} />,
       },
     ]
   }, [categories, disabledIds])

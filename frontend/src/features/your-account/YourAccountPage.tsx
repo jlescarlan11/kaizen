@@ -447,9 +447,9 @@ export function YourAccountPage(): ReactElement {
           <div className="flex-1 min-w-0 space-y-7">
             {accountSections.map((section) => (
               <section key={section.title}>
-                <h2 className="text-lg font-medium leading-snug text-foreground mb-3">
+                <h3 className="text-lg md:text-xl font-medium leading-snug text-foreground mb-3">
                   {section.title}
-                </h2>
+                </h3>
                 <div className="divide-y divide-ui-border-subtle">
                   {section.items.map((item) => (
                     <AccountRow key={item.label} item={item} />

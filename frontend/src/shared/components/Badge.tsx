@@ -1,15 +1,15 @@
 import type { HTMLAttributes, ReactElement } from 'react'
 import { cn } from '../lib/cn'
 
-type BadgeTone = 'neutral' | 'success' | 'error' | 'warning' | 'info'
+type BadgeVariant = 'neutral' | 'success' | 'error' | 'warning' | 'info'
 type BadgeEmphasis = 'soft' | 'solid'
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  tone?: BadgeTone
+  variant?: BadgeVariant
   emphasis?: BadgeEmphasis
 }
 
-const badgeToneStyles: Record<BadgeTone, Record<BadgeEmphasis, string>> = {
+const badgeVariantStyles: Record<BadgeVariant, Record<BadgeEmphasis, string>> = {
   neutral: {
     soft: 'border-ui-border-muted bg-ui-surface-muted text-foreground',
     solid: 'border-ui-border bg-ui-surface text-foreground',
@@ -36,14 +36,14 @@ export function Badge({
   children,
   className,
   emphasis = 'soft',
-  tone = 'neutral',
+  variant = 'neutral',
   ...props
 }: BadgeProps): ReactElement {
   return (
     <span
       className={cn(
         'inline-flex items-center rounded-full border px-3 py-1 text-xs leading-5',
-        badgeToneStyles[tone][emphasis],
+        badgeVariantStyles[variant][emphasis],
         className,
       )}
       {...props}

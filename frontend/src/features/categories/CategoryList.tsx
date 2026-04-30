@@ -1,6 +1,7 @@
 import { Button } from '../../shared/components/Button'
 import type { ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { CategoryBadge } from './CategoryBadge'
 import { isCategoryIconName } from './designSystem'
 import type { Category } from './types'
@@ -24,9 +25,10 @@ export function CategoryList({ categories, isLoading, onEdit }: CategoryListProp
 
   if (categories.length === 0) {
     return (
-      <Card className="flex h-32 items-center justify-center border-dashed">
-        <p className="text-sm text-muted-foreground">No categories found.</p>
-      </Card>
+      <EmptyStateCard
+        title="No categories yet"
+        description="Add a custom category above to get started."
+      />
     )
   }
 

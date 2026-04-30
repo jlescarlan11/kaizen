@@ -12,7 +12,7 @@ import type { FilterState, SortState } from '../types'
 import { TransactionFilter } from './TransactionFilter'
 import { TransactionSearch } from './TransactionSearch'
 import { cn } from '../../../shared/lib/cn'
-import { Download, X } from 'lucide-react'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
 
 interface ExportModalProps {
   isOpen: boolean
@@ -126,7 +126,7 @@ export function ExportModal({
                   onClick={handleClearFilters}
                   className="text-xs font-semibold text-primary hover:text-primary-hover uppercase tracking-wide flex items-center gap-1"
                 >
-                  <X className="h-2.5 w-2.5" />
+                  <SharedIcon type="ui" name="close" size={10} />
                   Clear
                 </button>
               )}
@@ -165,7 +165,7 @@ export function ExportModal({
             onClick={handleExport}
             disabled={exportRows.length === 0 && exportType === 'FILTERED'}
           >
-            <Download className="h-4 w-4" />
+            <SharedIcon type="ui" name="download" size={16} />
             Download CSV
           </Button>
         </div>

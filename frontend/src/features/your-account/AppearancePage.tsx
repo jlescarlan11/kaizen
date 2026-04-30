@@ -32,17 +32,21 @@ export function AppearancePage(): ReactElement {
   return (
     <section className={pageLayout.sectionGap}>
       {/* Page header */}
-      <div className={pageLayout.headerGap}>
+      <header className={pageLayout.headerGap}>
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
           Appearance
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
           Choose how Kaizen looks on this device.
         </p>
-      </div>
+      </header>
 
       {/* Theme options */}
-      <div className="divide-y divide-ui-border-subtle">
+      <div
+        role="radiogroup"
+        aria-label="Theme selection"
+        className="divide-y divide-ui-border-subtle"
+      >
         {themeOptions.map((option) => {
           const isSelected = theme === option.value
           const description =
@@ -55,7 +59,8 @@ export function AppearancePage(): ReactElement {
               key={option.value}
               type="button"
               onClick={() => setTheme(option.value)}
-              aria-pressed={isSelected}
+              role="radio"
+              aria-checked={isSelected}
               className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-ui-surface-muted active:bg-ui-surface-subtle -mx-4 w-[calc(100%+2rem)]"
             >
               {/* Icon */}

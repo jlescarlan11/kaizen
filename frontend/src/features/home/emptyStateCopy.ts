@@ -4,7 +4,7 @@
  */
 export const TRANSACTIONS_EMPTY_TITLE = 'Add your first transaction'
 export const TRANSACTIONS_EMPTY_SUBTEXT = 'Track where your money goes'
-export const TRANSACTIONS_EMPTY_BUTTON = 'Tap + to get started'
+export const TRANSACTIONS_EMPTY_BUTTON = 'Add Transaction'
 
 export const BUDGETS_EMPTY_MESSAGE = 'Set up budgets to organize spending'
-export const BUDGETS_EMPTY_BUTTON = 'Quick setup'
+export const BUDGETS_EMPTY_BUTTON = 'Set Up Budgets'

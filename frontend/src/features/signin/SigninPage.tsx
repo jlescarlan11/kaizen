@@ -25,7 +25,7 @@ export function SigninPage(): ReactElement {
     : null
 
   const header = (
-    <header className="space-y-2 text-left">
+    <header className="space-y-2 text-left animate-entrance-slide-up">
       <h2 className={typography.h2}>Sign in to continue</h2>
       <p className={typography['body-lg']}>
         Use your preferred method to access your Kaizen account
@@ -49,7 +49,10 @@ export function SigninPage(): ReactElement {
 
   return (
     <EntryLayout header={header} footer={footer}>
-      <div className="space-y-6 lg:space-y-4">
+      <div
+        className="space-y-6 lg:space-y-4 animate-entrance-slide-up"
+        style={{ animationDelay: '80ms' }}
+      >
         {errorMessage && (
           <div
             className="rounded-lg bg-ui-danger-subtle p-4 text-sm text-ui-danger-text ring-1 ring-ui-danger-subtle"
