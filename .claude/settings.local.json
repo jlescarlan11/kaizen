@@ -12,7 +12,15 @@
       "Bash(grep:*)",
       "Bash(mvn compile:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx vitest:*)"
+      "Bash(npx vitest:*)",
+      "Bash(git stash *)",
+      "Bash(npm run *)",
+      "Bash(echo \"EXIT_CODE:$?\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh pr create --title 'UI/UX best-in-class sweep + Balance Summary redesign' --body ' *)"
     ]
   }
 }

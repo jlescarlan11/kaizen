@@ -1,5 +1,6 @@
 import { type LucideIcon } from 'lucide-react'
-import { CATEGORY_ICONS, PAYMENT_METHOD_ICONS, UI_ICONS } from './IconConstants'
+import { PAYMENT_METHOD_ICONS, UI_ICONS } from './IconConstants'
+import { CategoryIcon } from '../../features/categories/CategoryIcon'
 
 export type IconType = 'category' | 'payment' | 'ui'
 
@@ -8,14 +9,17 @@ interface SharedIconProps {
   name: string
   size?: number
   className?: string
+  color?: string
 }
 
-export function SharedIcon({ type, name, size = 18, className }: SharedIconProps) {
+export function SharedIcon({ type, name, size = 18, className, color }: SharedIconProps) {
+  if (type === 'category') {
+    return <CategoryIcon icon={name} size={size} className={className} color={color} />
+  }
+
   let IconComponent: LucideIcon | undefined
 
-  if (type === 'category') {
-    IconComponent = CATEGORY_ICONS[name]
-  } else if (type === 'payment') {
+  if (type === 'payment') {
     IconComponent = PAYMENT_METHOD_ICONS[name]
   } else if (type === 'ui') {
     IconComponent = UI_ICONS[name]

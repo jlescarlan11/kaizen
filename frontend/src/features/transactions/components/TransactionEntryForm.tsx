@@ -400,24 +400,28 @@ export function TransactionEntryForm({
         />
       )}
 
-      <div className="space-y-6">
-        <Input
-          label="Amount"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          onBlur={(e) => validateField('amount', e.target.value)}
-          error={errors.amount}
-          startAdornment={
-            <span className="text-base font-semibold text-muted-foreground">PHP</span>
-          }
-          className="h-14 text-2xl font-semibold tracking-tight"
-          required
-        />
+      <div className="space-y-4">
+        <label className="text-sm font-medium leading-none text-foreground uppercase tracking-wider">
+          Amount
+        </label>
+        <div className="flex items-baseline gap-4">
+          <span className="text-4xl font-semibold tracking-tight text-muted-foreground">PHP</span>
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            onBlur={(e) => validateField('amount', e.target.value)}
+            className="w-full text-5xl md:text-6xl font-semibold tracking-tight leading-tight text-foreground bg-transparent border-none focus:ring-0 p-0 placeholder-[var(--ui-border-subtle)]"
+            required
+          />
+        </div>
+        {errors.amount && <p className="text-xs text-ui-danger-text-soft">{errors.amount}</p>}
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
         {(type === 'EXPENSE' || type === 'INCOME') && (
           <CategorySelector
             label="Category"
@@ -428,26 +432,30 @@ export function TransactionEntryForm({
             }}
             error={errors.categoryId}
             type={type}
+            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
           />
         )}
 
-        <PaymentMethodSelector
-          label="Payment Method"
-          value={paymentMethodId}
-          onChange={(newVal) => {
-            setPaymentMethodId(newVal)
-            validateField('paymentMethodId', newVal)
-          }}
-          error={errors.paymentMethodId}
-        />
+        <div className="relative">
+          <PaymentMethodSelector
+            label="Payment Method"
+            value={paymentMethodId}
+            onChange={(newVal) => {
+              setPaymentMethodId(newVal)
+              validateField('paymentMethodId', newVal)
+            }}
+            error={errors.paymentMethodId}
+            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
+          />
+          {paymentMethodId && type === 'EXPENSE' && (
+            <div className="absolute right-0 top-0 mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
+              <span className={`text-xs font-semibold ${balanceTone}`}>
+                Bal: {formatCurrency(availableBalance)}
+              </span>
+            </div>
+          )}
+        </div>
 
-        {paymentMethodId && type === 'EXPENSE' && (
-          <div className="flex items-center justify-end px-1 -mt-5 mb-2 animate-in fade-in slide-in-from-top-1 duration-200">
-            <span className={`text-xs font-semibold ${balanceTone}`}>
-              Balance: {formatCurrency(availableBalance)}
-            </span>
-          </div>
-        )}
         {!hideDate && (
           <Input
             label="Date (Optional)"
@@ -457,12 +465,11 @@ export function TransactionEntryForm({
             onBlur={(e) => validateField('transactionDate', e.target.value)}
             error={errors.transactionDate}
             helperText={editId ? undefined : 'Captured at submission if not set.'}
+            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
           />
         )}
-      </div>
 
-      {!hideDescription && (
-        <div className="space-y-6 pt-6 border-t border-ui-border-subtle/50">
+        {!hideDescription && (
           <Input
             label="Description (Optional)"
             placeholder="What was this for?"
@@ -470,13 +477,19 @@ export function TransactionEntryForm({
             onChange={(e) => setDescription(e.target.value)}
             onBlur={(e) => validateField('description', e.target.value)}
             error={errors.description}
+            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
           />
+        )}
+      </div>
 
+      {!hideDescription && (
+        <div className="space-y-6 pt-12">
           <TextArea
             label="Notes (Optional)"
             placeholder="Add extra details..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
+            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg min-h-[100px]"
           />
         </div>
       )}
@@ -530,10 +543,10 @@ export function TransactionEntryForm({
 
       {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+      <div className="flex flex-col sm:flex-row gap-4 pt-8">
         <Button
           type="submit"
-          className="flex-1 order-1 sm:order-2"
+          className="w-full sm:w-auto px-12 h-14 text-lg font-semibold rounded-xl order-1 sm:order-2"
           isLoading={isCreating || isUpdating}
         >
           {submitLabel || (editId ? 'Save Changes' : 'Save Transaction')}
@@ -542,7 +555,7 @@ export function TransactionEntryForm({
           <Button
             type="button"
             variant="ghost"
-            className="flex-1 order-2 sm:order-1"
+            className="w-full sm:w-auto h-14 text-lg order-2 sm:order-1"
             onClick={() => navigate(-1)}
             disabled={isCreating || isUpdating}
           >

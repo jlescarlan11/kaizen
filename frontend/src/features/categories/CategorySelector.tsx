@@ -3,6 +3,7 @@ import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { Select, type SelectOption } from '../../shared/components/Select'
 import { cn } from '../../shared/lib/cn'
 import { type TransactionType } from '../../app/store/api/transactionApi'
+import { CategoryIcon } from './CategoryIcon'
 
 interface CategorySelectorProps {
   value?: string | null
@@ -49,17 +50,7 @@ export function CategorySelector({
       ...filteredCategories.map((cat) => ({
         value: cat.id.toString(),
         label: cat.name,
-        icon: (
-          <div
-            className="flex h-5 w-5 items-center justify-center rounded-full text-sm"
-            style={{
-              backgroundColor: cat.color + '22',
-              color: cat.color,
-            }}
-          >
-            {cat.icon}
-          </div>
-        ),
+        icon: <CategoryIcon icon={cat.icon} color={cat.color} variant="subtle" size={20} />,
       })),
     ],
     [filteredCategories],

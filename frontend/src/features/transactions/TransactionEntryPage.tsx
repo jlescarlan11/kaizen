@@ -20,8 +20,8 @@ export function TransactionEntryPage(): ReactElement {
         </p>
       </header>
 
-      <div className="mx-auto max-w-2xl w-full">
-        <TransactionEntryForm editId={editId} />
+      <div className="max-w-4xl w-full">
+        <TransactionEntryForm editId={editId} noCard />
       </div>
     </div>
   )
