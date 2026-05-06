@@ -1,9 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
-import type { TrendSeries, Granularity } from '../types'
-import { formatCurrency } from '../../../shared/lib/formatCurrency'
-import { CHART_COLORS } from '../../../shared/lib/chartTheme'
 
 interface SpendingTrendsProps {
   trends: TrendSeries
@@ -42,24 +39,42 @@ export function SpendingTrends({ trends, granularity, isLoading }: SpendingTrend
   })
 
   return (
-    <Card title="Spending Trends">
+    <Card title="Spending Trends" className="h-full">
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="var(--color-ui-border-subtle)"
-              strokeOpacity={0.6}
+              vertical={false}
+              strokeDasharray="4 4"
+              stroke="var(--color-border)"
+              strokeOpacity={0.1}
             />
-            <XAxis dataKey="name" fontSize={12} tick={{ fill: 'var(--color-text-secondary)' }} />
+            <XAxis
+              dataKey="name"
+              fontSize={10}
+              tick={{ fill: 'var(--color-text-secondary)', fontWeight: 700 }}
+              axisLine={false}
+              tickLine={false}
+              dy={10}
+            />
             <YAxis
-              fontSize={12}
-              width={60}
-              tick={{ fill: 'var(--color-text-secondary)' }}
-              tickFormatter={(val) => `PHP ${val}`}
+              fontSize={10}
+              width={40}
+              tick={{ fill: 'var(--color-text-secondary)', fontWeight: 700 }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={(val) => `$${val}`}
             />
-            <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
-            <Bar dataKey="value" fill={CHART_COLORS.primary} />
+            <Tooltip
+              cursor={{ fill: 'var(--color-primary)', opacity: 0.05 }}
+              contentStyle={{
+                borderRadius: '0.75rem',
+                border: 'none',
+                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+              }}
+              formatter={(value: unknown) => `$${Number(value ?? 0).toFixed(2)}`}
+            />
+            <Bar dataKey="value" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

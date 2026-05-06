@@ -14,40 +14,36 @@ export function TransactionTypeToggle({
   error,
 }: TransactionTypeToggleProps): ReactElement {
   return (
-    <div className="space-y-2">
-      <div className="flex border-b border-ui-border-subtle">
+    <div className="space-y-4">
+      <div className="flex bg-surface-secondary p-1.5 rounded-[1.5rem] border border-border-subtle/30 shadow-inner">
         <button
           type="button"
           onClick={() => onChange('EXPENSE')}
           className={cn(
-            'pb-4 px-8 text-lg font-medium transition-colors relative',
+            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-[1rem]',
             value === 'EXPENSE'
-              ? 'text-[var(--color-expense)]'
-              : 'text-muted-foreground hover:text-foreground',
+              ? 'bg-error text-white shadow-lg shadow-error/20'
+              : 'text-text-secondary hover:text-text-primary hover:bg-white/50',
           )}
         >
           Expense
-          {value === 'EXPENSE' && (
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--color-expense)] animate-in fade-in duration-200" />
-          )}
         </button>
         <button
           type="button"
           onClick={() => onChange('INCOME')}
           className={cn(
-            'pb-4 px-8 text-lg font-medium transition-colors relative',
+            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-[1rem]',
             value === 'INCOME'
-              ? 'text-[var(--color-income)]'
-              : 'text-muted-foreground hover:text-foreground',
+              ? 'bg-success text-white shadow-lg shadow-success/20'
+              : 'text-text-secondary hover:text-text-primary hover:bg-white/50',
           )}
         >
           Income
-          {value === 'INCOME' && (
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--color-income)] animate-in fade-in duration-200" />
-          )}
         </button>
       </div>
-      {error && <p className="text-xs text-error px-8">{error}</p>}
+      {error && (
+        <p className="text-xs text-error font-black uppercase tracking-tight px-4">{error}</p>
+      )}
     </div>
   )
 }

@@ -3,6 +3,8 @@ import { Outlet, useLocation, useNavigate, useMatches } from 'react-router-dom'
 import { MainContent } from '../../shared/components/MainContent'
 import { SiteFooter } from '../../shared/components/SiteFooter'
 import { SiteHeader } from '../../shared/components/SiteHeader'
+import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
+import { AppErrorPage } from '../../shared/components/AppErrorPage'
 import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
 import { Button } from '../../shared/components/Button'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
@@ -149,7 +151,7 @@ export function RootLayout(): ReactElement {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground font-body">
+    <div className="min-h-screen flex flex-col bg-background text-text-primary font-body">
       <LogoutConfirmationModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
@@ -159,23 +161,23 @@ export function RootLayout(): ReactElement {
 
       {backButtonConfig ? (
         <>
-          <div className="h-20 w-full shrink-0" />
+          <div className="h-16 w-full shrink-0" />
           <header
             className={cn(
-              'fixed top-0 left-0 right-0 z-50 h-20 bg-background/95 px-5 backdrop-blur-md md:px-10',
+              'fixed top-0 left-0 right-0 z-50 h-16 bg-background/80 px-6 backdrop-blur-md md:px-10',
               isAnimating && 'transition-transform duration-200 ease-in-out',
             )}
             style={{ transform: `translateY(${headerOffset}px)` }}
           >
-            <div className="mx-auto flex h-full w-full max-w-5xl items-center justify-between gap-4">
+            <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-4">
               <Button
                 variant="ghost"
-                className="group flex items-center gap-2 px-0 text-foreground hover:bg-transparent"
+                className="group flex items-center gap-3 px-0 text-text-primary hover:bg-transparent"
                 onClick={handleBack}
               >
                 <svg
-                  width="20"
-                  height="20"
+                  width="18"
+                  height="18"
                   viewBox="0 0 20 20"
                   fill="none"
                   className="transition-transform group-hover:-translate-x-1"
@@ -183,23 +185,25 @@ export function RootLayout(): ReactElement {
                   <path
                     d="M15.8333 10H4.16667"
                     stroke="currentColor"
-                    strokeWidth="1.5"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                   <path
                     d="M10 15.8333L4.16667 10L10 4.16667"
                     stroke="currentColor"
-                    strokeWidth="1.5"
+                    strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-sm font-medium">{backButtonConfig.label}</span>
+                <span className="text-base font-bold tracking-tight uppercase">
+                  {backButtonConfig.label}
+                </span>
               </Button>
 
               {onboardingStepLabel ? (
-                <p className="text-sm font-medium leading-6 text-muted-foreground">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 px-1">
                   {onboardingStepLabel}
                 </p>
               ) : null}
@@ -210,8 +214,13 @@ export function RootLayout(): ReactElement {
         !isOnboardingPage && <SiteHeader />
       )}
 
-      <MainContent density={isSigninPage || isOnboardingPage ? 'compact' : 'standard'}>
-        <Outlet />
+      <MainContent
+        density={isSigninPage || isOnboardingPage ? 'compact' : 'standard'}
+        className="animate-entrance-slide-up"
+      >
+        <ErrorBoundary fallback={<AppErrorPage />}>
+          <Outlet />
+        </ErrorBoundary>
       </MainContent>
 
       {!backButtonConfig && !isSigninPage && !isOnboardingPage && <SiteFooter />}

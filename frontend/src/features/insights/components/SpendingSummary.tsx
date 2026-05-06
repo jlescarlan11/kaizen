@@ -1,7 +1,7 @@
 import { Card } from '../../../shared/components/Card'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { SpendingSummary as SpendingSummaryType } from '../types'
-import { formatCurrency } from '../../../shared/lib/formatCurrency'
+import { cn } from '../../../shared/lib/cn'
 
 interface SpendingSummaryProps {
   summary: SpendingSummaryType
@@ -14,33 +14,43 @@ export function SpendingSummary({ summary, isLoading }: SpendingSummaryProps) {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {[1, 2, 3].map((i) => (
           <Card key={i}>
-            <ChartSkeleton variant="bar" className="h-16" />
+            <ChartSkeleton variant="bar" className="h-14" />
           </Card>
         ))}
       </div>
     )
   }
 
-  const netBalanceColor = summary.netBalance >= 0 ? 'text-income' : 'text-expense'
-
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <Card title="Total Income">
-        <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug text-income">
-          {formatCurrency(summary.totalIncome)}
-        </p>
+      <Card title="Income">
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
+          <p className="text-2xl font-bold tracking-tighter text-success">
+            {summary.totalIncome.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </p>
+        </div>
       </Card>
-      <Card title="Total Expenses">
-        <p className="text-2xl md:text-3xl font-semibold tracking-tight leading-snug text-expense">
-          {formatCurrency(summary.totalExpenses)}
-        </p>
+      <Card title="Expense">
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
+          <p className="text-2xl font-bold tracking-tighter text-error">
+            {summary.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </p>
+        </div>
       </Card>
-      <Card title="Net Balance">
-        <p
-          className={`text-2xl md:text-3xl font-semibold tracking-tight leading-snug ${netBalanceColor}`}
-        >
-          {formatCurrency(summary.netBalance)}
-        </p>
+      <Card title="Net Balance" variant={summary.netBalance >= 0 ? 'success' : 'error'}>
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
+          <p
+            className={cn(
+              'text-2xl font-bold tracking-tighter',
+              summary.netBalance >= 0 ? 'text-success' : 'text-error',
+            )}
+          >
+            {Math.abs(summary.netBalance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </p>
+        </div>
       </Card>
     </div>
   )

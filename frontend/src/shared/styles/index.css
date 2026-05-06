@@ -4,190 +4,27 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  /* Background & Surface */
+  /* Simplified Theme Mapping */
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
-  --color-surface-secondary: var(--color-surface-secondary);
-  --color-ui-bg: var(--ui-bg);
-  --color-ui-surface: var(--ui-surface);
-  --color-ui-surface-muted: var(--ui-surface-muted);
-  --color-ui-surface-subtle: var(--ui-surface-subtle);
-  --color-ui-surface-strong: var(--ui-surface-strong);
-  --color-ui-surface-hover: var(--ui-surface-hover);
-  --color-ui-bg-overlay: var(--ui-bg-overlay);
-
-  /* Borders */
-  --color-border: var(--color-border);
-  --color-border-strong: var(--color-border-strong);
-  --color-ui-border: var(--ui-border);
-  --color-ui-border-strong: var(--ui-border-strong);
-  --color-ui-border-muted: var(--ui-border-muted);
-  --color-ui-border-subtle: var(--ui-border-subtle);
-
-  /* Text */
-  --color-foreground: var(--color-text-primary);
-  --color-muted-foreground: var(--color-text-secondary);
-  --color-ui: var(--ui-text);
-  --color-ui-muted: var(--ui-text-muted);
-  --color-ui-subtle: var(--ui-text-subtle);
-  --color-ui-inverse: var(--ui-text-inverse);
-  --color-ui-disabled: var(--ui-disabled-text);
-  --color-text-primary: var(--color-text-primary);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-tertiary: var(--color-text-tertiary);
-  --color-text-inverse: var(--color-text-inverse);
-  --color-on-primary: var(--color-on-primary);
-  --color-on-success: var(--color-on-success);
-  --color-on-error: var(--color-on-error);
-  --color-on-warning: var(--color-on-warning);
-  --color-on-info: var(--color-on-info);
-
-  /* Primary */
   --color-primary: var(--color-primary);
   --color-primary-hover: var(--color-primary-hover);
-  --color-primary-active: var(--color-primary-active);
-  --color-primary-light: var(--color-primary-light);
-  --color-primary-dark: var(--color-primary-dark);
-  --color-ui-action: var(--ui-action-bg);
-  --color-ui-action-hover: var(--ui-action-bg-hover);
-  --color-ui-action-active: var(--ui-action-bg-active);
-  --color-ui-action-text: var(--ui-action-text);
-  --color-ui-accent: var(--ui-accent-bg);
-  --color-ui-accent-hover: var(--ui-accent-bg-hover);
-  --color-ui-accent-active: var(--ui-accent-bg-active);
-  --color-ui-accent-subtle: var(--ui-accent-subtle);
-  --color-ui-accent-muted: var(--ui-accent-muted);
-  --color-ui-accent-text: var(--ui-accent-text);
 
-  /* Success */
-  --color-success: var(--color-success);
-  --color-success-hover: var(--color-success-hover);
-  --color-success-active: var(--color-success-active);
-  --color-success-light: var(--color-success-light);
-  --color-success-dark: var(--color-success-dark);
-  --color-ui-success: var(--ui-success-bg);
-  --color-ui-success-text: var(--ui-success-text);
-  --color-ui-success-subtle: var(--ui-success-subtle);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
 
-  /* Error */
-  --color-error: var(--color-error);
-  --color-error-hover: var(--color-error-hover);
-  --color-error-active: var(--color-error-active);
-  --color-error-light: var(--color-error-light);
-  --color-error-dark: var(--color-error-dark);
-  --color-ui-danger: var(--ui-danger-bg);
-  --color-ui-danger-hover: var(--ui-danger-bg-hover);
-  --color-ui-danger-active: var(--ui-danger-bg-active);
-  --color-ui-danger-text: var(--ui-danger-text);
-  --color-ui-danger-text-soft: var(--ui-danger-text-soft);
-  --color-ui-danger-subtle: var(--ui-danger-subtle);
+  --color-border: var(--color-border);
+  --color-border-subtle: var(--color-border-subtle);
 
-  /* Warning */
-  --color-warning: var(--color-warning);
-  --color-warning-hover: var(--color-warning-hover);
-  --color-warning-active: var(--color-warning-active);
-  --color-warning-light: var(--color-warning-light);
-  --color-warning-dark: var(--color-warning-dark);
-  --color-ui-warning: var(--ui-warning-bg);
-  --color-ui-warning-text: var(--ui-warning-text);
-  --color-ui-warning-subtle: var(--ui-warning-subtle);
+  --radius-xl: var(--radius-xl);
+  --radius-lg: var(--radius-lg);
 
-  /* Info */
-  --color-info: var(--color-info);
-  --color-info-hover: var(--color-info-hover);
-  --color-info-active: var(--color-info-active);
-  --color-info-light: var(--color-info-light);
-  --color-info-dark: var(--color-info-dark);
-  --color-ui-info: var(--ui-info-bg);
-  --color-ui-info-text: var(--ui-info-text);
-  --color-ui-info-subtle: var(--ui-info-subtle);
-  --color-ui-focus: var(--ui-focus-ring);
-
-  /* Financial */
-  --color-income: var(--color-income);
-  --color-expense: var(--color-expense);
-
-  /* Motion */
-  --duration-fast: var(--motion-fast);
-  --duration-standard: var(--motion-standard);
-  --duration-slow: var(--motion-slow);
-  --ease-standard: var(--motion-ease-standard);
-  --ease-enter: var(--motion-ease-enter);
-  --ease-exit: var(--motion-ease-exit);
-
-  /* Shadows */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-
-  /* Fonts */
-  --font-display: 'Poppins', sans-serif;
-  --font-body: 'Poppins', sans-serif;
-}
-
-:root {
-  font-family: var(--font-body);
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  transition-property: color, background-color, border-color;
-  transition-duration: var(--motion-standard);
-  transition-timing-function: var(--motion-ease-standard);
+  --font-body: 'Inter', sans-serif;
+  --font-display: 'Inter', sans-serif;
 }
 
 @layer utilities {
-  .animate-entrance-fade {
-    animation: fade-in var(--motion-standard) var(--motion-ease-enter) both;
+  .bento-card {
+    @apply bg-surface border border-border-subtle rounded-lg p-6 shadow-sm transition-all;
   }
-  .animate-entrance-slide-up {
-    animation:
-      fade-in var(--motion-standard) var(--motion-ease-enter) both,
-      slide-up var(--motion-standard) var(--motion-ease-enter) both;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(1rem);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-/* Ensure native date and time picker icons are visible in dark mode */
-.dark input[type='date'],
-.dark input[type='time'] {
-  color-scheme: dark;
-}
-
-input[type='date'],
-input[type='time'],
-input[type='checkbox'],
-input[type='radio'],
-input[type='range'] {
-  accent-color: var(--color-primary);
 }

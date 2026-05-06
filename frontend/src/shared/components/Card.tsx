@@ -11,16 +11,15 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  neutral: 'border-ui-border-subtle bg-transparent text-foreground shadow-none',
-  accent: 'border-ui-border bg-ui-accent-subtle text-foreground',
-  success: 'border-ui-border bg-ui-success-subtle text-foreground',
-  error: 'border-ui-border bg-ui-danger-subtle text-foreground',
-  warning: 'border-ui-border bg-ui-warning-subtle text-foreground',
-  info: 'border-ui-border bg-ui-info-subtle text-foreground',
+  neutral: 'border-border-subtle bg-white text-text-primary shadow-sm',
+  accent: 'border-primary/20 bg-primary/5 text-text-primary',
+  success: 'border-success/20 bg-success/5 text-text-primary',
+  error: 'border-error/20 bg-error/5 text-text-primary',
+  warning: 'border-warning/20 bg-warning/5 text-text-primary',
+  info: 'border-info/20 bg-info/5 text-text-primary',
 }
 
-const titleClass =
-  'text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground mb-4'
+const titleClass = 'text-base font-bold tracking-tight text-text-primary uppercase mb-4'
 
 export const Card = forwardRef(function Card(
   { children, className, variant = 'neutral', title, titleLevel = 'h3', ...props }: CardProps,
@@ -30,7 +29,11 @@ export const Card = forwardRef(function Card(
   return (
     <div
       ref={ref}
-      className={cn('rounded-xl border p-6', variantStyles[variant], className)}
+      className={cn(
+        'rounded-xl border p-5 md:p-6 transition-all',
+        variantStyles[variant],
+        className,
+      )}
       {...props}
     >
       {title ? <TitleTag className={titleClass}>{title}</TitleTag> : null}

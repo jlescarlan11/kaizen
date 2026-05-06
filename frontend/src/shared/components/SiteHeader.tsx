@@ -96,7 +96,10 @@ export function SiteHeader(): ReactElement {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-ui-bg-overlay transition-opacity" aria-hidden="true" />
+            <div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              aria-hidden="true"
+            />
           </TransitionChild>
 
           <div className="fixed inset-0 overflow-hidden">
@@ -110,43 +113,32 @@ export function SiteHeader(): ReactElement {
                   leaveFrom="translate-x-0"
                   leaveTo="translate-x-full"
                 >
-                  <DialogPanel className="pointer-events-auto w-screen max-w-105 border-l border-ui-border">
-                    <div className="flex h-full flex-col bg-background shadow-xl">
-                      <div className="relative z-10 flex h-20 shrink-0 items-center justify-between border-b border-ui-border-subtle bg-background px-5">
+                  <DialogPanel className="pointer-events-auto w-screen max-w-md border-l border-border-subtle">
+                    <div className="flex h-full flex-col bg-background shadow-2xl">
+                      <div className="relative z-10 flex h-24 shrink-0 items-center justify-between border-b border-border-subtle bg-background px-6">
                         <Link
                           to="/"
                           className="flex items-center gap-3"
                           onClick={() => setIsDrawerOpen(false)}
                         >
                           <KaizenLogo className="h-10 w-10 shrink-0" />
-                          <span className="text-sm font-medium leading-none text-foreground">
+                          <span className="text-xl font-black tracking-tighter text-text-primary uppercase">
                             Kaizen
                           </span>
                         </Link>
                         <button
                           type="button"
-                          className="rounded-md p-2 text-foreground hover:bg-ui-surface-hover transition-colors"
+                          className="rounded-2xl p-2.5 text-text-primary hover:bg-surface-secondary transition-colors"
                           onClick={() => setIsDrawerOpen(false)}
                         >
                           <span className="sr-only">Close menu</span>
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <line
-                              x1="4"
-                              y1="4"
-                              x2="16"
-                              y2="16"
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path
+                              d="M18 6L6 18M6 6L18 18"
                               stroke="currentColor"
-                              strokeWidth="1.5"
+                              strokeWidth="3"
                               strokeLinecap="round"
-                            />
-                            <line
-                              x1="16"
-                              y1="4"
-                              x2="4"
-                              y2="16"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
+                              strokeLinejoin="round"
                             />
                           </svg>
                         </button>
@@ -157,16 +149,16 @@ export function SiteHeader(): ReactElement {
                             <Link
                               key={item.to + item.label}
                               to={item.to}
-                              className="flex items-center justify-between px-5 py-5 text-lg font-medium hover:bg-ui-surface-hover transition-colors text-foreground"
+                              className="flex items-center justify-between px-6 py-5 text-xl font-black hover:bg-surface-secondary transition-colors text-text-primary tracking-tight"
                               onClick={() => setIsDrawerOpen(false)}
                             >
                               {item.label}
-                              <span className="text-muted-foreground">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                              <span className="text-text-secondary">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                                   <path
-                                    d="M7 5l5 5-5 5"
+                                    d="m9 18 6-6-6-6"
                                     stroke="currentColor"
-                                    strokeWidth="1.5"
+                                    strokeWidth="3"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                   />
@@ -177,9 +169,12 @@ export function SiteHeader(): ReactElement {
                         </nav>
                       </div>
                       {!isAuthenticated && (
-                        <div className="border-t border-ui-border-subtle bg-background p-5 pb-[calc(24px+env(safe-area-inset-bottom))]">
+                        <div className="border-t border-border-subtle bg-background p-6 pb-[calc(24px+env(safe-area-inset-bottom))]">
                           <Link to="/signin" onClick={() => setIsDrawerOpen(false)}>
-                            <Button variant="primary" className="w-full">
+                            <Button
+                              variant="primary"
+                              className="w-full h-14 rounded-2xl font-black text-lg"
+                            >
                               Sign in
                             </Button>
                           </Link>
@@ -201,29 +196,31 @@ export function SiteHeader(): ReactElement {
         isLoading={isLoggingOut}
       />
 
-      <div className="h-20 w-full shrink-0" />
+      <div className="h-24 w-full shrink-0" />
 
       {/* ───────── HEADER ───────── */}
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 h-20 bg-background shrink-0 z-50 px-5 md:px-10',
+          'fixed top-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md shrink-0 z-50 px-6 md:px-10',
           isAnimating && 'transition-transform duration-200 ease-in-out',
         )}
         style={{ transform: `translateY(${headerOffset}px)` }}
       >
-        <div className="mx-auto flex h-full w-full max-w-5xl items-center justify-between">
+        <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
           <NavLink
             to="/"
             end
-            className="flex items-center gap-3 rounded-md text-foreground transition-opacity hover:opacity-90"
+            className="flex items-center gap-3 rounded-md text-text-primary transition-opacity hover:opacity-90"
             aria-label="Kaizen home"
           >
             <KaizenLogo className="h-10 w-10 shrink-0" />
-            <span className="text-sm font-medium leading-none text-foreground">Kaizen</span>
+            <span className="text-2xl font-black tracking-tighter text-text-primary uppercase">
+              Kaizen
+            </span>
           </NavLink>
 
           <nav className="flex items-center" aria-label="Main navigation">
-            <div className="hidden md:flex items-center gap-1">
+            <div className="hidden md:flex items-center gap-2">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to + item.label}
@@ -231,12 +228,12 @@ export function SiteHeader(): ReactElement {
                   end
                   className={({ isActive }): string => {
                     const isLinkActive = isActive && item.to.startsWith('/')
-                    return [
-                      'rounded-md px-3 py-1.5 text-sm font-medium transition-all',
+                    return cn(
+                      'rounded-xl px-4 py-2 text-sm font-black transition-all tracking-tight',
                       isLinkActive
-                        ? 'bg-ui-surface-hover text-foreground'
-                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground',
-                    ].join(' ')
+                        ? 'bg-surface-secondary text-text-primary'
+                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary',
+                    )
                   }}
                 >
                   {item.label}
@@ -245,8 +242,11 @@ export function SiteHeader(): ReactElement {
             </div>
 
             {!isAuthenticated && (
-              <NavLink to="/signin" className="ml-2">
-                <Button variant="primary" className="px-3! py-1.5! border-none">
+              <NavLink to="/signin" className="ml-4">
+                <Button
+                  variant="primary"
+                  className="px-6 py-2 h-11 border-none font-black tracking-tight rounded-xl"
+                >
                   Sign in
                 </Button>
               </NavLink>
@@ -254,38 +254,18 @@ export function SiteHeader(): ReactElement {
 
             <button
               type="button"
-              className="md:hidden flex h-10 w-10 items-center justify-center rounded-md text-foreground hover:bg-ui-surface-hover transition-colors"
+              className="md:hidden flex h-11 w-11 items-center justify-center rounded-2xl text-text-primary hover:bg-surface-secondary transition-colors"
               onClick={() => setIsDrawerOpen(true)}
               aria-expanded={isDrawerOpen}
               aria-label="Open menu"
             >
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <line
-                  x1="3"
-                  y1="6"
-                  x2="19"
-                  y2="6"
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 6h16M4 12h16M4 18h16"
                   stroke="currentColor"
-                  strokeWidth="1.5"
+                  strokeWidth="3"
                   strokeLinecap="round"
-                />
-                <line
-                  x1="3"
-                  y1="11"
-                  x2="19"
-                  y2="11"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                <line
-                  x1="3"
-                  y1="16"
-                  x2="19"
-                  y2="16"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 />
               </svg>
             </button>

@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
-import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { getCategoricalColor } from '../../../shared/lib/chartTheme'
 
 interface CategoryBreakdownProps {
@@ -43,49 +42,62 @@ export function CategoryBreakdown({
   }))
 
   return (
-    <Card title={title}>
-      <div className="flex flex-col items-center md:flex-row">
-        <div className="h-64 w-full md:w-1/2">
+    <Card title={title} className="h-full">
+      <div className="flex flex-col items-center">
+        <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
-                labelLine={false}
+                innerRadius={50}
                 outerRadius={80}
+                paddingAngle={4}
                 dataKey="value"
-                fill={getCategoricalColor(0)}
+                stroke="none"
               >
                 {chartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={getCategoricalColor(index)} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: unknown) => formatCurrency(Number(value ?? 0))} />
-              <Legend />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: '0.75rem',
+                  border: 'none',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
+                }}
+                formatter={(value: unknown) => `$${Number(value ?? 0).toFixed(2)}`}
+              />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="mt-4 w-full md:mt-0 md:w-1/2">
-          <ul className="space-y-2">
+        <div className="mt-6 w-full">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {breakdown.categories.map((c, index) => (
-              <li
-                key={c.categoryId || 'uncategorized'}
-                className="flex items-center justify-between text-sm"
-              >
+              <li key={c.categoryId || 'uncategorized'} className="group">
                 <Link
                   to={`/transactions?type=EXPENSE${c.categoryId ? `&category=${c.categoryId}` : ''}`}
-                  className="flex items-center text-foreground transition-colors hover:text-primary"
+                  className="flex items-center justify-between p-2.5 rounded-xl border border-transparent hover:bg-surface-secondary hover:border-border-subtle transition-all"
                 >
-                  <span
-                    className="mr-2 h-3 w-3 rounded-full"
-                    style={{ backgroundColor: getCategoricalColor(index) }}
-                  />
-                  {c.categoryName}
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="h-2.5 w-2.5 rounded-full shadow-sm"
+                      style={{ backgroundColor: getCategoricalColor(index) }}
+                    />
+                    <span className="text-[10px] font-bold uppercase tracking-tight text-text-primary">
+                      {c.categoryName}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold tracking-tighter text-text-primary">
+                      ${c.total.toFixed(2)}
+                    </p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-30">
+                      {c.percentage.toFixed(0)}%
+                    </p>
+                  </div>
                 </Link>
-                <span className="font-semibold text-foreground">
-                  {formatCurrency(c.total)} ({c.percentage.toFixed(1)}%)
-                </span>
               </li>
             ))}
           </ul>

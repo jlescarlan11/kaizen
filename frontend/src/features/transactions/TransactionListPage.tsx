@@ -110,14 +110,16 @@ export function TransactionListPage(): ReactElement {
   }
 
   return (
-    <div className={pageLayout.sectionGap}>
-      <header className="space-y-7">
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-4xl font-semibold tracking-tight text-foreground">
-              All Transactions
+    <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
+      <header className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-0.5">
+            <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
+              Activity
             </h1>
-            <p className="text-muted-foreground">A complete record of your income and expenses.</p>
+            <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
+              A complete record of your spending.
+            </p>
           </div>
         </div>
 
@@ -140,7 +142,7 @@ export function TransactionListPage(): ReactElement {
           </div>
         )}
 
-        {/* Export Modal (Instructions 1-8) */}
+        {/* Export Modal */}
         <ExportModal
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
@@ -159,23 +161,34 @@ export function TransactionListPage(): ReactElement {
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   className={cn(
-                    'h-10 px-4 border transition-all duration-200',
-                    isSelectionMode
-                      ? 'bg-primary border-primary text-white hover:bg-primary-hover shadow-md'
-                      : 'border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30',
+                    'h-11 px-5 transition-all duration-200',
+                    isSelectionMode &&
+                      'bg-primary border-primary text-text-primary shadow-md shadow-primary/10',
                   )}
                   onClick={toggleSelectionMode}
                 >
                   {isSelectionMode ? (
                     <>
-                      <SharedIcon type="ui" name="close" size={16} className="mr-2" />
-                      Exit Select
+                      <SharedIcon
+                        type="ui"
+                        name="close"
+                        size={16}
+                        strokeWidth={2.5}
+                        className="mr-2"
+                      />
+                      Exit
                     </>
                   ) : (
                     <>
-                      <SharedIcon type="ui" name="check-square" size={16} className="mr-2" />
+                      <SharedIcon
+                        type="ui"
+                        name="check-square"
+                        size={16}
+                        strokeWidth={2.5}
+                        className="mr-2"
+                      />
                       Select
                     </>
                   )}
@@ -186,97 +199,106 @@ export function TransactionListPage(): ReactElement {
                   onClear={clearFilters}
                 />
                 <Button
-                  variant="ghost"
-                  className="h-10 px-4 border border-ui-border-subtle text-subtle-foreground hover:text-foreground hover:bg-ui-accent-subtle/30"
+                  variant="secondary"
+                  className="h-11 px-5"
                   onClick={() => setIsExportModalOpen(true)}
                 >
-                  <SharedIcon type="ui" name="download" size={16} className="mr-2" />
+                  <SharedIcon
+                    type="ui"
+                    name="download"
+                    size={16}
+                    strokeWidth={2.5}
+                    className="mr-2"
+                  />
                   Export
                 </Button>
               </div>
             </div>
 
-            {/* Active Filter Indicators (Optional, but good for UX) */}
+            {/* Active Filter Indicators */}
             {isFilterActive && (
-              <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mr-1">
+              <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mr-2 opacity-60">
                   Active Filters:
                 </p>
                 {filterState.types.map((type) => (
-                  <span
+                  <Badge
                     key={type}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase"
+                    variant="success"
+                    emphasis="soft"
+                    className="gap-1.5 pl-2.5 pr-1.5"
                   >
                     {type === 'INCOME' ? 'Income' : 'Expense'}
                     <button
-                      aria-label={`Remove ${type === 'INCOME' ? 'Income' : 'Expense'} filter`}
                       onClick={() =>
                         setFilterState((prev) => ({
                           ...prev,
                           types: prev.types.filter((t) => t !== type),
                         }))
                       }
-                      className="hover:text-primary-hover"
+                      className="hover:scale-110 transition-transform opacity-60"
                     >
                       <CloseIcon />
                     </button>
-                  </span>
+                  </Badge>
                 ))}
                 {filterState.startDate && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
+                  <Badge variant="info" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
                     From: {filterState.startDate}
                     <button
-                      aria-label="Remove start date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
-                      className="hover:text-primary-hover"
+                      className="hover:scale-110 transition-transform opacity-60"
                     >
                       <CloseIcon />
                     </button>
-                  </span>
+                  </Badge>
                 )}
                 {filterState.endDate && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
+                  <Badge variant="info" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
                     To: {filterState.endDate}
                     <button
-                      aria-label="Remove end date filter"
                       onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
-                      className="hover:text-primary-hover"
+                      className="hover:scale-110 transition-transform opacity-60"
                     >
                       <CloseIcon />
                     </button>
-                  </span>
+                  </Badge>
                 )}
                 {filterState.categories.length > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
+                  <Badge variant="neutral" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
                     {filterState.categories.length} Categories
                     <button
-                      aria-label="Remove category filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
-                      className="hover:text-primary-hover"
+                      className="hover:scale-110 transition-transform opacity-60"
                     >
                       <CloseIcon />
                     </button>
-                  </span>
+                  </Badge>
                 )}
                 {filterState.paymentMethods.length > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase">
+                  <Badge variant="neutral" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
                     {filterState.paymentMethods.length} Accounts
                     <button
-                      aria-label="Remove payment method filters"
                       onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}
-                      className="hover:text-primary-hover"
+                      className="hover:scale-110 transition-transform opacity-60"
                     >
                       <CloseIcon />
                     </button>
-                  </span>
+                  </Badge>
                 )}
+                <button
+                  onClick={handleClearAll}
+                  className="text-[10px] font-bold text-error uppercase tracking-widest hover:underline ml-2"
+                >
+                  Clear All
+                </button>
               </div>
             )}
           </div>
         )}
       </header>
 
-      <div className="w-full">
+      <div className="w-full mt-6">
         {isLoading || isFetching ? (
           <div className="p-12 flex justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />

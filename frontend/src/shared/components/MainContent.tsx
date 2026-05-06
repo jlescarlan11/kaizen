@@ -28,7 +28,7 @@ export function MainContent({
         className,
       )}
     >
-      <div className={cn('mx-auto w-full max-w-5xl', containerClassName)}>{children}</div>
+      <div className={cn('mx-auto w-full max-w-7xl', containerClassName)}>{children}</div>
     </main>
   )
 }

@@ -14,24 +14,24 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'border border-transparent bg-ui-action text-ui-action-text hover:bg-ui-action-hover active:bg-ui-action-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
+    'border border-transparent bg-primary text-text-primary hover:brightness-105 active:scale-95 focus-visible:ring-primary disabled:border-border disabled:bg-surface-secondary disabled:text-text-secondary disabled:opacity-60',
   secondary:
-    'border border-ui-border bg-ui-surface text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface disabled:text-foreground disabled:opacity-60',
+    'border border-border-subtle bg-surface text-text-primary hover:bg-surface-secondary active:scale-95 focus-visible:ring-primary disabled:opacity-60',
   ghost:
-    'border border-transparent bg-transparent text-foreground hover:bg-ui-surface-muted hover:text-foreground focus-visible:ring-ui-focus focus-visible:ring-offset-1 disabled:text-foreground disabled:opacity-60',
+    'border border-transparent bg-transparent text-text-primary hover:bg-surface-secondary hover:text-text-primary active:scale-95 focus-visible:ring-primary disabled:opacity-60',
   destructive:
-    'border border-transparent bg-ui-danger text-ui-danger-text hover:bg-ui-danger-hover active:bg-ui-danger-active focus-visible:ring-ui-focus disabled:border-ui-border disabled:bg-ui-surface-muted disabled:text-foreground disabled:opacity-60',
+    'border border-transparent bg-error text-white hover:brightness-105 active:scale-95 focus-visible:ring-error disabled:opacity-60',
   outline:
-    'border border-ui-border bg-transparent text-foreground hover:bg-ui-surface-muted focus-visible:ring-ui-focus focus-visible:ring-offset-1 disabled:border-ui-border disabled:bg-transparent disabled:text-foreground disabled:opacity-60',
+    'border-2 border-border-subtle bg-transparent text-text-primary hover:bg-surface-secondary active:scale-95 focus-visible:ring-primary disabled:opacity-60',
   secondaryLg:
-    'border border-ui-border bg-ui-surface rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 focus-visible:ring-ui-focus focus-visible:ring-offset-1 shadow-sm disabled:opacity-50',
+    'border-2 border-border-subtle bg-surface rounded-xl text-[10px] font-bold uppercase tracking-widest text-text-secondary hover:text-primary hover:border-primary/30 active:scale-95 shadow-sm disabled:opacity-50',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'px-3 py-1.5 text-xs',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-6 py-3 text-base',
-  xl: 'px-8 py-4 text-lg',
+  sm: 'px-3 py-1.5 text-[10px] uppercase tracking-widest font-bold',
+  md: 'px-4 py-2 text-sm font-bold tracking-tight',
+  lg: 'px-6 py-3 text-base font-bold tracking-tight',
+  xl: 'px-8 py-4 text-lg font-bold tracking-tight',
 }
 
 export const Button = forwardRef(function Button(
@@ -52,7 +52,7 @@ export const Button = forwardRef(function Button(
       type={type}
       disabled={isLoading || props.disabled}
       className={cn(
-        'inline-flex items-center justify-center rounded-md font-medium transition',
+        'inline-flex items-center justify-center rounded-xl font-bold transition-all duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed',
         variantStyles[variant],

@@ -31,7 +31,7 @@ export function TextArea({
         <label htmlFor={inputId} className={formFieldClasses.label}>
           {label}
           {props.required ? (
-            <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+            <span aria-hidden="true" className="ml-0.5 text-error">
               *
             </span>
           ) : null}

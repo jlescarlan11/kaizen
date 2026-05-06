@@ -25,11 +25,11 @@ export function DataList<T>({
   }
 
   return (
-    <div className={`flex flex-col ${className}`}>
+    <div className={cn('flex flex-col overflow-hidden', className)}>
       {data.map((item, index) => (
         <div
           key={index}
-          className={cn(!hideBorders && index !== 0 && 'border-t border-ui-border-subtle')}
+          className={cn(!hideBorders && index !== 0 && 'border-t border-border-subtle')}
         >
           {renderItem(item, index)}
         </div>

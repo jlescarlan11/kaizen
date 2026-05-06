@@ -30,29 +30,25 @@ export function AppearancePage(): ReactElement {
   const { theme, setTheme, resolvedTheme } = useTheme()
 
   return (
-    <section className={pageLayout.sectionGap}>
+    <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
       {/* Page header */}
-      <header className={pageLayout.headerGap}>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
-          Appearance
-        </h1>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Choose how Kaizen looks on this device.
-        </p>
+      <header className="mb-8">
+        <div className="space-y-0.5">
+          <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
+            Appearance
+          </h1>
+          <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
+            Choose how Kaizen looks on this device.
+          </p>
+        </div>
       </header>
 
       {/* Theme options */}
-      <div
-        role="radiogroup"
-        aria-label="Theme selection"
-        className="divide-y divide-ui-border-subtle"
-      >
+      <div role="radiogroup" aria-label="Theme selection" className="grid grid-cols-1 gap-3">
         {themeOptions.map((option) => {
           const isSelected = theme === option.value
           const description =
-            option.value === 'system'
-              ? `Follows your device setting (currently ${resolvedTheme})`
-              : undefined
+            option.value === 'system' ? `Follows device setting (${resolvedTheme})` : undefined
 
           return (
             <button
@@ -61,35 +57,69 @@ export function AppearancePage(): ReactElement {
               onClick={() => setTheme(option.value)}
               role="radio"
               aria-checked={isSelected}
-              className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-ui-surface-muted active:bg-ui-surface-subtle -mx-4 w-[calc(100%+2rem)]"
+              className={cn(
+                'flex items-center gap-5 p-5 rounded-2xl border-2 transition-all text-left group',
+                isSelected
+                  ? 'bg-white border-primary shadow-lg shadow-primary/5'
+                  : 'bg-white border-border-subtle hover:border-primary/20',
+              )}
             >
               {/* Icon */}
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ui-border-subtle bg-ui-surface-muted text-foreground">
+              <div
+                className={cn(
+                  'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all',
+                  isSelected
+                    ? 'bg-primary border-primary text-text-primary shadow-md shadow-primary/10'
+                    : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
+                )}
+              >
                 {option.icon}
               </div>
 
               {/* Label + description */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium leading-6 text-foreground">{option.label}</p>
+                <p className="text-base font-bold tracking-tight text-text-primary uppercase leading-none">
+                  {option.label}
+                </p>
                 {description && (
-                  <p className="text-xs leading-5 text-subtle-foreground mt-0.5">{description}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 mt-1">
+                    {description}
+                  </p>
                 )}
               </div>
 
               {/* Radio indicator */}
               <div
                 className={cn(
-                  'h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-colors',
-                  isSelected ? 'border-foreground bg-foreground' : 'border-ui-border-strong',
+                  'h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all',
+                  isSelected
+                    ? 'border-primary bg-primary'
+                    : 'border-border-subtle group-hover:border-primary/20',
                 )}
               >
-                {isSelected && <div className="h-2 w-2 rounded-full bg-ui-bg" />}
+                {isSelected && (
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className="text-text-primary"
+                  >
+                    <path
+                      d="M2 6L5 9L10 3"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
               </div>
             </button>
           )
         })}
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -98,8 +128,8 @@ export function AppearancePage(): ReactElement {
 function SunIcon(): ReactElement {
   return (
     <svg
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -116,8 +146,8 @@ function SunIcon(): ReactElement {
 function MoonIcon(): ReactElement {
   return (
     <svg
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -133,8 +163,8 @@ function MoonIcon(): ReactElement {
 function SystemIcon(): ReactElement {
   return (
     <svg
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

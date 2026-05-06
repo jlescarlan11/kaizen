@@ -39,25 +39,27 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   const isInteractive = !!(item.to || item.onClick || item.toggle)
 
   const baseClassName = cn(
-    'flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors',
+    'flex w-full items-center gap-5 px-5 py-4 text-left transition-all rounded-2xl border-2 border-transparent',
     isInteractive
-      ? 'cursor-pointer hover:bg-ui-surface-muted active:bg-ui-surface-subtle'
+      ? 'cursor-pointer hover:bg-white hover:shadow-xl hover:shadow-primary/5'
       : 'opacity-50 cursor-not-allowed',
   )
 
   const iconWrapClassName = cn(
-    'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-ui-border-subtle',
-    item.destructive ? 'bg-ui-danger-subtle' : 'bg-ui-surface-muted',
+    'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all shadow-sm',
+    item.destructive
+      ? 'bg-error/10 border-error/20 text-error'
+      : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
   )
 
   const labelClassName = cn(
-    'text-sm font-medium leading-6',
-    item.destructive ? 'text-ui-danger-text-soft' : 'text-foreground',
+    'text-base font-bold tracking-tight uppercase',
+    item.destructive ? 'text-error' : 'text-text-primary',
   )
 
   const descriptionClassName = cn(
-    'text-xs leading-5 mt-0.5',
-    item.destructive ? 'text-ui-danger-text-soft opacity-75' : 'text-subtle-foreground',
+    'text-[10px] font-bold uppercase tracking-widest mt-0.5 opacity-60',
+    item.destructive ? 'text-error/80' : 'text-text-secondary',
   )
 
   const content = (
@@ -71,9 +73,9 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
 
       <div className="flex items-center gap-2 shrink-0">
         {item.badge && (
-          <span className="text-xs leading-5 font-medium px-2 py-0.5 rounded-full bg-ui-accent-subtle text-ui-accent-text">
+          <Badge variant="info" emphasis="soft">
             {item.badge}
-          </span>
+          </Badge>
         )}
         {item.toggle && (
           <div onClick={(e) => e.stopPropagation()}>
@@ -87,15 +89,15 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
         )}
         {isInteractive && !item.toggle && (
           <svg
-            width="15"
-            height="15"
+            width="18"
+            height="18"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-subtle-foreground"
+            className="text-text-secondary/30"
           >
             <path d="m9 18 6-6-6-6" />
           </svg>
@@ -106,7 +108,7 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
 
   if (item.to) {
     return (
-      <Link to={item.to} className={baseClassName}>
+      <Link to={item.to} className={cn(baseClassName, 'group')}>
         {content}
       </Link>
     )
@@ -117,7 +119,7 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
       <button
         type="button"
         onClick={item.onClick || (() => item.toggle?.onChange(!item.toggle.checked))}
-        className={baseClassName}
+        className={cn(baseClassName, 'group')}
         disabled={item.toggle?.disabled}
       >
         {content}
@@ -208,7 +210,7 @@ export function YourAccountPage(): ReactElement {
   // On desktop, it lives in the sticky profile card.
   const accountSections: AccountSection[] = [
     {
-      title: 'Your account',
+      title: 'Identity',
       items: [
         {
           label: 'Personal details',
@@ -228,22 +230,27 @@ export function YourAccountPage(): ReactElement {
           icon: <AppearanceIcon />,
           to: '/your-account/appearance',
         },
+      ],
+    },
+    {
+      title: 'Preferences',
+      items: [
         {
           label: 'Categories',
-          description: 'Create and manage your custom categories',
+          description: 'Manage your custom categories',
           icon: <CategoryIcon />,
           to: '/your-account/categories',
         },
         {
           label: 'Payment methods',
-          description: 'Manage your cards, cash, and accounts',
+          description: 'Cards, cash, and accounts',
           icon: <PaymentMethodIcon />,
           to: '/your-account/payment-methods',
         },
       ],
     },
     {
-      title: 'Guidance',
+      title: 'Engagement',
       items: [
         {
           label: 'Show tour again',
@@ -251,14 +258,9 @@ export function YourAccountPage(): ReactElement {
           icon: <TourIcon />,
           onClick: handleShowTourAgain,
         },
-      ],
-    },
-    {
-      title: 'Notifications',
-      items: [
         {
           label: 'Recurring reminders',
-          description: 'Get notified when recurring transactions are due',
+          description: 'Get notified for due transactions',
           icon: <ReminderIcon />,
           toggle: {
             checked: user?.remindersEnabled ?? true,
@@ -269,10 +271,10 @@ export function YourAccountPage(): ReactElement {
       ],
     },
     {
-      title: 'Reports',
+      title: 'Reports & Help',
       items: [
         {
-          label: 'Statements and reports',
+          label: 'Statements',
           description: 'Monthly summaries and exports',
           icon: <StatementIcon />,
         },
@@ -301,11 +303,11 @@ export function YourAccountPage(): ReactElement {
           : []),
         {
           label: 'Close account',
-          description: 'Permanently delete your account and data',
+          description: 'Delete your account and data',
           icon: <CloseAccountIcon />,
           destructive: true,
         },
-        // Mobile only: logout lives here as the very last row (Wise pattern)
+        // Mobile only: logout lives here
         ...(isMobile
           ? [
               {
@@ -322,9 +324,9 @@ export function YourAccountPage(): ReactElement {
   // ─── Desktop: sticky profile card ─────────────────────────────────────────
 
   const desktopProfileCard = (
-    <div className="flex flex-col items-center text-center gap-5 bg-ui-surface-muted rounded-2xl p-6 border border-ui-border-subtle w-full">
+    <div className="flex flex-col items-center text-center gap-5 bg-white rounded-2xl p-6 border border-border-subtle w-full shadow-sm">
       <div className="relative">
-        <div className="h-24 w-24 rounded-full bg-ui-surface overflow-hidden border border-ui-border-subtle flex items-center justify-center text-3xl font-semibold text-foreground">
+        <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden border-2 border-background flex items-center justify-center text-2xl font-bold text-text-primary shadow-inner">
           {user?.picture && !imageError ? (
             <img
               src={user.picture}
@@ -334,12 +336,12 @@ export function YourAccountPage(): ReactElement {
               onError={() => setImageError(true)}
             />
           ) : (
-            <span className="tracking-tight">{userInitials}</span>
+            <span className="tracking-tighter">{userInitials}</span>
           )}
         </div>
         <button
           type="button"
-          className="absolute bottom-0.5 right-0.5 h-7 w-7 rounded-full bg-ui-surface border border-ui-border-subtle flex items-center justify-center text-subtle-foreground hover:text-foreground transition-colors"
+          className="absolute bottom-0 right-0 h-7 w-7 rounded-xl bg-primary border border-white flex items-center justify-center text-text-primary shadow-md hover:scale-110 transition-transform"
           aria-label="Change photo"
         >
           <CameraIcon />
@@ -347,47 +349,55 @@ export function YourAccountPage(): ReactElement {
       </div>
 
       <div className="w-full space-y-1">
-        <h3 className="text-xl font-semibold tracking-tight leading-snug text-foreground">
+        <h3 className="text-xl font-bold tracking-tight text-text-primary uppercase leading-none">
           {user?.name || 'User Name'}
         </h3>
         {user?.email && (
-          <p className="text-xs leading-5 text-subtle-foreground truncate">{user.email}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 truncate">
+            {user.email}
+          </p>
         )}
       </div>
 
-      <div className="w-full border-t border-ui-border-subtle" />
+      <div className="w-full border-t border-border-subtle/20" />
 
-      <div className="w-full space-y-2.5">
-        <div className="flex justify-between items-center">
-          <span className="text-xs leading-5 text-subtle-foreground">Member since</span>
-          <span className="text-xs leading-5 font-medium text-foreground">{memberSince}</span>
+      <div className="w-full space-y-3">
+        <div className="flex justify-between items-center px-1">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+            Member since
+          </span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-primary opacity-60">
+            {memberSince}
+          </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs leading-5 text-subtle-foreground">Status</span>
-          <span className="flex items-center gap-1.5 text-xs leading-5 font-medium text-foreground">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-ui-success-bg" />
+        <div className="flex justify-between items-center px-1">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+            Status
+          </span>
+          <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-success opacity-80">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
             Active
           </span>
         </div>
       </div>
 
-      <div className="w-full border-t border-ui-border-subtle" />
+      <div className="w-full border-t border-border-subtle/20" />
 
-      <button
-        type="button"
+      <Button
+        variant="secondary"
         onClick={() => setIsLogoutModalOpen(true)}
-        className="w-full py-2 rounded-lg border border-ui-border-subtle text-xs leading-5 font-medium text-ui-danger-text-soft hover:bg-ui-danger-subtle transition-colors"
+        className="w-full text-error hover:bg-error/5 hover:text-error hover:border-error/20 h-10 text-xs"
       >
         Log out
-      </button>
+      </Button>
     </div>
   )
 
-  // ─── Mobile: open hero block (no card bg — like Wise) ─────────────────────
+  // ─── Mobile: open hero block ──────────────────────────────────────────────
 
   const mobileProfileHero = (
-    <div className="flex flex-col items-center text-center gap-3 pt-2 pb-6">
-      <div className="h-16 w-16 rounded-full bg-ui-surface-muted overflow-hidden border border-ui-border-subtle flex items-center justify-center text-xl font-semibold text-foreground">
+    <div className="flex flex-col items-center text-center gap-4 pt-2 pb-6">
+      <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden border-2 border-white flex items-center justify-center text-2xl font-bold text-text-primary shadow-lg">
         {user?.picture && !imageError ? (
           <img
             src={user.picture}
@@ -397,19 +407,21 @@ export function YourAccountPage(): ReactElement {
             onError={() => setImageError(true)}
           />
         ) : (
-          <span className="tracking-tight">{userInitials}</span>
+          <span className="tracking-tighter">{userInitials}</span>
         )}
       </div>
 
-      <div className="space-y-1">
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+      <div className="space-y-0.5">
+        <h1 className="text-3xl font-bold tracking-tighter text-text-primary uppercase leading-tight">
           {user?.name || 'User Name'}
         </h1>
-        <p className="text-sm leading-6 text-muted-foreground">Your personal account</p>
+        <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
+          Your personal account
+        </p>
       </div>
 
       {user?.email && (
-        <span className="inline-flex items-center px-3 py-1 rounded-full bg-ui-surface-muted border border-ui-border-subtle text-xs leading-5 text-subtle-foreground">
+        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-border-subtle text-[10px] font-bold uppercase tracking-widest text-text-secondary shadow-sm">
           {user.email}
         </span>
       )}
@@ -419,9 +431,9 @@ export function YourAccountPage(): ReactElement {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <>
-      <header>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+    <div className="animate-entrance-slide-up pb-24">
+      <header className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
           Your Account
         </h1>
       </header>
@@ -436,7 +448,7 @@ export function YourAccountPage(): ReactElement {
         <div
           className={cn('flex flex-col gap-8', !isMobile && 'md:flex-row md:items-start md:gap-10')}
         >
-          {/* Left — sticky profile card (desktop) or open hero (mobile) */}
+          {/* Left — sticky profile card */}
           <div
             className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}
           >
@@ -444,13 +456,13 @@ export function YourAccountPage(): ReactElement {
           </div>
 
           {/* Right — menu sections */}
-          <div className="flex-1 min-w-0 space-y-7">
+          <div className="flex-1 min-w-0 space-y-10">
             {accountSections.map((section) => (
               <section key={section.title}>
-                <h3 className="text-lg md:text-xl font-medium leading-snug text-foreground mb-3">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-secondary opacity-40 mb-3 px-2">
                   {section.title}
                 </h3>
-                <div className="divide-y divide-ui-border-subtle">
+                <div className="grid grid-cols-1 gap-1.5">
                   {section.items.map((item) => (
                     <AccountRow key={item.label} item={item} />
                   ))}
@@ -458,16 +470,16 @@ export function YourAccountPage(): ReactElement {
               </section>
             ))}
 
-            {/* Member footer — mobile only; desktop profile card already shows this */}
+            {/* Member footer — mobile only */}
             {isMobile && (
-              <p className="text-xs leading-5 text-subtle-foreground text-center pb-4">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-30 text-center pb-6">
                 Member since {memberSince}
               </p>
             )}
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

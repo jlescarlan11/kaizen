@@ -7,20 +7,12 @@ import {
   type BudgetResponse,
 } from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery, type CategoryResponse } from '../../app/store/api/categoryApi'
-import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { Badge } from '../../shared/components/Badge'
-import { pageLayout } from '../../shared/styles/layout'
-import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
-import { LoadingSpinner } from '../../shared/components/LoadingSpinner'
 import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
-
-const currencyFormatter = {
-  format: (amount: number) => formatCurrency(amount),
-}
 
 const BudgetRow = ({
   budget,
@@ -36,158 +28,146 @@ const BudgetRow = ({
   const isProjectedOverBudget = (budget.projectedTotal ?? 0) > budget.amount
 
   return (
-    <Disclosure as="div" className="border-b border-ui-border-subtle last:border-0 overflow-hidden">
+    <Disclosure as="div" className="overflow-hidden">
       {({ open }) => (
         <>
-          <div className="relative flex flex-col px-4 py-4 hover:bg-ui-surface-hover transition-colors group">
+          <div className="relative flex flex-col px-5 py-4 hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all group rounded-2xl">
             <button
               type="button"
-              className="absolute inset-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset rounded-sm"
+              className="absolute inset-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 rounded-2xl"
               onClick={() => navigate(`/budgets/${budget.id}`)}
               aria-label={`View ${budget.categoryName} budget`}
             />
             <div className="relative flex items-center justify-between mb-3">
               <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div
-                  className="h-10 w-10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 shrink-0"
+                  className="h-11 w-11 rounded-xl flex items-center justify-center transition-all group-hover:scale-105 shrink-0 shadow-sm"
                   style={{
                     backgroundColor: (category?.color || '#000') + '15',
-                    color: category?.color,
+                    color: category?.color || 'var(--color-text-secondary)',
                   }}
                 >
-                  <SharedIcon type="category" name={category?.icon || 'wallet'} size={20} />
+                  <SharedIcon
+                    type="category"
+                    name={category?.icon || 'wallet'}
+                    size={24}
+                    strokeWidth={2.5}
+                  />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-foreground leading-tight group-hover:text-primary transition-colors truncate">
+                    <p className="text-base font-bold tracking-tight text-text-primary leading-tight group-hover:text-primary transition-colors truncate">
                       {budget.categoryName}
                     </p>
-                    {isOverBudget && (
-                      <Badge
-                        variant="error"
-                        className="text-xs uppercase font-semibold px-1.5 py-0"
-                      >
-                        Overbudget
-                      </Badge>
-                    )}
+                    {isOverBudget && <Badge variant="error">Over</Badge>}
                   </div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    {budget.period.toLowerCase()} Budget
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mt-0.5 opacity-60">
+                    {budget.period} Budget
                   </p>
                 </div>
               </div>
 
-              <div className="relative z-10 flex items-center gap-2 sm:gap-4 ml-2">
+              <div className="relative z-10 flex items-center gap-4 ml-2">
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-foreground">
-                    {currencyFormatter.format(budget.amount)}
+                  <p className="text-base font-bold tracking-tight text-text-primary">
+                    ${budget.amount.toFixed(2)}
                   </p>
-                  <p
-                    className={cn(
-                      'text-xs font-semibold uppercase tracking-wide text-muted-foreground/60',
-                    )}
-                  >
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
                     Allocated
                   </p>
                 </div>
 
                 <DisclosureButton
-                  className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-colors focus:outline-none"
+                  className="p-1.5 rounded-lg text-text-secondary/40 hover:text-primary hover:bg-primary/10 transition-colors focus:outline-none"
                   aria-label={`Toggle insights for ${budget.categoryName}`}
                 >
                   <ChevronRightIcon
-                    size={20}
-                    className={cn('transition-transform duration-200', open && 'rotate-90')}
+                    size={18}
+                    className={cn('transition-transform duration-300', open && 'rotate-90')}
                   />
                 </DisclosureButton>
               </div>
             </div>
 
-            <div className="relative w-full h-1.5 bg-ui-border-subtle/40 rounded-full overflow-hidden">
+            <div className="relative w-full h-2 bg-background rounded-full overflow-hidden p-[1px]">
               <div
                 className={cn(
-                  'h-full transition-all duration-500 ease-out',
-                  isOverBudget ? 'bg-ui-danger' : 'bg-primary',
+                  'h-full rounded-full transition-all duration-700 ease-out',
+                  isOverBudget ? 'bg-error' : 'bg-primary',
                 )}
                 style={{ width: `${usagePercent}%` }}
               />
             </div>
 
             <div className="flex justify-between mt-1.5 px-0.5">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Spent: {currencyFormatter.format(budget.expense)}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                Spent: ${budget.expense.toFixed(2)}
               </p>
               <p
                 className={cn(
-                  'text-xs font-semibold uppercase tracking-wide',
-                  isOverBudget ? 'text-ui-danger' : 'text-primary',
+                  'text-[10px] font-bold uppercase tracking-widest',
+                  isOverBudget ? 'text-error' : 'text-primary',
                 )}
               >
-                {usagePercent}%
+                {usagePercent}% used
               </p>
             </div>
           </div>
 
           <Transition
-            enter="transition duration-100 ease-out"
+            enter="transition duration-200 ease-out"
             enterFrom="transform scale-95 opacity-0 -translate-y-2"
             enterTo="transform scale-100 opacity-100 translate-y-0"
-            leave="transition duration-75 ease-out"
+            leave="transition duration-150 ease-out"
             leaveFrom="transform scale-100 opacity-100 translate-y-0"
             leaveTo="transform scale-95 opacity-0 -translate-y-2"
           >
-            <DisclosurePanel className="px-4 pb-4 pt-1 bg-ui-accent-subtle/10 border-t border-ui-border-subtle/50">
-              <div className="grid grid-cols-3 gap-2">
-                <div className="space-y-0.5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
+            <DisclosurePanel className="px-6 pb-6 pt-3 bg-surface-secondary/50 rounded-2xl mt-1 border border-border-subtle/30 shadow-inner">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Burn Rate
                   </p>
-                  <p className="text-sm font-semibold text-foreground tabular-nums">
-                    {hasInsufficientData
-                      ? '—'
-                      : currencyFormatter.format(budget.burnRate!).replace('PHP', '').trim()}
+                  <p className="text-sm font-bold text-text-primary tabular-nums tracking-tight">
+                    {hasInsufficientData ? '—' : `$${budget.burnRate!.toFixed(2)}`}
                   </p>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     per day
                   </p>
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Allowance
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-semibold tabular-nums',
-                      isOverBudget ? 'text-ui-danger' : 'text-foreground',
+                      'text-sm font-bold tabular-nums tracking-tight',
+                      isOverBudget ? 'text-error' : 'text-text-primary',
                     )}
                   >
-                    {hasInsufficientData
-                      ? '—'
-                      : currencyFormatter.format(budget.dailyAllowance!).replace('PHP', '').trim()}
+                    {hasInsufficientData ? '—' : `$${budget.dailyAllowance!.toFixed(2)}`}
                   </p>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     remaining
                   </p>
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Projection
                   </p>
                   <p
                     className={cn(
-                      'text-sm font-semibold tabular-nums',
+                      'text-sm font-bold tabular-nums tracking-tight',
                       isOverBudget
-                        ? 'text-ui-danger'
+                        ? 'text-error'
                         : isProjectedOverBudget
-                          ? 'text-warning-dark'
-                          : 'text-foreground',
+                          ? 'text-warning'
+                          : 'text-text-primary',
                     )}
                   >
-                    {hasInsufficientData
-                      ? '—'
-                      : currencyFormatter.format(budget.projectedTotal!).replace('PHP', '').trim()}
+                    {hasInsufficientData ? '—' : `$${budget.projectedTotal!.toFixed(2)}`}
                   </p>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-tight">
+                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     est. total
                   </p>
                 </div>
@@ -211,71 +191,85 @@ export function BudgetsPage(): ReactElement {
   }
 
   if (isBudgetsLoading) {
-    return <LoadingSpinner />
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-xl shadow-primary/10"></div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary animate-pulse opacity-60">
+          Loading Budgets...
+        </p>
+      </div>
+    )
   }
 
   return (
-    <section className={pageLayout.sectionGap} aria-labelledby="budgets-heading">
-      <header className="flex items-center justify-between">
-        <div className="space-y-1">
-          <h1
-            id="budgets-heading"
-            className="text-4xl font-semibold tracking-tight text-foreground"
-          >
+    <div className="animate-entrance-slide-up pb-24">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div className="space-y-0.5">
+          <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
             Budgets
           </h1>
-          <p className="text-muted-foreground">Monitor and manage your spending limits.</p>
+          <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
+            Monitor spending limits.
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={handleNewBudget} className="shrink-0">
+          <Button onClick={handleNewBudget} size="lg" className="shadow-md shadow-primary/10">
             Add Budget
           </Button>
         </div>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="space-y-1 border border-ui-border-subtle p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+      <div className="grid gap-4 md:grid-cols-2 mb-8">
+        <div className="bg-white border border-border-subtle p-6 rounded-2xl shadow-sm space-y-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
             Allocated
           </p>
-          <p className="text-2xl font-semibold text-foreground">
-            {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
-          </p>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
+            <p className="text-2xl font-bold tracking-tighter text-text-primary">
+              {(budgetSummary?.totalAllocated ?? 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mt-0.5">
             {budgetSummary?.allocationPercentage ?? 0}% of balance
           </p>
-        </Card>
-        <Card className="space-y-1 border border-ui-border-subtle p-5">
-          <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
+        </div>
+        <div className="bg-white border border-border-subtle p-6 rounded-2xl shadow-sm space-y-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
             Unallocated
           </p>
-          <p
-            className={cn(
-              'text-2xl font-semibold',
-              (budgetSummary?.unallocated ?? 0) < 0 ? 'text-ui-danger' : 'text-foreground',
-            )}
-          >
-            {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
+          <div className="flex items-baseline gap-2">
+            <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
+            <p
+              className={cn(
+                'text-2xl font-bold tracking-tighter',
+                (budgetSummary?.unallocated ?? 0) < 0 ? 'text-error' : 'text-text-primary',
+              )}
+            >
+              {(budgetSummary?.unallocated ?? 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 mt-0.5">
+            {(budgetSummary?.unallocated ?? 0) < 0 ? `Over-committed` : 'available'}
           </p>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            {(budgetSummary?.unallocated ?? 0) < 0
-              ? `Over-committed by ${currencyFormatter.format(
-                  Math.abs(budgetSummary?.unallocated ?? 0),
-                )}`
-              : 'available'}
-          </p>
-        </Card>
+        </div>
       </div>
 
       <DataList
         data={budgets || []}
+        hideBorders
+        className="gap-1"
         emptyState={
           <EmptyStateCard
-            icon={<SharedIcon type="category" name="wallet" size={24} />}
+            icon={<SharedIcon type="category" name="wallet" size={28} strokeWidth={2.5} />}
             title="No budgets found"
-            description="You haven't set up any budgets yet. Start with our smart allocation or create one manually."
+            description="You haven't set up any budgets yet."
             primaryAction={{
-              label: 'Use Smart Allocation',
+              label: 'Smart Allocation',
               onClick: () => navigate('/budgets/smart'),
             }}
             secondaryAction={{ label: 'Manual Setup', onClick: handleNewBudget }}
@@ -286,7 +280,7 @@ export function BudgetsPage(): ReactElement {
           return <BudgetRow budget={budget} category={category} />
         }}
       />
-    </section>
+    </div>
   )
 }
 
@@ -298,7 +292,7 @@ function ChevronRightIcon({ size, className }: { size: number; className?: strin
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}

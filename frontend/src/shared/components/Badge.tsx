@@ -11,24 +11,24 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 
 const badgeVariantStyles: Record<BadgeVariant, Record<BadgeEmphasis, string>> = {
   neutral: {
-    soft: 'border-ui-border-muted bg-ui-surface-muted text-foreground',
-    solid: 'border-ui-border bg-ui-surface text-foreground',
+    soft: 'border-border-subtle bg-surface-secondary text-text-secondary',
+    solid: 'border-border bg-surface text-text-primary',
   },
   success: {
-    soft: 'border-transparent bg-ui-success-subtle text-foreground',
-    solid: 'border-transparent bg-ui-success text-ui-success-text',
+    soft: 'border-transparent bg-success/10 text-success',
+    solid: 'border-transparent bg-success text-white',
   },
   error: {
-    soft: 'border-transparent bg-ui-danger-subtle text-foreground',
-    solid: 'border-transparent bg-ui-danger text-ui-danger-text',
+    soft: 'border-transparent bg-error/10 text-error',
+    solid: 'border-transparent bg-error text-white',
   },
   warning: {
-    soft: 'border-transparent bg-ui-warning-subtle text-foreground',
-    solid: 'border-transparent bg-ui-warning text-ui-warning-text',
+    soft: 'border-transparent bg-warning/10 text-warning',
+    solid: 'border-transparent bg-warning text-white',
   },
   info: {
-    soft: 'border-transparent bg-ui-info-subtle text-foreground',
-    solid: 'border-transparent bg-ui-info text-ui-info-text',
+    soft: 'border-transparent bg-info/10 text-info',
+    solid: 'border-transparent bg-info text-white',
   },
 }
 
@@ -42,7 +42,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full border px-3 py-1 text-xs leading-5',
+        'inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest',
         badgeVariantStyles[variant][emphasis],
         className,
       )}

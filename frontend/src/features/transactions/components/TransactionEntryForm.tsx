@@ -387,7 +387,7 @@ export function TransactionEntryForm({
     )
   }
 
-  const balanceTone = insufficientBalance ? 'text-ui-danger-text-soft' : 'text-primary'
+  const balanceTone = insufficientBalance ? 'text-error font-bold' : 'text-primary font-bold'
 
   const formContent = (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -401,11 +401,11 @@ export function TransactionEntryForm({
       )}
 
       <div className="space-y-4">
-        <label className="text-sm font-medium leading-none text-foreground uppercase tracking-wider">
+        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary px-1 opacity-60">
           Amount
         </label>
         <div className="flex items-baseline gap-4">
-          <span className="text-4xl font-semibold tracking-tight text-muted-foreground">PHP</span>
+          <span className="text-3xl font-bold text-text-secondary opacity-30 italic">PHP</span>
           <input
             type="number"
             inputMode="decimal"
@@ -414,14 +414,18 @@ export function TransactionEntryForm({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             onBlur={(e) => validateField('amount', e.target.value)}
-            className="w-full text-5xl md:text-6xl font-semibold tracking-tight leading-tight text-foreground bg-transparent border-none focus:ring-0 p-0 placeholder-[var(--ui-border-subtle)]"
+            className="w-full text-5xl md:text-6xl font-bold tracking-tighter text-text-primary bg-transparent border-none focus:ring-0 p-0 placeholder-text-secondary/10"
             required
           />
         </div>
-        {errors.amount && <p className="text-xs text-ui-danger-text-soft">{errors.amount}</p>}
+        {errors.amount && (
+          <p className="text-[10px] font-bold uppercase tracking-tight text-error px-1">
+            {errors.amount}
+          </p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
         {(type === 'EXPENSE' || type === 'INCOME') && (
           <CategorySelector
             label="Category"
@@ -432,7 +436,7 @@ export function TransactionEntryForm({
             }}
             error={errors.categoryId}
             type={type}
-            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
+            className="bg-transparent border-0 border-b-2 border-border-subtle rounded-none px-0 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-0 py-3 text-lg font-bold tracking-tight"
           />
         )}
 
@@ -445,12 +449,12 @@ export function TransactionEntryForm({
               validateField('paymentMethodId', newVal)
             }}
             error={errors.paymentMethodId}
-            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
+            className="bg-transparent border-0 border-b-2 border-border-subtle rounded-none px-0 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-0 py-3 text-lg font-bold tracking-tight"
           />
           {paymentMethodId && type === 'EXPENSE' && (
             <div className="absolute right-0 top-0 mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
-              <span className={`text-xs font-semibold ${balanceTone}`}>
-                Bal: {formatCurrency(availableBalance)}
+              <span className={`text-[10px] uppercase tracking-widest ${balanceTone}`}>
+                Bal: ${availableBalance.toFixed(2)}
               </span>
             </div>
           )}
@@ -464,8 +468,8 @@ export function TransactionEntryForm({
             onChange={(e) => setTransactionDate(e.target.value)}
             onBlur={(e) => validateField('transactionDate', e.target.value)}
             error={errors.transactionDate}
-            helperText={editId ? undefined : 'Captured at submission if not set.'}
-            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
+            helperText={editId ? undefined : 'Today if not set.'}
+            className="bg-transparent border-0 border-b-2 border-border-subtle rounded-none px-0 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-0 py-3 text-lg font-bold tracking-tight"
           />
         )}
 
@@ -477,35 +481,35 @@ export function TransactionEntryForm({
             onChange={(e) => setDescription(e.target.value)}
             onBlur={(e) => validateField('description', e.target.value)}
             error={errors.description}
-            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg"
+            className="bg-transparent border-0 border-b-2 border-border-subtle rounded-none px-0 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-0 py-3 text-lg font-bold tracking-tight"
           />
         )}
       </div>
 
       {!hideDescription && (
-        <div className="space-y-6 pt-12">
+        <div className="space-y-6 pt-6">
           <TextArea
             label="Notes (Optional)"
             placeholder="Add extra details..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="bg-transparent border-0 border-b border-ui-border rounded-none px-0 hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-0 py-3 text-lg min-h-[100px]"
+            className="bg-transparent border-0 border-b-2 border-border-subtle rounded-none px-0 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-0 py-3 text-lg font-bold tracking-tight min-h-[100px]"
           />
         </div>
       )}
 
       {!hideAdvancedFields && (
-        <>
-          <div className="space-y-4 rounded-xl border border-ui-border-subtle p-5 bg-ui-surface-muted/30">
+        <div className="space-y-6">
+          <div className="space-y-5 rounded-2xl border-2 border-border-subtle p-6 bg-surface-secondary/30 shadow-inner">
             <Checkbox
               label="Recurring Transaction"
               checked={isRecurring}
               onCheckedChange={setIsRecurring}
-              helperText="Set a frequency for regular charges or income."
+              helperText="Auto-record on a regular basis."
             />
 
             {isRecurring && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 animate-in fade-in slide-in-from-top-4 duration-300">
                 <Select
                   label="Frequency"
                   options={FREQUENCY_OPTIONS}
@@ -519,14 +523,14 @@ export function TransactionEntryForm({
                   value={frequencyMultiplier}
                   onChange={(e) => setFrequencyMultiplier(e.target.value)}
                   error={errors.frequencyMultiplier}
-                  helperText="e.g., '2' for every 2 weeks."
+                  helperText="e.g. every 2 weeks."
                 />
-                <div className="sm:col-span-2 pt-2 border-t border-ui-border-subtle/50 mt-2">
+                <div className="sm:col-span-2 pt-3 border-t border-border-subtle/30 mt-1">
                   <Checkbox
                     label="Enable Reminders"
                     checked={remindersEnabled}
                     onCheckedChange={setRemindersEnabled}
-                    helperText="Get notified when the next instance is due."
+                    helperText="Notification when due."
                   />
                 </div>
               </div>
@@ -538,24 +542,30 @@ export function TransactionEntryForm({
             onFileChange={setReceiptFile}
             existingAttachments={editData?.attachments}
           />
-        </>
+        </div>
       )}
 
-      {errors.form && <p className="text-sm text-error text-center">{errors.form}</p>}
+      {errors.form && (
+        <p className="text-sm font-bold text-error text-center uppercase tracking-tight">
+          {errors.form}
+        </p>
+      )}
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-8">
+      <div className="flex flex-col sm:flex-row gap-4 pt-6">
         <Button
           type="submit"
-          className="w-full sm:w-auto px-12 h-14 text-lg font-semibold rounded-xl order-1 sm:order-2"
+          size="lg"
+          className="w-full sm:w-auto px-12 h-14 shadow-md shadow-primary/10 order-1 sm:order-2"
           isLoading={isCreating || isUpdating}
         >
-          {submitLabel || (editId ? 'Save Changes' : 'Save Transaction')}
+          {submitLabel || (editId ? 'Save Changes' : 'Record Entry')}
         </Button>
         {!hideCancel && (
           <Button
             type="button"
             variant="ghost"
-            className="w-full sm:w-auto h-14 text-lg order-2 sm:order-1"
+            size="lg"
+            className="w-full sm:w-auto px-10 h-14 order-2 sm:order-1 opacity-60"
             onClick={() => navigate(-1)}
             disabled={isCreating || isUpdating}
           >
@@ -570,5 +580,5 @@ export function TransactionEntryForm({
     return formContent
   }
 
-  return <Card className="border border-ui-border-subtle p-5 sm:p-6 shadow-sm">{formContent}</Card>
+  return <Card className="p-6 md:p-8 shadow-lg shadow-primary/5">{formContent}</Card>
 }

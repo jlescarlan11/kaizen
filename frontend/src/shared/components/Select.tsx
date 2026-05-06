@@ -81,7 +81,7 @@ export function Select({
             <ListboxLabel className={formFieldClasses.label}>
               {label}
               {required ? (
-                <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+                <span aria-hidden="true" className="ml-0.5 text-error">
                   *
                 </span>
               ) : null}
@@ -95,21 +95,21 @@ export function Select({
                 className={cn(
                   formFieldClasses.input,
                   'flex items-center justify-between text-left',
-                  !selectedOption && 'text-subtle-foreground',
-                  error && 'border-ui-danger focus-visible:ring-ui-danger/22',
-                  disabled && 'opacity-50 cursor-not-allowed bg-ui-surface-muted',
+                  !selectedOption && 'text-text-secondary opacity-40',
+                  error && 'border-error/50 focus-visible:ring-error/10',
+                  disabled && 'opacity-50 cursor-not-allowed bg-surface-secondary',
                   className,
                 )}
               >
-                <span className="flex items-center gap-2 truncate">
+                <span className="flex items-center gap-3 truncate">
                   {selectedOption?.icon && (
-                    <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center text-foreground/70">
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center text-text-secondary">
                       {selectedOption.icon}
                     </span>
                   )}
                   <span className="block truncate">{selectedOption?.label ?? placeholder}</span>
                 </span>
-                <span className="pointer-events-none flex items-center pr-2 text-foreground/50">
+                <span className="pointer-events-none flex items-center pr-2 text-text-secondary/40">
                   <ChevronDownIcon />
                 </span>
               </ListboxButton>
@@ -121,7 +121,7 @@ export function Select({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <ListboxOptions className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-xl border border-ui-border bg-ui-surface p-1 shadow-xl focus:outline-none sm:text-sm">
+                <ListboxOptions className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-[1.5rem] border border-border-subtle bg-white p-2 shadow-2xl focus:outline-none">
                   {options.map((option) => (
                     <ListboxOption
                       key={option.value}
@@ -129,30 +129,26 @@ export function Select({
                       disabled={option.disabled}
                       className={({ focus, selected }) =>
                         cn(
-                          'relative select-none transition-colors',
+                          'relative select-none transition-all duration-200',
                           option.disabled
-                            ? 'cursor-default opacity-100 py-1.5 pl-4 mt-2 mb-0.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground'
-                            : 'cursor-pointer rounded-lg py-3 pl-12 pr-4 text-foreground',
-                          !option.disabled && focus ? 'bg-ui-surface-muted' : '',
-                          !option.disabled && selected
-                            ? 'bg-ui-surface-subtle font-semibold'
-                            : 'font-normal',
+                            ? 'cursor-default opacity-100 py-2 pl-4 mt-3 mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary opacity-40'
+                            : 'cursor-pointer rounded-xl py-3.5 pl-12 pr-4 text-sm font-black tracking-tight text-text-primary uppercase',
+                          !option.disabled && focus ? 'bg-surface-secondary' : '',
+                          !option.disabled && selected ? 'bg-primary text-text-primary' : '',
                         )
                       }
                     >
                       {({ selected }) => (
                         <>
-                          <span
-                            className={cn(
-                              'block truncate',
-                              selected ? 'font-semibold' : 'font-normal',
-                            )}
-                          >
-                            {option.label}
-                          </span>
+                          <span className={cn('block truncate')}>{option.label}</span>
                           {!option.disabled && (selected || option.icon) ? (
-                            <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-foreground">
-                              <span className="flex h-[18px] w-[18px] items-center justify-center">
+                            <span
+                              className={cn(
+                                'absolute inset-y-0 left-0 flex items-center pl-4',
+                                selected ? 'text-text-primary' : 'text-text-secondary',
+                              )}
+                            >
+                              <span className="flex h-5 w-5 items-center justify-center">
                                 {selected ? <CheckIcon /> : option.icon}
                               </span>
                             </span>
@@ -186,12 +182,12 @@ function ChevronDownIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -204,12 +200,12 @@ function CheckIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.5"
+      strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"
     >

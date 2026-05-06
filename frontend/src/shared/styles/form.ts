@@ -6,15 +6,15 @@ import { cn } from '../lib/cn'
  * Using Tailwind utilities referencing semantic CSS variables.
  */
 export const formFieldClasses = {
-  container: 'flex flex-col gap-1',
-  label: 'text-sm font-medium leading-none text-foreground text-left',
-  helper: 'text-xs leading-5 text-muted-foreground text-left',
-  error: 'text-xs leading-5 text-ui-danger-text-soft text-left',
+  container: 'flex flex-col gap-2',
+  label: 'text-[10px] font-black uppercase tracking-widest text-text-secondary px-1',
+  helper: 'text-[10px] font-black uppercase tracking-tighter text-text-secondary opacity-40 px-1',
+  error: 'text-[10px] font-black uppercase tracking-tighter text-error px-1',
   input: cn(
-    'h-11 w-full rounded-xl border border-ui-border bg-ui-surface px-3 text-base leading-7 text-foreground outline-none transition',
-    'placeholder:text-subtle-foreground hover:border-ui-border-strong focus-visible:border-ui-focus focus-visible:ring-3 focus-visible:ring-ui-focus/22',
+    'h-14 w-full rounded-[1.25rem] border-2 border-border-subtle bg-white px-4 text-base font-black tracking-tight text-text-primary outline-none transition-all',
+    'placeholder:text-text-secondary/30 hover:border-primary/30 focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10',
     'dark:color-scheme-dark',
-    'disabled:cursor-not-allowed disabled:text-muted-foreground disabled:opacity-60',
-    'aria-invalid:border-ui-danger aria-invalid:focus-visible:ring-ui-danger/22',
+    'disabled:cursor-not-allowed disabled:bg-surface-secondary disabled:opacity-50',
+    'aria-invalid:border-error/50 aria-invalid:focus-visible:ring-error/10',
   ),
 }

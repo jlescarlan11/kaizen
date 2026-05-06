@@ -7,7 +7,6 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { HomeGuard } from '../../features/home/HomeGuard'
 import { SigninPage } from '../../features/signin/SigninPage'
 import { NotFoundPage } from '../../features/not-found/NotFoundPage'
-import { AppErrorPage } from '../../shared/components/AppErrorPage'
 
 import { OnboardingGuard } from '../../features/onboarding/OnboardingGuard'
 import { OnboardingLayout } from '../../features/onboarding/OnboardingLayout'
@@ -99,9 +98,7 @@ const BudgetDetailPage = lazy(() =>
   })),
 )
 const GoalDetailPage = lazy(() =>
-  import('../../features/goals/GoalDetailPage').then((m) => ({
-    default: m.GoalDetailPage,
-  })),
+  import('../../features/goals/GoalDetailPage').then((m) => ({ default: m.GoalDetailPage })),
 )
 
 import { TransactionDetailActions } from '../../features/transactions/components/TransactionDetailActions'
@@ -110,7 +107,6 @@ import { BudgetIdRedirect } from './BudgetIdRedirect'
 export const router = createBrowserRouter([
   {
     path: '/',
-    errorElement: <AppErrorPage />,
     element: (
       <Suspense
         fallback={
@@ -145,7 +141,6 @@ export const router = createBrowserRouter([
       // Protected routes
       {
         element: <ProtectedRoute />,
-        errorElement: <AppErrorPage />,
         children: [
           {
             path: 'onboarding',

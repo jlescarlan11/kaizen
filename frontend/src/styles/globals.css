@@ -1,387 +1,75 @@
-/* Light Mode (Default) */
+/* Kaizen Simplified Design System */
 :root {
-  /* Background */
+  /* Core Colors */
   --color-background: #f6f8f4;
   --color-surface: #ffffff;
   --color-surface-secondary: #eef2ed;
-
-  /* Borders */
-  --color-border: #869787;
-  --color-border-strong: #7f8d80;
-
-  /* Text */
+  --color-primary: #56c87b;
+  --color-primary-hover: #62d287;
   --color-text-primary: #1f2a21;
   --color-text-secondary: #556257;
   --color-text-tertiary: #7a877c;
-  --color-text-inverse: #ffffff;
 
-  /* Primary */
-  --color-primary: #56c87b;
-  --color-primary-hover: #62d287;
-  --color-primary-active: #6cda91;
-  --color-primary-light: #e6f4ea;
-  --color-primary-dark: #1f6336;
-
-  /* Success */
-  --color-success: #9fd9af;
-  --color-success-hover: #aadfba;
-  --color-success-active: #b5e5c5;
-  --color-success-light: #e6f4ea;
-  --color-success-dark: #1f6336;
-
-  /* Error */
-  --color-error: #e3a29d;
-  --color-error-hover: #e8afa9;
-  --color-error-active: #edbbb6;
-  --color-error-light: #fde9e7;
-  --color-error-dark: #923029;
-
-  /* Warning */
+  /* Semantic Roles */
+  --color-success: #2f8f4e;
+  --color-error: #c84b42;
   --color-warning: #e8c48f;
-  --color-warning-hover: #ecd0a0;
-  --color-warning-active: #f0dbb1;
-  --color-warning-light: #fff1dc;
-  --color-warning-dark: #8e5815;
-
-  /* Info */
   --color-info: #b5cfbc;
-  --color-info-hover: #c1d8c7;
-  --color-info-active: #cde1d2;
-  --color-info-light: #edf5ef;
-  --color-info-dark: #37553f;
 
-  /* Financial */
-  --color-income: #2f8f4e;
-  --color-expense: #c84b42;
+  /* Borders */
+  --color-border: #869787;
+  --color-border-subtle: rgba(134, 151, 135, 0.2);
 
-  /* Accessible on-color text */
-  --color-on-primary: #101612;
-  --color-on-success: #101612;
-  --color-on-error: #101612;
-  --color-on-warning: #101612;
-  --color-on-info: #101612;
-
-  /* Role-based UI tokens */
+  /* Global UI Tokens (Simplified) */
   --ui-bg: var(--color-background);
   --ui-surface: var(--color-surface);
-  --ui-surface-muted: var(--color-surface-secondary);
-  --ui-surface-subtle: var(--color-primary-light);
-  --ui-surface-strong: #1a2420;
-  --ui-surface-hover: var(--color-surface-secondary);
-  --ui-bg-overlay: rgba(0, 0, 0, 0.5);
   --ui-border: var(--color-border);
-  --ui-border-strong: var(--color-border-strong);
-  --ui-border-muted: var(--color-border);
-  --ui-border-subtle: rgba(134, 151, 135, 0.2);
   --ui-text: var(--color-text-primary);
   --ui-text-muted: var(--color-text-secondary);
-  --ui-text-subtle: var(--color-text-tertiary);
-  --ui-text-inverse: var(--color-text-inverse);
-  --ui-action-bg: var(--color-primary);
-  --ui-action-bg-hover: var(--color-primary-hover);
-  --ui-action-bg-active: var(--color-primary-active);
-  --ui-action-text: var(--color-on-primary);
-  --ui-accent-bg: var(--color-primary);
-  --ui-accent-bg-hover: var(--color-primary-hover);
-  --ui-accent-bg-active: var(--color-primary-active);
-  --ui-accent-subtle: var(--color-primary-light);
-  --ui-accent-muted: var(--color-primary-dark);
-  --ui-accent-text: var(--color-primary-dark);
-  --ui-danger-bg: var(--color-error);
-  --ui-danger-bg-hover: var(--color-error-hover);
-  --ui-danger-bg-active: var(--color-error-active);
-  --ui-danger-text: var(--color-on-error);
-  --ui-danger-text-soft: var(--color-error-dark);
-  --ui-danger-subtle: var(--color-error-light);
-  --ui-success-bg: var(--color-success);
-  --ui-success-text: var(--color-on-success);
-  --ui-success-subtle: var(--color-success-light);
-  --ui-warning-bg: var(--color-warning);
-  --ui-warning-text: var(--color-on-warning);
-  --ui-warning-subtle: var(--color-warning-light);
-  --ui-info-bg: var(--color-info);
-  --ui-info-text: var(--color-on-info);
-  --ui-info-subtle: var(--color-info-light);
-  --ui-focus-ring: #277842;
-  --ui-disabled-opacity: 0.6;
-  --ui-disabled-text: var(--color-text-secondary);
+  --ui-action: var(--color-primary);
 
   /* Motion */
-  --motion-fast: 150ms;
   --motion-standard: 200ms;
-  --motion-slow: 300ms;
-  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
-  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  /* Radii */
+  --radius-xl: 1.5rem;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
 }
 
 /* Dark Mode */
 .dark,
 [data-theme='dark'] {
-  /* Background */
   --color-background: #101612;
   --color-surface: #18201b;
   --color-surface-secondary: #202923;
-
-  /* Borders */
-  --color-border: #5c6d61;
-  --color-border-strong: #718175;
-
-  /* Text */
-  --color-text-primary: #eef4ef;
-  --color-text-secondary: #c8d2ca;
-  --color-text-tertiary: #97a59b;
-  --color-text-inverse: #101612;
-
-  /* Primary */
   --color-primary: #275c34;
   --color-primary-hover: #234f2d;
-  --color-primary-active: #1f4728;
-  --color-primary-light: #173324;
-  --color-primary-dark: #c7ebd3;
-
-  /* Success */
-  --color-success: #275c34;
-  --color-success-hover: #23532f;
-  --color-success-active: #1f4b2a;
-  --color-success-light: #173324;
-  --color-success-dark: #c7ebd3;
-
-  /* Error */
-  --color-error: #9f1e15;
-  --color-error-hover: #8f1b13;
-  --color-error-active: #811811;
-  --color-error-light: #3b1816;
-  --color-error-dark: #ffd9d6;
-
-  /* Warning */
-  --color-warning: #5d4219;
-  --color-warning-hover: #563d17;
-  --color-warning-active: #503815;
-  --color-warning-light: #3a2712;
-  --color-warning-dark: #ffe5bc;
-
-  /* Info */
-  --color-info: #314a37;
-  --color-info-hover: #2c4231;
-  --color-info-active: #273a2b;
-  --color-info-light: #1a2a20;
-  --color-info-dark: #d9ebde;
-
-  /* Financial */
-  --color-income: #57b776;
-  --color-expense: #ef8b84;
-
-  /* Accessible on-color text */
-  --color-on-primary: #ffffff;
-  --color-on-success: #ffffff;
-  --color-on-error: #ffffff;
-  --color-on-warning: #ffffff;
-  --color-on-info: #ffffff;
-
-  /* Role-based UI tokens */
-  --ui-bg: var(--color-background);
-  --ui-surface: var(--color-surface);
-  --ui-surface-muted: var(--color-surface-secondary);
-  --ui-surface-subtle: rgb(39 92 52 / 0.14);
-  --ui-surface-strong: #2c3a30;
-  --ui-surface-hover: var(--color-surface-secondary);
-  --ui-bg-overlay: rgba(0, 0, 0, 0.7);
-  --ui-border: var(--color-border);
-  --ui-border-strong: var(--color-border-strong);
-  --ui-border-muted: var(--color-border);
-  --ui-border-subtle: rgba(134, 151, 135, 0.2);
-  --ui-text: var(--color-text-primary);
-  --ui-text-muted: var(--color-text-secondary);
-  --ui-text-subtle: var(--color-text-tertiary);
-  --ui-text-inverse: var(--color-text-inverse);
-  --ui-action-bg: var(--color-primary);
-  --ui-action-bg-hover: var(--color-primary-hover);
-  --ui-action-bg-active: var(--color-primary-active);
-  --ui-action-text: var(--color-on-primary);
-  --ui-accent-bg: var(--color-primary);
-  --ui-accent-bg-hover: var(--color-primary-hover);
-  --ui-accent-bg-active: var(--color-primary-active);
-  --ui-accent-subtle: rgb(39 92 52 / 0.14);
-  --ui-accent-muted: var(--color-primary);
-  --ui-accent-text: var(--color-text-primary);
-  --ui-danger-bg: var(--color-error);
-  --ui-danger-bg-hover: var(--color-error-hover);
-  --ui-danger-bg-active: var(--color-error-active);
-  --ui-danger-text: var(--color-on-error);
-  --ui-danger-text-soft: var(--color-error-dark);
-  --ui-danger-subtle: rgb(254 226 226 / 0.2);
-  --ui-success-bg: var(--color-success);
-  --ui-success-text: var(--color-on-success);
-  --ui-success-subtle: rgb(185 233 55 / 0.2);
-  --ui-warning-bg: var(--color-warning);
-  --ui-warning-text: var(--color-on-warning);
-  --ui-warning-subtle: rgb(253 186 116 / 0.2);
-  --ui-info-bg: var(--color-info);
-  --ui-info-text: var(--color-on-info);
-  --ui-info-subtle: rgb(219 234 254 / 0.2);
-  --ui-focus-ring: #8fd7a5;
-  --ui-disabled-opacity: 0.6;
-  --ui-disabled-text: var(--color-text-secondary);
-
-  /* Motion */
-  --motion-fast: 150ms;
-  --motion-standard: 200ms;
-  --motion-slow: 300ms;
-  --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
-  --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  --color-text-primary: #eef4ef;
+  --color-text-secondary: #97a59b;
+  --color-text-tertiary: #718175;
+  --color-border: #5c6d61;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.light):not([data-theme='light']) {
-    /* Background */
     --color-background: #101612;
     --color-surface: #18201b;
     --color-surface-secondary: #202923;
-
-    /* Borders */
-    --color-border: #5c6d61;
-    --color-border-strong: #718175;
-
-    /* Text */
-    --color-text-primary: #eef4ef;
-    --color-text-secondary: #c8d2ca;
-    --color-text-tertiary: #97a59b;
-    --color-text-inverse: #101612;
-
-    /* Primary */
     --color-primary: #275c34;
     --color-primary-hover: #234f2d;
-    --color-primary-active: #1f4728;
-    --color-primary-light: #173324;
-    --color-primary-dark: #c7ebd3;
-
-    /* Success */
-    --color-success: #275c34;
-    --color-success-hover: #23532f;
-    --color-success-active: #1f4b2a;
-    --color-success-light: #173324;
-    --color-success-dark: #c7ebd3;
-
-    /* Error */
-    --color-error: #9f1e15;
-    --color-error-hover: #8f1b13;
-    --color-error-active: #811811;
-    --color-error-light: #3b1816;
-    --color-error-dark: #ffd9d6;
-
-    /* Warning */
-    --color-warning: #5d4219;
-    --color-warning-hover: #563d17;
-    --color-warning-active: #503815;
-    --color-warning-light: #3a2712;
-    --color-warning-dark: #ffe5bc;
-
-    /* Info */
-    --color-info: #314a37;
-    --color-info-hover: #2c4231;
-    --color-info-active: #273a2b;
-    --color-info-light: #1a2a20;
-    --color-info-dark: #d9ebde;
-
-    /* Financial */
-    --color-income: #57b776;
-    --color-expense: #ef8b84;
-
-    /* Accessible on-color text */
-    --color-on-primary: #ffffff;
-    --color-on-success: #ffffff;
-    --color-on-error: #ffffff;
-    --color-on-warning: #ffffff;
-    --color-on-info: #ffffff;
-
-    /* Role-based UI tokens */
-    --ui-bg: var(--color-background);
-    --ui-surface: var(--color-surface);
-    --ui-surface-muted: var(--color-surface-secondary);
-    --ui-surface-subtle: rgb(39 92 52 / 0.14);
-    --ui-surface-strong: #2c3a30;
-    --ui-surface-hover: var(--color-surface-secondary);
-    --ui-bg-overlay: rgba(0, 0, 0, 0.7);
-    --ui-border: var(--color-border);
-    --ui-border-strong: var(--color-border-strong);
-    --ui-border-muted: var(--color-border);
-    --ui-text: var(--color-text-primary);
-    --ui-text-muted: var(--color-text-secondary);
-    --ui-text-subtle: var(--color-text-tertiary);
-    --ui-text-inverse: var(--color-text-inverse);
-    --ui-action-bg: var(--color-primary);
-    --ui-action-bg-hover: var(--color-primary-hover);
-    --ui-action-bg-active: var(--color-primary-active);
-    --ui-action-text: var(--color-on-primary);
-    --ui-accent-bg: var(--color-primary);
-    --ui-accent-bg-hover: var(--color-primary-hover);
-    --ui-accent-bg-active: var(--color-primary-active);
-    --ui-accent-subtle: rgb(39 92 52 / 0.14);
-    --ui-accent-muted: var(--color-primary);
-    --ui-accent-text: var(--color-text-primary);
-    --ui-danger-bg: var(--color-error);
-    --ui-danger-bg-hover: var(--color-error-hover);
-    --ui-danger-bg-active: var(--color-error-active);
-    --ui-danger-text: var(--color-on-error);
-    --ui-danger-text-soft: var(--color-error-dark);
-    --ui-danger-subtle: rgb(254 226 226 / 0.2);
-    --ui-success-bg: var(--color-success);
-    --ui-success-text: var(--color-on-success);
-    --ui-success-subtle: rgb(185 233 55 / 0.2);
-    --ui-warning-bg: var(--color-warning);
-    --ui-warning-text: var(--color-on-warning);
-    --ui-warning-subtle: rgb(253 186 116 / 0.2);
-    --ui-info-bg: var(--color-info);
-    --ui-info-text: var(--color-on-info);
-    --ui-info-subtle: rgb(219 234 254 / 0.2);
-    --ui-focus-ring: #8fd7a5;
-    --ui-disabled-opacity: 0.6;
-    --ui-disabled-text: var(--color-text-secondary);
-
-    /* Motion */
-    --motion-fast: 150ms;
-    --motion-standard: 200ms;
-    --motion-slow: 300ms;
-    --motion-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-    --motion-ease-enter: cubic-bezier(0, 0, 0.2, 1);
-    --motion-ease-exit: cubic-bezier(0.4, 0, 1, 1);
-
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --color-text-primary: #eef4ef;
+    --color-text-secondary: #97a59b;
+    --color-text-tertiary: #718175;
+    --color-border: #5c6d61;
   }
 }
 
 body {
   background-color: var(--ui-bg);
   color: var(--ui-text);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-@layer utilities {
-  .scrollbar-hide {
-    -ms-overflow-style: none; /* IE and Edge */
-    @supports (scrollbar-width: none) {
-      scrollbar-width: none; /* Firefox */
-    }
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
-  }
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }

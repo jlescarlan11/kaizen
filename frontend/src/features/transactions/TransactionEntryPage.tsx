@@ -8,16 +8,18 @@ export function TransactionEntryPage(): ReactElement {
   const editId = id ? parseInt(id) : undefined
 
   return (
-    <div className={pageLayout.sectionGap}>
-      <header className={pageLayout.headerGap}>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          {editId ? 'Edit Transaction' : 'Add Transaction'}
-        </h1>
-        <p className="text-muted-foreground">
-          {editId
-            ? 'Update the details of your recorded transaction.'
-            : 'Record a new expense or income to keep your balance up to date.'}
-        </p>
+    <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-32')}>
+      <header className="mb-10">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tighter text-text-primary uppercase">
+            {editId ? 'Edit Entry' : 'Add Entry'}
+          </h1>
+          <p className="text-lg font-medium text-text-secondary tracking-tight">
+            {editId
+              ? 'Update the details of your transaction.'
+              : 'Record a new spend or income to stay on track.'}
+          </p>
+        </div>
       </header>
 
       <div className="max-w-4xl w-full">

@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, type ReactElement } from 'react'
 import { Outlet, NavLink, useMatches, useNavigate } from 'react-router-dom'
+import { AppErrorPage } from '../../shared/components/AppErrorPage'
+import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
 import { KaizenLogo } from '../../shared/components/KaizenLogo'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
@@ -162,7 +164,7 @@ function AuthenticatedLayoutContent(): ReactElement {
     : '??'
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground font-body">
+    <div className="flex min-h-screen bg-background text-text-primary font-body">
       <LogoutConfirmationModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
@@ -172,15 +174,17 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── SIDEBAR (Desktop Only) ───────── */}
       {!isMobile && (
-        <aside className="fixed inset-y-0 left-0 w-64 bg-background flex flex-col z-30">
-          <div className="h-20 flex items-center px-8">
+        <aside className="fixed inset-y-0 left-0 w-64 bg-background flex flex-col z-30 border-r border-border-subtle">
+          <div className="h-16 flex items-center px-8">
             <NavLink to="/" className="flex items-center gap-3">
-              <KaizenLogo className="h-7 w-7" />
-              <span className="text-lg font-semibold tracking-tight text-foreground">Kaizen</span>
+              <KaizenLogo className="h-8 w-8" />
+              <span className="text-xl font-bold tracking-tighter text-text-primary uppercase">
+                Kaizen
+              </span>
             </NavLink>
           </div>
 
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const anchorRef = item.anchorKey
                 ? item.anchorKey === 'budgetsTab'
@@ -197,14 +201,16 @@ function AuthenticatedLayoutContent(): ReactElement {
                     cn(
                       'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
                       isActive
-                        ? 'bg-ui-accent-subtle text-foreground border border-ui-border-strong font-semibold'
-                        : 'text-muted-foreground hover:bg-ui-surface-hover hover:text-foreground font-medium',
+                        ? 'bg-primary text-text-primary font-bold shadow-md shadow-primary/10'
+                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-semibold',
                     )
                   }
                   ref={anchorRef}
                 >
-                  <span className="shrink-0">{item.icon}</span>
-                  {item.label}
+                  <span className={cn('shrink-0 transition-transform duration-200')}>
+                    {item.icon}
+                  </span>
+                  <span className="tracking-tight">{item.label}</span>
                 </NavLink>
               )
             })}
@@ -214,30 +220,30 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── MAIN CONTENT AREA ───────── */}
       <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'md:ml-64')}>
-        {/* ───────── HEADER SPACER (Preserves space in document flow) ───────── */}
-        {!hideHeader && <div className="h-20 w-full shrink-0" />}
+        {/* ───────── HEADER SPACER ───────── */}
+        {!hideHeader && <div className="h-16 w-full shrink-0" />}
 
         {/* ───────── HEADER ───────── */}
         {!hideHeader && (
           <header
             className={cn(
-              'fixed top-0 left-0 right-0 h-20 bg-background z-20 px-5 md:px-10',
+              'fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md z-20 px-6 md:px-10',
               !isMobile && 'md:left-64',
               isAnimating && 'transition-transform duration-200 ease-in-out',
             )}
             style={{ transform: `translateY(${headerOffset}px)` }}
           >
-            <div className="mx-auto h-full w-full max-w-5xl flex items-center justify-between">
+            <div className="mx-auto h-full w-full max-w-7xl flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {isSecondDegree ? (
                   <button
                     type="button"
-                    className="group flex items-center gap-2.5 text-foreground transition-colors hover:opacity-70"
+                    className="group flex items-center gap-2 text-text-primary transition-colors hover:opacity-70"
                     onClick={handleBack}
                   >
                     <svg
-                      width="20"
-                      height="20"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -248,7 +254,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                     >
                       <path d="m15 18-6-6 6-6" />
                     </svg>
-                    <span className="text-base font-medium leading-none">
+                    <span className="text-base font-bold tracking-tight uppercase">
                       {backButtonConfig.label}
                     </span>
                   </button>
@@ -261,7 +267,9 @@ function AuthenticatedLayoutContent(): ReactElement {
                 )}
 
                 {!isMobile && !isSecondDegree && (
-                  <h2 className="text-sm font-medium text-muted-foreground">Dashboard</h2>
+                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 px-1">
+                    Dashboard
+                  </h2>
                 )}
               </div>
 
@@ -270,20 +278,20 @@ function AuthenticatedLayoutContent(): ReactElement {
                 {!isSecondDegree && (
                   <>
                     <button
-                      className="p-2 rounded-full hover:bg-ui-surface-hover transition-colors relative"
+                      className="p-2 rounded-xl hover:bg-surface-secondary transition-colors relative text-text-primary"
                       aria-label="Notifications"
                     >
                       <span aria-hidden="true">
                         <NotificationIcon />
                       </span>
-                      <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-ui-danger rounded-full border-2 border-background" />
+                      <span className="absolute top-2.5 right-2.5 w-2 w-2 bg-error rounded-full border-2 border-background" />
                     </button>
 
                     <NavLink
                       to="/your-account"
-                      className="flex items-center gap-2 group p-1 pr-2 rounded-full hover:bg-ui-surface-hover transition-colors"
+                      className="flex items-center gap-2 group p-1 pr-3 rounded-xl hover:bg-surface-secondary transition-colors border border-transparent hover:border-border-subtle"
                     >
-                      <div className="h-8 w-8 rounded-full bg-ui-accent-subtle border border-ui-border flex items-center justify-center text-sm font-semibold text-foreground overflow-hidden group-hover:border-ui-border-strong transition-colors ring-2 ring-transparent group-hover:ring-ui-accent-subtle/50 shrink-0">
+                      <div className="h-8 w-8 rounded-xl bg-surface-secondary border border-border-subtle flex items-center justify-center text-[10px] font-bold text-text-primary overflow-hidden group-hover:border-primary transition-all ring-2 ring-transparent group-hover:ring-primary/10 shrink-0">
                         {user?.picture && !imageError ? (
                           <img
                             src={user.picture}
@@ -298,7 +306,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                       </div>
                       {!isMobile && (
                         <div className="flex items-center gap-1 hidden sm:flex">
-                          <span className="text-sm font-semibold text-foreground">
+                          <span className="text-sm font-bold tracking-tight text-text-primary">
                             {user?.name || 'User'}
                           </span>
                           <ChevronRightIcon />
@@ -313,17 +321,18 @@ function AuthenticatedLayoutContent(): ReactElement {
         )}
 
         {/* ───────── PAGE CONTENT ───────── */}
-        <main className={cn('flex-1 py-6 md:py-8', pageLayout.shellX, isMobile && 'pb-28')}>
-          <div className="mx-auto w-full max-w-5xl">
-            <Outlet />
+        <main className={cn('flex-1 py-6 md:py-8', pageLayout.shellX, isMobile && 'pb-24')}>
+          <div className="mx-auto w-full max-w-7xl animate-entrance-slide-up">
+            <ErrorBoundary fallback={<AppErrorPage />}>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
-        {/* No global <footer> — there is no global footer content. Per-page <footer> can be added by individual pages if needed. */}
       </div>
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-ui-border-subtle flex items-center justify-around px-4 pb-safe z-30">
+        <nav className="fixed bottom-4 left-4 right-4 h-16 bg-white/90 backdrop-blur-xl border border-border-subtle rounded-2xl flex items-center justify-around px-4 shadow-xl z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'
@@ -339,10 +348,10 @@ function AuthenticatedLayoutContent(): ReactElement {
                 aria-label={item.label}
                 className={({ isActive }) =>
                   cn(
-                    'flex flex-col items-center gap-1.5 transition-all duration-200',
+                    'flex flex-col items-center gap-1 transition-all duration-300',
                     isActive
-                      ? 'text-foreground scale-110'
-                      : 'text-muted-foreground hover:text-foreground',
+                      ? 'text-text-primary'
+                      : 'text-text-secondary hover:text-text-primary opacity-60',
                   )
                 }
                 ref={anchorRef}
@@ -351,15 +360,12 @@ function AuthenticatedLayoutContent(): ReactElement {
                   <>
                     <div
                       className={cn(
-                        'transition-all duration-200 flex items-center justify-center p-2 rounded-xl',
-                        isActive ? 'bg-ui-accent-subtle border border-ui-border-strong' : '',
+                        'transition-all duration-300 flex items-center justify-center p-2.5 rounded-xl',
+                        isActive ? 'bg-primary shadow-md shadow-primary/10 -translate-y-1' : '',
                       )}
                     >
                       {item.icon}
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wide">
-                      {item.label}
-                    </span>
                   </>
                 )}
               </NavLink>
@@ -368,7 +374,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         </nav>
       )}
 
-      <UndoSnackbar offset={isMobile ? 'mobile-nav' : 'standard'} />
+      <UndoSnackbar />
       <ConnectivityIndicator />
       <AddEntryFAB
         onAddTransaction={() => navigate('/transactions/add')}
@@ -393,8 +399,8 @@ function AuthenticatedLayoutContent(): ReactElement {
 function HomeIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -411,8 +417,8 @@ function HomeIcon() {
 function BudgetIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -429,8 +435,8 @@ function BudgetIcon() {
 function GoalIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -451,8 +457,8 @@ function GoalIcon() {
 function VaultIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -469,12 +475,12 @@ function VaultIcon() {
 function NotificationIcon() {
   return (
     <svg
-      width="20"
-      height="20"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.25"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -487,15 +493,15 @@ function NotificationIcon() {
 function ChevronRightIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="14"
+      height="14"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-muted-foreground group-hover:text-foreground transition-colors"
+      className="text-text-secondary group-hover:text-text-primary transition-colors"
     >
       <path d="m9 18 6-6-6-6" />
     </svg>
