@@ -11,6 +11,7 @@ import { SpendingSummary } from './components/SpendingSummary'
 import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrends } from './components/SpendingTrends'
 import { pageLayout } from '../../shared/styles/layout'
+import { cn } from '../../shared/lib/cn'
 
 export default function InsightsPage() {
   const { period, dateRange, updatePeriod } = useInsightsPeriod()

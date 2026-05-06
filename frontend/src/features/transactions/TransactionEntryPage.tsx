@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import { useParams } from 'react-router-dom'
 import { TransactionEntryForm } from './components/TransactionEntryForm'
 import { pageLayout } from '../../shared/styles/layout'
+import { cn } from '../../shared/lib/cn'
 
 export function TransactionEntryPage(): ReactElement {
   const { id } = useParams<{ id: string }>()

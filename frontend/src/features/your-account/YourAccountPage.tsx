@@ -9,6 +9,8 @@ import {
   useToggleRemindersMutation,
 } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
+import { Button } from '../../shared/components/Button'
+import { Badge } from '../../shared/components/Badge'
 import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
