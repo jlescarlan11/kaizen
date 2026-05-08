@@ -8,6 +8,7 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>
   variant?: CardVariant
   title?: ReactNode
   titleLevel?: 'h2' | 'h3' | 'h4'
+  extra?: ReactNode
 }
 
 const variantStyles: Record<CardVariant, string> = {
@@ -19,10 +20,18 @@ const variantStyles: Record<CardVariant, string> = {
   info: 'border-info/20 bg-info/5 text-text-primary',
 }
 
-const titleClass = 'text-base font-bold tracking-tight text-text-primary uppercase mb-4'
+const titleClass = 'text-[11px] font-semibold tracking-widest text-text-secondary uppercase'
 
 export const Card = forwardRef(function Card(
-  { children, className, variant = 'neutral', title, titleLevel = 'h3', ...props }: CardProps,
+  {
+    children,
+    className,
+    variant = 'neutral',
+    title,
+    titleLevel = 'h3',
+    extra,
+    ...props
+  }: CardProps,
   ref: ForwardedRef<HTMLDivElement>,
 ): ReactElement {
   const TitleTag = titleLevel
@@ -30,13 +39,18 @@ export const Card = forwardRef(function Card(
     <div
       ref={ref}
       className={cn(
-        'rounded-xl border p-5 md:p-6 transition-all',
+        'rounded-xl border p-4 md:p-5 transition-all',
         variantStyles[variant],
         className,
       )}
       {...props}
     >
-      {title ? <TitleTag className={titleClass}>{title}</TitleTag> : null}
+      {title || extra ? (
+        <div className="flex items-center justify-between mb-4 gap-4 min-w-0">
+          {title ? <TitleTag className={titleClass}>{title}</TitleTag> : <div />}
+          {extra ? <div className="shrink-0">{extra}</div> : null}
+        </div>
+      ) : null}
       {children}
     </div>
   )

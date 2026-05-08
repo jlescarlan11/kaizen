@@ -69,7 +69,7 @@ export function AppearancePage(): ReactElement {
                 className={cn(
                   'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all',
                   isSelected
-                    ? 'bg-primary border-primary text-text-primary shadow-md shadow-primary/10'
+                    ? 'bg-primary border-primary text-white shadow-sm shadow-primary/10'
                     : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
                 )}
               >

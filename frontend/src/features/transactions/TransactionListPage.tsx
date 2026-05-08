@@ -36,8 +36,6 @@ export function TransactionListPage(): ReactElement {
 
   const [bulkDelete, { isLoading: isDeleting }] = useBulkDeleteTransactionsMutation()
 
-  // 1. The Shared Result Pipeline
-  // ...
   const {
     transactions: processedTransactions,
     isLoading,
@@ -82,11 +80,9 @@ export function TransactionListPage(): ReactElement {
     }
   }
 
-  // Undo infrastructure exists for transactions but is not yet wired here — see UNDO_POLICY.md.
   const handleBulkDeleteConfirm = async () => {
     try {
       await bulkDelete(selectedIds).unwrap()
-
       dispatch(
         showAlert({
           type: 'success',
@@ -94,7 +90,6 @@ export function TransactionListPage(): ReactElement {
           message: `Successfully deleted ${selectedIds.length} transaction${selectedIds.length === 1 ? '' : 's'}.`,
         }),
       )
-
       setIsConfirmDialogOpen(false)
       dispatch(setSelectionMode(false))
       dispatch(clearSelection())
@@ -166,7 +161,7 @@ export function TransactionListPage(): ReactElement {
                   className={cn(
                     'h-11 px-5 transition-all duration-200',
                     isSelectionMode &&
-                      'bg-primary border-primary text-text-primary shadow-md shadow-primary/10',
+                      'bg-primary border-primary text-white shadow-sm shadow-primary/10',
                   )}
                   onClick={toggleSelectionMode}
                 >
@@ -243,50 +238,6 @@ export function TransactionListPage(): ReactElement {
                     </button>
                   </Badge>
                 ))}
-                {filterState.startDate && (
-                  <Badge variant="info" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
-                    From: {filterState.startDate}
-                    <button
-                      onClick={() => setFilterState((prev) => ({ ...prev, startDate: undefined }))}
-                      className="hover:scale-110 transition-transform opacity-60"
-                    >
-                      <CloseIcon />
-                    </button>
-                  </Badge>
-                )}
-                {filterState.endDate && (
-                  <Badge variant="info" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
-                    To: {filterState.endDate}
-                    <button
-                      onClick={() => setFilterState((prev) => ({ ...prev, endDate: undefined }))}
-                      className="hover:scale-110 transition-transform opacity-60"
-                    >
-                      <CloseIcon />
-                    </button>
-                  </Badge>
-                )}
-                {filterState.categories.length > 0 && (
-                  <Badge variant="neutral" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
-                    {filterState.categories.length} Categories
-                    <button
-                      onClick={() => setFilterState((prev) => ({ ...prev, categories: [] }))}
-                      className="hover:scale-110 transition-transform opacity-60"
-                    >
-                      <CloseIcon />
-                    </button>
-                  </Badge>
-                )}
-                {filterState.paymentMethods.length > 0 && (
-                  <Badge variant="neutral" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
-                    {filterState.paymentMethods.length} Accounts
-                    <button
-                      onClick={() => setFilterState((prev) => ({ ...prev, paymentMethods: [] }))}
-                      className="hover:scale-110 transition-transform opacity-60"
-                    >
-                      <CloseIcon />
-                    </button>
-                  </Badge>
-                )}
                 <button
                   onClick={handleClearAll}
                   className="text-[10px] font-bold text-error uppercase tracking-widest hover:underline ml-2"
@@ -299,26 +250,31 @@ export function TransactionListPage(): ReactElement {
         )}
       </header>
 
-      <div className="w-full mt-6">
-        {isLoading || isFetching ? (
-          <div className="p-12 flex justify-center">
+      <div className="w-full mt-6 bg-surface border border-border/10 rounded-[2.5rem] overflow-hidden shadow-sm">
+        {isLoading && processedTransactions.length === 0 ? (
+          <div className="p-32 flex flex-col items-center justify-center space-y-6">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm font-black uppercase tracking-widest text-text-secondary animate-pulse">
+              Loading Activity...
+            </p>
           </div>
         ) : processedTransactions.length === 0 ? (
-          <TransactionEmptyState
-            isSearchActive={isSearchActive}
-            isFilterActive={isFilterActive}
-            onClearSearch={clearSearch}
-            onClearFilter={clearFilters}
-            onClearAll={handleClearAll}
-          />
+          <div className="p-6">
+            <TransactionEmptyState
+              isSearchActive={isSearchActive}
+              isFilterActive={isFilterActive}
+              onClearSearch={clearSearch}
+              onClearFilter={clearFilters}
+              onClearAll={handleClearAll}
+            />
+          </div>
         ) : (
           <TransactionList
             transactions={processedTransactions}
             searchQuery={searchQuery}
             hasMore={hasMore}
             onLoadMore={loadMore}
-            isLoading={isLoading}
+            isLoading={isFetching}
           />
         )}
       </div>

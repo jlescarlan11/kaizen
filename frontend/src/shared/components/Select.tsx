@@ -134,7 +134,9 @@ export function Select({
                             ? 'cursor-default opacity-100 py-2 pl-4 mt-3 mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary opacity-40'
                             : 'cursor-pointer rounded-xl py-3.5 pl-12 pr-4 text-sm font-black tracking-tight text-text-primary uppercase',
                           !option.disabled && focus ? 'bg-surface-secondary' : '',
-                          !option.disabled && selected ? 'bg-primary text-text-primary' : '',
+                          !option.disabled && selected
+                            ? 'bg-primary/10 text-primary font-semibold'
+                            : '',
                         )
                       }
                     >

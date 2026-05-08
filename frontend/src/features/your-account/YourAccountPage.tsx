@@ -343,7 +343,7 @@ export function YourAccountPage(): ReactElement {
         </div>
         <button
           type="button"
-          className="absolute bottom-0 right-0 h-7 w-7 rounded-xl bg-primary border border-white flex items-center justify-center text-text-primary shadow-md hover:scale-110 transition-transform"
+          className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary border border-white flex items-center justify-center text-white shadow-sm hover:brightness-105 transition-all"
           aria-label="Change photo"
         >
           <CameraIcon />

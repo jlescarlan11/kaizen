@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { Outlet, NavLink, useMatches, useNavigate } from 'react-router-dom'
 import { AppErrorPage } from '../../shared/components/AppErrorPage'
 import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
@@ -53,9 +53,6 @@ function AuthenticatedLayoutContent(): ReactElement {
   const navigate = useNavigate()
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
-  const [headerOffset, setHeaderOffset] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const lastScrollY = useRef(0)
 
   const registerBudgetsTab = useRegisterDashboardTourAnchor('budgetsTab')
   const registerGoalsTab = useRegisterDashboardTourAnchor('goalsTab')
@@ -66,49 +63,6 @@ function AuthenticatedLayoutContent(): ReactElement {
   const backButtonConfig = handle?.backButton
   const isSecondDegree = !!backButtonConfig
   const hideHeader = !!handle?.hideHeader
-
-  useEffect(() => {
-    if (hideHeader) return
-
-    const handleScroll = (): void => {
-      const currentScrollY = Math.max(0, window.scrollY)
-      const isScrollingUp = currentScrollY < lastScrollY.current
-
-      // 1. Natural Scroll Range (0-80px):
-      if (currentScrollY <= 80) {
-        // If we hit the absolute top, snap instantly
-        if (currentScrollY === 0) {
-          setHeaderOffset(0)
-          setIsAnimating(false)
-        }
-        // If we are scrolling up and already revealed, stay pinned at 0
-        else if (isScrollingUp && headerOffset === 0) {
-          setHeaderOffset(0)
-          setIsAnimating(true)
-        }
-        // Otherwise, move naturally with the scroll
-        else {
-          setHeaderOffset(-currentScrollY)
-          setIsAnimating(false)
-        }
-      }
-      // 2. Smart Reveal Range (>80px):
-      else {
-        if (currentScrollY < lastScrollY.current - 5) {
-          setHeaderOffset(0)
-          setIsAnimating(true)
-        } else if (currentScrollY > lastScrollY.current + 5) {
-          setHeaderOffset(-80)
-          setIsAnimating(true)
-        }
-      }
-
-      lastScrollY.current = currentScrollY
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [headerOffset, hideHeader])
 
   const handleBack = (): void => {
     if (backButtonConfig?.fallbackPath) {
@@ -178,9 +132,7 @@ function AuthenticatedLayoutContent(): ReactElement {
           <div className="h-16 flex items-center px-8">
             <NavLink to="/" className="flex items-center gap-3">
               <KaizenLogo className="h-8 w-8" />
-              <span className="text-xl font-bold tracking-tighter text-text-primary uppercase">
-                Kaizen
-              </span>
+              <span className="text-xl font-semibold tracking-tight text-text-primary">Kaizen</span>
             </NavLink>
           </div>
 
@@ -201,8 +153,8 @@ function AuthenticatedLayoutContent(): ReactElement {
                     cn(
                       'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
                       isActive
-                        ? 'bg-primary text-text-primary font-bold shadow-md shadow-primary/10'
-                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-semibold',
+                        ? 'bg-primary/10 text-primary font-semibold'
+                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-medium',
                     )
                   }
                   ref={anchorRef}
@@ -227,11 +179,9 @@ function AuthenticatedLayoutContent(): ReactElement {
         {!hideHeader && (
           <header
             className={cn(
-              'fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md z-20 px-6 md:px-10',
+              'fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md z-20 px-6 md:px-10 border-b border-border/5',
               !isMobile && 'md:left-64',
-              isAnimating && 'transition-transform duration-200 ease-in-out',
             )}
-            style={{ transform: `translateY(${headerOffset}px)` }}
           >
             <div className="mx-auto h-full w-full max-w-7xl flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -254,7 +204,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                     >
                       <path d="m15 18-6-6 6-6" />
                     </svg>
-                    <span className="text-base font-bold tracking-tight uppercase">
+                    <span className="text-base font-semibold tracking-tight">
                       {backButtonConfig.label}
                     </span>
                   </button>
@@ -265,12 +215,6 @@ function AuthenticatedLayoutContent(): ReactElement {
                     </NavLink>
                   )
                 )}
-
-                {!isMobile && !isSecondDegree && (
-                  <h2 className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 px-1">
-                    Dashboard
-                  </h2>
-                )}
               </div>
 
               <div className="flex items-center gap-3 md:gap-5">
@@ -278,7 +222,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                 {!isSecondDegree && (
                   <>
                     <button
-                      className="p-2 rounded-xl hover:bg-surface-secondary transition-colors relative text-text-primary"
+                      className="p-2 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
                       aria-label="Notifications"
                     >
                       <span aria-hidden="true">
@@ -289,9 +233,9 @@ function AuthenticatedLayoutContent(): ReactElement {
 
                     <NavLink
                       to="/your-account"
-                      className="flex items-center gap-2 group p-1 pr-3 rounded-xl hover:bg-surface-secondary transition-colors border border-transparent hover:border-border-subtle"
+                      className="flex items-center gap-2 group p-1 pr-3 rounded-full hover:bg-surface-secondary transition-colors"
                     >
-                      <div className="h-8 w-8 rounded-xl bg-surface-secondary border border-border-subtle flex items-center justify-center text-[10px] font-bold text-text-primary overflow-hidden group-hover:border-primary transition-all ring-2 ring-transparent group-hover:ring-primary/10 shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-[10px] font-semibold text-text-secondary overflow-hidden group-hover:border-primary/50 transition-all shrink-0">
                         {user?.picture && !imageError ? (
                           <img
                             src={user.picture}
@@ -332,7 +276,7 @@ function AuthenticatedLayoutContent(): ReactElement {
 
       {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
       {isMobile && (
-        <nav className="fixed bottom-4 left-4 right-4 h-16 bg-white/90 backdrop-blur-xl border border-border-subtle rounded-2xl flex items-center justify-around px-4 shadow-xl z-30">
+        <nav className="fixed bottom-4 left-4 right-4 h-16 bg-surface/90 backdrop-blur-xl border border-border-subtle rounded-2xl flex items-center justify-around px-4 shadow-lg z-30">
           {navItems.map((item) => {
             const anchorRef = item.anchorKey
               ? item.anchorKey === 'budgetsTab'
@@ -350,7 +294,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                   cn(
                     'flex flex-col items-center gap-1 transition-all duration-300',
                     isActive
-                      ? 'text-text-primary'
+                      ? 'text-primary'
                       : 'text-text-secondary hover:text-text-primary opacity-60',
                   )
                 }
@@ -361,7 +305,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                     <div
                       className={cn(
                         'transition-all duration-300 flex items-center justify-center p-2.5 rounded-xl',
-                        isActive ? 'bg-primary shadow-md shadow-primary/10 -translate-y-1' : '',
+                        isActive ? 'bg-primary/10' : '',
                       )}
                     >
                       {item.icon}

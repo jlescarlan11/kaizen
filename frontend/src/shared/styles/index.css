@@ -19,12 +19,12 @@
   --radius-xl: var(--radius-xl);
   --radius-lg: var(--radius-lg);
 
-  --font-body: 'Inter', sans-serif;
-  --font-display: 'Inter', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'DM Sans', sans-serif;
 }
 
 @layer utilities {
   .bento-card {
-    @apply bg-surface border border-border-subtle rounded-lg p-6 shadow-sm transition-all;
+    @apply bg-surface border border-border-subtle rounded-xl p-4 md:p-5 shadow-sm transition-all;
   }
 }
