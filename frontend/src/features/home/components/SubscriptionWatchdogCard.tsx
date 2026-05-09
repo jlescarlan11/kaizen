@@ -10,7 +10,7 @@ export const SubscriptionWatchdogCard: React.FC = () => {
   if (isLoading) {
     return (
       <div className="h-full min-h-[300px] p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse">
-        <div className="h-4 w-32 bg-surface-secondary rounded mb-8" />
+        <div className="h-4 w-32 bg-surface-secondary rounded mb-5" />
         <div className="space-y-4">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="h-12 bg-surface-secondary rounded-2xl" />
