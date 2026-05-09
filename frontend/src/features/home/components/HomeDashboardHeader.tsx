@@ -77,13 +77,6 @@ export const HomeDashboardHeader: React.FC<HomeDashboardHeaderProps> = ({ balanc
             Add Transaction
           </button>
           <button
-            onClick={() => navigate('/transactions/add')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-secondary border border-border-subtle text-text-secondary text-xs font-medium hover:bg-surface-secondary/80 transition-all"
-          >
-            <SharedIcon type="ui" name="refresh" size={14} strokeWidth={3} />
-            Transfer
-          </button>
-          <button
             onClick={() => navigate('/budgets/add')}
             className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface-secondary border border-border-subtle text-text-secondary text-xs font-medium hover:bg-surface-secondary/80 transition-all"
           >
