@@ -28,9 +28,14 @@ export const ActionCenterCard: React.FC = () => {
           allItems.slice(0, 3).map((item) => (
             <div
               key={item.id}
+              role="button"
+              tabIndex={0}
               onClick={() => navigate('/transactions')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') navigate('/transactions')
+              }}
               className={cn(
-                'px-3 py-2.5 rounded-xl border transition-all cursor-pointer hover:scale-[1.01] active:scale-95 flex items-center gap-2.5',
+                'px-3 py-2.5 rounded-xl border transition-all cursor-pointer hover:scale-[1.01] active:scale-95 flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
                 item.type === 'ALERT' && 'bg-amber-50 border-amber-200',
                 item.type === 'WIN' && 'bg-green-50 border-green-200',
                 item.type === 'TASK' && 'bg-blue-50 border-blue-200',
