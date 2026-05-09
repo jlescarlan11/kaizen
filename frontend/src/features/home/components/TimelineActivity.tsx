@@ -3,37 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import { useGetTransactionsQuery } from '../../../app/store/api/transactionApi'
 import { TransactionsEmptyState } from '../TransactionsEmptyState'
 import { ADD_TRANSACTION_ROUTE } from '../routes'
-import { ActivityListCard } from '../../transactions/components/ActivityListCard'
-import { calculateMoneyFlow } from '../../transactions/utils/transactionUtils'
+import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { Money } from '../../../shared/components/Money/Money'
+import { cn } from '../../../shared/lib/cn'
 
 export const TimelineActivity: React.FC = () => {
   const navigate = useNavigate()
   const { data: transactionsData, isLoading } = useGetTransactionsQuery()
 
   const transactions = useMemo(() => transactionsData?.items ?? [], [transactionsData])
-  const hasTransactions = transactions.length > 0
 
-  const incomeTransactions = useMemo(
-    () => transactions.filter((tx) => tx.type === 'INCOME').slice(0, 4),
+  const recentActivity = useMemo(
+    () => transactions.filter((tx) => tx.type === 'INCOME' || tx.type === 'EXPENSE').slice(0, 6),
     [transactions],
   )
-  const expenseTransactions = useMemo(
-    () => transactions.filter((tx) => tx.type === 'EXPENSE').slice(0, 4),
-    [transactions],
-  )
-
-  const moneyFlow = useMemo(() => calculateMoneyFlow(transactions), [transactions])
 
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-        <div className="h-72 bg-surface border border-border-subtle rounded-2xl animate-pulse" />
-        <div className="h-72 bg-surface border border-border-subtle rounded-2xl animate-pulse" />
-      </div>
-    )
+    return <div className="h-64 bg-surface border border-border-subtle rounded-2xl animate-pulse" />
   }
 
-  if (!hasTransactions) {
+  if (transactions.length === 0) {
     return (
       <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm">
         <TransactionsEmptyState onAddTransaction={() => navigate(ADD_TRANSACTION_ROUTE)} />
@@ -42,21 +31,80 @@ export const TimelineActivity: React.FC = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-      <ActivityListCard
-        title="Expenses"
-        type="EXPENSE"
-        transactions={expenseTransactions}
-        totalAmount={moneyFlow.outgoing}
-        onSeeAll={() => navigate('/transactions')}
-      />
-      <ActivityListCard
-        title="Income"
-        type="INCOME"
-        transactions={incomeTransactions}
-        totalAmount={moneyFlow.incoming}
-        onSeeAll={() => navigate('/transactions')}
-      />
+    <div className="bg-surface border border-border-subtle rounded-2xl shadow-sm p-5 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
+          Recent Activity
+        </p>
+        <div className="flex items-center gap-1.5">
+          <span className="px-2 py-0.5 rounded-full bg-red-50 border border-red-200 text-[9px] font-semibold text-red-600">
+            Out
+          </span>
+          <span className="px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-[9px] font-semibold text-green-600">
+            In
+          </span>
+        </div>
+      </div>
+
+      {/* Transaction rows */}
+      <div className="flex flex-col divide-y divide-border-subtle">
+        {recentActivity.map((tx) => {
+          const isExpense = tx.type === 'EXPENSE'
+          return (
+            <div
+              key={tx.id}
+              onClick={() => navigate('/transactions')}
+              className="flex items-center justify-between py-2.5 cursor-pointer hover:bg-surface-secondary/50 -mx-2 px-2 rounded-lg transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div
+                  className={cn(
+                    'h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0',
+                    isExpense ? 'bg-red-50' : 'bg-green-50',
+                  )}
+                >
+                  <SharedIcon
+                    type="category"
+                    name={tx.category?.icon ?? 'banknote'}
+                    size={14}
+                    className={isExpense ? 'text-red-500' : 'text-green-600'}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[12px] font-medium text-text-primary truncate">
+                    {tx.description}
+                  </p>
+                  <p className="text-[10px] text-text-tertiary">
+                    {new Date(tx.transactionDate).toLocaleDateString('en-PH', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </p>
+                </div>
+              </div>
+              <span
+                className={cn(
+                  'text-[12px] font-semibold tabular-nums ml-3 flex-shrink-0',
+                  isExpense ? 'text-red-600' : 'text-green-600',
+                )}
+              >
+                {isExpense ? '–' : '+'}
+                <Money amount={tx.amount} currency="" />
+              </span>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Footer */}
+      <button
+        onClick={() => navigate('/transactions')}
+        className="mt-4 text-[11px] font-semibold text-primary hover:underline text-center"
+      >
+        See All Activity →
+      </button>
     </div>
   )
 }
