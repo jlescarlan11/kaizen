@@ -12,19 +12,19 @@ export const WalletBento: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3">
+      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3 h-full">
         <div className="h-3 w-28 bg-surface-secondary rounded" />
         <div className="h-2 w-full bg-surface-secondary rounded-full" />
-        <div className="grid grid-cols-2 gap-3">
-          <div className="h-14 bg-surface-secondary rounded-xl" />
-          <div className="h-14 bg-surface-secondary rounded-xl" />
+        <div className="grid grid-cols-2 gap-3 flex-1">
+          <div className="bg-surface-secondary rounded-xl" />
+          <div className="bg-surface-secondary rounded-xl" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group">
+    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group h-full overflow-hidden">
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
           Connected Wallets

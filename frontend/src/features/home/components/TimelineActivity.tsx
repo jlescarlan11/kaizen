@@ -14,7 +14,7 @@ export const TimelineActivity: React.FC = () => {
   const transactions = useMemo(() => transactionsData?.items ?? [], [transactionsData])
 
   const recentActivity = useMemo(
-    () => transactions.filter((tx) => tx.type === 'INCOME' || tx.type === 'EXPENSE').slice(0, 6),
+    () => transactions.filter((tx) => tx.type === 'INCOME' || tx.type === 'EXPENSE').slice(0, 3),
     [transactions],
   )
 
@@ -39,20 +39,18 @@ export const TimelineActivity: React.FC = () => {
   }
 
   return (
-    <div className="bg-surface border border-border-subtle rounded-2xl shadow-sm p-5 flex flex-col">
+    <div className="bg-surface border border-border-subtle rounded-2xl shadow-sm p-5 flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
           Recent Activity
         </p>
-        <div className="flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded-full bg-red-50 border border-red-200 text-[9px] font-semibold text-red-600">
-            Out
-          </span>
-          <span className="px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-[9px] font-semibold text-green-600">
-            In
-          </span>
-        </div>
+        <button
+          onClick={() => navigate('/transactions')}
+          className="text-[10px] font-semibold text-primary hover:underline"
+        >
+          See all activity →
+        </button>
       </div>
 
       {/* Transaction rows */}
@@ -105,14 +103,6 @@ export const TimelineActivity: React.FC = () => {
           )
         })}
       </div>
-
-      {/* Footer */}
-      <button
-        onClick={() => navigate('/transactions')}
-        className="mt-4 text-[11px] font-semibold text-primary hover:underline text-center"
-      >
-        See All Activity →
-      </button>
     </div>
   )
 }

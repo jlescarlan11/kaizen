@@ -26,7 +26,7 @@ export const HomeDashboardHeader: React.FC<HomeDashboardHeaderProps> = ({ balanc
         className="absolute top-6 right-8 z-20 p-2 rounded-full bg-surface-secondary/50 border border-border/10 text-text-tertiary hover:text-primary transition-colors group/privacy"
         title={isPrivacyMode ? 'Show Balances' : 'Hide Balances'}
       >
-        <SharedIcon type="ui" name={isPrivacyMode ? 'wifi-off' : 'wifi'} size={16} />
+        <SharedIcon type="ui" name={isPrivacyMode ? 'eye-off' : 'eye'} size={16} />
       </button>
 
       <div className="relative z-10 flex flex-col items-center gap-4">

@@ -13,6 +13,8 @@ import {
   ChartBar,
   Download,
   ExternalLink,
+  Eye,
+  EyeOff,
   Filter,
   FileText,
   Hand,
@@ -76,6 +78,8 @@ export const UI_ICONS: Record<string, LucideIcon> = {
   filter: Filter,
   check: Check,
   info: Info,
+  eye: Eye,
+  'eye-off': EyeOff,
   wifi: Wifi,
   'wifi-off': WifiOff,
 }

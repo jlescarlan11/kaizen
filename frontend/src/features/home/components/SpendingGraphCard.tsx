@@ -18,16 +18,16 @@ export const SpendingGraphCard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3">
+      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3 h-full">
         <div className="h-3 w-28 bg-surface-secondary rounded" />
         <div className="h-6 w-24 bg-surface-secondary rounded" />
-        <div className="h-36 w-full bg-surface-secondary rounded" />
+        <div className="flex-1 w-full bg-surface-secondary rounded" />
       </div>
     )
   }
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group">
+    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group h-full overflow-hidden">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <SharedIcon type="ui" name="chart-bar" size={14} className="text-primary" />
@@ -48,7 +48,7 @@ export const SpendingGraphCard: React.FC = () => {
         </p>
       </div>
 
-      <div className="h-36 w-full">
+      <div className="flex-1 min-h-0 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
             <defs>

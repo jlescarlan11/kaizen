@@ -8,9 +8,8 @@ import { WalletBento } from './components/WalletBento'
 import { TimelineActivity } from './components/TimelineActivity'
 import { FinancialIntelligenceCard } from './components/FinancialIntelligenceCard'
 import { ActionCenterCard } from './components/ActionCenterCard'
-import { WealthHealthCard } from './components/WealthHealthCard'
+import { WealthProfileCard } from './components/WealthProfileCard'
 import { SubscriptionWatchdogCard } from './components/SubscriptionWatchdogCard'
-import { WealthPersonaCard } from './components/WealthPersonaCard'
 import { CommandPalette } from './components/CommandPalette'
 import { DashboardTour } from './DashboardTour'
 import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
@@ -29,7 +28,7 @@ export function HomePage(): ReactElement {
       </section>
 
       {/* Row 1 — 5/4/3: Spending Chart · Wallets · Action Center */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-start lg:items-stretch lg:h-[290px]">
         <div className="lg:col-span-5">
           <SpendingGraphCard />
         </div>
@@ -42,12 +41,12 @@ export function HomePage(): ReactElement {
       </div>
 
       {/* Row 2 — 7/5: Unified Activity Feed · Wealth Health */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start lg:items-stretch">
         <div className="lg:col-span-7">
           <TimelineActivity />
         </div>
         <div className="lg:col-span-5">
-          <WealthHealthCard />
+          <WealthProfileCard />
         </div>
       </div>
 
@@ -58,15 +57,8 @@ export function HomePage(): ReactElement {
         <FinancialIntelligenceCard />
       </div>
 
-      {/* Row 4 — 7/5: Subscription Watchdog · Wealth Persona */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-        <div className="lg:col-span-7">
-          <SubscriptionWatchdogCard />
-        </div>
-        <div className="lg:col-span-5">
-          <WealthPersonaCard />
-        </div>
-      </div>
+      {/* Row 4 — full: Subscription Watchdog */}
+      <SubscriptionWatchdogCard />
 
       <DashboardTour />
     </div>

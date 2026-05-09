@@ -1,5 +1,4 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useWealthHealth } from '../hooks/useWealthHealth'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { Money } from '../../../shared/components/Money/Money'
@@ -7,7 +6,6 @@ import { cn } from '../../../shared/lib/cn'
 
 export const WealthHealthCard: React.FC = () => {
   const { analytics, isLoading } = useWealthHealth()
-  const navigate = useNavigate()
 
   if (isLoading || !analytics) {
     return (
@@ -21,7 +19,7 @@ export const WealthHealthCard: React.FC = () => {
   }
 
   const { savingsRate, netFlow, netFlowChange, isImproving } = analytics
-  const radius = 36
+  const radius = 30
   const circumference = 2 * Math.PI * radius
   const offset = circumference - (savingsRate / 100) * circumference
 
@@ -34,30 +32,28 @@ export const WealthHealthCard: React.FC = () => {
             Wealth Health
           </p>
         </div>
-        <span className="text-[9px] font-black text-text-tertiary uppercase tracking-wider">
-          This Month
-        </span>
       </div>
 
-      <div className="flex flex-col items-center justify-center flex-grow py-4">
-        {/* Savings Rate Gauge */}
-        <div className="relative flex items-center justify-center mb-6">
-          <svg className="w-24 h-24 transform -rotate-90">
+      {/* Two-column layout: gauge | net flow */}
+      <div className="flex items-center gap-5 flex-1">
+        {/* Savings rate gauge */}
+        <div className="relative flex items-center justify-center shrink-0">
+          <svg className="w-20 h-20 -rotate-90">
             <circle
-              cx="48"
-              cy="48"
+              cx="40"
+              cy="40"
               r={radius}
               stroke="currentColor"
-              strokeWidth="8"
+              strokeWidth="7"
               fill="transparent"
               className="text-surface-secondary"
             />
             <circle
-              cx="48"
-              cy="48"
+              cx="40"
+              cy="40"
               r={radius}
               stroke="currentColor"
-              strokeWidth="8"
+              strokeWidth="7"
               strokeDasharray={circumference}
               style={{ strokeDashoffset: offset }}
               strokeLinecap="round"
@@ -66,32 +62,32 @@ export const WealthHealthCard: React.FC = () => {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-xl font-black text-text-primary leading-none">
+            <span className="text-lg font-black text-text-primary leading-none">
               {savingsRate}%
             </span>
-            <span className="text-[8px] font-bold text-text-tertiary uppercase tracking-tighter mt-0.5">
+            <span className="text-[7px] font-bold text-text-tertiary uppercase tracking-tighter mt-0.5">
               Saved
             </span>
           </div>
         </div>
 
-        {/* Cash Flow Status */}
-        <div className="w-full text-center space-y-1">
-          <p className="text-[10px] font-black uppercase tracking-widest text-text-tertiary opacity-50">
+        <div className="w-px self-stretch bg-border-subtle shrink-0" />
+
+        {/* Net flow */}
+        <div className="flex flex-col gap-1.5 min-w-0">
+          <p className="text-[9px] font-black uppercase tracking-widest text-text-tertiary opacity-50">
             Net Flow
           </p>
-          <div className="flex items-baseline justify-center gap-2">
-            <span
-              className={cn(
-                'text-2xl font-black tracking-tighter',
-                netFlow >= 0 ? 'text-primary' : 'text-error',
-              )}
-            >
-              {netFlow >= 0 ? '+' : '–'}
-              <Money amount={Math.abs(netFlow)} currency="" />
-            </span>
-          </div>
-          <div className="flex items-center justify-center gap-1.5 mt-2">
+          <span
+            className={cn(
+              'text-2xl font-black tracking-tighter leading-none',
+              netFlow >= 0 ? 'text-primary' : 'text-error',
+            )}
+          >
+            {netFlow >= 0 ? '+' : '–'}
+            <Money amount={Math.abs(netFlow)} currency="" />
+          </span>
+          <div className="flex items-center gap-1.5">
             <div
               className={cn(
                 'flex items-center gap-1 px-2 py-0.5 rounded-full',
@@ -113,15 +109,6 @@ export const WealthHealthCard: React.FC = () => {
             </span>
           </div>
         </div>
-      </div>
-
-      <div className="mt-8 pt-4 border-t border-border/5">
-        <button
-          onClick={() => navigate('/insights')}
-          className="w-full text-center text-[9px] font-black uppercase tracking-[0.2em] text-text-secondary hover:text-primary transition-all"
-        >
-          Financial Deep Dive
-        </button>
       </div>
     </div>
   )
