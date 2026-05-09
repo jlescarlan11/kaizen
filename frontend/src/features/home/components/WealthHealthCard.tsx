@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWealthHealth } from '../hooks/useWealthHealth'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { Money } from '../../../shared/components/Money/Money'
 import { cn } from '../../../shared/lib/cn'
 
 export const WealthHealthCard: React.FC = () => {
@@ -86,7 +87,8 @@ export const WealthHealthCard: React.FC = () => {
                 netFlow >= 0 ? 'text-primary' : 'text-error',
               )}
             >
-              {netFlow >= 0 ? '+' : '-'}${Math.abs(netFlow).toLocaleString()}
+              {netFlow >= 0 ? '+' : '–'}
+              <Money amount={Math.abs(netFlow)} currency="" />
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-2">

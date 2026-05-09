@@ -30,6 +30,14 @@ export const TimelineActivity: React.FC = () => {
     )
   }
 
+  if (recentActivity.length === 0) {
+    return (
+      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm">
+        <TransactionsEmptyState onAddTransaction={() => navigate(ADD_TRANSACTION_ROUTE)} />
+      </div>
+    )
+  }
+
   return (
     <div className="bg-surface border border-border-subtle rounded-2xl shadow-sm p-5 flex flex-col">
       {/* Header */}
