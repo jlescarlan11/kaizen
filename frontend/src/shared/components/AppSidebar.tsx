@@ -22,18 +22,26 @@ interface AppSidebarProps {
   userName?: string
 }
 
-export function AppSidebar({
-  navItems,
-  isOpen,
-  onClose,
-  userInitials,
-  userPicture,
-  userName,
-}: AppSidebarProps): ReactElement {
-  const registerBudgetsTab = useRegisterDashboardTourAnchor('budgetsTab')
-  const registerGoalsTab = useRegisterDashboardTourAnchor('goalsTab')
+interface SidebarContentProps {
+  navItems: ReadonlyArray<SidebarNavItem>
+  onClose: () => void
+  registerBudgetsTab: (el: HTMLElement | null) => void
+  registerGoalsTab: (el: HTMLElement | null) => void
+  userPicture?: string
+  userInitials: string
+  userName?: string
+}
 
-  const navContent = (
+function SidebarContent({
+  navItems,
+  onClose,
+  registerBudgetsTab,
+  registerGoalsTab,
+  userPicture,
+  userInitials,
+  userName,
+}: SidebarContentProps): ReactElement {
+  return (
     <>
       {/* Logo */}
       <div className="h-12 flex items-center px-3 shrink-0">
@@ -89,7 +97,12 @@ export function AppSidebar({
           <NavLink
             to="/your-account"
             onClick={onClose}
-            className="flex items-center gap-3 px-2 py-2.5 rounded-lg hover:bg-surface-secondary transition-colors group"
+            className={({ isActive }) =>
+              cn(
+                'group flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors relative',
+                isActive ? 'bg-primary/10 text-primary' : 'hover:bg-surface-secondary',
+              )
+            }
           >
             <div className="h-7 w-7 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden shrink-0">
               {userPicture ? (
@@ -106,17 +119,41 @@ export function AppSidebar({
             <span className="text-sm font-medium text-text-secondary truncate hidden lg:block">
               {userName || 'Account'}
             </span>
+            {/* Tooltip for icon-rail mode */}
+            <span className="absolute left-full ml-2 px-2 py-1 bg-foreground text-background text-xs rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 hidden md:block lg:hidden">
+              Account
+            </span>
           </NavLink>
         </div>
       </div>
     </>
   )
+}
+
+export function AppSidebar({
+  navItems,
+  isOpen,
+  onClose,
+  userInitials,
+  userPicture,
+  userName,
+}: AppSidebarProps): ReactElement {
+  const registerBudgetsTab = useRegisterDashboardTourAnchor('budgetsTab')
+  const registerGoalsTab = useRegisterDashboardTourAnchor('goalsTab')
 
   return (
     <>
       {/* Static sidebar — md+ (hidden on mobile) */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 flex-col bg-background border-r border-border-subtle z-30 w-14 lg:w-56 transition-[width] duration-200">
-        {navContent}
+      <aside className="hidden md:flex fixed inset-y-0 left-0 flex-col bg-background border-r border-border-subtle z-30 w-14 lg:w-56">
+        <SidebarContent
+          navItems={navItems}
+          onClose={onClose}
+          registerBudgetsTab={registerBudgetsTab}
+          registerGoalsTab={registerGoalsTab}
+          userPicture={userPicture}
+          userInitials={userInitials}
+          userName={userName}
+        />
       </aside>
 
       {/* Mobile drawer overlay */}
@@ -128,7 +165,15 @@ export function AppSidebar({
             aria-hidden="true"
           />
           <aside className="absolute inset-y-0 left-0 flex flex-col w-64 bg-background border-r border-border-subtle shadow-xl">
-            {navContent}
+            <SidebarContent
+              navItems={navItems}
+              onClose={onClose}
+              registerBudgetsTab={registerBudgetsTab}
+              registerGoalsTab={registerGoalsTab}
+              userPicture={userPicture}
+              userInitials={userInitials}
+              userName={userName}
+            />
           </aside>
         </div>
       )}
