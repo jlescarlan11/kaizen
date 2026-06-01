@@ -40,10 +40,8 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   const isInteractive = !!(item.to || item.onClick || item.toggle)
 
   const baseClassName = cn(
-    'flex w-full items-center gap-5 px-5 py-4 text-left transition-all rounded-2xl border-2 border-transparent',
-    isInteractive
-      ? 'cursor-pointer hover:bg-white hover:shadow-xl hover:shadow-primary/5'
-      : 'opacity-50 cursor-not-allowed',
+    'flex w-full items-center gap-5 px-5 py-4 text-left transition-all border-2 border-transparent',
+    isInteractive ? 'cursor-pointer hover:bg-surface-secondary' : 'opacity-50 cursor-not-allowed',
   )
 
   const iconWrapClassName = cn(
@@ -462,7 +460,7 @@ export function YourAccountPage(): ReactElement {
                   <h3 className="text-3xs font-bold uppercase tracking-[0.2em] text-text-secondary opacity-40 mb-3 px-2">
                     {section.title}
                   </h3>
-                  <div className="grid grid-cols-1 gap-1.5">
+                  <div className="bg-surface rounded-2xl shadow-sm overflow-hidden divide-y divide-border-subtle">
                     {section.items.map((item) => (
                       <AccountRow key={item.label} item={item} />
                     ))}
