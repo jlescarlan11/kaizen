@@ -128,7 +128,7 @@ export function TransactionList({
     const { transaction: tx } = item
 
     return (
-      <div className={cn('relative flex items-center gap-4 transition-all px-2')}>
+      <div className={cn('relative flex items-center gap-3 transition-all')}>
         {isSelectionMode && (
           <div className="shrink-0 animate-in fade-in slide-in-from-left-2 duration-200 ml-4">
             <Checkbox
@@ -148,16 +148,16 @@ export function TransactionList({
           onTouchStart={() => handleLongPressStart(tx.id)}
           onTouchEnd={handleLongPressEnd}
           className={cn(
-            'flex-1 flex items-center justify-between px-6 py-3.5 transition-all cursor-pointer group active:scale-[0.98] border-b border-border-subtle/10',
+            'flex-1 flex items-center justify-between px-4 py-2.5 transition-all cursor-pointer group active:scale-[0.98] border-b border-border-subtle',
             selectedIds.includes(tx.id)
               ? 'bg-primary/5 border-primary shadow-sm'
               : 'hover:bg-primary/5 active:bg-primary/10',
             !tx.category && !selectedIds.includes(tx.id) && 'bg-warning/5',
           )}
         >
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <div
-              className="flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:scale-105 shadow-sm"
+              className="flex h-9 w-9 items-center justify-center rounded-lg transition-all group-hover:scale-105 shadow-sm flex-shrink-0"
               style={{
                 backgroundColor: withOpacity(
                   tx.category?.color || 'var(--color-category-fallback)',
@@ -167,7 +167,7 @@ export function TransactionList({
               }}
             >
               {tx.category ? (
-                <SharedIcon type="category" name={tx.category.icon} size={24} strokeWidth={2.5} />
+                <SharedIcon type="category" name={tx.category.icon} size={20} strokeWidth={2.5} />
               ) : (
                 <div
                   className={cn(
@@ -178,7 +178,7 @@ export function TransactionList({
                   )}
                 >
                   {tx.type === 'INCOME' ? (
-                    <SharedIcon type="ui" name="income" size={24} strokeWidth={2.5} />
+                    <SharedIcon type="ui" name="income" size={20} strokeWidth={2.5} />
                   ) : (
                     <span className="text-xl font-bold italic">?</span>
                   )}
