@@ -8,6 +8,7 @@ import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
 import { withOpacity } from '../../shared/lib/colorUtils'
 import { PageHeader } from '../../shared/components/PageHeader'
+import { useSetBreadcrumbLabel } from '../../shared/components/BreadcrumbLabelContext'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -21,6 +22,8 @@ export function BudgetDetailPage(): ReactElement {
   const { data: categories = [] } = useGetCategoriesQuery()
 
   const budget = budgets?.find((b) => b.id === Number(id))
+
+  useSetBreadcrumbLabel(budget?.categoryName)
 
   if (isBudgetsLoading) {
     return (

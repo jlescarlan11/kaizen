@@ -1,6 +1,7 @@
 import { type ReactElement } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
+import { useBreadcrumbLabel } from './BreadcrumbLabelContext'
 
 const SEGMENT_LABELS: Record<string, string> = {
   transactions: 'Transactions',
@@ -33,6 +34,7 @@ function isIdSegment(segment: string): boolean {
 interface BreadcrumbItem {
   label: string
   to: string
+  isId?: boolean
 }
 
 function buildCrumbs(pathname: string): BreadcrumbItem[] {
@@ -44,10 +46,12 @@ function buildCrumbs(pathname: string): BreadcrumbItem[] {
 
   for (const segment of segments) {
     cumulativePath += `/${segment}`
-    if (isIdSegment(segment)) continue
-    const label =
-      SEGMENT_LABELS[segment] ?? segment.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-    crumbs.push({ label, to: cumulativePath })
+    const id = isIdSegment(segment)
+    const label = id
+      ? segment // placeholder — replaced at render time
+      : (SEGMENT_LABELS[segment] ??
+        segment.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()))
+    crumbs.push({ label, to: cumulativePath, isId: id })
   }
 
   return crumbs
@@ -59,18 +63,27 @@ interface BreadcrumbProps {
 
 export function Breadcrumb({ className }: BreadcrumbProps): ReactElement | null {
   const { pathname } = useLocation()
+  const dynamicLabel = useBreadcrumbLabel()
   const crumbs = buildCrumbs(pathname)
 
-  // On the home page or only one crumb, show nothing
+  // On home or single-crumb pages, show nothing
   if (crumbs.length <= 1) return null
+
+  // Replace ID segments with the registered dynamic label (if available)
+  const resolvedCrumbs = crumbs.map((crumb) => {
+    if (crumb.isId) {
+      return { ...crumb, label: dynamicLabel || '…' }
+    }
+    return crumb
+  })
 
   return (
     <nav
       aria-label="Breadcrumb"
       className={cn('flex items-center gap-1.5 text-xs text-text-secondary mb-4', className)}
     >
-      {crumbs.map((crumb, i) => {
-        const isLast = i === crumbs.length - 1
+      {resolvedCrumbs.map((crumb, i) => {
+        const isLast = i === resolvedCrumbs.length - 1
         return (
           <span key={crumb.to} className="flex items-center gap-1.5">
             {i > 0 && (

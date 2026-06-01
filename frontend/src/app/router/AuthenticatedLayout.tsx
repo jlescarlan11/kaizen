@@ -17,6 +17,7 @@ import {
   type DashboardTourAnchorKey,
 } from '../../features/home/DashboardTourAnchorsContext'
 import { AppSidebar } from '../../shared/components/AppSidebar'
+import { BreadcrumbLabelProvider } from '../../shared/components/BreadcrumbLabelContext'
 
 interface RouteHandle {
   actions?: ReactElement
@@ -92,7 +93,7 @@ function AuthenticatedLayoutContent(): ReactElement {
     : '??'
 
   return (
-    <>
+    <BreadcrumbLabelProvider>
       <LogoutConfirmationModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
@@ -186,7 +187,7 @@ function AuthenticatedLayoutContent(): ReactElement {
           )
         }
       />
-    </>
+    </BreadcrumbLabelProvider>
   )
 }
 

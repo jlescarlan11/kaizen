@@ -22,6 +22,14 @@ export type { CheckboxProps } from './Checkbox'
 export { AppSidebar, type SidebarNavItem } from './AppSidebar'
 export { PageTabs, type TabItem } from './PageTabs'
 export { PageHeader, type PageHeaderProps } from './PageHeader'
-export { KpiStrip, type KpiItem } from './KpiStrip'
 export { DataTable, type DataTableColumn } from './DataTable'
 export { Breadcrumb } from './Breadcrumb'
+export {
+  BreadcrumbLabelProvider,
+  useSetBreadcrumbLabel,
+  useBreadcrumbLabel,
+} from './BreadcrumbLabelContext'
+export { DashboardCard } from './DashboardCard'
+export { CardHeader } from './CardHeader'
+export { CircleGauge } from './CircleGauge'
+export { CardSkeleton } from './CardSkeleton'

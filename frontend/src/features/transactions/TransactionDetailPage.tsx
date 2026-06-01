@@ -15,6 +15,7 @@ import { TransactionNoteSection } from './components/TransactionNoteSection'
 import { AttachmentViewer } from './components/AttachmentViewer'
 import { RelatedTransactionsList } from './components/RelatedTransactionsList'
 import { PageHeader } from '../../shared/components/PageHeader'
+import { useSetBreadcrumbLabel } from '../../shared/components/BreadcrumbLabelContext'
 
 export function TransactionDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
@@ -29,6 +30,8 @@ export function TransactionDetailPage(): ReactElement {
   const [deleteTransaction, { isLoading: isDeleting }] = useDeleteTransactionMutation()
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  useSetBreadcrumbLabel(transaction?.description)
 
   // Filter related transactions (same category, excluding current one)
   const relatedTransactions = useMemo(() => {
