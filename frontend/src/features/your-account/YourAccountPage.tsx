@@ -323,9 +323,9 @@ export function YourAccountPage(): ReactElement {
   // ─── Desktop: sticky profile card ─────────────────────────────────────────
 
   const desktopProfileCard = (
-    <div className="flex flex-col items-center text-center gap-5 bg-white rounded-2xl p-6 border border-border-subtle w-full shadow-sm">
+    <div className="flex flex-col items-center text-center gap-5 bg-surface rounded-2xl p-6 border border-border-subtle w-full shadow-sm">
       <div className="relative">
-        <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden border-2 border-background flex items-center justify-center text-2xl font-bold text-text-primary shadow-inner">
+        <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden ring-2 ring-primary/20 flex items-center justify-center text-2xl font-semibold text-text-primary shadow-inner">
           {user?.picture && !imageError ? (
             <img
               src={user.picture}
@@ -348,32 +348,22 @@ export function YourAccountPage(): ReactElement {
       </div>
 
       <div className="w-full space-y-1">
-        <h3 className="text-xl font-bold tracking-tight text-text-primary uppercase leading-none">
+        <h3 className="text-xl font-semibold tracking-tight text-text-primary leading-none">
           {user?.name || 'User Name'}
         </h3>
-        {user?.email && (
-          <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40 truncate">
-            {user.email}
-          </p>
-        )}
+        {user?.email && <p className="text-xs text-text-secondary truncate">{user.email}</p>}
       </div>
 
       <div className="w-full border-t border-border-subtle/20" />
 
       <div className="w-full space-y-3">
         <div className="flex justify-between items-center px-1">
-          <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
-            Member since
-          </span>
-          <span className="text-3xs font-bold uppercase tracking-widest text-text-primary opacity-60">
-            {memberSince}
-          </span>
+          <span className="text-xs text-text-secondary">Member since</span>
+          <span className="text-xs font-semibold text-text-primary">{memberSince}</span>
         </div>
         <div className="flex justify-between items-center px-1">
-          <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
-            Status
-          </span>
-          <span className="flex items-center gap-1.5 text-3xs font-bold uppercase tracking-widest text-success opacity-80">
+          <span className="text-xs text-text-secondary">Status</span>
+          <span className="flex items-center gap-1.5 text-xs font-semibold text-success">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
             Active
           </span>
@@ -385,7 +375,7 @@ export function YourAccountPage(): ReactElement {
       <Button
         variant="secondary"
         onClick={() => setIsLogoutModalOpen(true)}
-        className="w-full text-error hover:bg-error/5 hover:text-error hover:border-error/20 h-10 text-xs"
+        className="w-full bg-error/5 border border-error/30 text-error hover:bg-error/10 h-10 text-xs"
       >
         Log out
       </Button>
