@@ -21,7 +21,8 @@ const BudgetRow = ({
   category?: CategoryResponse
 }) => {
   const navigate = useNavigate()
-  const usagePercent = Math.min(Math.round((budget.expense / budget.amount) * 100), 100)
+  const usagePercent =
+    budget.amount === 0 ? 0 : Math.min(Math.round((budget.expense / budget.amount) * 100), 100)
   const isOverBudget = budget.expense > budget.amount
   const hasInsufficientData = !budget.burnRate || (budget.daysElapsed ?? 0) < 3
   const isProjectedOverBudget = (budget.projectedTotal ?? 0) > budget.amount
@@ -78,7 +79,7 @@ const BudgetRow = ({
                 </div>
 
                 <DisclosureButton
-                  className="p-1.5 rounded-lg text-text-secondary/40 hover:text-primary hover:bg-primary/10 transition-colors focus:outline-none"
+                  className="p-1.5 rounded-lg text-text-secondary/40 hover:text-primary hover:bg-primary/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:rounded-md"
                   aria-label={`Toggle insights for ${budget.categoryName}`}
                 >
                   <ChevronRightIcon
