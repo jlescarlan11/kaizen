@@ -30,7 +30,7 @@ export function TransactionDetailPage(): ReactElement {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
-  useSetBreadcrumbLabel(transaction?.description)
+  useSetBreadcrumbLabel(transaction?.description ?? transaction?.category?.name)
 
   // Filter related transactions (same category, excluding current one)
   const relatedTransactions = useMemo(() => {
@@ -89,7 +89,7 @@ export function TransactionDetailPage(): ReactElement {
             type={transaction.type}
             date={transaction.transactionDate}
           />
-          <hr className="border-dashed border-border mx-0" />
+          <div className="border-t border-dashed border-border" />
           <TransactionDetailInfo
             category={transaction.category}
             paymentMethod={transaction.paymentMethod}

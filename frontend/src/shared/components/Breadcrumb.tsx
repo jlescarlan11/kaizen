@@ -85,7 +85,7 @@ export function Breadcrumb({ className }: BreadcrumbProps): ReactElement | null 
       {resolvedCrumbs.map((crumb, i) => {
         const isLast = i === resolvedCrumbs.length - 1
         return (
-          <span key={crumb.to} className="flex items-center gap-1.5">
+          <span key={crumb.to} className="flex items-center gap-1.5 min-w-0">
             {i > 0 && (
               <span aria-hidden="true" className="text-border-subtle select-none">
                 /
