@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, type ReactNode } from 'react'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { cn } from '../../../shared/lib/cn'
 import { withOpacity } from '../../../shared/lib/colorUtils'
@@ -75,7 +75,7 @@ export function TransactionDetailInfo({
 
 interface InfoRowProps {
   label: string
-  children: React.ReactNode
+  children: ReactNode
 }
 
 function InfoRow({ label, children }: InfoRowProps) {
@@ -84,7 +84,7 @@ function InfoRow({ label, children }: InfoRowProps) {
       <span className="flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-text-secondary">
         {label}
       </span>
-      {children}
+      <div className="min-w-0">{children}</div>
     </div>
   )
 }
