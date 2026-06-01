@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { Button } from '../../shared/components/Button'
+import { PageHeader } from '../../shared/components/PageHeader'
 import { CategoryCreationForm } from './CategoryCreationForm'
 import { CategoryList } from './CategoryList'
 import { MergeCategoriesModal } from './MergeCategoriesModal'
@@ -45,73 +46,68 @@ export function CategoryManagementPage(): ReactElement {
   }
 
   return (
-    <section className={pageLayout.sectionGap}>
-      <header className={pageLayout.headerGap}>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Category Management
-            </h1>
-            <p className="text-sm leading-6 text-muted-foreground">
-              Create categories tailored to your workflow. They will appear immediately anywhere you
-              pick a category.
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            className="w-full sm:w-auto"
-            onClick={() => setIsMergeModalOpen(true)}
-          >
-            Merge Categories
-          </Button>
-        </div>
-      </header>
+    <div className="w-full">
+      <section className={pageLayout.sectionGap}>
+        <PageHeader
+          title="Categories"
+          subtitle="Create categories tailored to your workflow. They will appear immediately anywhere you pick a category."
+          actions={
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => setIsMergeModalOpen(true)}
+            >
+              Merge Categories
+            </Button>
+          }
+        />
 
-      {error && (
-        <Card variant="warning">
-          <p className="text-sm text-foreground">{error}</p>
-        </Card>
-      )}
+        {error && (
+          <Card variant="warning">
+            <p className="text-sm text-text-primary">{error}</p>
+          </Card>
+        )}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
-        <Card className="space-y-4">
-          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-foreground">
-            Add a custom category
-          </h3>
-          <CategoryCreationForm categories={categories} onCategorySaved={handleCategoryCreated} />
-        </Card>
-
-        <Card className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg md:text-xl font-semibold tracking-tight text-foreground">
-              Your categories
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,320px)_1fr]">
+          <Card className="space-y-4">
+            <h3 className="text-lg md:text-xl font-semibold tracking-tight text-text-primary">
+              Add a custom category
             </h3>
-            <p className="text-xs uppercase text-subtle-foreground">Automatic refresh</p>
-          </div>
-          <CategoryList
-            categories={categories}
-            isLoading={isLoading}
-            onEdit={(category) => setEditingCategory(category)}
-          />
-        </Card>
-      </div>
+            <CategoryCreationForm categories={categories} onCategorySaved={handleCategoryCreated} />
+          </Card>
 
-      <ResponsiveModal
-        open={editingCategory !== null}
-        title={editingCategory ? `Edit ${editingCategory.name}` : 'Edit category'}
-        onClose={() => setEditingCategory(null)}
-      >
-        {editingCategory ? (
-          <CategoryCreationForm
-            categories={categories}
-            initialCategory={editingCategory}
-            onCategorySaved={handleCategoryUpdated}
-            onCancel={() => setEditingCategory(null)}
-          />
-        ) : null}
-      </ResponsiveModal>
+          <Card className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg md:text-xl font-semibold tracking-tight text-text-primary">
+                Your categories
+              </h3>
+              <p className="text-xs uppercase text-text-secondary">Automatic refresh</p>
+            </div>
+            <CategoryList
+              categories={categories}
+              isLoading={isLoading}
+              onEdit={(category) => setEditingCategory(category)}
+            />
+          </Card>
+        </div>
 
-      <MergeCategoriesModal open={isMergeModalOpen} onClose={() => setIsMergeModalOpen(false)} />
-    </section>
+        <ResponsiveModal
+          open={editingCategory !== null}
+          title={editingCategory ? `Edit ${editingCategory.name}` : 'Edit category'}
+          onClose={() => setEditingCategory(null)}
+        >
+          {editingCategory ? (
+            <CategoryCreationForm
+              categories={categories}
+              initialCategory={editingCategory}
+              onCategorySaved={handleCategoryUpdated}
+              onCancel={() => setEditingCategory(null)}
+            />
+          ) : null}
+        </ResponsiveModal>
+
+        <MergeCategoriesModal open={isMergeModalOpen} onClose={() => setIsMergeModalOpen(false)} />
+      </section>
+    </div>
   )
 }
