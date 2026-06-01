@@ -54,12 +54,12 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   )
 
   const labelClassName = cn(
-    'text-base font-bold tracking-tight uppercase',
+    'text-base font-semibold tracking-tight',
     item.destructive ? 'text-error' : 'text-text-primary',
   )
 
   const descriptionClassName = cn(
-    'text-3xs font-bold uppercase tracking-widest mt-0.5 opacity-60',
+    'text-xs mt-0.5',
     item.destructive ? 'text-error/80' : 'text-text-secondary',
   )
 
@@ -214,13 +214,13 @@ export function YourAccountPage(): ReactElement {
       title: 'Identity',
       items: [
         {
-          label: 'Personal details',
+          label: 'Personal Details',
           description: 'Name, email, and profile photo',
           icon: <ProfileIcon />,
           to: '/your-account/profile',
         },
         {
-          label: 'Active sessions',
+          label: 'Active Sessions',
           description: 'Devices signed into your account',
           icon: <SessionsIcon />,
           to: '/your-account/sessions',
@@ -243,7 +243,7 @@ export function YourAccountPage(): ReactElement {
           to: '/your-account/categories',
         },
         {
-          label: 'Payment methods',
+          label: 'Payment Methods',
           description: 'Cards, cash, and accounts',
           icon: <PaymentMethodIcon />,
           to: '/your-account/payment-methods',
@@ -254,13 +254,13 @@ export function YourAccountPage(): ReactElement {
       title: 'Engagement',
       items: [
         {
-          label: 'Show tour again',
+          label: 'Show Tour Again',
           description: guidanceDescription,
           icon: <TourIcon />,
           onClick: handleShowTourAgain,
         },
         {
-          label: 'Recurring reminders',
+          label: 'Recurring Reminders',
           description: 'Get notified for due transactions',
           icon: <ReminderIcon />,
           toggle: {
@@ -280,7 +280,7 @@ export function YourAccountPage(): ReactElement {
           icon: <StatementIcon />,
         },
         {
-          label: 'Help center',
+          label: 'Help Center',
           description: 'FAQs, guides, and support',
           icon: <HelpIcon />,
         },
@@ -292,7 +292,7 @@ export function YourAccountPage(): ReactElement {
         ...(IS_DEV
           ? [
               {
-                label: 'Reset onboarding (DEV)',
+                label: 'Reset Onboarding (DEV)',
                 description: isResettingOnboarding
                   ? 'Resetting…'
                   : 'Delete all setup and start over',
@@ -303,7 +303,7 @@ export function YourAccountPage(): ReactElement {
             ]
           : []),
         {
-          label: 'Close account',
+          label: 'Close Account',
           description: 'Delete your account and data',
           icon: <CloseAccountIcon />,
           destructive: true,
@@ -312,7 +312,7 @@ export function YourAccountPage(): ReactElement {
         ...(isMobile
           ? [
               {
-                label: 'Log out',
+                label: 'Log Out',
                 icon: <LogoutIcon />,
                 onClick: () => setIsLogoutModalOpen(true),
               } satisfies AccountItem,
