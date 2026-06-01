@@ -119,20 +119,14 @@ const BudgetRow = ({
             <DisclosurePanel className="px-6 pb-6 pt-3 bg-surface-secondary/50 rounded-2xl mt-1 border border-border-subtle/30 shadow-inner">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
-                    Burn Rate
-                  </p>
+                  <p className="text-xs font-semibold text-text-secondary">Burn rate</p>
                   <p className="text-sm font-bold text-text-primary tabular-nums tracking-tight">
                     {hasInsufficientData ? '—' : `$${budget.burnRate!.toFixed(2)}`}
                   </p>
-                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
-                    per day
-                  </p>
+                  <p className="text-xs text-text-secondary">per day</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
-                    Allowance
-                  </p>
+                  <p className="text-xs font-semibold text-text-secondary">Allowance</p>
                   <p
                     className={cn(
                       'text-sm font-bold tabular-nums tracking-tight',
@@ -141,14 +135,10 @@ const BudgetRow = ({
                   >
                     {hasInsufficientData ? '—' : `$${budget.dailyAllowance!.toFixed(2)}`}
                   </p>
-                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
-                    remaining
-                  </p>
+                  <p className="text-xs text-text-secondary">remaining</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
-                    Projection
-                  </p>
+                  <p className="text-xs font-semibold text-text-secondary">Projection</p>
                   <p
                     className={cn(
                       'text-sm font-bold tabular-nums tracking-tight',
@@ -161,9 +151,7 @@ const BudgetRow = ({
                   >
                     {hasInsufficientData ? '—' : `$${budget.projectedTotal!.toFixed(2)}`}
                   </p>
-                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
-                    est. total
-                  </p>
+                  <p className="text-xs text-text-secondary">est. total</p>
                 </div>
               </div>
             </DisclosurePanel>
