@@ -83,7 +83,6 @@ function AuthenticatedLayoutContent(): ReactElement {
     to: string
     icon: ReactElement
     end?: boolean
-    isAction?: boolean
     anchorKey?: DashboardTourAnchorKey
   }
 
@@ -119,6 +118,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         navItems={navItems}
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
+        onLogout={() => setIsLogoutModalOpen(true)}
         userInitials={userInitials}
         userPicture={user?.picture}
         userName={user?.name}
@@ -173,6 +173,7 @@ function AuthenticatedLayoutContent(): ReactElement {
               {!isSecondDegree && (
                 <>
                   <button
+                    type="button"
                     className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
                     aria-label="Notifications"
                   >
@@ -202,7 +203,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         )}
 
         {/* Page content */}
-        <main className="flex-1 px-4 md:px-6 lg:px-8 py-6">
+        <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 overflow-y-auto">
           <div className="mx-auto w-full max-w-5xl animate-entrance-slide-up">
             <ErrorBoundary fallback={<AppErrorPage />}>
               <Outlet />

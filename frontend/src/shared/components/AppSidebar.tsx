@@ -17,6 +17,7 @@ interface AppSidebarProps {
   navItems: ReadonlyArray<SidebarNavItem>
   isOpen: boolean
   onClose: () => void
+  onLogout?: () => void
   userInitials: string
   userPicture?: string
   userName?: string
@@ -25,6 +26,7 @@ interface AppSidebarProps {
 interface SidebarContentProps {
   navItems: ReadonlyArray<SidebarNavItem>
   onClose: () => void
+  onLogout?: () => void
   registerBudgetsTab: (el: HTMLElement | null) => void
   registerGoalsTab: (el: HTMLElement | null) => void
   userPicture?: string
@@ -35,6 +37,7 @@ interface SidebarContentProps {
 function SidebarContent({
   navItems,
   onClose,
+  onLogout,
   registerBudgetsTab,
   registerGoalsTab,
   userPicture,
@@ -91,15 +94,15 @@ function SidebarContent({
         })}
       </nav>
 
-      {/* Bottom: account link */}
+      {/* Bottom: account + logout */}
       <div className="px-2 pb-3 shrink-0">
-        <div className="border-t border-border-subtle pt-3">
+        <div className="border-t border-border-subtle pt-3 flex items-center gap-1">
           <NavLink
             to="/your-account"
             onClick={onClose}
             className={({ isActive }) =>
               cn(
-                'group flex items-center gap-3 px-2 py-2.5 rounded-lg transition-colors relative',
+                'group flex flex-1 items-center gap-3 px-2 py-2.5 rounded-lg transition-colors relative',
                 isActive ? 'bg-primary/10 text-primary' : 'hover:bg-surface-secondary',
               )
             }
@@ -119,11 +122,35 @@ function SidebarContent({
             <span className="text-sm font-medium text-text-secondary truncate hidden lg:block">
               {userName || 'Account'}
             </span>
-            {/* Tooltip for icon-rail mode */}
+            {/* Tooltip for icon-rail */}
             <span className="absolute left-full ml-2 px-2 py-1 bg-foreground text-background text-xs rounded pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 hidden md:block lg:hidden">
               Account
             </span>
           </NavLink>
+          {onLogout && (
+            <button
+              type="button"
+              onClick={onLogout}
+              className="p-2 rounded-lg hover:bg-surface-secondary transition-colors text-text-secondary hover:text-error shrink-0"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </>
@@ -134,6 +161,7 @@ export function AppSidebar({
   navItems,
   isOpen,
   onClose,
+  onLogout,
   userInitials,
   userPicture,
   userName,
@@ -148,6 +176,7 @@ export function AppSidebar({
         <SidebarContent
           navItems={navItems}
           onClose={onClose}
+          onLogout={onLogout}
           registerBudgetsTab={registerBudgetsTab}
           registerGoalsTab={registerGoalsTab}
           userPicture={userPicture}
@@ -168,6 +197,7 @@ export function AppSidebar({
             <SidebarContent
               navItems={navItems}
               onClose={onClose}
+              onLogout={onLogout}
               registerBudgetsTab={registerBudgetsTab}
               registerGoalsTab={registerGoalsTab}
               userPicture={userPicture}
