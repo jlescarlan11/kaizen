@@ -373,7 +373,7 @@ export function YourAccountPage(): ReactElement {
       <div className="w-full border-t border-border-subtle/20" />
 
       <Button
-        variant="secondary"
+        variant="ghost"
         onClick={() => setIsLogoutModalOpen(true)}
         className="w-full bg-error/5 border border-error/30 text-error hover:bg-error/10 h-10 text-xs"
       >
