@@ -2,6 +2,7 @@ import { useState, type ReactElement } from 'react'
 import { Outlet, NavLink, useMatches, useNavigate } from 'react-router-dom'
 import { AppErrorPage } from '../../shared/components/AppErrorPage'
 import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
+import { Breadcrumb } from '../../shared/components/Breadcrumb'
 import { useAuthState } from '../../shared/hooks/useAuthState'
 import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
@@ -18,10 +19,6 @@ import {
 import { AppSidebar } from '../../shared/components/AppSidebar'
 
 interface RouteHandle {
-  backButton?: {
-    label: string
-    fallbackPath: string
-  }
   actions?: ReactElement
   hideHeader?: boolean
 }
@@ -53,17 +50,7 @@ function AuthenticatedLayoutContent(): ReactElement {
   // Extract navigation metadata from the current route match
   const lastMatch = matches[matches.length - 1]
   const handle = lastMatch?.handle as RouteHandle | undefined
-  const backButtonConfig = handle?.backButton
-  const isSecondDegree = !!backButtonConfig
   const hideHeader = !!handle?.hideHeader
-
-  const handleBack = (): void => {
-    if (backButtonConfig?.fallbackPath) {
-      navigate(backButtonConfig.fallbackPath)
-    } else {
-      navigate(-1)
-    }
-  }
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -139,65 +126,35 @@ function AuthenticatedLayoutContent(): ReactElement {
               <MenuIcon />
             </button>
 
-            {/* Back button (second-degree pages) */}
-            {isSecondDegree && (
-              <button
-                type="button"
-                className="group flex items-center gap-1.5 text-text-primary transition-colors hover:opacity-70"
-                onClick={handleBack}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:-translate-x-0.5"
-                >
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-                <span className="text-sm font-semibold tracking-tight">
-                  {backButtonConfig?.label}
-                </span>
-              </button>
-            )}
-
             <div className="flex-1" />
 
             {/* Right actions */}
             <div className="flex items-center gap-2">
               {handle?.actions}
-              {!isSecondDegree && (
-                <>
-                  <button
-                    type="button"
-                    className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
-                    aria-label="Notifications"
-                  >
-                    <NotificationIcon />
-                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full border border-background" />
-                  </button>
-                  <NavLink
-                    to="/your-account"
-                    className="h-7 w-7 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden hover:border-primary/50 transition-all shrink-0"
-                  >
-                    {user?.picture && !imageError ? (
-                      <img
-                        src={user.picture}
-                        alt=""
-                        className="h-full w-full object-cover"
-                        referrerPolicy="no-referrer"
-                        onError={() => setImageError(true)}
-                      />
-                    ) : (
-                      userInitials
-                    )}
-                  </NavLink>
-                </>
-              )}
+              <button
+                type="button"
+                className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
+                aria-label="Notifications"
+              >
+                <NotificationIcon />
+                <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full border border-background" />
+              </button>
+              <NavLink
+                to="/your-account"
+                className="h-7 w-7 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden hover:border-primary/50 transition-all shrink-0"
+              >
+                {user?.picture && !imageError ? (
+                  <img
+                    src={user.picture}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  userInitials
+                )}
+              </NavLink>
             </div>
           </header>
         )}
@@ -205,6 +162,7 @@ function AuthenticatedLayoutContent(): ReactElement {
         {/* Page content */}
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 overflow-y-auto">
           <div className="mx-auto w-full max-w-5xl animate-entrance-slide-up">
+            <Breadcrumb />
             <ErrorBoundary fallback={<AppErrorPage />}>
               <Outlet />
             </ErrorBoundary>
