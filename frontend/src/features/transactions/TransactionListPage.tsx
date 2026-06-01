@@ -25,7 +25,6 @@ import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
-import { PageTabs } from '../../shared/components/PageTabs'
 
 export function TransactionListPage(): ReactElement {
   const dispatch = useAppDispatch()
@@ -34,6 +33,7 @@ export function TransactionListPage(): ReactElement {
   const [sortState] = useSortPersistence()
 
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   const [bulkDelete, { isLoading: isDeleting }] = useBulkDeleteTransactionsMutation()
 
@@ -51,17 +51,6 @@ export function TransactionListPage(): ReactElement {
     clearSearch,
   } = useTransactionPipeline(sortState)
 
-  const [isExportModalOpen, setIsExportModalOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<'all' | 'income' | 'expenses'>('all')
-
-  // Filter transactions by active tab
-  const visibleTransactions = useMemo(() => {
-    if (activeTab === 'income') return processedTransactions.filter((t) => t.type === 'INCOME')
-    if (activeTab === 'expenses') return processedTransactions.filter((t) => t.type === 'EXPENSE')
-    return processedTransactions
-  }, [processedTransactions, activeTab])
-
-  // Calculate money flow metrics from processed transactions
   const moneyFlow = useMemo(
     () => calculateMoneyFlow(processedTransactions),
     [processedTransactions],
@@ -116,149 +105,132 @@ export function TransactionListPage(): ReactElement {
 
   return (
     <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
-      <div className="w-full">
-        <header className="space-y-6">
-          <PageTabs
-            tabs={[
-              { key: 'all', label: 'All' },
-              { key: 'income', label: 'Income' },
-              { key: 'expenses', label: 'Expenses' },
-            ]}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-          />
-          {/* Selection Action Bar */}
-          <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
+      <div className="w-full space-y-6">
+        <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
 
-          {/* Confirmation Dialog */}
-          <ConfirmBulkDeleteDialog
-            isOpen={isConfirmDialogOpen}
-            onClose={() => setIsConfirmDialogOpen(false)}
-            onConfirm={handleBulkDeleteConfirm}
-            count={selectedIds.length}
-            isLoading={isDeleting}
-          />
+        <ConfirmBulkDeleteDialog
+          isOpen={isConfirmDialogOpen}
+          onClose={() => setIsConfirmDialogOpen(false)}
+          onConfirm={handleBulkDeleteConfirm}
+          count={selectedIds.length}
+          isLoading={isDeleting}
+        />
 
-          {/* Money Flow Metrics Visualization */}
-          {!isLoading && processedTransactions.length > 0 && (
-            <div className="animate-in fade-in slide-in-from-bottom-3 duration-600 delay-75">
-              <MoneyFlowDisplay {...moneyFlow} />
-            </div>
-          )}
+        <ExportModal
+          isOpen={isExportModalOpen}
+          onClose={() => setIsExportModalOpen(false)}
+          transactions={processedTransactions}
+          initialFilter={filterState}
+          initialSearch={searchQuery}
+          initialSort={sortState}
+        />
 
-          {/* Export Modal */}
-          <ExportModal
-            isOpen={isExportModalOpen}
-            onClose={() => setIsExportModalOpen(false)}
-            transactions={processedTransactions}
-            initialFilter={filterState}
-            initialSearch={searchQuery}
-            initialSort={sortState}
-          />
+        {!isLoading && processedTransactions.length > 0 && (
+          <div className="animate-in fade-in slide-in-from-bottom-3 duration-600">
+            <MoneyFlowDisplay {...moneyFlow} />
+          </div>
+        )}
 
-          {/* Search, Filter, and Export Controls */}
-          {!isLoading && (processedTransactions.length > 0 || isSearchActive || isFilterActive) && (
-            <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex-1 min-w-[280px]">
-                  <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    className={cn(
-                      'h-11 px-5 transition-all duration-200',
-                      isSelectionMode &&
-                        'bg-primary border-primary text-white shadow-sm shadow-primary/10',
-                    )}
-                    onClick={toggleSelectionMode}
-                  >
-                    {isSelectionMode ? (
-                      <>
-                        <SharedIcon
-                          type="ui"
-                          name="close"
-                          size={16}
-                          strokeWidth={2.5}
-                          className="mr-2"
-                        />
-                        Exit
-                      </>
-                    ) : (
-                      <>
-                        <SharedIcon
-                          type="ui"
-                          name="check-square"
-                          size={16}
-                          strokeWidth={2.5}
-                          className="mr-2"
-                        />
-                        Select
-                      </>
-                    )}
-                  </Button>
-                  <TransactionFilter
-                    filter={filterState}
-                    onChange={setFilterState}
-                    onClear={clearFilters}
-                  />
-                  <Button
-                    variant="secondary"
-                    className="h-11 px-5"
-                    onClick={() => setIsExportModalOpen(true)}
-                  >
-                    <SharedIcon
-                      type="ui"
-                      name="download"
-                      size={16}
-                      strokeWidth={2.5}
-                      className="mr-2"
-                    />
-                    Export
-                  </Button>
-                </div>
+        {!isLoading && (processedTransactions.length > 0 || isSearchActive || isFilterActive) && (
+          <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex-1 min-w-[280px]">
+                <TransactionSearch value={searchQuery} onChange={setSearchQuery} />
               </div>
-
-              {/* Active Filter Indicators */}
-              {isFilterActive && (
-                <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <p className="text-3xs font-bold text-text-secondary uppercase tracking-widest mr-2 opacity-60">
-                    Active Filters:
-                  </p>
-                  {filterState.types.map((type) => (
-                    <Badge
-                      key={type}
-                      variant="success"
-                      emphasis="soft"
-                      className="gap-1.5 pl-2.5 pr-1.5"
-                    >
-                      {type === 'INCOME' ? 'Income' : 'Expense'}
-                      <button
-                        onClick={() =>
-                          setFilterState((prev) => ({
-                            ...prev,
-                            types: prev.types.filter((t) => t !== type),
-                          }))
-                        }
-                        className="hover:scale-110 transition-transform opacity-60"
-                      >
-                        <CloseIcon />
-                      </button>
-                    </Badge>
-                  ))}
-                  <button
-                    onClick={handleClearAll}
-                    className="text-3xs font-bold text-error uppercase tracking-widest hover:underline ml-2"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  className={cn(
+                    'h-11 px-5 transition-all duration-200',
+                    isSelectionMode &&
+                      'bg-primary border-primary text-white shadow-sm shadow-primary/10',
+                  )}
+                  onClick={toggleSelectionMode}
+                >
+                  {isSelectionMode ? (
+                    <>
+                      <SharedIcon
+                        type="ui"
+                        name="close"
+                        size={16}
+                        strokeWidth={2.5}
+                        className="mr-2"
+                      />
+                      Exit
+                    </>
+                  ) : (
+                    <>
+                      <SharedIcon
+                        type="ui"
+                        name="check-square"
+                        size={16}
+                        strokeWidth={2.5}
+                        className="mr-2"
+                      />
+                      Select
+                    </>
+                  )}
+                </Button>
+                <TransactionFilter
+                  filter={filterState}
+                  onChange={setFilterState}
+                  onClear={clearFilters}
+                />
+                <Button
+                  variant="secondary"
+                  className="h-11 px-5"
+                  onClick={() => setIsExportModalOpen(true)}
+                >
+                  <SharedIcon
+                    type="ui"
+                    name="download"
+                    size={16}
+                    strokeWidth={2.5}
+                    className="mr-2"
+                  />
+                  Export
+                </Button>
+              </div>
             </div>
-          )}
-        </header>
 
-        <div className="w-full mt-6 bg-surface border border-border/10 rounded-pill overflow-hidden shadow-sm">
+            {isFilterActive && (
+              <div className="flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-3xs font-bold text-text-secondary uppercase tracking-widest mr-2 opacity-60">
+                  Active Filters:
+                </p>
+                {filterState.types.map((type) => (
+                  <Badge
+                    key={type}
+                    variant="success"
+                    emphasis="soft"
+                    className="gap-1.5 pl-2.5 pr-1.5"
+                  >
+                    {type === 'INCOME' ? 'Income' : 'Expense'}
+                    <button
+                      onClick={() =>
+                        setFilterState((prev) => ({
+                          ...prev,
+                          types: prev.types.filter((t) => t !== type),
+                        }))
+                      }
+                      className="hover:scale-110 transition-transform opacity-60"
+                    >
+                      <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
+                    </button>
+                  </Badge>
+                ))}
+                <button
+                  onClick={handleClearAll}
+                  className="text-3xs font-bold text-error uppercase tracking-widest hover:underline ml-2"
+                >
+                  Clear All
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="w-full bg-surface border border-border-subtle rounded-card overflow-hidden shadow-sm">
           {isLoading && processedTransactions.length === 0 ? (
             <div className="p-32 flex flex-col items-center justify-center space-y-6">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
@@ -266,7 +238,7 @@ export function TransactionListPage(): ReactElement {
                 Loading Activity...
               </p>
             </div>
-          ) : visibleTransactions.length === 0 ? (
+          ) : processedTransactions.length === 0 ? (
             <div className="p-6">
               <TransactionEmptyState
                 isSearchActive={isSearchActive}
@@ -278,7 +250,7 @@ export function TransactionListPage(): ReactElement {
             </div>
           ) : (
             <TransactionList
-              transactions={visibleTransactions}
+              transactions={processedTransactions}
               searchQuery={searchQuery}
               hasMore={hasMore}
               onLoadMore={loadMore}
@@ -288,23 +260,5 @@ export function TransactionListPage(): ReactElement {
         </div>
       </div>
     </div>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="10"
-      height="10"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6L6 18M6 6l12 12" />
-    </svg>
   )
 }
