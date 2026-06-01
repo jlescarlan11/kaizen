@@ -184,9 +184,7 @@ export function BudgetsPage(): ReactElement {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-xl shadow-primary/10"></div>
-        <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary animate-pulse opacity-60">
-          Loading Budgets...
-        </p>
+        <p className="text-xs text-text-secondary animate-pulse opacity-60">Loading Budgets...</p>
       </div>
     )
   }
