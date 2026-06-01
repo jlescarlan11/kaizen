@@ -48,7 +48,7 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
     'flex h-11 w-11 shrink-0 items-center justify-center transition-all',
     item.destructive
       ? 'rounded-xl border shadow-sm bg-error/10 border-error/20 text-error'
-      : 'rounded-[9px] bg-primary/5 text-primary',
+      : 'rounded-md bg-primary/5 text-primary',
   )
 
   const labelClassName = cn(
@@ -377,7 +377,7 @@ export function YourAccountPage(): ReactElement {
         onClick={() => setIsLogoutModalOpen(true)}
         className="w-full bg-error/5 border border-error/30 text-error hover:bg-error/10 h-10 text-xs"
       >
-        Log out
+        Log Out
       </Button>
     </div>
   )
@@ -450,7 +450,7 @@ export function YourAccountPage(): ReactElement {
                   <h3 className="text-xs font-semibold text-text-secondary tracking-wide mb-3 px-2">
                     {section.title}
                   </h3>
-                  <div className="bg-surface rounded-2xl shadow-sm overflow-hidden divide-y divide-border-subtle">
+                  <div className="bg-surface rounded-2xl shadow-sm overflow-hidden divide-y divide-border">
                     {section.items.map((item) => (
                       <AccountRow key={item.label} item={item} />
                     ))}
