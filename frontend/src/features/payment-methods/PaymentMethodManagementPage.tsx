@@ -4,7 +4,6 @@ import { PaymentMethodCreationForm } from './PaymentMethodCreationForm'
 import { PaymentMethodList } from './PaymentMethodList'
 import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
 import { pageLayout } from '../../shared/styles/layout'
-import { PageHeader } from '../../shared/components/PageHeader'
 
 export function PaymentMethodManagementPage(): ReactElement {
   const { data: paymentMethods = [], isLoading, error } = useGetPaymentMethodsQuery()
@@ -12,11 +11,6 @@ export function PaymentMethodManagementPage(): ReactElement {
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
-        <PageHeader
-          title="Manage Payment Methods"
-          subtitle="Manage the payment methods you use for your transactions."
-        />
-
         {error && (
           <Card variant="warning">
             <p className="text-sm text-text-primary font-medium">Unable to load payment methods.</p>

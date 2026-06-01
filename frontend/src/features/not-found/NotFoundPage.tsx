@@ -13,12 +13,12 @@ export function NotFoundPage(): ReactElement {
 
   return (
     <div className="flex min-h-[60vh] flex-col justify-center px-4">
-      <p className="select-none text-[8rem] font-bold leading-none text-ui-border-subtle">404</p>
+      <p className="select-none text-[8rem] font-bold leading-none text-border-subtle">404</p>
 
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-text-primary md:text-4xl">
         Looks like you're lost
       </h1>
-      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-3 max-w-sm text-sm leading-relaxed text-text-secondary">
         The page you're looking for doesn't exist or may have been moved.
       </p>
 
@@ -30,7 +30,7 @@ export function NotFoundPage(): ReactElement {
       </div>
 
       <div className="mt-10">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">
           Quick links
         </p>
         <div className="flex flex-col items-start gap-2">

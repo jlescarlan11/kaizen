@@ -27,7 +27,7 @@ export const ActivityListCard: React.FC<ActivityListCardProps> = ({
           <h2 className="text-base font-semibold tracking-tight text-text-primary">{title}</h2>
           <div
             className={cn(
-              'px-2 py-0.5 rounded-full text-[10px] font-semibold border',
+              'px-2 py-0.5 rounded-full text-3xs font-semibold border',
               isIncome
                 ? 'bg-success/5 text-success border-success/10'
                 : 'bg-error/5 text-error border-error/10',
@@ -60,7 +60,7 @@ export const ActivityListCard: React.FC<ActivityListCardProps> = ({
       {onSeeAll && transactions.length > 0 && (
         <button
           onClick={onSeeAll}
-          className="w-full mt-4 py-2.5 rounded-xl border border-dashed border-border text-[11px] font-medium text-text-secondary hover:border-primary/40 hover:text-primary transition-all"
+          className="w-full mt-4 py-2.5 rounded-xl border border-dashed border-border text-2xs font-medium text-text-secondary hover:border-primary/40 hover:text-primary transition-all"
         >
           See All {title}
         </button>

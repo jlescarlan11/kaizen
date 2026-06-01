@@ -10,9 +10,17 @@ interface SharedIconProps {
   size?: number
   className?: string
   color?: string
+  strokeWidth?: number
 }
 
-export function SharedIcon({ type, name, size = 18, className, color }: SharedIconProps) {
+export function SharedIcon({
+  type,
+  name,
+  size = 18,
+  className,
+  color,
+  strokeWidth = 2,
+}: SharedIconProps) {
   if (type === 'category') {
     return <CategoryIcon icon={name} size={size} className={className} color={color} />
   }
@@ -29,5 +37,5 @@ export function SharedIcon({ type, name, size = 18, className, color }: SharedIc
     return null
   }
 
-  return <IconComponent size={size} className={className} />
+  return <IconComponent size={size} className={className} strokeWidth={strokeWidth} />
 }

@@ -28,7 +28,7 @@ export function TransactionActionGroup({
           type="ui"
           name="edit"
           size={12}
-          className="text-muted-foreground group-hover:text-primary transition-colors"
+          className="text-text-secondary group-hover:text-primary transition-colors"
         />
         Edit Entry
       </Button>
@@ -37,13 +37,13 @@ export function TransactionActionGroup({
         variant="secondaryLg"
         onClick={onDelete}
         disabled={isProcessing}
-        className="flex items-center gap-2 group hover:text-ui-danger hover:border-ui-danger/30"
+        className="flex items-center gap-2 group hover:text-error hover:border-error/30"
       >
         <SharedIcon
           type="ui"
           name="trash"
           size={12}
-          className="text-muted-foreground group-hover:text-ui-danger transition-colors"
+          className="text-text-secondary group-hover:text-error transition-colors"
         />
         Delete Record
       </Button>

@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react'
+import { cn } from '../../shared/lib/cn'
 import { Outlet, NavLink, useMatches, useNavigate } from 'react-router-dom'
 import { AppErrorPage } from '../../shared/components/AppErrorPage'
 import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
@@ -47,6 +48,7 @@ function AuthenticatedLayoutContent(): ReactElement {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Extract navigation metadata from the current route match
   const lastMatch = matches[matches.length - 1]
@@ -106,14 +108,17 @@ function AuthenticatedLayoutContent(): ReactElement {
         navItems={navItems}
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        onLogout={() => setIsLogoutModalOpen(true)}
-        userInitials={userInitials}
-        userPicture={user?.picture}
-        userName={user?.name}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
       />
 
       {/* Main content — offset by sidebar width */}
-      <div className="flex flex-col min-h-screen md:ml-14 lg:ml-56">
+      <div
+        className={cn(
+          'flex flex-col min-h-screen transition-[margin] duration-200',
+          sidebarCollapsed ? 'md:ml-14' : 'md:ml-56',
+        )}
+      >
         {/* Top bar */}
         {!hideHeader && (
           <header className="sticky top-0 z-20 h-12 bg-background/90 backdrop-blur-md border-b border-border/10 flex items-center px-4 md:px-6 gap-3">
@@ -126,6 +131,8 @@ function AuthenticatedLayoutContent(): ReactElement {
             >
               <MenuIcon />
             </button>
+
+            <Breadcrumb />
 
             <div className="flex-1" />
 
@@ -163,7 +170,6 @@ function AuthenticatedLayoutContent(): ReactElement {
         {/* Page content */}
         <main className="flex-1 px-4 md:px-6 lg:px-8 py-6 overflow-y-auto">
           <div className="mx-auto w-full max-w-5xl animate-entrance-slide-up">
-            <Breadcrumb />
             <ErrorBoundary fallback={<AppErrorPage />}>
               <Outlet />
             </ErrorBoundary>

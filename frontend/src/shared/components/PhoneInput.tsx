@@ -95,7 +95,7 @@ export function PhoneInput({
         <label htmlFor={inputId} className={formFieldClasses.label}>
           {label}
           {props.required ? (
-            <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+            <span aria-hidden="true" className="ml-0.5 text-error">
               *
             </span>
           ) : null}
@@ -105,8 +105,8 @@ export function PhoneInput({
         {/* Fixed Prefix */}
         <span
           className={cn(
-            'absolute left-3 flex h-full items-center text-sm font-medium text-muted-foreground transition-colors',
-            error ? 'text-ui-danger-text-soft' : '',
+            'absolute left-3 flex h-full items-center text-sm font-medium text-text-secondary transition-colors',
+            error ? 'text-error/70' : '',
           )}
           aria-hidden="true"
         >

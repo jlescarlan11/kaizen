@@ -42,7 +42,7 @@ export function CategorySelector({
         value: '',
         label: 'None (Uncategorized)',
         icon: (
-          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-surface-secondary text-text-secondary text-[10px] font-black italic">
+          <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-surface-secondary text-text-secondary text-3xs font-black italic">
             —
           </div>
         ),

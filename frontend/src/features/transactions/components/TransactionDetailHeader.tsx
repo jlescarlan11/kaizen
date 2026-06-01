@@ -26,7 +26,7 @@ export function TransactionDetailHeader({
   return (
     <div className={cn('flex flex-col gap-6', className)}>
       <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
           Transaction Amount
         </p>
         <div
@@ -38,7 +38,7 @@ export function TransactionDetailHeader({
             aria-hidden="true"
             className={cn(
               'text-4xl md:text-5xl font-semibold tracking-tight tabular-nums',
-              isExpense ? 'text-foreground' : isIncome ? 'text-ui-success' : 'text-foreground',
+              isExpense ? 'text-text-primary' : isIncome ? 'text-success' : 'text-text-primary',
             )}
           >
             {isExpense ? '-' : isIncome ? '+' : ''}
@@ -46,7 +46,7 @@ export function TransactionDetailHeader({
           </h2>
           <span
             aria-hidden="true"
-            className="text-sm font-semibold text-muted-foreground tracking-wide uppercase"
+            className="text-sm font-semibold text-text-secondary tracking-wide uppercase"
           >
             PHP
           </span>
@@ -55,10 +55,10 @@ export function TransactionDetailHeader({
 
       <div className="flex items-center gap-6">
         <div className="space-y-1">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
             Settled On
           </p>
-          <p className="text-base font-semibold text-foreground">
+          <p className="text-base font-semibold text-text-primary">
             {dateFormatter.format(new Date(date))}
           </p>
         </div>

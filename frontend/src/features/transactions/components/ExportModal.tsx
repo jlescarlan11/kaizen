@@ -86,14 +86,14 @@ export function ExportModal({
     <Modal open={isOpen} title="Export Transactions" onClose={onClose}>
       <div className="space-y-6">
         {/* Export Type Toggle (Instruction 4 vs Instruction 7) */}
-        <div className="flex p-1 bg-ui-surface-muted rounded-xl border border-ui-border-subtle">
+        <div className="flex p-1 bg-surface-secondary rounded-xl border border-border-subtle">
           <button
             onClick={() => setExportType('FULL')}
             className={cn(
               'flex-1 py-2 text-sm font-medium rounded-lg transition-all',
               exportType === 'FULL'
-                ? 'bg-ui-surface text-primary shadow-sm ring-1 ring-ui-border-subtle'
-                : 'text-muted-foreground hover:text-foreground',
+                ? 'bg-surface text-primary shadow-sm ring-1 ring-border-subtle'
+                : 'text-text-secondary hover:text-text-primary',
             )}
           >
             Full Export
@@ -103,8 +103,8 @@ export function ExportModal({
             className={cn(
               'flex-1 py-2 text-sm font-medium rounded-lg transition-all',
               exportType === 'FILTERED'
-                ? 'bg-ui-surface text-primary shadow-sm ring-1 ring-ui-border-subtle'
-                : 'text-muted-foreground hover:text-foreground',
+                ? 'bg-surface text-primary shadow-sm ring-1 ring-border-subtle'
+                : 'text-text-secondary hover:text-text-primary',
             )}
           >
             Filtered Export
@@ -113,9 +113,9 @@ export function ExportModal({
 
         {/* Pre-Export Filter Interface (Instruction 5) */}
         {exportType === 'FILTERED' && (
-          <div className="space-y-4 p-4 rounded-xl border border-ui-border-subtle bg-ui-surface-muted/30 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="space-y-4 p-4 rounded-xl border border-border-subtle bg-surface-secondary/30 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
                 Export Scope
               </p>
               {(filterState.categories.length > 0 ||
@@ -141,14 +141,14 @@ export function ExportModal({
         )}
 
         {/* Count Preview (Instruction 6) */}
-        <div className="flex flex-col items-center justify-center p-8 border border-dashed border-ui-border rounded-2xl bg-ui-surface shadow-inner">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        <div className="flex flex-col items-center justify-center p-8 border border-dashed border-border rounded-2xl bg-surface shadow-inner">
+          <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide mb-2">
             Ready to Export
           </p>
-          <p className="text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
+          <p className="text-4xl md:text-5xl font-semibold text-text-primary tracking-tight">
             {exportRows.length}
           </p>
-          <p className="text-sm text-muted-foreground mt-2 font-medium">Transactions matched</p>
+          <p className="text-sm text-text-secondary mt-2 font-medium">Transactions matched</p>
         </div>
 
         {/* Action Buttons */}
@@ -171,7 +171,7 @@ export function ExportModal({
         </div>
 
         {exportRows.length === 0 && exportType === 'FILTERED' && (
-          <p className="text-center text-xs text-ui-danger font-medium animate-pulse">
+          <p className="text-center text-xs text-error font-medium animate-pulse">
             No transactions match your current filters.
           </p>
         )}

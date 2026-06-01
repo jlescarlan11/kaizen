@@ -43,10 +43,10 @@ export function Checkbox({
             aria-describedby={ariaDescribedBy}
             aria-invalid={error ? 'true' : undefined}
             className={cn(
-              'h-4 w-4 rounded border-ui-border bg-ui-surface text-ui-action-bg transition focus:ring-2 focus:ring-ui-focus-ring focus:ring-offset-2',
+              'h-4 w-4 rounded border-border bg-surface text-primary/60 transition focus:ring-2 focus:ring-primary/30 focus:ring-offset-2',
               'disabled:cursor-not-allowed disabled:opacity-(--ui-disabled-opacity)',
-              'aria-invalid:border-ui-danger aria-invalid:focus:ring-ui-danger-bg',
-              'checked:bg-ui-action-bg checked:border-ui-action-bg',
+              'aria-invalid:border-error aria-invalid:focus:ring-error/20',
+              'checked:bg-primary/60 checked:border-primary/60',
               className,
             )}
           />
@@ -54,11 +54,11 @@ export function Checkbox({
         {label ? (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium leading-5 text-foreground select-none cursor-pointer"
+            className="text-sm font-medium leading-5 text-text-primary select-none cursor-pointer"
           >
             {label}
             {props.required ? (
-              <span aria-hidden="true" className="ml-0.5 text-ui-danger">
+              <span aria-hidden="true" className="ml-0.5 text-error">
                 *
               </span>
             ) : null}

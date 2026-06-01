@@ -159,10 +159,10 @@ Every content page follows this top-to-bottom structure:
 
 ### 6.1 HomePage (Dashboard)
 - KPI strip: Net Worth, Monthly Income, Monthly Expenses, Savings Rate
-- Row 1: WealthProfileCard (existing, keep as hero)
+- Row 1: WealthProfileCard (existing, keep as hero — bento layout preserved)
 - Row 2: Budget health table (top 5 budgets: name, allocated, spent, % bar, status badge)
 - Row 3: Recent activity (last 5 transactions, rich list) + Quick actions card
-- Remove / consolidate redundant bento cards that duplicate data
+- Cards that show the same data as the KPI strip (e.g. a standalone Net Worth card) are removed; the bento grid structure itself is preserved and used for layout
 
 ### 6.2 TransactionListPage
 - Sub-tabs: All · Income · Expenses
@@ -270,7 +270,7 @@ Every content page follows this top-to-bottom structure:
 Refactor `AuthenticatedLayout.tsx` to add `Sidebar` component and `TopBar` component. Remove bottom nav from authenticated shell. All pages automatically get the new shell.
 
 ### Phase 2 — Design System Tokens
-- Add `text-page-title`, `text-section-label`, `text-kpi-value`, `text-kpi-label`, `text-table-header` as Tailwind utilities mapped to the token values in Phase 5 of this spec
+- Add `text-page-title`, `text-section-label`, `text-kpi-value`, `text-kpi-label`, `text-table-header` as Tailwind utilities mapped to the token values in Section 5 of this spec
 - Add `KpiStrip` and `PageHeader` reusable components
 - Add `DataTable` component (wrapper around `<table>` with standard header/row styling)
 

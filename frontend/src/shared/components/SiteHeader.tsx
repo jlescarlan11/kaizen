@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
 import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react'
 import { KaizenLogo } from './KaizenLogo'
@@ -20,43 +20,7 @@ export function SiteHeader(): ReactElement {
   const navigate = useNavigate()
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
-  const [headerOffset, setHeaderOffset] = useState(0)
-  const [isAnimating, setIsAnimating] = useState(false)
-  const lastScrollY = useRef(0)
   const isDev = import.meta.env.DEV
-
-  useEffect(() => {
-    const handleScroll = (): void => {
-      const currentScrollY = Math.max(0, window.scrollY)
-      const isScrollingUp = currentScrollY < lastScrollY.current
-
-      if (currentScrollY <= 80) {
-        if (currentScrollY === 0) {
-          setHeaderOffset(0)
-          setIsAnimating(false)
-        } else if (isScrollingUp && headerOffset === 0) {
-          setHeaderOffset(0)
-          setIsAnimating(true)
-        } else {
-          setHeaderOffset(-currentScrollY)
-          setIsAnimating(false)
-        }
-      } else {
-        if (currentScrollY < lastScrollY.current - 5) {
-          setHeaderOffset(0)
-          setIsAnimating(true)
-        } else if (currentScrollY > lastScrollY.current + 5) {
-          setHeaderOffset(-80)
-          setIsAnimating(true)
-        }
-      }
-
-      lastScrollY.current = currentScrollY
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [headerOffset])
 
   const handleLogout = async (): Promise<void> => {
     try {
@@ -199,13 +163,7 @@ export function SiteHeader(): ReactElement {
       <div className="h-24 w-full shrink-0" />
 
       {/* ───────── HEADER ───────── */}
-      <header
-        className={cn(
-          'fixed top-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md shrink-0 z-50 px-6 md:px-10',
-          isAnimating && 'transition-transform duration-200 ease-in-out',
-        )}
-        style={{ transform: `translateY(${headerOffset}px)` }}
-      >
+      <header className="fixed top-0 left-0 right-0 h-24 bg-background/80 backdrop-blur-md shrink-0 z-50 px-6 md:px-10 border-b border-border/5">
         <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between">
           <NavLink
             to="/"

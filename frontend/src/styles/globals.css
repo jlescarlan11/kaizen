@@ -36,6 +36,19 @@
   --radius-xl: 1.5rem;
   --radius-lg: 0.75rem;
   --radius-md: 0.5rem;
+  --radius-card: 2rem;
+  --radius-pill: 2.5rem;
+
+  /* Extended Typography Scale */
+  --font-size-2xs: 0.6875rem; /* 11px */
+  --font-size-3xs: 0.625rem; /* 10px */
+  --font-size-4xs: 0.5625rem; /* 9px */
+  --font-size-5xs: 0.5rem; /* 8px */
+  --font-size-6xs: 0.4375rem; /* 7px */
+
+  /* Category Colors */
+  --color-category-fallback: #6b7280;
+  --color-category-default: #1d4ed8;
 }
 
 /* Dark Mode */

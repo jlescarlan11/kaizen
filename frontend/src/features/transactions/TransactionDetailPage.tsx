@@ -14,7 +14,6 @@ import { TransactionActionGroup } from './components/TransactionActionGroup'
 import { TransactionNoteSection } from './components/TransactionNoteSection'
 import { AttachmentViewer } from './components/AttachmentViewer'
 import { RelatedTransactionsList } from './components/RelatedTransactionsList'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { useSetBreadcrumbLabel } from '../../shared/components/BreadcrumbLabelContext'
 
 export function TransactionDetailPage(): ReactElement {
@@ -76,19 +75,13 @@ export function TransactionDetailPage(): ReactElement {
   return (
     <div className={pageLayout.sectionGap}>
       <div className="w-full">
-        <PageHeader
-          title={transaction.description}
-          subtitle={new Date(transaction.transactionDate).toLocaleDateString('en-US', {
-            dateStyle: 'long',
-          })}
-          actions={
-            <TransactionActionGroup
-              onEdit={() => navigate(`/transactions/edit/${transaction.id}`)}
-              onDelete={() => setIsDeleteModalOpen(true)}
-              isProcessing={isDeleting}
-            />
-          }
-        />
+        <div className="flex justify-end mb-6">
+          <TransactionActionGroup
+            onEdit={() => navigate(`/transactions/edit/${transaction.id}`)}
+            onDelete={() => setIsDeleteModalOpen(true)}
+            isProcessing={isDeleting}
+          />
+        </div>
         <header className="mb-16">
           <TransactionDetailHeader
             amount={transaction.amount}

@@ -48,7 +48,7 @@ export function Modal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <DialogBackdrop className="fixed inset-0 bg-ui-bg/80" />
+          <DialogBackdrop className="fixed inset-0 bg-background/80" />
         </TransitionChild>
 
         <div className="fixed inset-0 flex items-end justify-center px-4 pb-6 sm:items-center sm:p-4">
@@ -61,8 +61,8 @@ export function Modal({
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-6 sm:scale-95 sm:translate-y-0"
           >
-            <DialogPanel className="w-full max-w-md space-y-4 rounded-t-3xl border border-ui-border bg-ui-surface p-6 text-foreground shadow-xl transition sm:rounded-xl sm:p-6">
-              <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+            <DialogPanel className="w-full max-w-md space-y-4 rounded-t-3xl border border-border bg-surface p-6 text-text-primary shadow-xl transition sm:rounded-xl sm:p-6">
+              <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
                 {title}
               </DialogTitle>
               {children}

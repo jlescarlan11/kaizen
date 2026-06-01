@@ -14,13 +14,13 @@ export function TransactionSearch({ value, onChange }: TransactionSearchProps): 
         placeholder="Search Transactions"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 border-ui-border-subtle bg-ui-surface-muted/30 focus:bg-ui-surface transition-colors"
+        className="h-10 border-border-subtle bg-surface-secondary/50 focus:bg-surface transition-colors"
         startAdornment={<SharedIcon type="ui" name="search" size={16} />}
         endAdornment={
           value ? (
             <button
               onClick={() => onChange('')}
-              className="text-muted-foreground hover:text-foreground transition-colors p-1 pointer-events-auto"
+              className="text-text-secondary hover:text-text-primary transition-colors p-1 pointer-events-auto"
               aria-label="Clear search"
             >
               <SharedIcon type="ui" name="close" size={16} />

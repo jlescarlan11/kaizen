@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { useGetSessionsQuery, useRevokeSessionMutation } from '../../app/store/api/sessionApi'
 import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
 import { pageLayout } from '../../shared/styles/layout'
-import { PageHeader } from '../../shared/components/PageHeader'
 
 export function SessionsPage(): ReactElement {
   const { data: sessions, isLoading } = useGetSessionsQuery()
@@ -32,11 +31,6 @@ export function SessionsPage(): ReactElement {
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
-        <PageHeader
-          title="Active Sessions"
-          subtitle="Devices currently signed in to your account"
-        />
-
         <div>
           {sessions?.length === 0 && (
             <p className="text-sm leading-6 text-text-secondary text-center py-8">

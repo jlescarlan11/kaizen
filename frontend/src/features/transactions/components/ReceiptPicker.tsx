@@ -51,7 +51,7 @@ export function ReceiptPicker({
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium leading-none text-foreground text-left">
+      <p className="text-sm font-medium leading-none text-text-primary text-left">
         Receipt Attachment (Optional)
       </p>
 
@@ -69,19 +69,19 @@ export function ReceiptPicker({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className={cn(
-            'flex h-24 w-24 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ui-border-subtle bg-ui-surface-muted transition-colors hover:border-primary/50 hover:bg-primary/5',
+            'flex h-24 w-24 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border-subtle bg-surface-secondary transition-colors hover:border-primary/50 hover:bg-primary/5',
             file && 'border-primary/30 bg-primary/5',
           )}
         >
-          <SharedIcon type="ui" name="camera" size={24} className="text-muted-foreground" />
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <SharedIcon type="ui" name="camera" size={24} className="text-text-secondary" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-text-secondary">
             {file || hasExisting ? 'Replace' : 'Attach'}
           </span>
         </button>
 
         {/* Selected File Preview */}
         {file && (
-          <div className="relative h-24 w-24 rounded-2xl border border-ui-border-subtle overflow-hidden bg-ui-surface group">
+          <div className="relative h-24 w-24 rounded-2xl border border-border-subtle overflow-hidden bg-surface group">
             {previewUrl ? (
               <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
             ) : (
@@ -108,27 +108,22 @@ export function ReceiptPicker({
           existingAttachments.map((att) => (
             <div
               key={att.id}
-              className="relative h-24 w-24 rounded-2xl border border-ui-border-subtle overflow-hidden bg-ui-surface"
+              className="relative h-24 w-24 rounded-2xl border border-border-subtle overflow-hidden bg-surface"
             >
               {att.mimeType.startsWith('image/') ? (
                 <div className="h-full w-full flex items-center justify-center bg-muted/20">
-                  <SharedIcon
-                    type="ui"
-                    name="image"
-                    size={32}
-                    className="text-muted-foreground/40"
-                  />
+                  <SharedIcon type="ui" name="image" size={32} className="text-text-secondary/40" />
                   {/* In a real app we'd show the actual image here, but for now just an icon */}
                 </div>
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-1 p-2 text-center">
                   <SharedIcon type="ui" name="note" size={32} className="text-primary/60" />
-                  <span className="text-xs font-medium truncate w-full px-1 text-muted-foreground">
+                  <span className="text-xs font-medium truncate w-full px-1 text-text-secondary">
                     {att.filename}
                   </span>
                 </div>
               )}
-              <div className="absolute bottom-0 inset-x-0 bg-ui-border-subtle py-0.5 text-xs font-semibold text-muted-foreground text-center uppercase">
+              <div className="absolute bottom-0 inset-x-0 bg-border-subtle py-0.5 text-xs font-semibold text-text-secondary text-center uppercase">
                 Stored
               </div>
             </div>
@@ -136,7 +131,7 @@ export function ReceiptPicker({
       </div>
 
       {(file || hasExisting) && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-text-secondary">
           {file
             ? `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
             : 'Receipt currently attached.'}

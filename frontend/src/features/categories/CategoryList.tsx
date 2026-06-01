@@ -45,8 +45,8 @@ export function CategoryList({ categories, isLoading, onEdit }: CategoryListProp
               label={`Icon for ${category.name}`}
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">{category.name}</p>
-              {category.isGlobal && <p className="text-xs text-muted-foreground">Default</p>}
+              <p className="truncate text-sm font-medium text-text-primary">{category.name}</p>
+              {category.isGlobal && <p className="text-xs text-text-secondary">Default</p>}
             </div>
             {!category.isGlobal && onEdit ? (
               <Button

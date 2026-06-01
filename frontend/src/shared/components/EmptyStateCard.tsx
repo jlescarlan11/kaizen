@@ -35,22 +35,22 @@ export function EmptyStateCard({
   return (
     <div
       className={[
-        'p-12 text-center border border-dashed border-ui-border-subtle rounded-2xl flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-300',
+        'p-12 text-center border border-dashed border-border-subtle rounded-2xl flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-300',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       {icon && (
-        <div className="h-12 w-12 bg-ui-accent-subtle flex items-center justify-center rounded-full text-ui-action">
+        <div className="h-12 w-12 bg-primary/10 flex items-center justify-center rounded-full text-primary">
           {icon}
         </div>
       )}
 
       <div className="space-y-2 max-w-sm">
-        <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+        <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
         {description && (
-          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+          <p className="text-sm text-text-secondary leading-relaxed">{description}</p>
         )}
       </div>
 

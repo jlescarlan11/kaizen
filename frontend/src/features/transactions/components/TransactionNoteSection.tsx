@@ -18,10 +18,10 @@ export function TransactionNoteSection({
     <div className={cn('space-y-8', className)}>
       {description && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
             Description
           </p>
-          <p className="text-lg font-medium text-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="text-lg font-medium text-text-primary leading-relaxed whitespace-pre-wrap">
             {description}
           </p>
         </div>
@@ -29,11 +29,11 @@ export function TransactionNoteSection({
 
       {notes && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+          <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
             Internal Notes
           </p>
           <div className="pl-4 border-l-2 border-primary/20">
-            <p className="text-base text-foreground/80 leading-relaxed whitespace-pre-wrap italic">
+            <p className="text-base text-text-primary/80 leading-relaxed whitespace-pre-wrap italic">
               "{notes}"
             </p>
           </div>

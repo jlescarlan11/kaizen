@@ -28,7 +28,7 @@ export function CategoryBreakdown({
     return (
       <Card title={title}>
         <div className="flex h-64 items-center justify-center">
-          <p className="text-sm leading-6 italic text-muted-foreground">
+          <p className="text-sm leading-6 italic text-text-secondary">
             No spending data for this period.
           </p>
         </div>
@@ -85,7 +85,7 @@ export function CategoryBreakdown({
                       className="h-2.5 w-2.5 rounded-full shadow-sm"
                       style={{ backgroundColor: getCategoricalColor(index) }}
                     />
-                    <span className="text-[10px] font-bold uppercase tracking-tight text-text-primary">
+                    <span className="text-3xs font-bold uppercase tracking-tight text-text-primary">
                       {c.categoryName}
                     </span>
                   </div>
@@ -93,7 +93,7 @@ export function CategoryBreakdown({
                     <p className="text-xs font-bold tracking-tighter text-text-primary">
                       ${c.total.toFixed(2)}
                     </p>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-30">
+                    <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-30">
                       {c.percentage.toFixed(0)}%
                     </p>
                   </div>

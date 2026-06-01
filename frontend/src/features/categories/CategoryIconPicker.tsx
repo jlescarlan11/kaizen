@@ -31,8 +31,8 @@ export function CategoryIconPicker({
               className={cn(
                 'flex h-12 items-center justify-center rounded-xl border transition-colors',
                 isSelected
-                  ? 'border-ui-border-strong bg-ui-surface text-foreground'
-                  : 'border-ui-border-subtle bg-ui-surface-subtle text-muted-foreground hover:border-ui-border hover:bg-ui-surface',
+                  ? 'border-border bg-surface text-text-primary'
+                  : 'border-border-subtle bg-surface-secondary/50 text-text-secondary hover:border-border hover:bg-surface',
               )}
             >
               <CategoryBadge

@@ -33,7 +33,7 @@ export function BudgetPeriodSelector({
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-medium leading-none text-foreground">Budget period</p>
+        <p className="text-sm font-medium leading-none text-text-primary">Budget period</p>
         <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
           {periodOptions.map((option) => {
             const selected = option.value === value
@@ -47,8 +47,8 @@ export function BudgetPeriodSelector({
                   fluidLayout.touchTarget,
                   'sm:h-9 sm:min-h-0 sm:px-4 sm:py-1.5',
                   selected
-                    ? 'border-ui-border bg-ui-surface text-foreground shadow-sm'
-                    : 'border-ui-border-subtle bg-ui-surface-subtle text-muted-foreground',
+                    ? 'border-border bg-surface text-text-primary shadow-sm'
+                    : 'border-border-subtle bg-surface-secondary/50 text-text-secondary',
                 )}
                 onClick={() => onChange(option.value)}
                 aria-pressed={selected}

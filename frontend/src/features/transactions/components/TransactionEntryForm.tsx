@@ -381,7 +381,7 @@ export function TransactionEntryForm({
 
   if (isFetching) {
     return (
-      <Card className="border border-ui-border-subtle shadow-sm">
+      <Card className="border border-border-subtle shadow-sm">
         <LoadingSpinner />
       </Card>
     )
@@ -401,7 +401,7 @@ export function TransactionEntryForm({
       )}
 
       <div className="space-y-4">
-        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary px-1 opacity-60">
+        <label className="text-3xs font-bold uppercase tracking-widest text-text-secondary px-1 opacity-60">
           Amount
         </label>
         <div className="flex items-baseline gap-4">
@@ -419,7 +419,7 @@ export function TransactionEntryForm({
           />
         </div>
         {errors.amount && (
-          <p className="text-[10px] font-bold uppercase tracking-tight text-error px-1">
+          <p className="text-3xs font-bold uppercase tracking-tight text-error px-1">
             {errors.amount}
           </p>
         )}
@@ -453,7 +453,7 @@ export function TransactionEntryForm({
           />
           {paymentMethodId && type === 'EXPENSE' && (
             <div className="absolute right-0 top-0 mt-1 animate-in fade-in slide-in-from-top-1 duration-200">
-              <span className={`text-[10px] uppercase tracking-widest ${balanceTone}`}>
+              <span className={`text-3xs uppercase tracking-widest ${balanceTone}`}>
                 Bal: ${availableBalance.toFixed(2)}
               </span>
             </div>

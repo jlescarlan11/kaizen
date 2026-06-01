@@ -51,7 +51,7 @@ export function ResponsiveModal({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <DialogBackdrop className="fixed inset-0 bg-ui-bg/80 transition-opacity" />
+          <DialogBackdrop className="fixed inset-0 bg-background/80 transition-opacity" />
         </TransitionChild>
 
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -67,20 +67,20 @@ export function ResponsiveModal({
             >
               <DialogPanel
                 className={cn(
-                  'relative w-full max-w-md transform overflow-hidden bg-ui-surface text-left align-middle shadow-xl transition-all',
-                  'rounded-t-4xl md:rounded-xl border border-ui-border',
+                  'relative w-full max-w-md transform overflow-hidden bg-surface text-left align-middle shadow-xl transition-all',
+                  'rounded-t-4xl md:rounded-xl border border-border',
                   'flex flex-col max-h-[75vh] md:max-h-[90vh]',
                   className,
                 )}
               >
                 {/* Mobile Handle */}
                 <div className="flex justify-center md:hidden pt-3 pb-2 shrink-0">
-                  <div className="h-1.5 w-12 rounded-full bg-ui-border-strong opacity-20" />
+                  <div className="h-1.5 w-12 rounded-full bg-border opacity-20" />
                 </div>
 
                 <div className="flex-1 overflow-y-auto px-6 pb-8 pt-2 md:p-6">
                   {title ? (
-                    <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground mb-4">
+                    <DialogTitle className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary mb-4">
                       {title}
                     </DialogTitle>
                   ) : null}

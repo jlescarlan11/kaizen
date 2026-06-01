@@ -80,10 +80,10 @@ export function InlineCustomCategoryFields({
               type="button"
               onClick={openModal}
               aria-label={`Change icon and color — currently ${CATEGORY_ICON_LABELS[icon]}`}
-              className="relative flex h-8 w-8 items-center justify-center rounded-full border border-ui-border-subtle bg-ui-surface text-foreground transition hover:border-ui-border hover:bg-ui-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-focus"
+              className="relative flex h-8 w-8 items-center justify-center rounded-full border border-border-subtle bg-surface text-text-primary transition hover:border-border hover:bg-surface-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
             >
               <CategoryBadge icon={icon} color={color} size={28} label="Selected icon" />
-              <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full border border-ui-border bg-ui-surface-muted text-xs">
+              <span className="absolute -right-0.5 -bottom-0.5 flex h-3 w-3 items-center justify-center rounded-full border border-border bg-surface-secondary text-xs">
                 <svg
                   width="10"
                   height="10"
@@ -94,7 +94,7 @@ export function InlineCustomCategoryFields({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
-                  className="text-subtle-foreground"
+                  className="text-text-secondary"
                 >
                   <path d="M21 2v6h-6" />
                   <path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
@@ -108,7 +108,7 @@ export function InlineCustomCategoryFields({
         />
 
         {serverError ? (
-          <p className="text-sm text-ui-danger-text-soft" role="alert">
+          <p className="text-sm text-error/70" role="alert">
             {serverError}
           </p>
         ) : null}
@@ -143,13 +143,13 @@ export function InlineCustomCategoryFields({
 
           {/* Icon grid */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-foreground">Icon</p>
+            <p className="text-xs font-semibold text-text-primary">Icon</p>
             <CategoryIconPicker value={stagedIcon} color={stagedColor} onChange={setStagedIcon} />
           </div>
 
           {/* Color swatches */}
           <div className="space-y-1.5">
-            <p className="text-xs font-semibold text-foreground">Color</p>
+            <p className="text-xs font-semibold text-text-primary">Color</p>
             <CategoryColorPicker value={stagedColor} onChange={setStagedColor} />
           </div>
         </div>

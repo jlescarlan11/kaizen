@@ -10,7 +10,6 @@ import { PeriodSelector } from './components/PeriodSelector'
 import { SpendingSummary } from './components/SpendingSummary'
 import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrends } from './components/SpendingTrends'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { pageLayout } from '../../shared/styles/layout'
 import { cn } from '../../shared/lib/cn'
 
@@ -41,11 +40,9 @@ export default function InsightsPage() {
   return (
     <div className="w-full">
       <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
-        <PageHeader
-          title="Insights"
-          subtitle="Analyze your spending life."
-          actions={<PeriodSelector value={period} onChange={updatePeriod} />}
-        />
+        <div className="flex justify-end mb-6">
+          <PeriodSelector value={period} onChange={updatePeriod} />
+        </div>
 
         {error && (
           <div

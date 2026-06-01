@@ -87,20 +87,20 @@ export function PlaygroundPage(): ReactElement {
   return (
     <section className="space-y-6">
       <header className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-text-primary">
           Base Components Playground
         </h1>
-        <p className="text-lg leading-7 text-muted-foreground">
+        <p className="text-lg leading-7 text-text-secondary">
           Use this route to manually verify base UI behavior while developing features.
         </p>
       </header>
 
       <Card className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Field Recipes
           </h2>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-text-secondary">
             Manual coverage for common input types and field states.
           </p>
         </div>
@@ -210,17 +210,17 @@ export function PlaygroundPage(): ReactElement {
 
       <Card className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Button Recipes
           </h2>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-text-secondary">
             Coverage for all button variants and their interactive states.
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Primary
             </p>
             <Button className="w-full">Action</Button>
@@ -229,7 +229,7 @@ export function PlaygroundPage(): ReactElement {
             </Button>
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Secondary
             </p>
             <Button variant="secondary" className="w-full">
@@ -240,7 +240,7 @@ export function PlaygroundPage(): ReactElement {
             </Button>
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Ghost
             </p>
             <Button variant="ghost" className="w-full">
@@ -251,7 +251,7 @@ export function PlaygroundPage(): ReactElement {
             </Button>
           </div>
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Destructive
             </p>
             <Button variant="destructive" className="w-full">
@@ -266,17 +266,17 @@ export function PlaygroundPage(): ReactElement {
 
       <Card className="space-y-4">
         <div className="space-y-1">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Selection Recipes
           </h2>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-text-secondary">
             Manual coverage for toggle and choice components.
           </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Checkboxes
             </p>
             <Checkbox
@@ -295,7 +295,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
 
           <div className="space-y-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Radio Group
             </p>
             <Radio
@@ -318,7 +318,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
 
           <div className="space-y-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Validation States
             </p>
             <Radio
@@ -337,7 +337,7 @@ export function PlaygroundPage(): ReactElement {
 
       <section className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-3">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Badge Recipes
           </h2>
           <div className="flex flex-wrap gap-2">
@@ -353,19 +353,19 @@ export function PlaygroundPage(): ReactElement {
         </Card>
 
         <Card className="space-y-3">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Callout Recipes
           </h2>
           <div className="space-y-3">
             <Card variant="accent" className="rounded-lg p-4">
               <p className="text-sm font-medium leading-none">Accent highlight</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
                 Use the green brand system for selection, focus, and emphasis.
               </p>
             </Card>
             <Card variant="warning" className="rounded-lg p-4">
               <p className="text-sm font-medium leading-none">Warning callout</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 text-sm leading-6 text-text-secondary">
                 Reserve orange and red for the rare cases where meaning truly matters.
               </p>
             </Card>
@@ -375,10 +375,10 @@ export function PlaygroundPage(): ReactElement {
 
       <Card className="space-y-6">
         <div className="space-y-1">
-          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-foreground">
+          <h2 className="text-xl md:text-2xl font-semibold tracking-tight leading-snug text-text-primary">
             Visual & Feedback Recipes
           </h2>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-text-secondary">
             Manual coverage for data visualization and progress indicators.
           </p>
         </div>
@@ -386,12 +386,10 @@ export function PlaygroundPage(): ReactElement {
         <div className="space-y-8">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
                 Progress Bar
               </p>
-              <span className="text-xs font-medium text-muted-foreground">
-                {progress}% complete
-              </span>
+              <span className="text-xs font-medium text-text-secondary">{progress}% complete</span>
             </div>
             <ProgressBar value={progress} colorScheme="primary" />
             <div className="flex gap-2">
@@ -405,7 +403,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Trend Line Chart
             </p>
             <LineChart
@@ -418,7 +416,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-xs font-medium text-text-secondary uppercase tracking-wider">
               Daily Trend Chart (31 Days)
             </p>
             <DailyLineChart
@@ -445,7 +443,7 @@ export function PlaygroundPage(): ReactElement {
           </div>
         }
       >
-        <p className="text-sm leading-6 text-muted-foreground">
+        <p className="text-sm leading-6 text-text-secondary">
           Hello{name ? `, ${name}` : ''}. This modal confirms Headless UI is integrated and
           render-safe.
         </p>

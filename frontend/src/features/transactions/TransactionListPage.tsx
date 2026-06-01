@@ -25,7 +25,6 @@ import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { PageTabs } from '../../shared/components/PageTabs'
 
 export function TransactionListPage(): ReactElement {
@@ -119,7 +118,6 @@ export function TransactionListPage(): ReactElement {
     <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
       <div className="w-full">
         <header className="space-y-6">
-          <PageHeader title="Transactions" />
           <PageTabs
             tabs={[
               { key: 'all', label: 'All' },

@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWealthPersona } from '../hooks/useWealthPersona'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { DashboardCard, CardHeader } from '../../../shared/components'
 
 export const WealthPersonaCard: React.FC = () => {
   const personaData = useWealthPersona()
@@ -12,18 +13,16 @@ export const WealthPersonaCard: React.FC = () => {
   const { persona, description, icon, streak } = personaData
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col h-full group relative overflow-hidden">
+    <DashboardCard className="flex flex-col h-full group relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-primary/5 blur-3xl rounded-full opacity-50 group-hover:bg-primary/10 transition-colors duration-1000" />
 
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
-          <SharedIcon type="ui" name="target" size={14} className="text-primary" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-            Wealth Persona
-          </p>
-        </div>
-      </div>
+      <CardHeader
+        icon={<SharedIcon type="ui" name="target" size={14} className="text-primary" />}
+        title="Wealth Persona"
+        titleClassName="text-3xs font-black uppercase tracking-widest text-text-primary"
+        className="mb-5"
+      />
 
       <div className="flex flex-col gap-2 flex-grow justify-center relative z-10">
         <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2 shadow-inner">
@@ -39,7 +38,7 @@ export const WealthPersonaCard: React.FC = () => {
 
       <div className="mt-8 pt-4 border-t border-border/5 flex items-center justify-between relative z-10">
         <div>
-          <p className="text-[8px] font-black uppercase text-text-tertiary opacity-40 mb-1">
+          <p className="text-5xs font-black uppercase text-text-tertiary opacity-40 mb-1">
             Savings Streak
           </p>
           <div className="flex items-center gap-1.5">
@@ -51,16 +50,16 @@ export const WealthPersonaCard: React.FC = () => {
                 />
               ))}
             </div>
-            <span className="text-[10px] font-black text-primary">{streak}d</span>
+            <span className="text-3xs font-black text-primary">{streak}d</span>
           </div>
         </div>
         <button
           onClick={() => navigate('/your-account/profile')}
-          className="text-[9px] font-black uppercase text-primary hover:underline transition-all"
+          className="text-4xs font-black uppercase text-primary hover:underline transition-all"
         >
           Profile XP →
         </button>
       </div>
-    </div>
+    </DashboardCard>
   )
 }

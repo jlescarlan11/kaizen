@@ -16,11 +16,34 @@
   --color-border: var(--color-border);
   --color-border-subtle: var(--color-border-subtle);
 
+  /* Semantic Colors */
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-info: var(--color-info);
+  --color-text-tertiary: var(--color-text-tertiary);
+
   --radius-xl: var(--radius-xl);
   --radius-lg: var(--radius-lg);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
 
   --font-body: 'DM Sans', sans-serif;
   --font-display: 'DM Sans', sans-serif;
+
+  /* Typography Scale Extensions */
+  --text-2xs: var(--font-size-2xs);
+  --text-3xs: var(--font-size-3xs);
+  --text-4xs: var(--font-size-4xs);
+  --text-5xs: var(--font-size-5xs);
+  --text-6xs: var(--font-size-6xs);
+
+  /* Surface Secondary */
+  --color-surface-secondary: var(--color-surface-secondary);
+
+  /* Semantic: Category Colors */
+  --color-category-fallback: var(--color-category-fallback);
+  --color-category-default: var(--color-category-default);
 }
 
 @layer utilities {

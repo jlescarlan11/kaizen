@@ -1,25 +1,20 @@
 import { type ReactElement } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Button } from '../../shared/components/Button'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { pageLayout } from '../../shared/styles/layout'
 
 export function GoalDetailPage(): ReactElement {
-  const { id } = useParams<{ id: string }>()
+  useParams<{ id: string }>()
   const navigate = useNavigate()
 
   return (
     <div className="w-full">
       <div className={pageLayout.sectionGap}>
-        <PageHeader
-          title="Goal Details"
-          subtitle={`Goal ID: ${id}`}
-          actions={
-            <Button variant="ghost" onClick={() => navigate('/goals')}>
-              Back to Goals
-            </Button>
-          }
-        />
+        <div className="flex justify-end mb-6">
+          <Button variant="ghost" onClick={() => navigate('/goals')}>
+            Back to Goals
+          </Button>
+        </div>
 
         <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border-subtle rounded-3xl bg-surface-secondary/30">
           <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6">

@@ -203,7 +203,7 @@ export function RootLayout(): ReactElement {
               </Button>
 
               {onboardingStepLabel ? (
-                <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60 px-1">
+                <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60 px-1">
                   {onboardingStepLabel}
                 </p>
               ) : null}

@@ -28,7 +28,7 @@ export function PaymentMethodList({
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-16 w-full animate-pulse rounded-xl bg-ui-surface-muted" />
+          <div key={i} className="h-16 w-full animate-pulse rounded-xl bg-surface-secondary" />
         ))}
       </div>
     )
@@ -51,15 +51,15 @@ export function PaymentMethodList({
         {paymentMethods.map((pm) => (
           <Card
             key={pm.id}
-            className="group flex items-center justify-between border border-ui-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all"
+            className="group flex items-center justify-between border border-border-subtle p-4 shadow-sm hover:border-primary/50 transition-all"
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-muted text-foreground font-semibold">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary text-text-primary font-semibold">
                 {pm.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="font-semibold text-foreground">{pm.name}</p>
-                <p className="text-xs uppercase font-semibold text-muted-foreground tracking-wider">
+                <p className="font-semibold text-text-primary">{pm.name}</p>
+                <p className="text-xs uppercase font-semibold text-text-secondary tracking-wider">
                   {pm.isGlobal ? 'System' : 'Custom'}
                 </p>
               </div>
@@ -68,7 +68,7 @@ export function PaymentMethodList({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-ui-danger hover:bg-ui-danger/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 p-0 text-text-secondary hover:text-error hover:bg-error/10 opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => setDeletingPm(pm)}
               >
                 <DeleteIcon />
@@ -126,7 +126,7 @@ function DeleteConfirmationModal({
       title={`Delete ${pm.name}?`}
       description={
         isLoadingCount ? (
-          <span className="block h-4 w-full animate-pulse bg-ui-surface-muted rounded" />
+          <span className="block h-4 w-full animate-pulse bg-surface-secondary rounded" />
         ) : (
           <>
             Are you sure you want to delete this payment method?
@@ -134,7 +134,7 @@ function DeleteConfirmationModal({
               <span className="block mt-2">No transactions currently reference this method.</span>
             )}
             {error && (
-              <span className="block mt-2 text-ui-danger font-medium text-center">{error}</span>
+              <span className="block mt-2 text-error font-medium text-center">{error}</span>
             )}
           </>
         )

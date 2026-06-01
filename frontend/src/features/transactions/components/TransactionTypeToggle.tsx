@@ -15,12 +15,12 @@ export function TransactionTypeToggle({
 }: TransactionTypeToggleProps): ReactElement {
   return (
     <div className="space-y-4">
-      <div className="flex bg-surface-secondary p-1.5 rounded-[1.5rem] border border-border-subtle/30 shadow-inner">
+      <div className="flex bg-surface-secondary p-1.5 rounded-xl border border-border-subtle/30 shadow-inner">
         <button
           type="button"
           onClick={() => onChange('EXPENSE')}
           className={cn(
-            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-[1rem]',
+            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-2xl',
             value === 'EXPENSE'
               ? 'bg-error text-white shadow-lg shadow-error/20'
               : 'text-text-secondary hover:text-text-primary hover:bg-white/50',
@@ -32,7 +32,7 @@ export function TransactionTypeToggle({
           type="button"
           onClick={() => onChange('INCOME')}
           className={cn(
-            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-[1rem]',
+            'flex-1 py-3 px-6 text-sm font-black uppercase tracking-widest transition-all rounded-2xl',
             value === 'INCOME'
               ? 'bg-success text-white shadow-lg shadow-success/20'
               : 'text-text-secondary hover:text-text-primary hover:bg-white/50',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGetCategoryBreakdownQuery } from '../../../app/store/api/insightsApi'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { CategoryIcon } from '../../categories/CategoryIcon'
+import { DashboardCard, CardHeader, CardSkeleton } from '../../../shared/components'
 
 export const TopCategoriesCard: React.FC = () => {
   const navigate = useNavigate()
@@ -17,7 +18,7 @@ export const TopCategoriesCard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3">
+      <CardSkeleton className="flex flex-col gap-3">
         <div className="h-3 w-28 bg-surface-secondary rounded" />
         <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
@@ -30,23 +31,20 @@ export const TopCategoriesCard: React.FC = () => {
             </div>
           ))}
         </div>
-      </div>
+      </CardSkeleton>
     )
   }
 
   const categories = data?.categories.slice(0, 4) ?? []
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <SharedIcon type="ui" name="filter" size={14} className="text-primary" />
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
-            Top Categories
-          </p>
-        </div>
-        <span className="text-[10px] font-medium text-text-tertiary/60">L30D</span>
-      </div>
+    <DashboardCard className="flex flex-col group">
+      <CardHeader
+        icon={<SharedIcon type="ui" name="filter" size={14} className="text-primary" />}
+        title="Top Categories"
+        right={<span className="text-3xs font-medium text-text-tertiary/60">L30D</span>}
+        className="mb-4"
+      />
 
       <div className="flex flex-col gap-3 flex-grow">
         {categories.length > 0 ? (
@@ -57,15 +55,15 @@ export const TopCategoriesCard: React.FC = () => {
                   <div className="h-5 w-5 rounded-md bg-surface-secondary flex items-center justify-center border border-border-subtle">
                     <CategoryIcon icon={cat.categoryName} size={10} />
                   </div>
-                  <span className="text-[11px] font-medium text-text-primary truncate max-w-[100px]">
+                  <span className="text-2xs font-medium text-text-primary truncate max-w-[100px]">
                     {cat.categoryName}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold text-text-primary tabular-nums">
+                  <span className="text-2xs font-semibold text-text-primary tabular-nums">
                     ${cat.total.toLocaleString()}
                   </span>
-                  <span className="text-[9px] font-medium text-text-tertiary/60 tabular-nums w-7 text-right">
+                  <span className="text-4xs font-medium text-text-tertiary/60 tabular-nums w-7 text-right">
                     {Math.round(cat.percentage)}%
                   </span>
                 </div>
@@ -80,7 +78,7 @@ export const TopCategoriesCard: React.FC = () => {
           ))
         ) : (
           <div className="text-center py-6">
-            <p className="text-[11px] font-medium text-text-tertiary/60">No Data Found</p>
+            <p className="text-2xs font-medium text-text-tertiary/60">No Data Found</p>
           </div>
         )}
       </div>
@@ -88,11 +86,11 @@ export const TopCategoriesCard: React.FC = () => {
       <div className="mt-4 pt-3 border-t border-border-subtle">
         <button
           onClick={() => navigate('/insights')}
-          className="w-full text-center text-[11px] font-medium text-primary hover:underline"
+          className="w-full text-center text-2xs font-medium text-primary hover:underline"
         >
           View Full Breakdown
         </button>
       </div>
-    </div>
+    </DashboardCard>
   )
 }

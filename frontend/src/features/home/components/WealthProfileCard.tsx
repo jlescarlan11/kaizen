@@ -5,6 +5,7 @@ import { useWealthPersona } from '../hooks/useWealthPersona'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { Money } from '../../../shared/components/Money/Money'
 import { cn } from '../../../shared/lib/cn'
+import { DashboardCard, CardHeader, CardSkeleton, CircleGauge } from '../../../shared/components'
 
 export const WealthProfileCard: React.FC = () => {
   const { analytics, isLoading } = useWealthHealth()
@@ -13,7 +14,7 @@ export const WealthProfileCard: React.FC = () => {
 
   if (isLoading || !analytics) {
     return (
-      <div className="h-full p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-4">
+      <CardSkeleton className="h-full flex flex-col gap-4">
         <div className="flex justify-between">
           <div className="h-3 w-28 bg-surface-secondary rounded" />
           <div className="h-3 w-16 bg-surface-secondary rounded" />
@@ -36,75 +37,40 @@ export const WealthProfileCard: React.FC = () => {
           </div>
         </div>
         <div className="h-3 w-20 bg-surface-secondary rounded" />
-      </div>
+      </CardSkeleton>
     )
   }
 
   const { savingsRate, netFlow, netFlowChange, isImproving } = analytics
-  const radius = 30
-  const circumference = 2 * Math.PI * radius
-  const offset = circumference - (savingsRate / 100) * circumference
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col h-full group relative overflow-hidden">
+    <DashboardCard className="flex flex-col h-full group relative overflow-hidden">
       <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-primary/5 blur-3xl rounded-full opacity-50 group-hover:bg-primary/10 transition-colors duration-1000" />
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-5 relative z-10">
-        <div className="flex items-center gap-2">
-          <SharedIcon type="ui" name="target" size={14} className="text-primary" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-text-primary">
-            Wealth Profile
-          </p>
-        </div>
-        <button
-          onClick={() => navigate('/your-account/profile')}
-          className="text-[9px] font-black uppercase tracking-widest text-primary hover:underline transition-all"
-        >
-          Profile XP →
-        </button>
-      </div>
+      <CardHeader
+        icon={<SharedIcon type="ui" name="target" size={14} className="text-primary" />}
+        title="Wealth Profile"
+        titleClassName="text-3xs font-black uppercase tracking-widest text-text-primary"
+        right={
+          <button
+            onClick={() => navigate('/your-account/profile')}
+            className="text-4xs font-black uppercase tracking-widest text-primary hover:underline transition-all"
+          >
+            Profile XP →
+          </button>
+        }
+        className="mb-5 relative z-10"
+      />
 
       {/* Content: [gauge + net flow] | [persona] */}
       <div className="flex items-center gap-5 flex-1 relative z-10">
         {/* Gauge */}
-        <div className="relative flex items-center justify-center shrink-0">
-          <svg className="w-20 h-20 -rotate-90">
-            <circle
-              cx="40"
-              cy="40"
-              r={radius}
-              stroke="currentColor"
-              strokeWidth="7"
-              fill="transparent"
-              className="text-surface-secondary"
-            />
-            <circle
-              cx="40"
-              cy="40"
-              r={radius}
-              stroke="currentColor"
-              strokeWidth="7"
-              strokeDasharray={circumference}
-              style={{ strokeDashoffset: offset }}
-              strokeLinecap="round"
-              fill="transparent"
-              className="text-primary transition-all duration-1000 ease-out"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-lg font-black text-text-primary leading-none">
-              {savingsRate}%
-            </span>
-            <span className="text-[7px] font-bold text-text-tertiary uppercase tracking-tighter mt-0.5">
-              Saved
-            </span>
-          </div>
-        </div>
+        <CircleGauge percent={savingsRate} label={`${savingsRate}%`} sublabel="Saved" />
 
         {/* Net flow */}
         <div className="flex flex-col gap-1 shrink-0">
-          <p className="text-[9px] font-black uppercase tracking-widest text-text-tertiary opacity-50">
+          <p className="text-4xs font-black uppercase tracking-widest text-text-tertiary opacity-50">
             Net Flow
           </p>
           <span
@@ -129,11 +95,11 @@ export const WealthProfileCard: React.FC = () => {
                 size={9}
                 strokeWidth={3}
               />
-              <span className="text-[8px] font-black uppercase tracking-widest">
+              <span className="text-5xs font-black uppercase tracking-widest">
                 {Math.abs(netFlowChange)}%
               </span>
             </div>
-            <span className="text-[8px] font-bold text-text-tertiary opacity-40 uppercase">
+            <span className="text-5xs font-bold text-text-tertiary opacity-40 uppercase">
               vs last month
             </span>
           </div>
@@ -152,7 +118,7 @@ export const WealthProfileCard: React.FC = () => {
                 <h3 className="text-sm font-black text-text-primary tracking-tight leading-none mb-1 truncate">
                   {personaData.persona}
                 </h3>
-                <p className="text-[10px] font-medium text-text-secondary opacity-60 leading-relaxed line-clamp-2">
+                <p className="text-3xs font-medium text-text-secondary opacity-60 leading-relaxed line-clamp-2">
                   {personaData.description}
                 </p>
               </div>
@@ -164,7 +130,7 @@ export const WealthProfileCard: React.FC = () => {
       {/* Footer: savings streak */}
       {personaData && (
         <div className="mt-4 relative z-10">
-          <p className="text-[8px] font-black uppercase text-text-tertiary opacity-40 mb-1">
+          <p className="text-5xs font-black uppercase text-text-tertiary opacity-40 mb-1">
             Savings Streak
           </p>
           <div className="flex items-center gap-1.5">
@@ -176,10 +142,10 @@ export const WealthProfileCard: React.FC = () => {
                 />
               ))}
             </div>
-            <span className="text-[10px] font-black text-primary">{personaData.streak}d</span>
+            <span className="text-3xs font-black text-primary">{personaData.streak}d</span>
           </div>
         </div>
       )}
-    </div>
+    </DashboardCard>
   )
 }

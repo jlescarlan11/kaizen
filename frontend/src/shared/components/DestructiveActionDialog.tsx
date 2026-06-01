@@ -69,12 +69,12 @@ export function DestructiveActionDialog({
     >
       <div className="space-y-3">
         {description && (
-          <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+          <p className="text-text-secondary text-sm leading-relaxed">{description}</p>
         )}
         {warning && (
           <div
             role="alert"
-            className="p-3 bg-ui-danger-subtle border border-ui-border rounded-lg text-ui-danger-text text-xs leading-relaxed"
+            className="p-3 bg-error/10 border border-border rounded-lg text-error text-xs leading-relaxed"
           >
             {warning}
           </div>

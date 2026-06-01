@@ -10,7 +10,6 @@ import { SharedIcon } from '../../shared/components/IconRegistry'
 import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
 import { withOpacity } from '../../shared/lib/colorUtils'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { PageTabs } from '../../shared/components/PageTabs'
 
 const BudgetRow = ({
@@ -213,14 +212,11 @@ export function BudgetsPage(): ReactElement {
 
   return (
     <div className="w-full animate-entrance-slide-up pb-24">
-      <PageHeader
-        title="Budgets"
-        actions={
-          <Button variant="primary" size="sm" onClick={() => navigate('/budgets/add')}>
-            + New Budget
-          </Button>
-        }
-      />
+      <div className="flex justify-end mb-6">
+        <Button variant="primary" size="sm" onClick={() => navigate('/budgets/add')}>
+          + New Budget
+        </Button>
+      </div>
       <PageTabs
         tabs={[
           { key: 'active', label: 'Active' },

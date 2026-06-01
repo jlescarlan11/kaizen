@@ -7,7 +7,6 @@ import { Button } from '../../shared/components/Button'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
 import { withOpacity } from '../../shared/lib/colorUtils'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { useSetBreadcrumbLabel } from '../../shared/components/BreadcrumbLabelContext'
 
 const currencyFormatter = {
@@ -51,19 +50,11 @@ export function BudgetDetailPage(): ReactElement {
 
   return (
     <div className={`w-full ${pageLayout.sectionGap}`}>
-      <PageHeader
-        title={budget.categoryName}
-        subtitle={`${budget.period} budget`}
-        actions={
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate(`/budgets/${budget.id}/edit`)}
-          >
-            Edit
-          </Button>
-        }
-      />
+      <div className="flex justify-end mb-6">
+        <Button variant="outline" size="sm" onClick={() => navigate(`/budgets/${budget.id}/edit`)}>
+          Edit
+        </Button>
+      </div>
       <main className="space-y-16">
         {/* Spending Progress */}
         <section className="py-8 border-y border-border-subtle">

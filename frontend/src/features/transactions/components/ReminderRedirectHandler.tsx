@@ -37,7 +37,7 @@ export function ReminderRedirectHandler(): ReactElement {
 
   if (isLoading) {
     return (
-      <Card className="p-12 flex justify-center border border-ui-border-subtle shadow-sm">
+      <Card className="p-12 flex justify-center border border-border-subtle shadow-sm">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </Card>
     )

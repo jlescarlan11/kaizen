@@ -25,13 +25,13 @@ interface AllocationTotalDisplayProps {
 const barColorMap: Record<AllocationStatus, string> = {
   safe: 'bg-primary',
   high: '',
-  over: 'bg-ui-danger-bg',
+  over: 'bg-error/10',
 }
 
 const allocatedColorMap: Record<AllocationStatus, string> = {
-  safe: 'text-ui-accent-text',
-  high: 'text-ui-warning-text',
-  over: 'text-ui-danger-text-soft',
+  safe: 'text-primary',
+  high: 'text-warning',
+  over: 'text-error/70',
 }
 
 const warningGradientStyle: CSSProperties = {
@@ -71,7 +71,7 @@ export function AllocationTotalDisplay({
         value={barPercent}
         activeClassName={barColorMap[status]}
         activeStyle={activeBarStyle}
-        inactiveClassName="bg-ui-surface-muted"
+        inactiveClassName="bg-surface-secondary"
         aria-label="Budget allocation"
       />
 
@@ -80,9 +80,9 @@ export function AllocationTotalDisplay({
           {currencyFormatter.format(sanitizedAllocated)} allocated
           <span className="ml-1.5 font-normal opacity-70">({percentLabel}%)</span>
         </span>
-        <span className="text-subtle-foreground">
+        <span className="text-text-secondary">
           {isOver ? (
-            <span className="font-medium text-ui-danger-text-soft">
+            <span className="font-medium text-error/70">
               Over by {currencyFormatter.format(sanitizedAllocated - available)}
             </span>
           ) : (
@@ -91,17 +91,14 @@ export function AllocationTotalDisplay({
         </span>
       </div>
 
-      <p className="text-xs text-subtle-foreground">
+      <p className="text-xs text-text-secondary">
         of {currencyFormatterFull.format(available)} available
       </p>
 
       {isOver ? (
-        <div
-          className="flex items-center gap-2 rounded-lg bg-ui-danger-subtle px-3 py-2.5"
-          role="alert"
-        >
+        <div className="flex items-center gap-2 rounded-lg bg-error/10 px-3 py-2.5" role="alert">
           <svg
-            className="h-3.5 w-3.5 shrink-0 text-ui-danger-text-soft"
+            className="h-3.5 w-3.5 shrink-0 text-error/70"
             viewBox="0 0 14 14"
             fill="none"
             aria-hidden="true"
@@ -123,7 +120,7 @@ export function AllocationTotalDisplay({
             />
             <circle cx="7" cy="10.5" r="0.6" fill="currentColor" />
           </svg>
-          <p className="text-xs font-medium text-ui-danger-text-soft">
+          <p className="text-xs font-medium text-error/70">
             Total allocations cannot exceed your balance.
           </p>
         </div>

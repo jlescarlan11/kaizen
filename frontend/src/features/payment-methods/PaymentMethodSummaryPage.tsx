@@ -2,7 +2,6 @@ import { type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
 import { pageLayout } from '../../shared/styles/layout'
-import { PageHeader } from '../../shared/components/PageHeader'
 
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 
@@ -18,11 +17,6 @@ export function PaymentMethodSummaryPage(): ReactElement {
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
-        <PageHeader
-          title="Payment Methods"
-          subtitle="Aggregate spending totals per payment method."
-        />
-
         {error && (
           <Card variant="warning">
             <p className="text-sm text-text-primary font-medium">Unable to load summary data.</p>

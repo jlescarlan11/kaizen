@@ -135,14 +135,14 @@ export function CategoryCreationForm({
         />
       </div>
 
-      <div className="rounded-2xl border border-ui-border-subtle bg-ui-surface-subtle/50 p-3">
+      <div className="rounded-2xl border border-border-subtle bg-surface-secondary/50 p-3">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-foreground uppercase tracking-tight">
+          <p className="text-xs font-semibold text-text-primary uppercase tracking-tight">
             Icon & color
           </p>
-          <span className="text-xs font-medium text-muted-foreground">Choose icon</span>
+          <span className="text-xs font-medium text-text-secondary">Choose icon</span>
         </div>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+        <p className="mt-1 text-xs leading-5 text-text-secondary">
           Pick an icon and color from the approved set.
         </p>
         <div className="mt-3">
@@ -163,10 +163,10 @@ export function CategoryCreationForm({
             label="Assigned category icon"
           />
           <div className="flex flex-1 flex-col">
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-sm font-medium text-text-primary">
               {trimmedName || 'Custom category'}
             </span>
-            <span className="text-xs text-muted-foreground">Color: {selectedColor}</span>
+            <span className="text-xs text-text-secondary">Color: {selectedColor}</span>
           </div>
         </div>
       </div>

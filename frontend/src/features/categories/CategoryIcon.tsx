@@ -2,6 +2,10 @@ import type { ReactElement } from 'react'
 import { CATEGORY_ICON_COMPONENTS } from './categoryIconMap'
 import type { CategoryIconName } from './designSystem'
 import { cn } from '../../shared/lib/cn'
+import { withOpacity } from '../../shared/lib/colorUtils'
+
+const ICON_TEXT_DARK = '#1f2a21'
+const ICON_TEXT_LIGHT = '#ffffff'
 
 export interface CategoryIconProps {
   icon: string | null | undefined
@@ -17,7 +21,7 @@ function contrastColor(hex: string): string {
   const r = parseInt(hex.slice(1, 3), 16) / 255
   const g = parseInt(hex.slice(3, 5), 16) / 255
   const b = parseInt(hex.slice(5, 7), 16) / 255
-  return 0.299 * r + 0.587 * g + 0.114 * b > 0.55 ? '#1f2a21' : '#ffffff'
+  return 0.299 * r + 0.587 * g + 0.114 * b > 0.55 ? ICON_TEXT_DARK : ICON_TEXT_LIGHT
 }
 
 export function CategoryIcon({
@@ -51,7 +55,12 @@ export function CategoryIcon({
     return (
       <div
         className={cn(baseStyles, className)}
-        style={{ backgroundColor: color + '22', color: color, width: size, height: size }}
+        style={{
+          backgroundColor: withOpacity(color, 0.13),
+          color: color,
+          width: size,
+          height: size,
+        }}
         aria-label={label ?? 'Category icon'}
       >
         <IconComponent size={iconSize} />

@@ -2,7 +2,6 @@ import type { ReactElement } from 'react'
 import { useTheme, type Theme } from '../../providers/theme'
 import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
-import { PageHeader } from '../../shared/components/PageHeader'
 
 const themeOptions: ReadonlyArray<{
   value: Theme
@@ -33,8 +32,6 @@ export function AppearancePage(): ReactElement {
   return (
     <div className="w-full">
       <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
-        <PageHeader title="Appearance" />
-
         {/* Theme options */}
         <div role="radiogroup" aria-label="Theme selection" className="grid grid-cols-1 gap-3">
           {themeOptions.map((option) => {

@@ -58,7 +58,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
     <>
       <ResponsiveModal open={open} onClose={onClose} title="Merge Categories">
         <div className="space-y-6">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-text-secondary">
             Consolidate two categories into one. All transactions from the source category will be
             reassigned to the target category.
           </p>
@@ -107,17 +107,17 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
         title="Confirm Category Merge"
       >
         <div className="space-y-6">
-          <div className="p-4 rounded-xl bg-ui-surface-muted border border-ui-border-subtle space-y-3">
+          <div className="p-4 rounded-xl bg-surface-secondary border border-border-subtle space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Source:</span>
-              <span className="font-semibold text-foreground">{sourceName}</span>
+              <span className="text-text-secondary">Source:</span>
+              <span className="font-semibold text-text-primary">{sourceName}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Target:</span>
-              <span className="font-semibold text-foreground">{targetName}</span>
+              <span className="text-text-secondary">Target:</span>
+              <span className="font-semibold text-text-primary">{targetName}</span>
             </div>
-            <div className="pt-2 border-t border-ui-border-subtle flex justify-between items-center">
-              <span className="text-sm font-medium text-foreground">Affected Transactions:</span>
+            <div className="pt-2 border-t border-border-subtle flex justify-between items-center">
+              <span className="text-sm font-medium text-text-primary">Affected Transactions:</span>
               {isFetchingCount ? (
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               ) : (
@@ -126,7 +126,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-text-secondary leading-relaxed">
             Are you sure you want to merge <strong>{sourceName}</strong> into{' '}
             <strong>{targetName}</strong>? This action will permanently delete the source category.
           </p>

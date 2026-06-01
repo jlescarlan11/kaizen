@@ -21,6 +21,7 @@ import { flattenTransactions, type FlattenedTransactionItem } from '../utils/vir
 import { DataList } from '../../../shared/components/DataList'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatTransactionDate } from '../utils/transactionUtils'
+import { withOpacity } from '../../../shared/lib/colorUtils'
 
 interface TransactionListProps {
   transactions: TransactionResponse[]
@@ -94,7 +95,7 @@ export function TransactionList({
     if (item.type === 'header') {
       return (
         <div className="pt-10 pb-4 bg-background sticky top-0 z-10 flex items-center justify-between pr-6">
-          <h2 className="px-6 text-[10px] font-black text-text-secondary uppercase tracking-widest flex items-center gap-3">
+          <h2 className="px-6 text-3xs font-black text-text-secondary uppercase tracking-widest flex items-center gap-3">
             <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" />
             {formatGroupDate(item.date)}
           </h2>
@@ -102,7 +103,7 @@ export function TransactionList({
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto p-0 text-[10px] font-black text-primary hover:bg-transparent uppercase tracking-widest"
+              className="h-auto p-0 text-3xs font-black text-primary hover:bg-transparent uppercase tracking-widest"
               onClick={() => {
                 const groupItems: number[] = []
                 for (let i = index + 1; i < flattenedItems.length; i++) {
@@ -159,7 +160,10 @@ export function TransactionList({
             <div
               className="flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:scale-105 shadow-sm"
               style={{
-                backgroundColor: (tx.category?.color || '#000') + '15',
+                backgroundColor: withOpacity(
+                  tx.category?.color || 'var(--color-category-fallback)',
+                  0.08,
+                ),
                 color: tx.category?.color || 'var(--color-text-secondary)',
               }}
             >
@@ -209,19 +213,19 @@ export function TransactionList({
                 )}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
                   {formatTransactionDate(tx.transactionDate)}
                 </span>
                 {tx.paymentMethod && (
                   <>
                     <span className="text-border-subtle">•</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+                    <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
                       {tx.paymentMethod.name}
                     </span>
                   </>
                 )}
                 {!tx.category && (
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-warning ml-1">
+                  <span className="text-3xs font-bold uppercase tracking-widest text-warning ml-1">
                     • Missing category
                   </span>
                 )}
@@ -282,7 +286,7 @@ export function TransactionList({
               Selected {selectedIds.length} of {visibleTransactions.length}
             </span>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-widest opacity-80">
+          <span className="text-3xs font-black uppercase tracking-widest opacity-80">
             Selection Mode
           </span>
         </div>
@@ -295,7 +299,7 @@ export function TransactionList({
         className="gap-1"
         emptyState={
           !isLoading && (
-            <div className="flex flex-col items-center justify-center py-32 text-center bg-white border-2 border-dashed border-border-subtle rounded-[3rem]">
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-white border-2 border-dashed border-border-subtle rounded-pill">
               <div className="w-20 h-20 bg-background rounded-3xl flex items-center justify-center mb-6">
                 <SharedIcon
                   type="ui"
@@ -322,7 +326,7 @@ export function TransactionList({
             variant="ghost"
             onClick={onLoadMore}
             isLoading={isLoading}
-            className="text-muted-foreground hover:text-primary"
+            className="text-text-secondary hover:text-primary"
           >
             Load more transactions
           </Button>

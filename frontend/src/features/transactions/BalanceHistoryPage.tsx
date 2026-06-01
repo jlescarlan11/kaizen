@@ -4,7 +4,6 @@ import { pageLayout } from '../../shared/styles/layout'
 import { Card } from '../../shared/components/Card'
 import { Button } from '../../shared/components/Button'
 import { SharedIcon } from '../../shared/components/IconRegistry'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { useNavigate } from 'react-router-dom'
 import { cn } from '../../shared/lib/cn'
 
@@ -39,11 +38,6 @@ export function BalanceHistoryPage(): ReactElement {
           >
             <SharedIcon type="ui" name="chevron-left" size={16} />
           </Button>
-          <PageHeader
-            title="Balance History"
-            subtitle="Chronological record of your account balance changes."
-            className="mb-0 flex-1"
-          />
         </div>
 
         <section aria-label="Balance history entries">

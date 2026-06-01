@@ -14,7 +14,7 @@ export function ProgressBar({
   colorScheme = 'foreground',
   activeClassName,
   activeStyle,
-  inactiveClassName = 'bg-ui-surface-muted',
+  inactiveClassName = 'bg-surface-secondary',
   className,
   ...props
 }: ProgressBarProps): ReactElement {

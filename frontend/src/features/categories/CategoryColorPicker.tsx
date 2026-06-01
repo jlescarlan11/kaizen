@@ -24,8 +24,8 @@ export function CategoryColorPicker({ value, onChange }: CategoryColorPickerProp
             className={cn(
               'flex h-10 items-center justify-center rounded-xl border transition-colors',
               isSelected
-                ? 'border-ui-border-strong bg-ui-surface'
-                : 'border-ui-border-subtle bg-ui-surface-subtle hover:border-ui-border hover:bg-ui-surface',
+                ? 'border-border bg-surface'
+                : 'border-border-subtle bg-surface-secondary/50 hover:border-border hover:bg-surface',
             )}
           >
             <span

@@ -54,16 +54,16 @@ export function UnauthenticatedHome(): ReactElement {
             <div className="z-10 h-8 w-8 rounded-full border-2 border-background bg-foreground flex items-center justify-center text-xs font-semibold text-background shrink-0">
               JL
             </div>
-            <div className="-ml-2 z-20 h-8 w-8 rounded-full border-2 border-background bg-ui-surface-muted flex items-center justify-center text-xs font-semibold text-foreground shrink-0">
+            <div className="-ml-2 z-20 h-8 w-8 rounded-full border-2 border-background bg-surface-secondary flex items-center justify-center text-xs font-semibold text-text-primary shrink-0">
               MR
             </div>
-            <div className="-ml-2 z-30 h-8 w-8 rounded-full border-2 border-background bg-ui-surface-muted flex items-center justify-center text-xs font-semibold text-foreground shrink-0">
+            <div className="-ml-2 z-30 h-8 w-8 rounded-full border-2 border-background bg-surface-secondary flex items-center justify-center text-xs font-semibold text-text-primary shrink-0">
               AK
             </div>
           </div>
           {/* Role: body-sm (metadata) */}
           <p className={typography['body-sm']}>
-            Joined by <strong className="font-semibold text-foreground">2,400+ students</strong>{' '}
+            Joined by <strong className="font-semibold text-text-primary">2,400+ students</strong>{' '}
             across the Philippines
           </p>
         </div>

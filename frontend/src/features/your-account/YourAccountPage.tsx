@@ -14,8 +14,6 @@ import { Badge } from '../../shared/components/Badge'
 import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
-import { PageHeader } from '../../shared/components/PageHeader'
-
 const IS_DEV = import.meta.env.DEV
 
 type AccountItem = {
@@ -436,7 +434,6 @@ export function YourAccountPage(): ReactElement {
   return (
     <div className="animate-entrance-slide-up pb-24">
       <div className="w-full">
-        <PageHeader title="Your Account" />
         <div>
           <LogoutConfirmationModal
             isOpen={isLogoutModalOpen}

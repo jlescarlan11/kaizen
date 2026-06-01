@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { useSpendingAnalytics } from '../hooks/useSpendingAnalytics'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
+import { DashboardCard, CardHeader, CardSkeleton } from '../../../shared/components'
 
 export const SpendingGraphCard: React.FC = () => {
   const { data, totalSpending, isLoading } = useSpendingAnalytics(30)
@@ -18,31 +19,30 @@ export const SpendingGraphCard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm animate-pulse flex flex-col gap-3 h-full">
+      <CardSkeleton className="flex flex-col gap-3 h-full">
         <div className="h-3 w-28 bg-surface-secondary rounded" />
         <div className="h-6 w-24 bg-surface-secondary rounded" />
         <div className="flex-1 w-full bg-surface-secondary rounded" />
-      </div>
+      </CardSkeleton>
     )
   }
 
   return (
-    <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm flex flex-col group h-full overflow-hidden">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <SharedIcon type="ui" name="chart-bar" size={14} className="text-primary" />
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-text-secondary">
-            30-Day Spending
-          </p>
-        </div>
-        <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
-          <SharedIcon type="ui" name="trending-up" size={10} className="text-primary" />
-          <span className="text-[10px] font-semibold text-primary">Active</span>
-        </div>
-      </div>
+    <DashboardCard className="flex flex-col group h-full overflow-hidden">
+      <CardHeader
+        icon={<SharedIcon type="ui" name="chart-bar" size={14} className="text-primary" />}
+        title="30-Day Spending"
+        right={
+          <div className="flex items-center gap-1 bg-primary/10 px-2 py-0.5 rounded-full">
+            <SharedIcon type="ui" name="trending-up" size={10} className="text-primary" />
+            <span className="text-3xs font-semibold text-primary">Active</span>
+          </div>
+        }
+        className="mb-3"
+      />
 
       <div className="mb-3">
-        <p className="text-[11px] font-medium text-text-secondary/60 mb-0.5">Total Out (L30D)</p>
+        <p className="text-2xs font-medium text-text-secondary/60 mb-0.5">Total Out (L30D)</p>
         <p className="text-2xl font-bold text-text-primary tracking-tight tabular-nums">
           ${totalSpending.toLocaleString(undefined, { minimumFractionDigits: 2 })}
         </p>
@@ -110,15 +110,15 @@ export const SpendingGraphCard: React.FC = () => {
       <div className="mt-3 flex justify-between items-center border-t border-border-subtle pt-3">
         <div className="flex items-center gap-1.5 text-text-tertiary">
           <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-          <span className="text-[11px] font-medium">Current Volume</span>
+          <span className="text-2xs font-medium">Current Volume</span>
         </div>
         <button
           onClick={() => navigate('/insights')}
-          className="text-[11px] font-medium text-primary hover:underline"
+          className="text-2xs font-medium text-primary hover:underline"
         >
           View Trends →
         </button>
       </div>
-    </div>
+    </DashboardCard>
   )
 }

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGetTransactionsQuery } from '../../../app/store/api/transactionApi'
-import { TransactionsEmptyState } from '../TransactionsEmptyState'
+import { EmptyStateCard, DashboardCard } from '../../../shared/components'
 import { ADD_TRANSACTION_ROUTE } from '../routes'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { Money } from '../../../shared/components/Money/Money'
@@ -22,24 +22,23 @@ export const TimelineActivity: React.FC = () => {
     return <div className="h-64 bg-surface border border-border-subtle rounded-2xl animate-pulse" />
   }
 
-  if (transactions.length === 0) {
+  if (transactions.length === 0 || recentActivity.length === 0) {
     return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm">
-        <TransactionsEmptyState onAddTransaction={() => navigate(ADD_TRANSACTION_ROUTE)} />
-      </div>
-    )
-  }
-
-  if (recentActivity.length === 0) {
-    return (
-      <div className="p-5 rounded-2xl bg-surface border border-border-subtle shadow-sm">
-        <TransactionsEmptyState onAddTransaction={() => navigate(ADD_TRANSACTION_ROUTE)} />
-      </div>
+      <DashboardCard>
+        <EmptyStateCard
+          title="No transactions yet"
+          description="Add your first transaction to start tracking activity."
+          primaryAction={{
+            label: 'Add Transaction',
+            onClick: () => navigate(ADD_TRANSACTION_ROUTE),
+          }}
+        />
+      </DashboardCard>
     )
   }
 
   return (
-    <div className="bg-surface border border-border-subtle rounded-2xl shadow-sm p-5 flex flex-col h-full">
+    <DashboardCard className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <p className="text-[10px] font-black uppercase tracking-widest text-text-secondary">
@@ -103,6 +102,6 @@ export const TimelineActivity: React.FC = () => {
           )
         })}
       </div>
-    </div>
+    </DashboardCard>
   )
 }

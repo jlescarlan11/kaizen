@@ -30,7 +30,7 @@ export function ConfirmBulkDeleteDialog({
       description={
         <>
           Are you sure you want to delete{' '}
-          <span className="font-semibold text-foreground">{count}</span> selected{' '}
+          <span className="font-semibold text-text-primary">{count}</span> selected{' '}
           {count === 1 ? 'transaction' : 'transactions'}?
         </>
       }

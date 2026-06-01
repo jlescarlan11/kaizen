@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { Button } from '../../shared/components/Button'
-import { PageHeader } from '../../shared/components/PageHeader'
 import { CategoryCreationForm } from './CategoryCreationForm'
 import { CategoryList } from './CategoryList'
 import { MergeCategoriesModal } from './MergeCategoriesModal'
@@ -48,19 +47,15 @@ export function CategoryManagementPage(): ReactElement {
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
-        <PageHeader
-          title="Categories"
-          subtitle="Create categories tailored to your workflow. They will appear immediately anywhere you pick a category."
-          actions={
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={() => setIsMergeModalOpen(true)}
-            >
-              Merge Categories
-            </Button>
-          }
-        />
+        <div className="flex justify-end mb-6">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => setIsMergeModalOpen(true)}
+          >
+            Merge Categories
+          </Button>
+        </div>
 
         {error && (
           <Card variant="warning">

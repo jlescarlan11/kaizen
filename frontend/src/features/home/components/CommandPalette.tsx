@@ -95,7 +95,7 @@ export function CommandPalette(): ReactElement {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="mx-auto max-w-2xl transform divide-y divide-border/5 overflow-hidden rounded-[2rem] bg-surface shadow-2xl ring-1 ring-border/10 transition-all">
+            <DialogPanel className="mx-auto max-w-2xl transform divide-y divide-border/5 overflow-hidden rounded-card bg-surface shadow-2xl ring-1 ring-border/10 transition-all">
               <div className="relative">
                 <SharedIcon
                   type="ui"
@@ -153,14 +153,14 @@ export function CommandPalette(): ReactElement {
               )}
 
               <div className="bg-surface-secondary/50 px-6 py-3 flex justify-between items-center">
-                <p className="text-[10px] font-black uppercase tracking-widest text-text-tertiary opacity-40">
+                <p className="text-3xs font-black uppercase tracking-widest text-text-tertiary opacity-40">
                   Kaizen Power Tools
                 </p>
                 <div className="flex items-center gap-4">
-                  <span className="text-[9px] font-bold text-text-tertiary uppercase">
+                  <span className="text-4xs font-bold text-text-tertiary uppercase">
                     ↑↓ to navigate
                   </span>
-                  <span className="text-[9px] font-bold text-text-tertiary uppercase">
+                  <span className="text-4xs font-bold text-text-tertiary uppercase">
                     ↵ to execute
                   </span>
                 </div>

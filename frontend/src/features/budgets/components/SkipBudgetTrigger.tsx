@@ -59,7 +59,7 @@ export function SkipBudgetTrigger({ className, onSkipped }: SkipBudgetTriggerPro
     <>
       <button
         type="button"
-        className={`${className ?? ''} text-sm font-medium leading-none text-muted-foreground transition-colors hover:text-foreground`}
+        className={`${className ?? ''} text-sm font-medium leading-none text-text-secondary transition-colors hover:text-text-primary`}
         onClick={openDialog}
       >
         Skip for now

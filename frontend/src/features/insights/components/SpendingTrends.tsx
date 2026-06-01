@@ -1,14 +1,21 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
+import type { TrendSeries, Granularity } from '../types'
 
 interface SpendingTrendsProps {
   trends: TrendSeries
   granularity: Granularity
+  onGranularityChange?: (g: Granularity) => void
   isLoading: boolean
 }
 
-export function SpendingTrends({ trends, granularity, isLoading }: SpendingTrendsProps) {
+export function SpendingTrends({
+  trends,
+  granularity,
+  onGranularityChange,
+  isLoading,
+}: SpendingTrendsProps) {
   if (isLoading) {
     return (
       <Card title="Spending Trends">
@@ -21,7 +28,7 @@ export function SpendingTrends({ trends, granularity, isLoading }: SpendingTrend
     return (
       <Card title="Spending Trends">
         <div className="flex h-64 items-center justify-center">
-          <p className="text-sm leading-6 italic text-muted-foreground">
+          <p className="text-sm leading-6 italic text-text-secondary">
             No trend data available for this period.
           </p>
         </div>
@@ -29,7 +36,7 @@ export function SpendingTrends({ trends, granularity, isLoading }: SpendingTrend
     )
   }
 
-  const chartData = trends.series.map((t) => {
+  const chartData = (trends.series || []).map((t) => {
     const date = new Date(t.periodStart)
     const name =
       granularity === 'MONTHLY'
@@ -39,7 +46,29 @@ export function SpendingTrends({ trends, granularity, isLoading }: SpendingTrend
   })
 
   return (
-    <Card title="Spending Trends" className="h-full">
+    <Card
+      title="Spending Trends"
+      className="h-full"
+      extra={
+        onGranularityChange && (
+          <div className="flex items-center gap-1 bg-surface-secondary rounded-lg p-0.5 border border-border/5">
+            {(['DAILY', 'WEEKLY', 'MONTHLY'] as Granularity[]).map((g) => (
+              <button
+                key={g}
+                onClick={() => onGranularityChange(g)}
+                className={`px-2 py-1 text-3xs font-black uppercase tracking-widest rounded-md transition-all ${
+                  granularity === g
+                    ? 'bg-surface text-text-primary shadow-sm'
+                    : 'text-text-secondary opacity-40 hover:opacity-100'
+                }`}
+              >
+                {g[0]}
+              </button>
+            ))}
+          </div>
+        )
+      }
+    >
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>

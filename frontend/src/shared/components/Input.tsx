@@ -47,7 +47,7 @@ export function Input({
         {startAdornment ? (
           <div
             className={cn(
-              'absolute left-3 flex items-center text-subtle-foreground',
+              'absolute left-3 flex items-center text-text-secondary',
               startAdornmentPointerEvents === 'auto'
                 ? 'pointer-events-auto'
                 : 'pointer-events-none',
@@ -74,7 +74,7 @@ export function Input({
         {endAdornment ? (
           <div
             className={cn(
-              'pointer-events-none absolute right-3 flex items-center text-sm font-medium text-subtle-foreground uppercase',
+              'pointer-events-none absolute right-3 flex items-center text-sm font-medium text-text-secondary uppercase',
               props.disabled && 'opacity-60',
             )}
           >

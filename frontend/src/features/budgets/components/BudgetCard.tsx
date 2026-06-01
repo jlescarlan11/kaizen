@@ -30,7 +30,7 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
     <div
       className={cn(
         'flex items-center gap-4 px-4 py-3.5 transition-colors',
-        isInvalid && 'bg-ui-danger-subtle/30 -mx-4 rounded-lg px-2',
+        isInvalid && 'bg-error/10 -mx-4 rounded-lg px-2',
       )}
     >
       <CategoryBadge
@@ -41,12 +41,12 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
       />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-semibold leading-none text-foreground">
+        <p className="truncate text-base font-semibold leading-none text-text-primary">
           {budget.categoryName}
         </p>
-        <p className="mt-1 text-sm font-medium leading-none text-subtle-foreground tabular-nums">
+        <p className="mt-1 text-sm font-medium leading-none text-text-secondary tabular-nums">
           {formatCurrency(budget.amount)}{' '}
-          <span className="text-xs text-muted-foreground font-normal">
+          <span className="text-xs text-text-secondary font-normal">
             / {periodLabel[budget.period]}
           </span>
         </p>
@@ -57,7 +57,7 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
           type="button"
           onClick={onEdit}
           className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-surface-muted hover:text-foreground active:scale-95',
+            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text-primary active:scale-95',
             fluidLayout.touchTarget,
             'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}
@@ -69,7 +69,7 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
           type="button"
           onClick={onRemove}
           className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-ui-danger-subtle hover:text-ui-danger-text-soft active:scale-95',
+            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-text-secondary transition-colors hover:bg-error/10 hover:text-error/70 active:scale-95',
             fluidLayout.touchTarget,
             'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
           )}

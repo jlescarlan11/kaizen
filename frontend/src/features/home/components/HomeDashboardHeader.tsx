@@ -32,7 +32,7 @@ export const HomeDashboardHeader: React.FC<HomeDashboardHeaderProps> = ({ balanc
       <div className="relative z-10 flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          <p className="text-[11px] font-medium uppercase tracking-widest text-text-secondary/60">
+          <p className="text-2xs font-medium uppercase tracking-widest text-text-secondary/60">
             Net Worth
           </p>
         </div>
@@ -60,7 +60,7 @@ export const HomeDashboardHeader: React.FC<HomeDashboardHeaderProps> = ({ balanc
                   />
                 </LineChart>
               </ResponsiveContainer>
-              <p className="text-[9px] font-medium uppercase tracking-widest text-primary/70 mt-1">
+              <p className="text-4xs font-medium uppercase tracking-widest text-primary/70 mt-1">
                 30D
               </p>
             </div>

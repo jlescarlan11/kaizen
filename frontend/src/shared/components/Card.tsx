@@ -20,7 +20,7 @@ const variantStyles: Record<CardVariant, string> = {
   info: 'border-info/20 bg-info/5 text-text-primary',
 }
 
-const titleClass = 'text-[11px] font-semibold tracking-widest text-text-secondary uppercase'
+const titleClass = 'text-2xs font-semibold tracking-widest text-text-secondary uppercase'
 
 export const Card = forwardRef(function Card(
   {

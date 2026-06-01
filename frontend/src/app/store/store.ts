@@ -3,16 +3,16 @@ import { baseApi } from './api/baseApi'
 import authReducer from './authSlice'
 import onboardingReducer from '../../features/onboarding/onboardingSlice'
 import notificationReducer from './notificationSlice'
-import balanceSummaryReducer from '../../features/insights/balanceSummarySlice'
 import transactionsReducer from '../../features/transactions/transactionSlice'
+import uiReducer from './uiSlice'
 
 const rootReducer = combineReducers({
   [baseApi.reducerPath]: baseApi.reducer,
   auth: authReducer,
   onboarding: onboardingReducer,
   notification: notificationReducer,
-  balanceSummary: balanceSummaryReducer,
   transactions: transactionsReducer,
+  ui: uiReducer,
 })
 
 export const store = configureStore({

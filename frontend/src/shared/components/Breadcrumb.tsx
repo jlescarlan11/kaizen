@@ -80,7 +80,7 @@ export function Breadcrumb({ className }: BreadcrumbProps): ReactElement | null 
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn('flex items-center gap-1.5 text-xs text-text-secondary mb-4', className)}
+      className={cn('flex items-center gap-1.5 text-xs text-text-secondary', className)}
     >
       {resolvedCrumbs.map((crumb, i) => {
         const isLast = i === resolvedCrumbs.length - 1

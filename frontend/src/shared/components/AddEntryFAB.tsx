@@ -38,7 +38,7 @@ export function AddEntryFAB({
         onAddTransaction()
         setIsOpen(false)
       },
-      color: 'bg-ui-action text-ui-action-text',
+      color: 'bg-primary text-primary',
     },
     {
       icon: <SharedIcon type="ui" name="wallet" size={20} />,
@@ -47,7 +47,7 @@ export function AddEntryFAB({
         onCreateBudget()
         setIsOpen(false)
       },
-      color: 'bg-ui-accent text-foreground',
+      color: 'bg-primary text-text-primary',
     },
     {
       icon: <SharedIcon type="ui" name="target" size={20} />,
@@ -56,7 +56,7 @@ export function AddEntryFAB({
         onCreateGoal()
         setIsOpen(false)
       },
-      color: 'bg-ui-success text-ui-success-text',
+      color: 'bg-success text-success',
     },
     {
       icon: <SharedIcon type="ui" name="hand" size={20} />,
@@ -65,7 +65,7 @@ export function AddEntryFAB({
         onHoldPurchase()
         setIsOpen(false)
       },
-      color: 'bg-ui-warning text-ui-warning-text',
+      color: 'bg-warning text-warning',
     },
   ]
 
@@ -89,7 +89,7 @@ export function AddEntryFAB({
           <div key={index} className="flex items-center gap-3 group">
             <span
               className={cn(
-                'px-2.5 py-1 rounded-lg bg-ui-surface border border-ui-border-subtle text-foreground text-xs font-semibold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap pointer-events-auto',
+                'px-2.5 py-1 rounded-lg bg-surface border border-border-subtle text-text-primary text-xs font-semibold uppercase tracking-wider shadow-sm transition-all duration-200 whitespace-nowrap pointer-events-auto',
                 isMobile
                   ? isOpen
                     ? 'opacity-100 translate-x-0 scale-100'
@@ -122,8 +122,8 @@ export function AddEntryFAB({
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close quick actions' : 'Open quick actions'}
         className={cn(
-          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-ui-border-strong bg-ui-surface text-foreground shadow-2xl transition-all hover:bg-ui-surface-muted active:scale-95 active:brightness-90 pointer-events-auto',
-          isOpen && 'rotate-45 bg-ui-surface-muted',
+          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface text-text-primary shadow-2xl transition-all hover:bg-surface-secondary active:scale-95 active:brightness-90 pointer-events-auto',
+          isOpen && 'rotate-45 bg-surface-secondary',
         )}
       >
         {isOpen ? (

@@ -121,7 +121,7 @@ export function Select({
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
               >
-                <ListboxOptions className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-[1.5rem] border border-border-subtle bg-white p-2 shadow-2xl focus:outline-none">
+                <ListboxOptions className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl border border-border-subtle bg-white p-2 shadow-2xl focus:outline-none">
                   {options.map((option) => (
                     <ListboxOption
                       key={option.value}
@@ -131,7 +131,7 @@ export function Select({
                         cn(
                           'relative select-none transition-all duration-200',
                           option.disabled
-                            ? 'cursor-default opacity-100 py-2 pl-4 mt-3 mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-text-secondary opacity-40'
+                            ? 'cursor-default opacity-100 py-2 pl-4 mt-3 mb-1 text-3xs font-black uppercase tracking-[0.2em] text-text-secondary opacity-40'
                             : 'cursor-pointer rounded-xl py-3.5 pl-12 pr-4 text-sm font-black tracking-tight text-text-primary uppercase',
                           !option.disabled && focus ? 'bg-surface-secondary' : '',
                           !option.disabled && selected

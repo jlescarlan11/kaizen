@@ -1,6 +1,7 @@
 import { type ReactElement } from 'react'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { cn } from '../../../shared/lib/cn'
+import { withOpacity } from '../../../shared/lib/colorUtils'
 
 interface TransactionDetailInfoProps {
   category?: {
@@ -27,15 +28,13 @@ export function TransactionDetailInfo({
   return (
     <div className={cn('space-y-12', className)}>
       {/* Detail Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 py-8 border-y border-ui-border-subtle">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 py-8 border-y border-border-subtle">
         <InfoBlock label="Flow">
           <div className="flex items-center gap-3">
             <div
               className={cn(
                 'flex h-10 w-10 items-center justify-center rounded-full',
-                isIncome
-                  ? 'bg-ui-success/10 text-ui-success'
-                  : 'bg-ui-surface-muted text-foreground',
+                isIncome ? 'bg-success/10 text-success' : 'bg-surface-secondary text-text-primary',
               )}
             >
               <SharedIcon
@@ -44,7 +43,7 @@ export function TransactionDetailInfo({
                 size={20}
               />
             </div>
-            <p className="text-lg font-semibold text-foreground capitalize">
+            <p className="text-lg font-semibold text-text-primary capitalize">
               {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
             </p>
           </div>
@@ -56,29 +55,29 @@ export function TransactionDetailInfo({
               <div
                 className="flex h-10 w-10 items-center justify-center rounded-full text-xl"
                 style={{
-                  backgroundColor: category.color + '15',
+                  backgroundColor: withOpacity(category.color, 0.08),
                   color: category.color,
                 }}
               >
                 <SharedIcon type="category" name={category.icon} size={20} />
               </div>
-              <span className="text-lg font-semibold text-foreground">{category.name}</span>
+              <span className="text-lg font-semibold text-text-primary">{category.name}</span>
             </div>
           ) : (
-            <span className="italic text-muted-foreground">No Category</span>
+            <span className="italic text-text-secondary">No Category</span>
           )}
         </InfoBlock>
 
         <InfoBlock label="Account">
           {paymentMethod ? (
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-ui-surface-strong text-foreground text-sm font-semibold border border-ui-border">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary text-text-primary text-sm font-semibold border border-border">
                 {paymentMethod.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-lg font-semibold text-foreground">{paymentMethod.name}</span>
+              <span className="text-lg font-semibold text-text-primary">{paymentMethod.name}</span>
             </div>
           ) : (
-            <span className="italic text-muted-foreground">No Payment Method</span>
+            <span className="italic text-text-secondary">No Payment Method</span>
           )}
         </InfoBlock>
       </div>
@@ -95,7 +94,7 @@ interface InfoBlockProps {
 function InfoBlock({ label, children, fullWidth }: InfoBlockProps) {
   return (
     <div className={cn('flex flex-col gap-2', fullWidth ? 'md:col-span-2' : '')}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{label}</p>
       {children}
     </div>
   )
