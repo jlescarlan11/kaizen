@@ -1,9 +1,9 @@
-import { type ReactElement } from 'react'
+import { type ReactElement, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
 export interface KpiItem {
   label: string
-  value: string | ReactElement
+  value: ReactNode
   valueClassName?: string
 }
 
@@ -20,8 +20,8 @@ export function KpiStrip({ items, className }: KpiStripProps): ReactElement {
         className,
       )}
     >
-      {items.map((item, i) => (
-        <div key={i} className="flex flex-col gap-0.5 min-w-[80px]">
+      {items.map((item) => (
+        <div key={item.label} className="flex flex-col gap-0.5 min-w-[80px]">
           <span className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
             {item.label}
           </span>

@@ -1,7 +1,7 @@
 import { type ReactElement, type ReactNode } from 'react'
 import { cn } from '../lib/cn'
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   title: string
   subtitle?: string
   actions?: ReactNode

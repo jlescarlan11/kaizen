@@ -20,11 +20,13 @@ export function PageTabs<T extends string>({
   className,
 }: PageTabsProps<T>): ReactElement {
   return (
-    <div className={cn('flex gap-0 border-b border-border-subtle mb-5', className)}>
+    <div role="tablist" className={cn('flex border-b border-border-subtle mb-5', className)}>
       {tabs.map((tab) => (
         <button
           key={tab.key}
           type="button"
+          role="tab"
+          aria-selected={activeTab === tab.key}
           onClick={() => onChange(tab.key)}
           className={cn(
             'px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px',

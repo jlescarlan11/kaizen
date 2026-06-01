@@ -26,8 +26,8 @@ export function DataTable<T>({
   emptyState,
   className,
 }: DataTableProps<T>): ReactElement {
-  if (rows.length === 0 && emptyState) {
-    return <>{emptyState}</>
+  if (rows.length === 0) {
+    return emptyState ? <>{emptyState}</> : null
   }
 
   return (
@@ -37,7 +37,7 @@ export function DataTable<T>({
         className,
       )}
     >
-      <table className="w-full text-sm border-collapse">
+      <table className="w-full text-sm border-separate border-spacing-0">
         <thead>
           <tr className="border-b border-border-subtle bg-surface">
             {columns.map((col) => (
