@@ -94,16 +94,15 @@ export function TransactionList({
   const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
       return (
-        <div className="pt-10 pb-4 bg-background sticky top-0 z-10 flex items-center justify-between pr-6">
-          <h2 className="px-6 text-3xs font-black text-text-secondary uppercase tracking-widest flex items-center gap-3">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary inline-block" />
+        <div className="flex items-center justify-between px-4 py-2 bg-surface-secondary border-b border-border-subtle">
+          <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
             {formatGroupDate(item.date)}
-          </h2>
+          </span>
           {isSelectionMode && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto p-0 text-3xs font-black text-primary hover:bg-transparent uppercase tracking-widest"
+              className="h-auto p-0 text-3xs font-bold text-primary hover:bg-transparent uppercase tracking-widest"
               onClick={() => {
                 const groupItems: number[] = []
                 for (let i = index + 1; i < flattenedItems.length; i++) {
