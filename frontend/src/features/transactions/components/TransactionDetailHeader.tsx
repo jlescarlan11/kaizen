@@ -31,7 +31,7 @@ export function TransactionDetailHeader({
           isIncome ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error',
         )}
       >
-        {isIncome ? '↑ Income' : '↓ Expense'}
+        {isIncome ? '↑' : '↓'}
       </span>
 
       {/* Amount */}
