@@ -1,4 +1,3 @@
-// frontend/src/features/transactions/components/TransactionSummaryStrip.tsx
 import type { ReactElement } from 'react'
 import { cn } from '../../../shared/lib/cn'
 import { phpCurrencyFormatter } from '../../../shared/lib/formatCurrency'
@@ -6,7 +5,6 @@ import { phpCurrencyFormatter } from '../../../shared/lib/formatCurrency'
 interface TransactionSummaryStripProps {
   incoming: number
   outgoing: number
-  net: number
 }
 
 interface StatColProps {
@@ -14,12 +12,11 @@ interface StatColProps {
   value: number
   colorClass: string
   dotColor?: string
-  showSign?: boolean
+  sign?: string
 }
 
-function StatCol({ label, value, colorClass, dotColor, showSign = false }: StatColProps) {
-  const formatted = phpCurrencyFormatter.format(Math.abs(value)).replace('PHP', '').trim()
-  const sign = showSign ? (value >= 0 ? '+' : '−') : ''
+function StatCol({ label, value, colorClass, dotColor, sign = '' }: StatColProps) {
+  const formatted = phpCurrencyFormatter.format(value).replace('PHP', '').trim()
 
   return (
     <div className="flex-1 px-5 py-4 border-r border-border-subtle last:border-r-0">
@@ -29,8 +26,10 @@ function StatCol({ label, value, colorClass, dotColor, showSign = false }: StatC
           {label}
         </span>
       </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-xs font-semibold text-text-secondary opacity-50">PHP</span>
+      <div className="flex items-baseline gap-1" aria-label={`${label}: PHP ${formatted}`}>
+        <span className="text-xs font-semibold text-text-secondary opacity-50" aria-hidden="true">
+          PHP
+        </span>
         <span className={cn('text-xl font-extrabold tracking-tight leading-none', colorClass)}>
           {sign}
           {formatted}
@@ -43,13 +42,23 @@ function StatCol({ label, value, colorClass, dotColor, showSign = false }: StatC
 export function TransactionSummaryStrip({
   incoming,
   outgoing,
-  net,
 }: TransactionSummaryStripProps): ReactElement {
+  const net = incoming - outgoing
+  const netSign = net >= 0 ? '+' : '−' // U+2212 minus sign
+
   return (
-    <div className="flex bg-surface border border-border-subtle rounded-card overflow-hidden">
+    <div
+      className="flex bg-surface border border-border-subtle rounded-card overflow-hidden"
+      aria-label="Transaction summary"
+    >
       <StatCol label="Income" value={incoming} colorClass="text-success" dotColor="bg-success" />
       <StatCol label="Expenses" value={outgoing} colorClass="text-error" dotColor="bg-error" />
-      <StatCol label="Net" value={net} colorClass="text-text-primary" showSign />
+      <StatCol
+        label="Net"
+        value={Math.abs(net)}
+        colorClass={net >= 0 ? 'text-success' : 'text-error'}
+        sign={netSign}
+      />
     </div>
   )
 }
