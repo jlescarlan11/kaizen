@@ -11,6 +11,7 @@ import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
 import { withOpacity } from '../../shared/lib/colorUtils'
 import { PageTabs } from '../../shared/components/PageTabs'
+import { ProgressBar } from '../../shared/components/ProgressBar'
 
 const BudgetRow = ({
   budget,
@@ -88,15 +89,11 @@ const BudgetRow = ({
               </div>
             </div>
 
-            <div className="relative w-full h-2 bg-background rounded-full overflow-hidden p-px">
-              <div
-                className={cn(
-                  'h-full rounded-full transition-all duration-700 ease-out',
-                  isOverBudget ? 'bg-error' : 'bg-primary',
-                )}
-                style={{ width: `${usagePercent}%` }}
-              />
-            </div>
+            <ProgressBar
+              value={Math.min(usagePercent, 100)}
+              activeClassName={isOverBudget ? 'bg-error' : 'bg-primary'}
+              inactiveClassName={isOverBudget ? 'bg-error/10' : 'bg-background'}
+            />
 
             <div className="flex justify-between mt-1.5 px-0.5">
               <p className="text-sm text-text-secondary">Spent ${budget.expense.toFixed(2)}</p>
