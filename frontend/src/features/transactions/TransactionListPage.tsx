@@ -24,7 +24,7 @@ import {
 import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
-import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
+import { TransactionSummaryStrip } from './components/TransactionSummaryStrip'
 
 export function TransactionListPage(): ReactElement {
   const dispatch = useAppDispatch()
@@ -127,7 +127,7 @@ export function TransactionListPage(): ReactElement {
 
         {!isLoading && processedTransactions.length > 0 && (
           <div className="animate-in fade-in slide-in-from-bottom-3 duration-600">
-            <MoneyFlowDisplay {...moneyFlow} />
+            <TransactionSummaryStrip incoming={moneyFlow.incoming} outgoing={moneyFlow.outgoing} />
           </div>
         )}
 
