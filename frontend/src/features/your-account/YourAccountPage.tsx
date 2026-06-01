@@ -438,7 +438,7 @@ export function YourAccountPage(): ReactElement {
           >
             {/* Left — sticky profile card */}
             <div
-              className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}
+              className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-0')}
             >
               {isMobile ? mobileProfileHero : desktopProfileCard}
             </div>
