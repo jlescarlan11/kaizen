@@ -2,13 +2,9 @@ import { useState, type ReactElement } from 'react'
 import { Outlet, NavLink, useMatches, useNavigate } from 'react-router-dom'
 import { AppErrorPage } from '../../shared/components/AppErrorPage'
 import { ErrorBoundary } from '../../shared/components/ErrorBoundary'
-import { KaizenLogo } from '../../shared/components/KaizenLogo'
 import { useAuthState } from '../../shared/hooks/useAuthState'
-import { useMediaQuery } from '../../shared/hooks/useMediaQuery'
 import { useLogoutMutation } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
-import { cn } from '../../shared/lib/cn'
-import { pageLayout } from '../../shared/styles/layout'
 import { AddEntryFAB } from '../../shared/components/AddEntryFAB'
 import { clearStoredOnboardingDraft } from '../../features/onboarding/onboardingDraftStorage'
 import { UndoSnackbar } from '../../shared/components/UndoSnackbar'
@@ -19,7 +15,7 @@ import {
   DashboardTourAnchorsProvider,
   type DashboardTourAnchorKey,
 } from '../../features/home/DashboardTourAnchorsContext'
-import { useRegisterDashboardTourAnchor } from '../../features/home/DashboardTourAnchorsHooks'
+import { AppSidebar } from '../../shared/components/AppSidebar'
 
 interface RouteHandle {
   backButton?: {
@@ -32,9 +28,9 @@ interface RouteHandle {
 
 /**
  * AuthenticatedLayout: The app shell for authenticated users.
- * Implements a "Wise-inspired" layout:
- * - Desktop: Permanent sidebar with Logo and Navigation.
- * - Mobile: Top header, Bottom navigation.
+ * Implements a sidebar-first layout:
+ * - Desktop: Permanent sidebar (icon rail at md, full at lg) via AppSidebar.
+ * - Mobile: Drawer via AppSidebar + hamburger button in top bar.
  */
 export function AuthenticatedLayout(): ReactElement {
   return (
@@ -48,14 +44,11 @@ function AuthenticatedLayoutContent(): ReactElement {
   const { user } = useAuthState()
   const dispatch = useAppDispatch()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
-  const isMobile = useMediaQuery('(max-width: 768px)')
   const matches = useMatches()
   const navigate = useNavigate()
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
-
-  const registerBudgetsTab = useRegisterDashboardTourAnchor('budgetsTab')
-  const registerGoalsTab = useRegisterDashboardTourAnchor('goalsTab')
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Extract navigation metadata from the current route match
   const lastMatch = matches[matches.length - 1]
@@ -113,7 +106,7 @@ function AuthenticatedLayoutContent(): ReactElement {
     : '??'
 
   return (
-    <div className="flex min-h-screen bg-background text-text-primary font-body">
+    <>
       <LogoutConfirmationModal
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
@@ -121,197 +114,102 @@ function AuthenticatedLayoutContent(): ReactElement {
         isLoading={isLoggingOut}
       />
 
-      {/* ───────── SIDEBAR (Desktop Only) ───────── */}
-      {!isMobile && (
-        <aside className="fixed inset-y-0 left-0 w-64 bg-background flex flex-col z-30 border-r border-border-subtle">
-          <div className="h-16 flex items-center px-8">
-            <NavLink to="/" className="flex items-center gap-3">
-              <KaizenLogo className="h-8 w-8" />
-              <span className="text-xl font-semibold tracking-tight text-text-primary">Kaizen</span>
-            </NavLink>
-          </div>
+      {/* Sidebar */}
+      <AppSidebar
+        navItems={navItems}
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        userInitials={userInitials}
+        userPicture={user?.picture}
+        userName={user?.name}
+      />
 
-          <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => {
-              const anchorRef = item.anchorKey
-                ? item.anchorKey === 'budgetsTab'
-                  ? registerBudgetsTab
-                  : registerGoalsTab
-                : undefined
-
-              return (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.end ?? false}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
-                      isActive
-                        ? 'bg-primary/10 text-primary font-semibold'
-                        : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-medium',
-                    )
-                  }
-                  ref={anchorRef}
-                >
-                  <span className={cn('shrink-0 transition-transform duration-200')}>
-                    {item.icon}
-                  </span>
-                  <span className="tracking-tight">{item.label}</span>
-                </NavLink>
-              )
-            })}
-          </nav>
-        </aside>
-      )}
-
-      {/* ───────── MAIN CONTENT AREA ───────── */}
-      <div className={cn('flex-1 flex flex-col min-w-0', !isMobile && 'md:ml-64')}>
-        {/* ───────── HEADER SPACER ───────── */}
-        {!hideHeader && <div className="h-16 w-full shrink-0" />}
-
-        {/* ───────── HEADER ───────── */}
+      {/* Main content — offset by sidebar width */}
+      <div className="flex flex-col min-h-screen md:ml-14 lg:ml-56">
+        {/* Top bar */}
         {!hideHeader && (
-          <header
-            className={cn(
-              'fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md z-20 px-6 md:px-10 border-b border-border/5',
-              !isMobile && 'md:left-64',
+          <header className="sticky top-0 z-20 h-12 bg-background/90 backdrop-blur-md border-b border-border/10 flex items-center px-4 md:px-6 gap-3">
+            {/* Mobile: hamburger to open drawer */}
+            <button
+              type="button"
+              className="md:hidden p-1.5 rounded-lg hover:bg-surface-secondary transition-colors text-text-secondary"
+              aria-label="Open navigation"
+              onClick={() => setDrawerOpen(true)}
+            >
+              <MenuIcon />
+            </button>
+
+            {/* Back button (second-degree pages) */}
+            {isSecondDegree && (
+              <button
+                type="button"
+                className="group flex items-center gap-1.5 text-text-primary transition-colors hover:opacity-70"
+                onClick={handleBack}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform group-hover:-translate-x-0.5"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+                <span className="text-sm font-semibold tracking-tight">
+                  {backButtonConfig?.label}
+                </span>
+              </button>
             )}
-          >
-            <div className="mx-auto h-full w-full max-w-7xl flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                {isSecondDegree ? (
+
+            <div className="flex-1" />
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2">
+              {handle?.actions}
+              {!isSecondDegree && (
+                <>
                   <button
-                    type="button"
-                    className="group flex items-center gap-2 text-text-primary transition-colors hover:opacity-70"
-                    onClick={handleBack}
+                    className="p-1.5 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
+                    aria-label="Notifications"
                   >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="transition-transform group-hover:-translate-x-0.5"
-                    >
-                      <path d="m15 18-6-6 6-6" />
-                    </svg>
-                    <span className="text-base font-semibold tracking-tight">
-                      {backButtonConfig.label}
-                    </span>
+                    <NotificationIcon />
+                    <span className="absolute top-2 right-2 w-1.5 h-1.5 bg-error rounded-full border border-background" />
                   </button>
-                ) : (
-                  isMobile && (
-                    <NavLink to="/" className="flex items-center gap-2">
-                      <KaizenLogo className="h-8 w-8" />
-                    </NavLink>
-                  )
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 md:gap-5">
-                {handle?.actions}
-                {!isSecondDegree && (
-                  <>
-                    <button
-                      className="p-2 rounded-lg hover:bg-surface-secondary transition-colors relative text-text-secondary"
-                      aria-label="Notifications"
-                    >
-                      <span aria-hidden="true">
-                        <NotificationIcon />
-                      </span>
-                      <span className="absolute top-2.5 right-2.5 w-2 w-2 bg-error rounded-full border-2 border-background" />
-                    </button>
-
-                    <NavLink
-                      to="/your-account"
-                      className="flex items-center gap-2 group p-1 pr-3 rounded-full hover:bg-surface-secondary transition-colors"
-                    >
-                      <div className="h-8 w-8 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden group-hover:border-primary/50 transition-all shrink-0">
-                        {user?.picture && !imageError ? (
-                          <img
-                            src={user.picture}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            referrerPolicy="no-referrer"
-                            onError={() => setImageError(true)}
-                          />
-                        ) : (
-                          userInitials
-                        )}
-                      </div>
-                      {!isMobile && (
-                        <div className="flex items-center gap-1 hidden sm:flex">
-                          <span className="text-sm font-bold tracking-tight text-text-primary">
-                            {user?.name || 'User'}
-                          </span>
-                          <ChevronRightIcon />
-                        </div>
-                      )}
-                    </NavLink>
-                  </>
-                )}
-              </div>
+                  <NavLink
+                    to="/your-account"
+                    className="h-7 w-7 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden hover:border-primary/50 transition-all shrink-0"
+                  >
+                    {user?.picture && !imageError ? (
+                      <img
+                        src={user.picture}
+                        alt=""
+                        className="h-full w-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={() => setImageError(true)}
+                      />
+                    ) : (
+                      userInitials
+                    )}
+                  </NavLink>
+                </>
+              )}
             </div>
           </header>
         )}
 
-        {/* ───────── PAGE CONTENT ───────── */}
-        <main className={cn('flex-1 py-6 md:py-8', pageLayout.shellX, isMobile && 'pb-24')}>
-          <div className="mx-auto w-full max-w-7xl animate-entrance-slide-up">
+        {/* Page content */}
+        <main className="flex-1 px-4 md:px-6 lg:px-8 py-6">
+          <div className="mx-auto w-full max-w-5xl animate-entrance-slide-up">
             <ErrorBoundary fallback={<AppErrorPage />}>
               <Outlet />
             </ErrorBoundary>
           </div>
         </main>
       </div>
-
-      {/* ───────── BOTTOM NAVIGATION (Mobile Only) ───────── */}
-      {isMobile && (
-        <nav className="fixed bottom-4 left-4 right-4 h-16 bg-surface/90 backdrop-blur-xl border border-border-subtle rounded-2xl flex items-center justify-around px-4 shadow-lg z-30">
-          {navItems.map((item) => {
-            const anchorRef = item.anchorKey
-              ? item.anchorKey === 'budgetsTab'
-                ? registerBudgetsTab
-                : registerGoalsTab
-              : undefined
-
-            return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end ?? false}
-                aria-label={item.label}
-                className={({ isActive }) =>
-                  cn(
-                    'flex flex-col items-center gap-1 transition-all duration-300',
-                    isActive
-                      ? 'text-primary'
-                      : 'text-text-secondary hover:text-text-primary opacity-60',
-                  )
-                }
-                ref={anchorRef}
-              >
-                {({ isActive }) => (
-                  <>
-                    <div
-                      className={cn(
-                        'transition-all duration-300 flex items-center justify-center p-2.5 rounded-xl',
-                        isActive ? 'bg-primary/10' : '',
-                      )}
-                    >
-                      {item.icon}
-                    </div>
-                  </>
-                )}
-              </NavLink>
-            )
-          })}
-        </nav>
-      )}
 
       <UndoSnackbar />
       <ConnectivityIndicator />
@@ -329,7 +227,7 @@ function AuthenticatedLayoutContent(): ReactElement {
           )
         }
       />
-    </div>
+    </>
   )
 }
 
@@ -411,24 +309,6 @@ function NotificationIcon() {
   )
 }
 
-function ChevronRightIcon() {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="text-text-secondary group-hover:text-text-primary transition-colors"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  )
-}
-
 function TransactionsIcon() {
   return (
     <svg
@@ -502,6 +382,25 @@ function PaymentsIcon() {
     >
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <line x1="2" y1="10" x2="22" y2="10" />
+    </svg>
+  )
+}
+
+function MenuIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 6h18" />
+      <path d="M3 12h18" />
+      <path d="M3 18h18" />
     </svg>
   )
 }
