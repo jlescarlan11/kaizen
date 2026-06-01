@@ -36,7 +36,7 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
   useEffect(() => {
     if (initialData) {
       setTransactions(initialData.items)
-      setHasMore(initialData.items.length === TRANSACTION_PAGE_SIZE)
+      setHasMore(initialData.hasMore)
     } else if (!isFetching) {
       // If we are not fetching and have no data (e.g. filters changed but query not started)
       // we don't necessarily want to clear, but the query will auto-trigger on filter change.
@@ -65,7 +65,7 @@ export function useTransactionPagination(filters: TransactionFilters = {}) {
       }).unwrap()
 
       setTransactions((prev) => [...prev, ...result.items])
-      setHasMore(result.items.length === TRANSACTION_PAGE_SIZE)
+      setHasMore(result.hasMore)
     } catch (error) {
       console.error('Failed to fetch more transactions', error)
     } finally {
