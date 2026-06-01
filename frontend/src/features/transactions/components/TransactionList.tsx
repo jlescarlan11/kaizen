@@ -271,7 +271,7 @@ export function TransactionList({
   }
 
   return (
-    <div className="w-full pb-32">
+    <div className="w-full">
       {/* Selection Mode List Header */}
       {isSelectionMode && visibleTransactions.length > 0 && (
         <div className="flex items-center justify-between px-8 py-4 bg-primary text-white rounded-2xl mb-6 shadow-md shadow-primary/15 animate-in fade-in slide-in-from-top-4 duration-300">
