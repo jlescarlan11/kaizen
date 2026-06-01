@@ -13,3 +13,13 @@ export const fluidLayout = {
   sectionGap: 'space-y-[clamp(1.5rem,6vw,2.5rem)]',
   touchTarget: 'h-12 min-h-[3rem]',
 } as const
+
+export const enterpriseLayout = {
+  sidebarFull: 'w-56', // 224px — desktop
+  sidebarRail: 'w-14', // 56px  — tablet icon rail
+  contentOffsetFull: 'lg:ml-56',
+  contentOffsetRail: 'md:ml-14',
+  topBarHeight: 'h-12',
+  pageX: 'px-4 md:px-6 lg:px-8',
+  pageY: 'py-6',
+} as const

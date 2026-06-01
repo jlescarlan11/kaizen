@@ -89,24 +89,19 @@ function AuthenticatedLayoutContent(): ReactElement {
     label: string
     to: string
     icon: ReactElement
+    end?: boolean
     isAction?: boolean
     anchorKey?: DashboardTourAnchorKey
   }
 
   const navItems: ReadonlyArray<NavItem> = [
-    { label: 'Home', to: '/', icon: <HomeIcon /> },
+    { label: 'Home', to: '/', icon: <HomeIcon />, end: true },
+    { label: 'Transactions', to: '/transactions', icon: <TransactionsIcon /> },
     { label: 'Budgets', to: '/budgets', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
-    {
-      label: 'Goals',
-      to: '/goals',
-      icon: <GoalIcon />,
-      anchorKey: 'goalsTab',
-    },
-    {
-      label: 'Vault',
-      to: '/vault',
-      icon: <VaultIcon />,
-    },
+    { label: 'Insights', to: '/insights', icon: <InsightsIcon /> },
+    { label: 'Goals', to: '/goals', icon: <GoalIcon />, anchorKey: 'goalsTab' },
+    { label: 'Categories', to: '/categories', icon: <CategoriesIcon /> },
+    { label: 'Payments', to: '/payment-summary', icon: <PaymentsIcon /> },
   ]
 
   const userInitials = user?.name
@@ -148,7 +143,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                 <NavLink
                   key={item.to}
                   to={item.to}
-                  end={item.to === '/'}
+                  end={item.end ?? false}
                   className={({ isActive }) =>
                     cn(
                       'flex items-center gap-4 px-4 py-3 rounded-xl text-sm transition-all duration-200',
@@ -235,7 +230,7 @@ function AuthenticatedLayoutContent(): ReactElement {
                       to="/your-account"
                       className="flex items-center gap-2 group p-1 pr-3 rounded-full hover:bg-surface-secondary transition-colors"
                     >
-                      <div className="h-8 w-8 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-[10px] font-semibold text-text-secondary overflow-hidden group-hover:border-primary/50 transition-all shrink-0">
+                      <div className="h-8 w-8 rounded-full bg-surface-secondary border border-border-subtle flex items-center justify-center text-3xs font-semibold text-text-secondary overflow-hidden group-hover:border-primary/50 transition-all shrink-0">
                         {user?.picture && !imageError ? (
                           <img
                             src={user.picture}
@@ -288,7 +283,7 @@ function AuthenticatedLayoutContent(): ReactElement {
               <NavLink
                 key={item.to}
                 to={item.to}
-                end={item.to === '/'}
+                end={item.end ?? false}
                 aria-label={item.label}
                 className={({ isActive }) =>
                   cn(
@@ -398,6 +393,7 @@ function GoalIcon() {
   )
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function VaultIcon() {
   return (
     <svg
@@ -448,6 +444,122 @@ function ChevronRightIcon() {
       className="text-text-secondary group-hover:text-text-primary transition-colors"
     >
       <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
+function TransactionsIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 9l4-4 4 4" />
+      <path d="M7 5v14" />
+      <path d="M21 15l-4 4-4-4" />
+      <path d="M17 19V5" />
+    </svg>
+  )
+}
+
+function InsightsIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  )
+}
+
+function CategoriesIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </svg>
+  )
+}
+
+function PaymentsIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
+    </svg>
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function MenuIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function CloseIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   )
 }
