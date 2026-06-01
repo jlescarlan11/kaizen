@@ -12,89 +12,78 @@ interface TransactionDetailInfoProps {
   paymentMethod?: {
     name: string
   }
-  type: 'INCOME' | 'EXPENSE'
+  description?: string | null
   className?: string
 }
 
 export function TransactionDetailInfo({
   category,
   paymentMethod,
-  type,
+  description,
   className,
 }: TransactionDetailInfoProps): ReactElement {
-  const isExpense = type === 'EXPENSE'
-  const isIncome = type === 'INCOME'
-
   return (
-    <div className={cn('space-y-12', className)}>
-      {/* Detail Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-12 py-8 border-y border-border-subtle">
-        <InfoBlock label="Flow">
-          <div className="flex items-center gap-3">
+    <div className={cn('divide-y divide-border-subtle', className)}>
+      {/* Category */}
+      <InfoRow label="Category">
+        {category ? (
+          <div className="flex items-center gap-2.5">
             <div
-              className={cn(
-                'flex h-10 w-10 items-center justify-center rounded-full',
-                isIncome ? 'bg-success/10 text-success' : 'bg-surface-secondary text-text-primary',
-              )}
+              className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
+              style={{
+                backgroundColor: withOpacity(category.color, 0.08),
+                color: category.color,
+              }}
             >
-              <SharedIcon
-                type="category"
-                name={isIncome ? 'trending-up' : isExpense ? 'trending-down' : 'refresh-cw'}
-                size={20}
-              />
+              <SharedIcon type="category" name={category.icon} size={16} />
             </div>
-            <p className="text-lg font-semibold text-text-primary capitalize">
-              {isIncome ? 'Income' : isExpense ? 'Expense' : 'Adjustment'}
-            </p>
+            <span className="text-sm font-semibold text-text-primary">{category.name}</span>
           </div>
-        </InfoBlock>
+        ) : (
+          <span className="text-sm italic text-text-secondary">No Category</span>
+        )}
+      </InfoRow>
 
-        <InfoBlock label="Category">
-          {category ? (
-            <div className="flex items-center gap-3">
-              <div
-                className="flex h-10 w-10 items-center justify-center rounded-full text-xl"
-                style={{
-                  backgroundColor: withOpacity(category.color, 0.08),
-                  color: category.color,
-                }}
-              >
-                <SharedIcon type="category" name={category.icon} size={20} />
-              </div>
-              <span className="text-lg font-semibold text-text-primary">{category.name}</span>
+      {/* Account */}
+      <InfoRow label="Account">
+        {paymentMethod ? (
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-border bg-surface-secondary text-xs font-semibold text-text-primary">
+              {paymentMethod.name.charAt(0).toUpperCase()}
             </div>
-          ) : (
-            <span className="italic text-text-secondary">No Category</span>
-          )}
-        </InfoBlock>
+            <span className="text-sm font-semibold text-text-primary">{paymentMethod.name}</span>
+          </div>
+        ) : (
+          <span className="text-sm italic text-text-secondary">No Payment Method</span>
+        )}
+      </InfoRow>
 
-        <InfoBlock label="Account">
-          {paymentMethod ? (
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-secondary text-text-primary text-sm font-semibold border border-border">
-                {paymentMethod.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-lg font-semibold text-text-primary">{paymentMethod.name}</span>
-            </div>
-          ) : (
-            <span className="italic text-text-secondary">No Payment Method</span>
-          )}
-        </InfoBlock>
+      {/* Description */}
+      <div className="px-6 py-4">
+        <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+          Description
+        </p>
+        {description ? (
+          <p className="text-sm text-text-secondary whitespace-pre-wrap">{description}</p>
+        ) : (
+          <p className="text-sm italic text-text-secondary">No description</p>
+        )}
       </div>
     </div>
   )
 }
 
-interface InfoBlockProps {
+interface InfoRowProps {
   label: string
   children: React.ReactNode
-  fullWidth?: boolean
 }
 
-function InfoBlock({ label, children, fullWidth }: InfoBlockProps) {
+function InfoRow({ label, children }: InfoRowProps) {
   return (
-    <div className={cn('flex flex-col gap-2', fullWidth ? 'md:col-span-2' : '')}>
-      <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary">{label}</p>
+    <div className="flex items-center justify-between gap-4 px-6 py-4">
+      <span className="flex-shrink-0 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+        {label}
+      </span>
       {children}
     </div>
   )
