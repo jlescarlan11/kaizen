@@ -82,11 +82,6 @@ const InsightsPage = lazy(() =>
     default: m.InsightsPage,
   })),
 )
-const BalanceSummaryPage = lazy(() =>
-  import('../../features/insights/BalanceSummaryPage').then((m) => ({
-    default: m.BalanceSummaryPage,
-  })),
-)
 const TransactionDetailPage = lazy(() =>
   import('../../features/transactions/TransactionDetailPage').then((m) => ({
     default: m.TransactionDetailPage,
@@ -285,6 +280,10 @@ export const router = createBrowserRouter([
           { path: 'budget/add', element: <Navigate to="/budgets/add" replace /> },
           { path: 'budget/:id', element: <BudgetIdRedirect /> },
           {
+            path: 'goals',
+            element: <Navigate to="/" replace />,
+          },
+          {
             path: 'goals/:id',
             element: <GoalDetailPage />,
             handle: {
@@ -297,16 +296,6 @@ export const router = createBrowserRouter([
           {
             path: 'insights',
             element: <InsightsPage />,
-            handle: {
-              backButton: {
-                label: 'Home',
-                fallbackPath: '/',
-              },
-            },
-          },
-          {
-            path: 'balance-summary',
-            element: <BalanceSummaryPage />,
             handle: {
               backButton: {
                 label: 'Home',
@@ -351,6 +340,16 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Account',
                 fallbackPath: '/your-account',
+              },
+            },
+          },
+          {
+            path: 'categories',
+            element: <CategoryManagementPage />,
+            handle: {
+              backButton: {
+                label: 'Home',
+                fallbackPath: '/',
               },
             },
           },
