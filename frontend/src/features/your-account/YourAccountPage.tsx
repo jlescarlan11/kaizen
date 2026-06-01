@@ -47,10 +47,10 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   )
 
   const iconWrapClassName = cn(
-    'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all shadow-sm',
+    'flex h-11 w-11 shrink-0 items-center justify-center transition-all',
     item.destructive
-      ? 'bg-error/10 border-error/20 text-error'
-      : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
+      ? 'rounded-xl border shadow-sm bg-error/10 border-error/20 text-error'
+      : 'rounded-[9px] bg-primary/5 text-primary',
   )
 
   const labelClassName = cn(
