@@ -457,7 +457,7 @@ export function YourAccountPage(): ReactElement {
             <div className="flex-1 min-w-0 space-y-10">
               {accountSections.map((section) => (
                 <section key={section.title}>
-                  <h3 className="text-3xs font-bold uppercase tracking-[0.2em] text-text-secondary opacity-40 mb-3 px-2">
+                  <h3 className="text-xs font-semibold text-text-secondary tracking-wide mb-3 px-2">
                     {section.title}
                   </h3>
                   <div className="bg-surface rounded-2xl shadow-sm overflow-hidden divide-y divide-border-subtle">
