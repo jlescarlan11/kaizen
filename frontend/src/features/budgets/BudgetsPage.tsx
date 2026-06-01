@@ -1,11 +1,7 @@
-import { type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
-import {
-  useGetBudgetsQuery,
-  useGetBudgetSummaryQuery,
-  type BudgetResponse,
-} from '../../app/store/api/budgetApi'
+import { useGetBudgetsQuery, type BudgetResponse } from '../../app/store/api/budgetApi'
 import { useGetCategoriesQuery, type CategoryResponse } from '../../app/store/api/categoryApi'
 import { Button } from '../../shared/components/Button'
 import { Badge } from '../../shared/components/Badge'
@@ -13,6 +9,10 @@ import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
 import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
+import { withOpacity } from '../../shared/lib/colorUtils'
+import { PageHeader } from '../../shared/components/PageHeader'
+import { KpiStrip } from '../../shared/components/KpiStrip'
+import { PageTabs } from '../../shared/components/PageTabs'
 
 const BudgetRow = ({
   budget,
@@ -43,7 +43,10 @@ const BudgetRow = ({
                 <div
                   className="h-11 w-11 rounded-xl flex items-center justify-center transition-all group-hover:scale-105 shrink-0 shadow-sm"
                   style={{
-                    backgroundColor: (category?.color || '#000') + '15',
+                    backgroundColor: withOpacity(
+                      category?.color || 'var(--color-category-fallback)',
+                      0.08,
+                    ),
                     color: category?.color || 'var(--color-text-secondary)',
                   }}
                 >
@@ -61,7 +64,7 @@ const BudgetRow = ({
                     </p>
                     {isOverBudget && <Badge variant="error">Over</Badge>}
                   </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mt-0.5 opacity-60">
+                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary mt-0.5 opacity-60">
                     {budget.period} Budget
                   </p>
                 </div>
@@ -72,7 +75,7 @@ const BudgetRow = ({
                   <p className="text-base font-bold tracking-tight text-text-primary">
                     ${budget.amount.toFixed(2)}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
                     Allocated
                   </p>
                 </div>
@@ -89,7 +92,7 @@ const BudgetRow = ({
               </div>
             </div>
 
-            <div className="relative w-full h-2 bg-background rounded-full overflow-hidden p-[1px]">
+            <div className="relative w-full h-2 bg-background rounded-full overflow-hidden p-px">
               <div
                 className={cn(
                   'h-full rounded-full transition-all duration-700 ease-out',
@@ -100,12 +103,12 @@ const BudgetRow = ({
             </div>
 
             <div className="flex justify-between mt-1.5 px-0.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+              <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
                 Spent: ${budget.expense.toFixed(2)}
               </p>
               <p
                 className={cn(
-                  'text-[10px] font-bold uppercase tracking-widest',
+                  'text-3xs font-bold uppercase tracking-widest',
                   isOverBudget ? 'text-error' : 'text-primary',
                 )}
               >
@@ -125,18 +128,18 @@ const BudgetRow = ({
             <DisclosurePanel className="px-6 pb-6 pt-3 bg-surface-secondary/50 rounded-2xl mt-1 border border-border-subtle/30 shadow-inner">
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Burn Rate
                   </p>
                   <p className="text-sm font-bold text-text-primary tabular-nums tracking-tight">
                     {hasInsufficientData ? '—' : `$${budget.burnRate!.toFixed(2)}`}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
+                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     per day
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Allowance
                   </p>
                   <p
@@ -147,12 +150,12 @@ const BudgetRow = ({
                   >
                     {hasInsufficientData ? '—' : `$${budget.dailyAllowance!.toFixed(2)}`}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
+                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     remaining
                   </p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
                     Projection
                   </p>
                   <p
@@ -167,7 +170,7 @@ const BudgetRow = ({
                   >
                     {hasInsufficientData ? '—' : `$${budget.projectedTotal!.toFixed(2)}`}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-tighter text-text-secondary opacity-40">
+                  <p className="text-3xs font-bold uppercase tracking-tighter text-text-secondary opacity-40">
                     est. total
                   </p>
                 </div>
@@ -182,9 +185,22 @@ const BudgetRow = ({
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
-  const { data: budgetSummary } = useGetBudgetSummaryQuery()
   const { data: categories = [] } = useGetCategoriesQuery()
+
+  // BudgetResponse does not have an `archived` field — treat all budgets as active.
+  // Cast to a local interface to safely access the field without `any`.
+  type BudgetMaybeArchived = BudgetResponse & { archived?: boolean }
+  const visibleBudgets: BudgetResponse[] =
+    (budgets as BudgetMaybeArchived[] | undefined)?.filter((b) =>
+      activeTab === 'archived' ? (b.archived ?? false) : !(b.archived ?? false),
+    ) ?? []
+
+  const totalBudgeted = visibleBudgets.reduce((s, b) => s + b.amount, 0)
+  const totalSpent = visibleBudgets.reduce((s, b) => s + b.expense, 0)
+  const remaining = totalBudgeted - totalSpent
+  const overCount = visibleBudgets.filter((b) => b.expense > b.amount).length
 
   const handleNewBudget = () => {
     navigate('/budgets/add')
@@ -194,7 +210,7 @@ export function BudgetsPage(): ReactElement {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-xl shadow-primary/10"></div>
-        <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary animate-pulse opacity-60">
+        <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary animate-pulse opacity-60">
           Loading Budgets...
         </p>
       </div>
@@ -202,65 +218,44 @@ export function BudgetsPage(): ReactElement {
   }
 
   return (
-    <div className="animate-entrance-slide-up pb-24">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div className="space-y-0.5">
-          <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
-            Budgets
-          </h1>
-          <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
-            Monitor spending limits.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleNewBudget} size="lg" className="shadow-md shadow-primary/10">
-            Add Budget
+    <div className="w-full animate-entrance-slide-up pb-24">
+      <PageHeader
+        title="Budgets"
+        actions={
+          <Button variant="primary" size="sm" onClick={() => navigate('/budgets/add')}>
+            + New Budget
           </Button>
-        </div>
-      </header>
-
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
-        <div className="bg-white border border-border-subtle p-6 rounded-2xl shadow-sm space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
-            Allocated
-          </p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
-            <p className="text-2xl font-bold tracking-tighter text-text-primary">
-              {(budgetSummary?.totalAllocated ?? 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}
-            </p>
-          </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mt-0.5">
-            {budgetSummary?.allocationPercentage ?? 0}% of balance
-          </p>
-        </div>
-        <div className="bg-white border border-border-subtle p-6 rounded-2xl shadow-sm space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
-            Unallocated
-          </p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-bold text-text-secondary opacity-30 italic">PHP</span>
-            <p
-              className={cn(
-                'text-2xl font-bold tracking-tighter',
-                (budgetSummary?.unallocated ?? 0) < 0 ? 'text-error' : 'text-text-primary',
-              )}
-            >
-              {(budgetSummary?.unallocated ?? 0).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-              })}
-            </p>
-          </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 mt-0.5">
-            {(budgetSummary?.unallocated ?? 0) < 0 ? `Over-committed` : 'available'}
-          </p>
-        </div>
-      </div>
+        }
+      />
+      <PageTabs
+        tabs={[
+          { key: 'active', label: 'Active' },
+          { key: 'archived', label: 'Archived' },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
+      {visibleBudgets.length > 0 && (
+        <KpiStrip
+          items={[
+            { label: 'Budgeted', value: `$${totalBudgeted.toFixed(2)}` },
+            {
+              label: 'Spent',
+              value: `$${totalSpent.toFixed(2)}`,
+              valueClassName: totalSpent > totalBudgeted ? 'text-error' : undefined,
+            },
+            { label: 'Remaining', value: `$${Math.max(remaining, 0).toFixed(2)}` },
+            {
+              label: 'Over Budget',
+              value: String(overCount),
+              valueClassName: overCount > 0 ? 'text-error' : undefined,
+            },
+          ]}
+        />
+      )}
 
       <DataList
-        data={budgets || []}
+        data={visibleBudgets}
         hideBorders
         className="gap-1"
         emptyState={

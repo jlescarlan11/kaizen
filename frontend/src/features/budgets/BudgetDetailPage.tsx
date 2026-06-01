@@ -6,6 +6,9 @@ import { SharedIcon } from '../../shared/components/IconRegistry'
 import { Button } from '../../shared/components/Button'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
+import { withOpacity } from '../../shared/lib/colorUtils'
+import { PageHeader } from '../../shared/components/PageHeader'
+import { KpiStrip } from '../../shared/components/KpiStrip'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -31,12 +34,10 @@ export function BudgetDetailPage(): ReactElement {
   if (!budget) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <h2 className="text-xl font-semibold text-foreground uppercase tracking-wide">
-          Budget not found
-        </h2>
+        <h2 className="text-xl font-semibold text-text-primary">Budget not found</h2>
         <button
           onClick={() => navigate('/budgets')}
-          className="px-6 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+          className="px-6 py-2.5 bg-surface border border-border rounded-xl text-xs font-semibold uppercase tracking-wide text-text-secondary hover:text-primary hover:border-primary/30 transition-all shadow-sm"
         >
           Back to Budgets
         </button>
@@ -46,91 +47,69 @@ export function BudgetDetailPage(): ReactElement {
 
   const category = categories.find((c) => c.id === budget.categoryId)
 
-  const handleEdit = () => {
-    // Navigating to smart setup as per BudgetsPage logic,
-    // but in a real app this would likely go to a specific edit page if it existed.
-    navigate('/budgets/add')
-  }
-
   return (
-    <div className={pageLayout.sectionGap}>
-      {/* Header Section */}
-      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Budget Details
-            </h1>
-            <p className="text-muted-foreground font-medium">
-              Manage your spending limit for this category.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              {budget.period.toLowerCase()} Budget
-            </p>
-            <div className="flex items-baseline gap-2">
-              <p className="text-4xl md:text-5xl font-semibold tracking-tight text-foreground tabular-nums">
-                {currencyFormatter.format(budget.amount).replace('PHP', '').trim()}
-              </p>
-              <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                PHP
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-4 w-full md:w-auto">
+    <div className={`w-full ${pageLayout.sectionGap}`}>
+      <PageHeader
+        title={budget.categoryName}
+        subtitle={`${budget.period} budget`}
+        actions={
           <Button
-            variant="secondaryLg"
-            onClick={handleEdit}
-            className="flex items-center gap-2 group"
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/budgets/${budget.id}/edit`)}
           >
-            <SharedIcon
-              type="ui"
-              name="edit"
-              size={12}
-              className="text-muted-foreground group-hover:text-primary transition-colors"
-            />
-            Edit Budget
+            Edit
           </Button>
-        </div>
-      </header>
+        }
+      />
+      <KpiStrip
+        items={[
+          { label: 'Allocated', value: `$${budget.amount.toFixed(2)}` },
+          {
+            label: 'Spent',
+            value: `$${budget.expense.toFixed(2)}`,
+            valueClassName: budget.expense > budget.amount ? 'text-error' : undefined,
+          },
+          {
+            label: 'Remaining',
+            value: `$${Math.max(budget.amount - budget.expense, 0).toFixed(2)}`,
+          },
+        ]}
+      />
 
       <main className="space-y-16">
         {/* Spending Progress */}
-        <section className="py-8 border-y border-ui-border-subtle">
+        <section className="py-8 border-y border-border-subtle">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
                   Spending Progress
                 </p>
-                <p className="text-2xl font-semibold text-foreground tabular-nums">
+                <p className="text-2xl font-semibold text-text-primary tabular-nums">
                   {currencyFormatter.format(budget.expense)} /{' '}
                   {currencyFormatter.format(budget.amount)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
                   Remaining
                 </p>
                 <p
-                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-ui-danger' : 'text-ui-action'}`}
+                  className={`text-2xl font-semibold tabular-nums ${budget.amount - budget.expense < 0 ? 'text-error' : 'text-primary'}`}
                 >
                   {currencyFormatter.format(Math.max(0, budget.amount - budget.expense))}
                 </p>
               </div>
             </div>
-            <div className="h-4 w-full bg-ui-surface-hover rounded-full overflow-hidden border border-ui-border-subtle">
+            <div className="h-4 w-full bg-surface-secondary rounded-full overflow-hidden border border-border-subtle">
               <div
-                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-ui-danger' : 'bg-ui-action'}`}
+                className={`h-full transition-all duration-1000 ${budget.expense > budget.amount ? 'bg-error' : 'bg-primary'}`}
                 style={{ width: `${Math.min(100, (budget.expense / budget.amount) * 100)}%` }}
               />
             </div>
             {budget.expense > budget.amount && (
-              <p className="text-xs font-semibold uppercase tracking-wide text-ui-danger flex items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-error flex items-center gap-2">
                 <SharedIcon type="ui" name="error" size={10} />
                 You have exceeded your {budget.period.toLowerCase()} budget by{' '}
                 {currencyFormatter.format(budget.expense - budget.amount)}
@@ -143,18 +122,18 @@ export function BudgetDetailPage(): ReactElement {
         <section className="py-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
                 Total Allocated
               </p>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">
+              <p className="text-2xl font-semibold text-text-primary tabular-nums">
                 {currencyFormatter.format(budgetSummary?.totalAllocated ?? 0)}
               </p>
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
                 Unallocated
               </p>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">
+              <p className="text-2xl font-semibold text-text-primary tabular-nums">
                 {currencyFormatter.format(budgetSummary?.unallocated ?? 0)}
               </p>
             </div>
@@ -165,7 +144,7 @@ export function BudgetDetailPage(): ReactElement {
         <section className="space-y-12">
           <div className="flex items-center gap-2 mb-8 px-1">
             <div className="h-4 w-1 bg-primary rounded-full" />
-            <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
               Core Configuration
             </h2>
           </div>
@@ -178,7 +157,10 @@ export function BudgetDetailPage(): ReactElement {
                   <div
                     className="flex h-14 w-14 items-center justify-center rounded-full text-2xl"
                     style={{
-                      backgroundColor: (category?.color || '#000') + '15',
+                      backgroundColor: withOpacity(
+                        category?.color || 'var(--color-category-fallback)',
+                        0.08,
+                      ),
                       color: category?.color,
                     }}
                   >
@@ -189,10 +171,10 @@ export function BudgetDetailPage(): ReactElement {
                     )}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xl font-semibold text-foreground">
+                    <span className="text-xl font-semibold text-text-primary">
                       {budget.categoryName}
                     </span>
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
                       ID: {budget.categoryId}
                     </span>
                   </div>
@@ -222,13 +204,13 @@ interface DetailRowProps {
 function DetailRow({ label, value, content }: DetailRowProps) {
   return (
     <div className="space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground/60">
+      <p className="text-xs font-semibold uppercase tracking-wide text-text-secondary/60">
         {label}
       </p>
       {content ? (
         content
       ) : (
-        <p className="text-xl text-foreground font-semibold tabular-nums">{value}</p>
+        <p className="text-xl text-text-primary font-semibold tabular-nums">{value}</p>
       )}
     </div>
   )
