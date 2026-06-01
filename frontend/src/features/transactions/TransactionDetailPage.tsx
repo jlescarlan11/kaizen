@@ -14,6 +14,7 @@ import { TransactionActionGroup } from './components/TransactionActionGroup'
 import { TransactionNoteSection } from './components/TransactionNoteSection'
 import { AttachmentViewer } from './components/AttachmentViewer'
 import { RelatedTransactionsList } from './components/RelatedTransactionsList'
+import { PageHeader } from '../../shared/components/PageHeader'
 
 export function TransactionDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
@@ -49,7 +50,7 @@ export function TransactionDetailPage(): ReactElement {
   if (error || !transaction) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <h2 className="text-xl font-semibold text-foreground uppercase tracking-wide">
+        <h2 className="text-xl font-semibold text-text-primary uppercase tracking-wide">
           Transaction not found
         </h2>
         <Button variant="secondaryLg" onClick={() => navigate('/transactions')}>
@@ -71,87 +72,93 @@ export function TransactionDetailPage(): ReactElement {
 
   return (
     <div className={pageLayout.sectionGap}>
-      <header className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-16">
-        <div className="space-y-4">
+      <div className="w-full">
+        <PageHeader
+          title={transaction.description}
+          subtitle={new Date(transaction.transactionDate).toLocaleDateString('en-US', {
+            dateStyle: 'long',
+          })}
+          actions={
+            <TransactionActionGroup
+              onEdit={() => navigate(`/transactions/edit/${transaction.id}`)}
+              onDelete={() => setIsDeleteModalOpen(true)}
+              isProcessing={isDeleting}
+            />
+          }
+        />
+        <header className="mb-16">
           <TransactionDetailHeader
             amount={transaction.amount}
             type={transaction.type}
             date={transaction.transactionDate}
           />
-        </div>
-        <div className="flex flex-col gap-4 w-full md:w-auto">
-          <TransactionActionGroup
-            onEdit={() => navigate(`/transactions/edit/${transaction.id}`)}
-            onDelete={() => setIsDeleteModalOpen(true)}
-            isProcessing={isDeleting}
-          />
-        </div>
-      </header>
+        </header>
 
-      <div className="space-y-16">
-        <section>
-          <TransactionDetailInfo
-            category={transaction.category}
-            paymentMethod={transaction.paymentMethod}
-            type={transaction.type}
-          />
-        </section>
-
-        {(transaction.description || transaction.notes) && (
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <TransactionNoteSection
-              description={transaction.description}
-              notes={transaction.notes}
+        <div className="space-y-16">
+          <section>
+            <TransactionDetailInfo
+              category={transaction.category}
+              paymentMethod={transaction.paymentMethod}
+              type={transaction.type}
             />
           </section>
-        )}
 
-        {transaction.attachments && transaction.attachments.length > 0 && (
-          <section className="animate-in fade-in slide-in-from-bottom-4 duration-600">
-            <AttachmentViewer attachments={transaction.attachments} />
+          {(transaction.description || transaction.notes) && (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <TransactionNoteSection
+                description={transaction.description}
+                notes={transaction.notes}
+              />
+            </section>
+          )}
+
+          {transaction.attachments && transaction.attachments.length > 0 && (
+            <section className="animate-in fade-in slide-in-from-bottom-4 duration-600">
+              <AttachmentViewer attachments={transaction.attachments} />
+            </section>
+          )}
+
+          <section className="pt-12 border-t border-border-subtle animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center justify-between mb-8 px-1">
+              <div className="flex items-center gap-2">
+                <div className="h-4 w-1 bg-primary rounded-full" />
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                  History & Related
+                </h2>
+              </div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-primary bg-primary/5 px-3 py-1 rounded-full">
+                Same Category
+              </div>
+            </div>
+            <RelatedTransactionsList transactions={relatedTransactions} isLoading={isLoadingAll} />
           </section>
-        )}
+        </div>
 
-        <section className="pt-12 border-t border-ui-border-subtle animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="flex items-center justify-between mb-8 px-1">
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-1 bg-primary rounded-full" />
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                History & Related
-              </h2>
+        <Modal
+          open={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          title="Delete Transaction"
+          footer={
+            <div className="flex gap-3 mt-6">
+              <button
+                className="flex-1 px-4 py-2.5 bg-surface border border-border rounded-xl text-xs font-semibold uppercase tracking-wide text-text-secondary hover:bg-surface-secondary transition-all shadow-sm"
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="flex-1 px-4 py-2.5 bg-error border border-error/30 rounded-xl text-xs font-semibold uppercase tracking-wide text-white hover:bg-error/90 transition-all shadow-sm disabled:opacity-50"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
             </div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-primary bg-primary/5 px-3 py-1 rounded-full">
-              Same Category
-            </div>
-          </div>
-          <RelatedTransactionsList transactions={relatedTransactions} isLoading={isLoadingAll} />
-        </section>
+          }
+        >
+          <p className="text-text-secondary">Are you sure you want to delete this transaction?</p>
+        </Modal>
       </div>
-
-      <Modal
-        open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        title="Delete Transaction"
-        footer={
-          <div className="flex gap-3 mt-6">
-            <button
-              className="flex-1 px-4 py-2.5 bg-ui-surface border border-ui-border rounded-xl text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:bg-ui-surface-muted transition-all shadow-sm"
-              onClick={() => setIsDeleteModalOpen(false)}
-            >
-              Cancel
-            </button>
-            <button
-              className="flex-1 px-4 py-2.5 bg-ui-danger border border-ui-danger/30 rounded-xl text-xs font-semibold uppercase tracking-wide text-white hover:bg-ui-danger/90 transition-all shadow-sm disabled:opacity-50"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Confirm Delete'}
-            </button>
-          </div>
-        }
-      >
-        <p className="text-muted-foreground">Are you sure you want to delete this transaction?</p>
-      </Modal>
     </div>
   )
 }
