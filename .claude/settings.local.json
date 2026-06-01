@@ -20,7 +20,14 @@
       "Bash(git commit -m ' *)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(gh pr create --title 'UI/UX best-in-class sweep + Balance Summary redesign' --body ' *)"
+      "Bash(gh pr create --title 'UI/UX best-in-class sweep + Balance Summary redesign' --body ' *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(lsof -ti:5173)",
+      "Bash(/Users/johnlesterescarlan/.claude/plugins/cache/claude-plugins-official/superpowers/5.1.0/skills/brainstorming/scripts/start-server.sh --project-dir \"/Users/johnlesterescarlan/Personal Projects/kaizen\")",
+      "mcp__plugin_claude-mem_mcp-search__get_observations",
+      "Bash(node -e ' *)",
+      "mcp__plugin_claude-mem_mcp-search__smart_outline",
+      "Bash(bash *)"
     ]
   }
 }
