@@ -92,7 +92,12 @@ export function Breadcrumb({ className }: BreadcrumbProps): ReactElement | null 
               </span>
             )}
             {isLast ? (
-              <span className="text-text-primary font-medium">{crumb.label}</span>
+              <span
+                className="text-text-primary font-medium max-w-[200px] truncate"
+                title={crumb.label}
+              >
+                {crumb.label}
+              </span>
             ) : (
               <Link to={crumb.to} className="hover:text-text-primary transition-colors">
                 {crumb.label}
