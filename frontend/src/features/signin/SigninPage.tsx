@@ -26,7 +26,7 @@ export function SigninPage(): ReactElement {
 
   const header = (
     <header className="space-y-2 text-left animate-entrance-slide-up">
-      <h2 className={typography.h2}>Sign in to continue</h2>
+      <h2 className="text-xl font-semibold text-text-primary">Sign in to continue</h2>
       <p className={typography['body-lg']}>
         Use your preferred method to access your Kaizen account
       </p>
@@ -36,11 +36,11 @@ export function SigninPage(): ReactElement {
   const footer = (
     <p className={`px-4 ${typography['body-sm']} lg:max-w-lg lg:px-0`}>
       By signing in, you agree to our{' '}
-      <Link to="/terms" className="font-medium text-foreground hover:underline">
+      <Link to="/terms" className="font-medium text-text-primary hover:underline">
         Terms
       </Link>{' '}
       and{' '}
-      <Link to="/privacy" className="font-medium text-foreground hover:underline">
+      <Link to="/privacy" className="font-medium text-text-primary hover:underline">
         Privacy Policy
       </Link>
       .
@@ -55,7 +55,7 @@ export function SigninPage(): ReactElement {
       >
         {errorMessage && (
           <div
-            className="rounded-lg bg-ui-danger-subtle p-4 text-sm text-ui-danger-text ring-1 ring-ui-danger-subtle"
+            className="rounded-lg bg-error/10 p-4 text-sm text-error ring-1 ring-error/30"
             role="alert"
           >
             {errorMessage}
