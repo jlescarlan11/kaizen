@@ -62,8 +62,8 @@ const BudgetRow = ({
                     </p>
                     {isOverBudget && <Badge variant="error">Over</Badge>}
                   </div>
-                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary mt-0.5 opacity-60">
-                    {budget.period} Budget
+                  <p className="text-xs text-text-secondary mt-0.5">
+                    {budget.period === 'MONTHLY' ? 'Monthly' : 'Weekly'} budget
                   </p>
                 </div>
               </div>
@@ -73,9 +73,7 @@ const BudgetRow = ({
                   <p className="text-base font-bold tracking-tight text-text-primary">
                     ${budget.amount.toFixed(2)}
                   </p>
-                  <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
-                    Allocated
-                  </p>
+                  <p className="text-xs text-text-secondary">allocated</p>
                 </div>
 
                 <DisclosureButton
@@ -101,12 +99,10 @@ const BudgetRow = ({
             </div>
 
             <div className="flex justify-between mt-1.5 px-0.5">
-              <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-60">
-                Spent: ${budget.expense.toFixed(2)}
-              </p>
+              <p className="text-sm text-text-secondary">Spent ${budget.expense.toFixed(2)}</p>
               <p
                 className={cn(
-                  'text-3xs font-bold uppercase tracking-widest',
+                  'text-sm font-semibold',
                   isOverBudget ? 'text-error' : 'text-primary',
                 )}
               >
