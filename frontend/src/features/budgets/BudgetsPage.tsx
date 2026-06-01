@@ -29,7 +29,7 @@ const BudgetRow = ({
     <Disclosure as="div" className="overflow-hidden">
       {({ open }) => (
         <>
-          <div className="relative flex flex-col px-5 py-4 hover:bg-white hover:shadow-xl hover:shadow-primary/5 transition-all group rounded-2xl">
+          <div className="relative flex flex-col px-5 py-4 bg-surface rounded-2xl shadow-sm hover:bg-surface-secondary transition-all group">
             <button
               type="button"
               className="absolute inset-0 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/20 rounded-2xl"
