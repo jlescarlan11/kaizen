@@ -295,7 +295,6 @@ export function TransactionList({
         data={flattenedItems}
         renderItem={renderItem}
         hideBorders={true}
-        className="gap-1"
         emptyState={
           !isLoading && (
             <div className="flex flex-col items-center justify-center py-32 text-center bg-surface border-2 border-dashed border-border-subtle rounded-pill">
