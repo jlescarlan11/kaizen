@@ -8,7 +8,6 @@ export interface TransactionGroup {
 export interface MoneyFlowMetrics {
   incoming: number
   outgoing: number
-  ratio: number
 }
 
 /**
@@ -29,12 +28,8 @@ export function calculateMoneyFlow(transactions: TransactionResponse[]): MoneyFl
     { incoming: 0, outgoing: 0 },
   )
 
-  const ratio =
-    metrics.incoming === 0 ? (metrics.outgoing > 0 ? 1 : 0) : metrics.outgoing / metrics.incoming
-
   return {
     ...metrics,
-    ratio,
   }
 }
 

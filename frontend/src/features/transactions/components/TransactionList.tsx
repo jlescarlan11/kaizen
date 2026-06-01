@@ -171,7 +171,7 @@ export function TransactionList({
               ) : (
                 <div
                   className={cn(
-                    'flex h-full w-full items-center justify-center rounded-xl',
+                    'flex h-full w-full items-center justify-center rounded-lg',
                     tx.type === 'INCOME'
                       ? 'bg-success/10 text-success'
                       : 'bg-warning/10 text-warning',
@@ -298,7 +298,7 @@ export function TransactionList({
         className="gap-1"
         emptyState={
           !isLoading && (
-            <div className="flex flex-col items-center justify-center py-32 text-center bg-white border-2 border-dashed border-border-subtle rounded-pill">
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-surface border-2 border-dashed border-border-subtle rounded-pill">
               <div className="w-20 h-20 bg-background rounded-3xl flex items-center justify-center mb-6">
                 <SharedIcon
                   type="ui"

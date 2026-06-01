@@ -44,7 +44,7 @@ export function TransactionSummaryStrip({
   outgoing,
 }: TransactionSummaryStripProps): ReactElement {
   const net = incoming - outgoing
-  const netSign = net >= 0 ? '+' : '−' // U+2212 minus sign
+  const netSign = net > 0 ? '+' : net < 0 ? '−' : ''
 
   return (
     <div
