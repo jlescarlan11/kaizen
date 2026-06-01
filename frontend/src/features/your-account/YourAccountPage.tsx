@@ -40,7 +40,7 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   const isInteractive = !!(item.to || item.onClick || item.toggle)
 
   const baseClassName = cn(
-    'flex w-full items-center gap-5 px-5 py-4 text-left transition-all border-2 border-transparent',
+    'flex w-full items-center gap-5 px-5 py-4 text-left transition-all',
     isInteractive ? 'cursor-pointer hover:bg-surface-secondary' : 'opacity-50 cursor-not-allowed',
   )
 
