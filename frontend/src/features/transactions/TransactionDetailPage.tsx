@@ -82,29 +82,25 @@ export function TransactionDetailPage(): ReactElement {
             isProcessing={isDeleting}
           />
         </div>
-        <header className="mb-16">
+        {/* Receipt card */}
+        <div className="mb-8 overflow-hidden rounded-xl border border-border-subtle bg-surface">
           <TransactionDetailHeader
             amount={transaction.amount}
             type={transaction.type}
             date={transaction.transactionDate}
           />
-        </header>
+          <hr className="border-dashed border-border mx-0" />
+          <TransactionDetailInfo
+            category={transaction.category}
+            paymentMethod={transaction.paymentMethod}
+            description={transaction.description}
+          />
+        </div>
 
         <div className="space-y-16">
-          <section>
-            <TransactionDetailInfo
-              category={transaction.category}
-              paymentMethod={transaction.paymentMethod}
-              type={transaction.type}
-            />
-          </section>
-
-          {(transaction.description || transaction.notes) && (
+          {transaction.notes && (
             <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <TransactionNoteSection
-                description={transaction.description}
-                notes={transaction.notes}
-              />
+              <TransactionNoteSection description={null} notes={transaction.notes} />
             </section>
           )}
 
