@@ -21,18 +21,18 @@ export function OnboardingErrorBlock({
 
   return (
     <div
-      className="space-y-4 rounded-xl border border-ui-border-subtle bg-ui-danger-subtle p-4 text-left"
+      className="space-y-4 rounded-xl border border-border-subtle bg-error/10 p-4 text-left"
       role="alert"
     >
       <div className="space-y-1">
-        <p className="text-sm font-medium leading-none text-foreground">{error.title}</p>
+        <p className="text-sm font-medium leading-none text-text-primary">{error.title}</p>
         <p className={typography['body-sm']}>{error.description}</p>
       </div>
       <Button variant="secondary" onClick={onRetry} isLoading={false} disabled={isRetryDisabled}>
         {error.actionText}
       </Button>
       {isRetryDisabled && (
-        <p className="text-xs leading-5 text-muted-foreground">{RETRY_CAP_SUPPORT_TEXT}</p>
+        <p className="text-xs leading-5 text-text-secondary">{RETRY_CAP_SUPPORT_TEXT}</p>
       )}
     </div>
   )

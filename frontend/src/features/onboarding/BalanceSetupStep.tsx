@@ -110,11 +110,11 @@ export function BalanceSetupStep(): ReactElement {
 
           return (
             <div key={pm.id} className="">
-              {index > 0 && <hr className="border-ui-border-subtle" />}
+              {index > 0 && <hr className="border-border-subtle" />}
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-6 px-4 py-3.5">
                 <label
                   htmlFor={`balance-${pm.id}`}
-                  className={cn(typography.label, 'text-foreground')}
+                  className={cn(typography.label, 'text-text-primary')}
                 >
                   {pm.name}
                 </label>
@@ -129,7 +129,7 @@ export function BalanceSetupStep(): ReactElement {
                     value={amountValue}
                     onChange={(e) => handleBalanceChange(pm.id, e.target.value)}
                     startAdornment={
-                      <span className="text-sm font-semibold text-muted-foreground">PHP</span>
+                      <span className="text-sm font-semibold text-text-secondary">PHP</span>
                     }
                     className={cn(fluidLayout.touchTarget, 'text-lg font-semibold text-right')}
                   />
@@ -140,16 +140,18 @@ export function BalanceSetupStep(): ReactElement {
         })}
       </div>
 
-      <hr className="my-10 border-ui-border" />
+      <hr className="my-10 border-border" />
 
       {/* Summary and Navigation */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-surface sm:p-0">
           <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
-            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+            <p className="text-xs font-medium text-text-secondary sm:text-sm sm:text-text-primary">
               Total Starting Funds
             </p>
-            <p className="text-lg font-semibold text-foreground">{formatCurrency(totalBalance)}</p>
+            <p className="text-lg font-semibold text-text-primary">
+              {formatCurrency(totalBalance)}
+            </p>
           </div>
 
           <Button

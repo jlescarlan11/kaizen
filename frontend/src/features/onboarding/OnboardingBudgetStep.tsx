@@ -130,7 +130,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
   const [amountValidationError, setAmountValidationError] = useState<string | null>(null)
   const [customCategoryName, setCustomCategoryName] = useState('')
   const [customCategoryIcon, setCustomCategoryIcon] = useState<CategoryIconName>('home')
-  const [customCategoryColor, setCustomCategoryColor] = useState('#1d4ed8')
+  const [customCategoryColor, setCustomCategoryColor] = useState('var(--color-category-default)')
   const [customCategoryError, setCustomCategoryError] = useState<string | null>(null)
   const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false)
 
@@ -446,7 +446,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
     <>
       <div className={cn('flex flex-col', fluidLayout.sectionGap)}>
         <section aria-label="Balance overview" className="space-y-4">
-          <p className="text-sm font-medium leading-none text-foreground">Balance overview</p>
+          <p className="text-sm font-medium leading-none text-text-primary">Balance overview</p>
 
           <div className="">
             <AllocationBar
@@ -459,10 +459,10 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
         <section aria-label="Your budgets" className="">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium leading-none text-foreground">
+            <h2 className="text-sm font-medium leading-none text-text-primary">
               Your budgets
               {pendingBudgets.length > 0 && (
-                <span className="ml-2 rounded-full bg-ui-surface-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-muted-foreground">
+                <span className="ml-2 rounded-full bg-surface-secondary px-2 py-0.5 text-xs font-semibold tabular-nums text-text-secondary">
                   {pendingBudgets.length}
                 </span>
               )}
@@ -479,7 +479,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
 
           {categoryError ? (
             <p
-              className="rounded-xl bg-ui-warning-subtle px-4 py-3 text-sm font-medium leading-relaxed text-muted-foreground"
+              className="rounded-xl bg-warning/10 px-4 py-3 text-sm font-medium leading-relaxed text-text-secondary"
               role="alert"
             >
               {categoryError}
@@ -500,7 +500,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             <div className="">
               {pendingBudgets.map((budget, index) => (
                 <div key={budget.categoryId} className="">
-                  {index > 0 && <hr className="border-ui-border-subtle" />}
+                  {index > 0 && <hr className="border-border-subtle" />}
                   <BudgetCard
                     budget={budget}
                     isInvalid={invalidBudgetIds.has(budget.categoryId)}
@@ -520,16 +520,16 @@ export function OnboardingBudgetStep(): ReactElement | null {
         ) : null}
       </div>
 
-      <hr className="my-10 border-ui-border" />
+      <hr className="my-10 border-border" />
 
       {/* Summary and Navigation */}
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-ui-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-ui-card sm:p-0">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border-subtle bg-background/95 px-5 py-4 backdrop-blur-sm sm:relative sm:inset-auto sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between sm:rounded-2xl sm:bg-surface sm:p-0">
           <div className="flex flex-col gap-0.5 sm:gap-1 sm:p-0">
-            <p className="text-xs font-medium text-muted-foreground sm:text-sm sm:text-foreground">
+            <p className="text-xs font-medium text-text-secondary sm:text-sm sm:text-text-primary">
               Total Starting Funds
             </p>
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-lg font-semibold text-text-primary">
               {formatCurrency(totalAllocated)}
             </p>
           </div>
@@ -640,9 +640,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
             inputMode="decimal"
             min="1"
             step="0.01"
-            startAdornment={
-              <span className="text-sm font-semibold text-muted-foreground">PHP</span>
-            }
+            startAdornment={<span className="text-sm font-semibold text-text-secondary">PHP</span>}
             value={amountInput}
             className={cn(fluidLayout.touchTarget, 'font-semibold text-right')}
             onChange={(event) => {

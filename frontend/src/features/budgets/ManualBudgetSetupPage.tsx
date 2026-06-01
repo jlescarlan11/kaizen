@@ -67,7 +67,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   const [submissionError, setSubmissionError] = useState<string | null>(null)
   const [customCategoryName, setCustomCategoryName] = useState('')
   const [customCategoryIcon, setCustomCategoryIcon] = useState<CategoryIconName>('home')
-  const [customCategoryColor, setCustomCategoryColor] = useState('#1d4ed8')
+  const [customCategoryColor, setCustomCategoryColor] = useState('var(--color-category-default)')
   const [customCategoryError, setCustomCategoryError] = useState<string | null>(null)
   const [isCreatingCustomCategory, setIsCreatingCustomCategory] = useState(false)
 
@@ -302,141 +302,145 @@ export function ManualBudgetSetupPage(): ReactElement | null {
 
   return (
     <>
-      <section className={pageLayout.sectionGap}>
-        <header className={pageLayout.headerGap}>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Manual Budget Setup
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Add budgets individually and keep session-local edits until you confirm.
-          </p>
-        </header>
+      <div className="w-full">
+        <section className={pageLayout.sectionGap}>
+          <header className={pageLayout.headerGap}>
+            <h1 className="text-xl font-semibold text-text-primary tracking-tight">
+              Manual Budget Setup
+            </h1>
+            <p className="text-sm text-text-secondary mt-1">
+              Add budgets individually and keep session-local edits until you confirm.
+            </p>
+          </header>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card className="space-y-1 border border-ui-border-subtle p-5">
-            <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-              Allocated
-            </p>
-            <p className="text-2xl font-semibold text-foreground">{formatCurrency(allocatedRaw)}</p>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              {allocationPercentage}% of balance
-            </p>
-          </Card>
-          <Card className="space-y-1 border border-ui-border-subtle p-5">
-            <p className="text-xs font-medium uppercase tracking-wider text-subtle-foreground">
-              Unallocated
-            </p>
-            <p
-              className={`text-2xl font-semibold ${
-                unallocated < 0 ? 'text-ui-danger' : 'text-foreground'
-              }`}
-            >
-              {formatCurrency(unallocated)}
-            </p>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              {unallocated < 0
-                ? `Over-committed by ${formatCurrency(Math.abs(unallocated))}`
-                : 'available'}
-            </p>
-          </Card>
-        </div>
-
-        <Card className="space-y-4 p-6">
-          {categoryError ? (
-            <p className="text-sm text-destructive" role="alert">
-              {categoryError}
-            </p>
-          ) : null}
-
-          <div className="space-y-0">
-            {sessionBudgets.length === 0 ? (
-              <p className="text-sm text-muted-foreground px-1 py-4">
-                No budgets added yet. Tap + Add Budget to begin.
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="space-y-1 border border-border-subtle p-5">
+              <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                Allocated
               </p>
-            ) : (
-              sessionBudgets.map((budget, index) => (
-                <div key={`${budget.categoryId}-${index}`}>
-                  {index > 0 && <hr className="border-ui-border-subtle" />}
-                  <BudgetCard
-                    budget={budget}
-                    isInvalid={invalidBudgetIds.has(budget.categoryId)}
-                    onEdit={() => openModal(budget)}
-                    onRemove={() => handleDeleteBudget(budget.categoryId)}
-                  />
-                </div>
-              ))
-            )}
+              <p className="text-2xl font-semibold text-text-primary">
+                {formatCurrency(allocatedRaw)}
+              </p>
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                {allocationPercentage}% of balance
+              </p>
+            </Card>
+            <Card className="space-y-1 border border-border-subtle p-5">
+              <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
+                Unallocated
+              </p>
+              <p
+                className={`text-2xl font-semibold ${
+                  unallocated < 0 ? 'text-error' : 'text-text-primary'
+                }`}
+              >
+                {formatCurrency(unallocated)}
+              </p>
+              <p className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+                {unallocated < 0
+                  ? `Over-committed by ${formatCurrency(Math.abs(unallocated))}`
+                  : 'available'}
+              </p>
+            </Card>
           </div>
 
-          {submissionError && (
-            <p className="text-sm text-destructive" role="alert">
-              {submissionError}
-            </p>
-          )}
+          <Card className="space-y-4 p-6">
+            {categoryError ? (
+              <p className="text-sm text-destructive" role="alert">
+                {categoryError}
+              </p>
+            ) : null}
 
-          <div className="flex flex-wrap gap-3">
-            <Button type="button" onClick={() => openModal()}>
-              + Add Budget
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              isLoading={isCompleting || isSavingBatch}
-              onClick={async () => {
-                if (sessionBudgets.length === 0) {
-                  // Instruction 6 / PRD Section 4, Story 12: zero-budget "Done" branch routes to the skip flow stub until the affordance location is resolved (PRD Open Question 5).
-                  return
-                }
-                setSubmissionError(null)
-                try {
-                  if (user && !user.onboardingCompleted) {
-                    if (!fundingSourceType) {
-                      setSubmissionError('Choose a funding source before finishing onboarding.')
-                      return
-                    }
-                    await complete({
-                      startingFunds: balance,
-                      fundingSourceType,
-                      budgets: sessionBudgets.map((b) => ({
-                        categoryId: b.categoryId,
-                        amount: b.amount,
-                        period: b.period,
-                      })),
-                    }).unwrap()
-                  } else {
-                    // Management flow: save budgets directly
-                    await saveBatch({
-                      budgets: sessionBudgets.map((b) => ({
-                        categoryId: b.categoryId,
-                        amount: b.amount,
-                        period: b.period,
-                      })),
-                    }).unwrap()
-                  }
-                  navigate('/', { replace: true })
-                } catch (err) {
-                  console.error('Final onboarding completion failed:', err)
-                  setSubmissionError(
-                    getErrorMessage(
-                      err,
-                      'Unable to finish setup. Please check your allocations and try again.',
-                    ),
-                  )
-                }
-              }}
-              disabled={sessionBudgets.length > 0 && isOverAllocated}
-            >
-              Done
-            </Button>
-          </div>
-
-          {!user.onboardingCompleted && (
-            <div className="flex justify-end text-sm">
-              <SkipBudgetTrigger />
+            <div className="space-y-0">
+              {sessionBudgets.length === 0 ? (
+                <p className="text-sm text-text-secondary px-1 py-4">
+                  No budgets added yet. Tap + Add Budget to begin.
+                </p>
+              ) : (
+                sessionBudgets.map((budget, index) => (
+                  <div key={`${budget.categoryId}-${index}`}>
+                    {index > 0 && <hr className="border-border-subtle" />}
+                    <BudgetCard
+                      budget={budget}
+                      isInvalid={invalidBudgetIds.has(budget.categoryId)}
+                      onEdit={() => openModal(budget)}
+                      onRemove={() => handleDeleteBudget(budget.categoryId)}
+                    />
+                  </div>
+                ))
+              )}
             </div>
-          )}
-        </Card>
-      </section>
+
+            {submissionError && (
+              <p className="text-sm text-destructive" role="alert">
+                {submissionError}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" onClick={() => openModal()}>
+                + Add Budget
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                isLoading={isCompleting || isSavingBatch}
+                onClick={async () => {
+                  if (sessionBudgets.length === 0) {
+                    // Instruction 6 / PRD Section 4, Story 12: zero-budget "Done" branch routes to the skip flow stub until the affordance location is resolved (PRD Open Question 5).
+                    return
+                  }
+                  setSubmissionError(null)
+                  try {
+                    if (user && !user.onboardingCompleted) {
+                      if (!fundingSourceType) {
+                        setSubmissionError('Choose a funding source before finishing onboarding.')
+                        return
+                      }
+                      await complete({
+                        startingFunds: balance,
+                        fundingSourceType,
+                        budgets: sessionBudgets.map((b) => ({
+                          categoryId: b.categoryId,
+                          amount: b.amount,
+                          period: b.period,
+                        })),
+                      }).unwrap()
+                    } else {
+                      // Management flow: save budgets directly
+                      await saveBatch({
+                        budgets: sessionBudgets.map((b) => ({
+                          categoryId: b.categoryId,
+                          amount: b.amount,
+                          period: b.period,
+                        })),
+                      }).unwrap()
+                    }
+                    navigate('/', { replace: true })
+                  } catch (err) {
+                    console.error('Final onboarding completion failed:', err)
+                    setSubmissionError(
+                      getErrorMessage(
+                        err,
+                        'Unable to finish setup. Please check your allocations and try again.',
+                      ),
+                    )
+                  }
+                }}
+                disabled={sessionBudgets.length > 0 && isOverAllocated}
+              >
+                Done
+              </Button>
+            </div>
+
+            {!user.onboardingCompleted && (
+              <div className="flex justify-end text-sm">
+                <SkipBudgetTrigger />
+              </div>
+            )}
+          </Card>
+        </section>
+      </div>
 
       <ResponsiveModal
         title={selectedBudgetId !== null ? 'Edit budget' : 'Add a budget'}
