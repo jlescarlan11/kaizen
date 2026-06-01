@@ -24,16 +24,6 @@ export function TransactionDetailHeader({
 
   return (
     <div className={cn('flex flex-col items-center gap-3 px-6 py-8 text-center', className)}>
-      {/* Type pill */}
-      <span
-        className={cn(
-          'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
-          isIncome ? 'bg-primary/10 text-primary' : 'bg-error/10 text-error',
-        )}
-      >
-        {isIncome ? '↑' : '↓'}
-      </span>
-
       {/* Amount */}
       <div
         role="status"
