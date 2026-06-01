@@ -38,7 +38,7 @@ export function AddEntryFAB({
         onAddTransaction()
         setIsOpen(false)
       },
-      color: 'bg-primary text-primary',
+      color: 'bg-zinc-900 text-white',
     },
     {
       icon: <SharedIcon type="ui" name="wallet" size={20} />,
@@ -47,7 +47,7 @@ export function AddEntryFAB({
         onCreateBudget()
         setIsOpen(false)
       },
-      color: 'bg-primary text-text-primary',
+      color: 'bg-zinc-900 text-white',
     },
     {
       icon: <SharedIcon type="ui" name="target" size={20} />,
@@ -56,7 +56,7 @@ export function AddEntryFAB({
         onCreateGoal()
         setIsOpen(false)
       },
-      color: 'bg-success text-success',
+      color: 'bg-zinc-900 text-white',
     },
     {
       icon: <SharedIcon type="ui" name="hand" size={20} />,
@@ -65,7 +65,7 @@ export function AddEntryFAB({
         onHoldPurchase()
         setIsOpen(false)
       },
-      color: 'bg-warning text-warning',
+      color: 'bg-zinc-900 text-white',
     },
   ]
 
@@ -105,7 +105,7 @@ export function AddEntryFAB({
               onClick={action.onClick}
               aria-label={action.label}
               className={cn(
-                'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 active:brightness-90 shrink-0 pointer-events-auto',
+                'flex h-11 w-11 items-center justify-center rounded-full shadow-xl transition-all hover:scale-110 active:scale-95 active:brightness-90 shrink-0 pointer-events-auto',
                 action.color,
               )}
             >
@@ -122,7 +122,7 @@ export function AddEntryFAB({
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close quick actions' : 'Open quick actions'}
         className={cn(
-          'flex h-14 w-14 items-center justify-center rounded-full border-2 border-border bg-surface text-text-primary shadow-2xl transition-all hover:bg-surface-secondary active:scale-95 active:brightness-90 pointer-events-auto',
+          'flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-2xl transition-all hover:bg-surface-secondary active:scale-95 active:brightness-90 pointer-events-auto',
           isOpen && 'rotate-45 bg-surface-secondary',
         )}
       >
