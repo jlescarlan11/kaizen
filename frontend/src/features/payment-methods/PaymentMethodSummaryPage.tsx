@@ -3,7 +3,6 @@ import { Card } from '../../shared/components/Card'
 import { useGetPaymentMethodSummaryQuery } from '../../app/store/api/paymentMethodApi'
 import { pageLayout } from '../../shared/styles/layout'
 import { PageHeader } from '../../shared/components/PageHeader'
-import { KpiStrip } from '../../shared/components/KpiStrip'
 
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 
@@ -16,11 +15,6 @@ export function PaymentMethodSummaryPage(): ReactElement {
 
   const totalExpense = summary.reduce((acc, s) => acc + s.totalAmount, 0)
 
-  const topMethod = summary.reduce<(typeof summary)[number] | null>(
-    (best, s) => (best === null || s.totalAmount > best.totalAmount ? s : best),
-    null,
-  )
-
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
@@ -28,15 +22,6 @@ export function PaymentMethodSummaryPage(): ReactElement {
           title="Payment Methods"
           subtitle="Aggregate spending totals per payment method."
         />
-
-        {!isLoading && (
-          <KpiStrip
-            items={[
-              { label: 'Methods Used', value: String(summary.length) },
-              { label: 'Top by Spend', value: topMethod?.paymentMethod?.name ?? '—' },
-            ]}
-          />
-        )}
 
         {error && (
           <Card variant="warning">

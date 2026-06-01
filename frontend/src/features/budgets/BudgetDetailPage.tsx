@@ -8,7 +8,6 @@ import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { pageLayout } from '../../shared/styles/layout'
 import { withOpacity } from '../../shared/lib/colorUtils'
 import { PageHeader } from '../../shared/components/PageHeader'
-import { KpiStrip } from '../../shared/components/KpiStrip'
 
 const currencyFormatter = {
   format: (amount: number) => formatCurrency(amount),
@@ -62,21 +61,6 @@ export function BudgetDetailPage(): ReactElement {
           </Button>
         }
       />
-      <KpiStrip
-        items={[
-          { label: 'Allocated', value: `$${budget.amount.toFixed(2)}` },
-          {
-            label: 'Spent',
-            value: `$${budget.expense.toFixed(2)}`,
-            valueClassName: budget.expense > budget.amount ? 'text-error' : undefined,
-          },
-          {
-            label: 'Remaining',
-            value: `$${Math.max(budget.amount - budget.expense, 0).toFixed(2)}`,
-          },
-        ]}
-      />
-
       <main className="space-y-16">
         {/* Spending Progress */}
         <section className="py-8 border-y border-border-subtle">

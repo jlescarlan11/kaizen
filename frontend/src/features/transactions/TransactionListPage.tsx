@@ -26,7 +26,6 @@ import { showAlert } from '../../app/store/notificationSlice'
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { MoneyFlowDisplay } from './components/MoneyFlowDisplay'
 import { PageHeader } from '../../shared/components/PageHeader'
-import { KpiStrip, type KpiItem } from '../../shared/components/KpiStrip'
 import { PageTabs } from '../../shared/components/PageTabs'
 
 export function TransactionListPage(): ReactElement {
@@ -62,27 +61,6 @@ export function TransactionListPage(): ReactElement {
     if (activeTab === 'expenses') return processedTransactions.filter((t) => t.type === 'EXPENSE')
     return processedTransactions
   }, [processedTransactions, activeTab])
-
-  // Compute KPIs from all (unfiltered by tab) transactions
-  const totalIn = processedTransactions
-    .filter((t) => t.type === 'INCOME')
-    .reduce((s, t) => s + t.amount, 0)
-  const totalOut = processedTransactions
-    .filter((t) => t.type === 'EXPENSE')
-    .reduce((s, t) => s + t.amount, 0)
-  const net = totalIn - totalOut
-  const count = processedTransactions.length
-
-  const kpiItems: KpiItem[] = [
-    { label: 'In', value: `$${totalIn.toFixed(2)}`, valueClassName: 'text-success' },
-    { label: 'Out', value: `$${totalOut.toFixed(2)}`, valueClassName: 'text-error' },
-    {
-      label: 'Net',
-      value: `$${net.toFixed(2)}`,
-      valueClassName: net >= 0 ? 'text-success' : 'text-error',
-    },
-    { label: 'Count', value: String(count) },
-  ]
 
   // Calculate money flow metrics from processed transactions
   const moneyFlow = useMemo(
@@ -151,8 +129,6 @@ export function TransactionListPage(): ReactElement {
             activeTab={activeTab}
             onChange={setActiveTab}
           />
-          {!isLoading && processedTransactions.length > 0 && <KpiStrip items={kpiItems} />}
-
           {/* Selection Action Bar */}
           <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
 

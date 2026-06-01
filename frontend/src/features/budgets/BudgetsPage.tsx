@@ -11,7 +11,6 @@ import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { cn } from '../../shared/lib/cn'
 import { withOpacity } from '../../shared/lib/colorUtils'
 import { PageHeader } from '../../shared/components/PageHeader'
-import { KpiStrip } from '../../shared/components/KpiStrip'
 import { PageTabs } from '../../shared/components/PageTabs'
 
 const BudgetRow = ({
@@ -197,11 +196,6 @@ export function BudgetsPage(): ReactElement {
       activeTab === 'archived' ? (b.archived ?? false) : !(b.archived ?? false),
     ) ?? []
 
-  const totalBudgeted = visibleBudgets.reduce((s, b) => s + b.amount, 0)
-  const totalSpent = visibleBudgets.reduce((s, b) => s + b.expense, 0)
-  const remaining = totalBudgeted - totalSpent
-  const overCount = visibleBudgets.filter((b) => b.expense > b.amount).length
-
   const handleNewBudget = () => {
     navigate('/budgets/add')
   }
@@ -235,25 +229,6 @@ export function BudgetsPage(): ReactElement {
         activeTab={activeTab}
         onChange={setActiveTab}
       />
-      {visibleBudgets.length > 0 && (
-        <KpiStrip
-          items={[
-            { label: 'Budgeted', value: `$${totalBudgeted.toFixed(2)}` },
-            {
-              label: 'Spent',
-              value: `$${totalSpent.toFixed(2)}`,
-              valueClassName: totalSpent > totalBudgeted ? 'text-error' : undefined,
-            },
-            { label: 'Remaining', value: `$${Math.max(remaining, 0).toFixed(2)}` },
-            {
-              label: 'Over Budget',
-              value: String(overCount),
-              valueClassName: overCount > 0 ? 'text-error' : undefined,
-            },
-          ]}
-        />
-      )}
-
       <DataList
         data={visibleBudgets}
         hideBorders

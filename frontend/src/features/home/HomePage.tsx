@@ -13,42 +13,13 @@ import { SubscriptionWatchdogCard } from './components/SubscriptionWatchdogCard'
 import { CommandPalette } from './components/CommandPalette'
 import { DashboardTour } from './DashboardTour'
 import { useRegisterDashboardTourAnchor } from './DashboardTourAnchorsHooks'
-import { KpiStrip } from '../../shared/components/KpiStrip'
-import { Money } from '../../shared/components/Money/Money'
-import { useWealthHealth } from './hooks/useWealthHealth'
-
 export function HomePage(): ReactElement {
   const { user } = useAuthState()
   const balanceCardRef = useRegisterDashboardTourAnchor('balanceCard')
-  const { analytics, currentSummary } = useWealthHealth()
 
   return (
     <div className="animate-entrance-slide-up pb-24 space-y-4">
       <CommandPalette />
-
-      <KpiStrip
-        className="mb-4"
-        items={[
-          {
-            label: 'Net Worth',
-            value: <Money amount={user?.balance ?? 0} />,
-          },
-          {
-            label: 'Income',
-            value: currentSummary ? <Money amount={currentSummary.totalIncome} /> : '—',
-            valueClassName: 'text-success',
-          },
-          {
-            label: 'Expenses',
-            value: currentSummary ? <Money amount={currentSummary.totalExpenses} /> : '—',
-            valueClassName: 'text-error',
-          },
-          {
-            label: 'Savings Rate',
-            value: analytics ? `${analytics.savingsRate}%` : '—',
-          },
-        ]}
-      />
 
       {/* Hero — full-width centered Net Worth */}
       <section ref={balanceCardRef}>
