@@ -90,7 +90,7 @@ const BudgetRow = ({
             </div>
 
             <ProgressBar
-              value={Math.min(usagePercent, 100)}
+              value={usagePercent}
               activeClassName={isOverBudget ? 'bg-error' : 'bg-primary'}
               inactiveClassName={isOverBudget ? 'bg-error/10' : 'bg-background'}
             />
