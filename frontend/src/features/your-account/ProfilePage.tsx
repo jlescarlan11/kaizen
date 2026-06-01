@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 import { pageLayout } from '../../shared/styles/layout'
 import { ProfileDisplay } from './ProfileDisplay'
+import { PageHeader } from '../../shared/components/PageHeader'
 
 /**
  * ProfilePage: Shell component for the User Profile Viewer.
@@ -8,17 +9,12 @@ import { ProfileDisplay } from './ProfileDisplay'
  */
 export function ProfilePage(): ReactElement {
   return (
-    <section className={pageLayout.sectionGap}>
-      <header className={pageLayout.headerGap}>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight leading-tight text-foreground">
-          Personal details
-        </h1>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Review the account information associated with your profile.
-        </p>
-      </header>
+    <div className="w-full">
+      <section className={pageLayout.sectionGap}>
+        <PageHeader title="Profile & XP" />
 
-      <ProfileDisplay />
-    </section>
+        <ProfileDisplay />
+      </section>
+    </div>
   )
 }

@@ -2,6 +2,7 @@ import type { ReactElement } from 'react'
 import { useTheme, type Theme } from '../../providers/theme'
 import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
+import { PageHeader } from '../../shared/components/PageHeader'
 
 const themeOptions: ReadonlyArray<{
   value: Theme
@@ -30,94 +31,86 @@ export function AppearancePage(): ReactElement {
   const { theme, setTheme, resolvedTheme } = useTheme()
 
   return (
-    <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
-      {/* Page header */}
-      <header className="mb-8">
-        <div className="space-y-0.5">
-          <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
-            Appearance
-          </h1>
-          <p className="text-base font-medium text-text-secondary tracking-tight opacity-60">
-            Choose how Kaizen looks on this device.
-          </p>
-        </div>
-      </header>
+    <div className="w-full">
+      <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
+        <PageHeader title="Appearance" />
 
-      {/* Theme options */}
-      <div role="radiogroup" aria-label="Theme selection" className="grid grid-cols-1 gap-3">
-        {themeOptions.map((option) => {
-          const isSelected = theme === option.value
-          const description =
-            option.value === 'system' ? `Follows device setting (${resolvedTheme})` : undefined
+        {/* Theme options */}
+        <div role="radiogroup" aria-label="Theme selection" className="grid grid-cols-1 gap-3">
+          {themeOptions.map((option) => {
+            const isSelected = theme === option.value
+            const description =
+              option.value === 'system' ? `Follows device setting (${resolvedTheme})` : undefined
 
-          return (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => setTheme(option.value)}
-              role="radio"
-              aria-checked={isSelected}
-              className={cn(
-                'flex items-center gap-5 p-5 rounded-2xl border-2 transition-all text-left group',
-                isSelected
-                  ? 'bg-white border-primary shadow-lg shadow-primary/5'
-                  : 'bg-white border-border-subtle hover:border-primary/20',
-              )}
-            >
-              {/* Icon */}
-              <div
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTheme(option.value)}
+                role="radio"
+                aria-checked={isSelected}
                 className={cn(
-                  'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all',
+                  'flex items-center gap-5 p-5 rounded-2xl border-2 transition-all text-left group',
                   isSelected
-                    ? 'bg-primary border-primary text-white shadow-sm shadow-primary/10'
-                    : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
+                    ? 'bg-white border-primary shadow-lg shadow-primary/5'
+                    : 'bg-white border-border-subtle hover:border-primary/20',
                 )}
               >
-                {option.icon}
-              </div>
+                {/* Icon */}
+                <div
+                  className={cn(
+                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all',
+                    isSelected
+                      ? 'bg-primary border-primary text-white shadow-sm shadow-primary/10'
+                      : 'bg-surface-secondary border-border-subtle text-text-secondary group-hover:text-text-primary',
+                  )}
+                >
+                  {option.icon}
+                </div>
 
-              {/* Label + description */}
-              <div className="flex-1 min-w-0">
-                <p className="text-base font-bold tracking-tight text-text-primary uppercase leading-none">
-                  {option.label}
-                </p>
-                {description && (
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 mt-1">
-                    {description}
+                {/* Label + description */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-base font-bold tracking-tight text-text-primary uppercase leading-none">
+                    {option.label}
                   </p>
-                )}
-              </div>
+                  {description && (
+                    <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40 mt-1">
+                      {description}
+                    </p>
+                  )}
+                </div>
 
-              {/* Radio indicator */}
-              <div
-                className={cn(
-                  'h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all',
-                  isSelected
-                    ? 'border-primary bg-primary'
-                    : 'border-border-subtle group-hover:border-primary/20',
-                )}
-              >
-                {isSelected && (
-                  <svg
-                    width="10"
-                    height="10"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    className="text-text-primary"
-                  >
-                    <path
-                      d="M2 6L5 9L10 3"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </div>
-            </button>
-          )
-        })}
+                {/* Radio indicator */}
+                <div
+                  className={cn(
+                    'h-5 w-5 shrink-0 rounded-full border-2 flex items-center justify-center transition-all',
+                    isSelected
+                      ? 'border-primary bg-primary'
+                      : 'border-border-subtle group-hover:border-primary/20',
+                  )}
+                >
+                  {isSelected && (
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      className="text-text-primary"
+                    >
+                      <path
+                        d="M2 6L5 9L10 3"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

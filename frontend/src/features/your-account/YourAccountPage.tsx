@@ -14,6 +14,7 @@ import { Badge } from '../../shared/components/Badge'
 import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
+import { PageHeader } from '../../shared/components/PageHeader'
 
 const IS_DEV = import.meta.env.DEV
 
@@ -60,7 +61,7 @@ function AccountRow({ item }: { item: AccountItem }): ReactElement {
   )
 
   const descriptionClassName = cn(
-    'text-[10px] font-bold uppercase tracking-widest mt-0.5 opacity-60',
+    'text-3xs font-bold uppercase tracking-widest mt-0.5 opacity-60',
     item.destructive ? 'text-error/80' : 'text-text-secondary',
   )
 
@@ -355,7 +356,7 @@ export function YourAccountPage(): ReactElement {
           {user?.name || 'User Name'}
         </h3>
         {user?.email && (
-          <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40 truncate">
+          <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40 truncate">
             {user.email}
           </p>
         )}
@@ -365,18 +366,18 @@ export function YourAccountPage(): ReactElement {
 
       <div className="w-full space-y-3">
         <div className="flex justify-between items-center px-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+          <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
             Member since
           </span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-primary opacity-60">
+          <span className="text-3xs font-bold uppercase tracking-widest text-text-primary opacity-60">
             {memberSince}
           </span>
         </div>
         <div className="flex justify-between items-center px-1">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-40">
+          <span className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-40">
             Status
           </span>
-          <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-success opacity-80">
+          <span className="flex items-center gap-1.5 text-3xs font-bold uppercase tracking-widest text-success opacity-80">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
             Active
           </span>
@@ -423,7 +424,7 @@ export function YourAccountPage(): ReactElement {
       </div>
 
       {user?.email && (
-        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-border-subtle text-[10px] font-bold uppercase tracking-widest text-text-secondary shadow-sm">
+        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-border-subtle text-3xs font-bold uppercase tracking-widest text-text-secondary shadow-sm">
           {user.email}
         </span>
       )}
@@ -434,50 +435,51 @@ export function YourAccountPage(): ReactElement {
 
   return (
     <div className="animate-entrance-slide-up pb-24">
-      <header className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tighter text-text-primary uppercase">
-          Your Account
-        </h1>
-      </header>
-      <div>
-        <LogoutConfirmationModal
-          isOpen={isLogoutModalOpen}
-          onClose={() => setIsLogoutModalOpen(false)}
-          onConfirm={handleLogout}
-          isLoading={isLoggingOut}
-        />
+      <div className="w-full">
+        <PageHeader title="Your Account" />
+        <div>
+          <LogoutConfirmationModal
+            isOpen={isLogoutModalOpen}
+            onClose={() => setIsLogoutModalOpen(false)}
+            onConfirm={handleLogout}
+            isLoading={isLoggingOut}
+          />
 
-        <div
-          className={cn('flex flex-col gap-8', !isMobile && 'md:flex-row md:items-start md:gap-10')}
-        >
-          {/* Left — sticky profile card */}
           <div
-            className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}
-          >
-            {isMobile ? mobileProfileHero : desktopProfileCard}
-          </div>
-
-          {/* Right — menu sections */}
-          <div className="flex-1 min-w-0 space-y-10">
-            {accountSections.map((section) => (
-              <section key={section.title}>
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-secondary opacity-40 mb-3 px-2">
-                  {section.title}
-                </h3>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {section.items.map((item) => (
-                    <AccountRow key={item.label} item={item} />
-                  ))}
-                </div>
-              </section>
-            ))}
-
-            {/* Member footer — mobile only */}
-            {isMobile && (
-              <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary opacity-30 text-center pb-6">
-                Member since {memberSince}
-              </p>
+            className={cn(
+              'flex flex-col gap-8',
+              !isMobile && 'md:flex-row md:items-start md:gap-10',
             )}
+          >
+            {/* Left — sticky profile card */}
+            <div
+              className={cn('w-full', !isMobile && 'md:w-64 lg:w-72 shrink-0 md:sticky md:top-24')}
+            >
+              {isMobile ? mobileProfileHero : desktopProfileCard}
+            </div>
+
+            {/* Right — menu sections */}
+            <div className="flex-1 min-w-0 space-y-10">
+              {accountSections.map((section) => (
+                <section key={section.title}>
+                  <h3 className="text-3xs font-bold uppercase tracking-[0.2em] text-text-secondary opacity-40 mb-3 px-2">
+                    {section.title}
+                  </h3>
+                  <div className="grid grid-cols-1 gap-1.5">
+                    {section.items.map((item) => (
+                      <AccountRow key={item.label} item={item} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+              {/* Member footer — mobile only */}
+              {isMobile && (
+                <p className="text-3xs font-bold uppercase tracking-widest text-text-secondary opacity-30 text-center pb-6">
+                  Member since {memberSince}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
