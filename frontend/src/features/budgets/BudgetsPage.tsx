@@ -39,11 +39,11 @@ const BudgetRow = ({
             <div className="relative flex items-center justify-between mb-3">
               <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div
-                  className="h-11 w-11 rounded-xl flex items-center justify-center transition-all group-hover:scale-105 shrink-0 shadow-sm"
+                  className="h-11 w-11 rounded-[10px] flex items-center justify-center transition-all group-hover:scale-105 shrink-0"
                   style={{
                     backgroundColor: withOpacity(
                       category?.color || 'var(--color-category-fallback)',
-                      0.08,
+                      0.1,
                     ),
                     color: category?.color || 'var(--color-text-secondary)',
                   }}
