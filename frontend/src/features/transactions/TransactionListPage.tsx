@@ -25,6 +25,8 @@ import { showAlert } from '../../app/store/notificationSlice'
 
 import { calculateMoneyFlow } from './utils/transactionUtils'
 import { TransactionSummaryStrip } from './components/TransactionSummaryStrip'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
+import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
 
 export function TransactionListPage(): ReactElement {
   const dispatch = useAppDispatch()
@@ -51,6 +53,9 @@ export function TransactionListPage(): ReactElement {
     clearSearch,
   } = useTransactionPipeline(sortState)
 
+  const { data: categories = [] } = useGetCategoriesQuery()
+  const { data: paymentMethods = [] } = useGetPaymentMethodsQuery()
+
   const moneyFlow = useMemo(
     () => calculateMoneyFlow(processedTransactions),
     [processedTransactions],
@@ -67,6 +72,19 @@ export function TransactionListPage(): ReactElement {
   const handleClearAll = () => {
     clearSearch()
     clearFilters()
+  }
+
+  const formatDateChipLabel = (start?: string, end?: string): string => {
+    const fmt = (iso: string) => {
+      const [year, month, day] = iso.split('-').map(Number)
+      return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      })
+    }
+    if (start && end) return `${fmt(start)} – ${fmt(end)}`
+    if (start) return `From ${fmt(start)}`
+    return `Until ${fmt(end!)}`
   }
 
   const toggleSelectionMode = () => {
@@ -219,6 +237,71 @@ export function TransactionListPage(): ReactElement {
                     </button>
                   </Badge>
                 ))}
+                {filterState.categories.map((categoryId) => {
+                  const category = categories.find((c) => c.id === categoryId)
+                  return (
+                    <Badge
+                      key={categoryId}
+                      variant="success"
+                      emphasis="soft"
+                      className="gap-1.5 pl-2.5 pr-1.5"
+                    >
+                      {category?.name ?? String(categoryId)}
+                      <button
+                        onClick={() =>
+                          setFilterState((prev) => ({
+                            ...prev,
+                            categories: prev.categories.filter((id) => id !== categoryId),
+                          }))
+                        }
+                        className="hover:scale-110 transition-transform opacity-60"
+                      >
+                        <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
+                      </button>
+                    </Badge>
+                  )
+                })}
+                {filterState.paymentMethods.map((methodId) => {
+                  const method = paymentMethods.find((m) => m.id === methodId)
+                  return (
+                    <Badge
+                      key={methodId}
+                      variant="success"
+                      emphasis="soft"
+                      className="gap-1.5 pl-2.5 pr-1.5"
+                    >
+                      {method?.name ?? String(methodId)}
+                      <button
+                        onClick={() =>
+                          setFilterState((prev) => ({
+                            ...prev,
+                            paymentMethods: prev.paymentMethods.filter((id) => id !== methodId),
+                          }))
+                        }
+                        className="hover:scale-110 transition-transform opacity-60"
+                      >
+                        <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
+                      </button>
+                    </Badge>
+                  )
+                })}
+                {(filterState.startDate || filterState.endDate) && (
+                  <Badge variant="success" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
+                    {formatDateChipLabel(filterState.startDate, filterState.endDate)}
+                    <button
+                      onClick={() =>
+                        setFilterState((prev) => ({
+                          ...prev,
+                          startDate: undefined,
+                          endDate: undefined,
+                        }))
+                      }
+                      className="hover:scale-110 transition-transform opacity-60"
+                    >
+                      <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
+                    </button>
+                  </Badge>
+                )}
                 <button
                   onClick={handleClearAll}
                   className="text-3xs font-bold text-error uppercase tracking-widest hover:underline ml-2"
