@@ -1,24 +1,5 @@
 import type { ReactElement } from 'react'
 import { useRef, useMemo } from 'react'
-
-function TransactionRowSkeleton(): ReactElement {
-  return (
-    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-subtle">
-      <div className="flex items-center gap-4">
-        {/* Icon circle */}
-        <div className="h-9 w-9 rounded-full bg-border-subtle animate-pulse flex-shrink-0" />
-        <div className="space-y-2">
-          {/* Name line */}
-          <div className="h-3.5 w-32 rounded bg-border-subtle animate-pulse" />
-          {/* Subtitle line */}
-          <div className="h-2.5 w-20 rounded bg-border-subtle animate-pulse" />
-        </div>
-      </div>
-      {/* Amount line */}
-      <div className="h-4 w-16 rounded bg-border-subtle animate-pulse" />
-    </div>
-  )
-}
 import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Badge } from '../../../shared/components/Badge'
@@ -41,6 +22,25 @@ import { DataList } from '../../../shared/components/DataList'
 import { SharedIcon } from '../../../shared/components/IconRegistry'
 import { formatTransactionDate } from '../utils/transactionUtils'
 import { withOpacity } from '../../../shared/lib/colorUtils'
+
+function TransactionRowSkeleton(): ReactElement {
+  return (
+    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-subtle">
+      <div className="flex items-center gap-4">
+        {/* Icon placeholder */}
+        <div className="h-9 w-9 rounded-lg bg-border-subtle animate-pulse flex-shrink-0" />
+        <div className="space-y-2">
+          {/* Name line */}
+          <div className="h-3.5 w-32 rounded bg-border-subtle animate-pulse" />
+          {/* Subtitle line */}
+          <div className="h-2.5 w-20 rounded bg-border-subtle animate-pulse" />
+        </div>
+      </div>
+      {/* Amount line */}
+      <div className="h-4 w-16 rounded bg-border-subtle animate-pulse" />
+    </div>
+  )
+}
 
 interface TransactionListProps {
   transactions: TransactionResponse[]

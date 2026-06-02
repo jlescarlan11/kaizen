@@ -157,12 +157,13 @@ export function TransactionDetailPage(): ReactElement {
                 Cancel
               </Button>
               <Button
-                variant="primary"
-                className="flex-1 bg-error hover:bg-error/90 text-white"
+                variant="destructive"
+                className="flex-1"
                 disabled={isDeleting}
+                isLoading={isDeleting}
                 onClick={handleDelete}
               >
-                {isDeleting ? 'Deleting…' : 'Confirm Delete'}
+                Confirm Delete
               </Button>
             </div>
           }
