@@ -180,7 +180,7 @@ export function TransactionList({
                   {tx.type === 'INCOME' ? (
                     <SharedIcon type="ui" name="income" size={20} strokeWidth={2.5} />
                   ) : (
-                    <span className="text-xl font-bold italic">?</span>
+                    <SharedIcon type="ui" name="expense" size={20} strokeWidth={2.5} />
                   )}
                 </div>
               )}
