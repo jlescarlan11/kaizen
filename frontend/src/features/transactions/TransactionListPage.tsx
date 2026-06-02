@@ -28,6 +28,20 @@ import { TransactionSummaryStrip } from './components/TransactionSummaryStrip'
 import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import { useGetPaymentMethodsQuery } from '../../app/store/api/paymentMethodApi'
 
+function formatDateChipLabel(start: string | undefined, end: string | undefined): string {
+  if (!start && !end) return ''
+  const fmt = (iso: string) => {
+    const [year, month, day] = iso.split('-').map(Number)
+    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+  if (start && end) return `${fmt(start)} – ${fmt(end)}`
+  if (start) return `From ${fmt(start)}`
+  return `Until ${fmt(end as string)}`
+}
+
 export function TransactionListPage(): ReactElement {
   const dispatch = useAppDispatch()
   const isSelectionMode = useAppSelector(selectIsSelectionMode)
@@ -72,19 +86,6 @@ export function TransactionListPage(): ReactElement {
   const handleClearAll = () => {
     clearSearch()
     clearFilters()
-  }
-
-  const formatDateChipLabel = (start?: string, end?: string): string => {
-    const fmt = (iso: string) => {
-      const [year, month, day] = iso.split('-').map(Number)
-      return new Date(year, month - 1, day).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-      })
-    }
-    if (start && end) return `${fmt(start)} – ${fmt(end)}`
-    if (start) return `From ${fmt(start)}`
-    return `Until ${fmt(end!)}`
   }
 
   const toggleSelectionMode = () => {
@@ -239,6 +240,7 @@ export function TransactionListPage(): ReactElement {
                 ))}
                 {filterState.categories.map((categoryId) => {
                   const category = categories.find((c) => c.id === categoryId)
+                  if (!category) return null
                   return (
                     <Badge
                       key={categoryId}
@@ -246,8 +248,9 @@ export function TransactionListPage(): ReactElement {
                       emphasis="soft"
                       className="gap-1.5 pl-2.5 pr-1.5"
                     >
-                      {category?.name ?? String(categoryId)}
+                      {category.name}
                       <button
+                        aria-label={`Remove ${category.name} filter`}
                         onClick={() =>
                           setFilterState((prev) => ({
                             ...prev,
@@ -263,6 +266,7 @@ export function TransactionListPage(): ReactElement {
                 })}
                 {filterState.paymentMethods.map((methodId) => {
                   const method = paymentMethods.find((m) => m.id === methodId)
+                  if (!method) return null
                   return (
                     <Badge
                       key={methodId}
@@ -270,8 +274,9 @@ export function TransactionListPage(): ReactElement {
                       emphasis="soft"
                       className="gap-1.5 pl-2.5 pr-1.5"
                     >
-                      {method?.name ?? String(methodId)}
+                      {method.name}
                       <button
+                        aria-label={`Remove ${method.name} filter`}
                         onClick={() =>
                           setFilterState((prev) => ({
                             ...prev,
@@ -289,6 +294,7 @@ export function TransactionListPage(): ReactElement {
                   <Badge variant="success" emphasis="soft" className="gap-1.5 pl-2.5 pr-1.5">
                     {formatDateChipLabel(filterState.startDate, filterState.endDate)}
                     <button
+                      aria-label="Remove date range filter"
                       onClick={() =>
                         setFilterState((prev) => ({
                           ...prev,
