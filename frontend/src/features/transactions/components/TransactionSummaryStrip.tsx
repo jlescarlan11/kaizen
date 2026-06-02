@@ -27,7 +27,7 @@ function StatCol({ label, value, colorClass, dotColor, sign = '' }: StatColProps
         </span>
       </div>
       <div className="flex items-baseline gap-1" aria-label={`${label}: PHP ${formatted}`}>
-        <span className="text-xs font-semibold text-text-secondary opacity-50" aria-hidden="true">
+        <span className="text-xs font-semibold text-text-secondary" aria-hidden="true">
           PHP
         </span>
         <span className={cn('text-xl font-extrabold tracking-tight leading-none', colorClass)}>

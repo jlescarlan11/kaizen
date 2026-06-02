@@ -35,14 +35,14 @@ export function SelectionActionBar({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 rounded-full hover:bg-white/10 text-white"
+            className="h-8 w-8 p-0 rounded-full hover:bg-surface/10 text-text-primary"
             onClick={handleExit}
             title="Exit selection mode"
           >
             <SharedIcon type="ui" name="close" size={18} />
           </Button>
           <p className="font-semibold text-white tracking-tight">
-            <span className="text-primary-light mr-1">{selectedIds.length}</span>
+            <span className="text-primary mr-1">{selectedIds.length}</span>
             Selected
           </p>
         </div>
