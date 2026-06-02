@@ -1,5 +1,24 @@
 import type { ReactElement } from 'react'
 import { useRef, useMemo } from 'react'
+
+function TransactionRowSkeleton(): ReactElement {
+  return (
+    <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-subtle">
+      <div className="flex items-center gap-4">
+        {/* Icon circle */}
+        <div className="h-9 w-9 rounded-full bg-border-subtle animate-pulse flex-shrink-0" />
+        <div className="space-y-2">
+          {/* Name line */}
+          <div className="h-3.5 w-32 rounded bg-border-subtle animate-pulse" />
+          {/* Subtitle line */}
+          <div className="h-2.5 w-20 rounded bg-border-subtle animate-pulse" />
+        </div>
+      </div>
+      {/* Amount line */}
+      <div className="h-4 w-16 rounded bg-border-subtle animate-pulse" />
+    </div>
+  )
+}
 import { useNavigate } from 'react-router-dom'
 import type { TransactionResponse } from '../../../app/store/api/transactionApi'
 import { Badge } from '../../../shared/components/Badge'
@@ -29,6 +48,7 @@ interface TransactionListProps {
   hasMore?: boolean
   onLoadMore?: () => void
   isLoading?: boolean
+  isFetching?: boolean
 }
 
 export function TransactionList({
@@ -37,6 +57,7 @@ export function TransactionList({
   hasMore = false,
   onLoadMore,
   isLoading = false,
+  isFetching = false,
 }: TransactionListProps): ReactElement {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
@@ -261,17 +282,21 @@ export function TransactionList({
 
   if (isLoading && transactions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-6">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent shadow-xl shadow-primary/10"></div>
-        <p className="text-sm font-black uppercase tracking-widest text-text-secondary animate-pulse">
-          Loading Activity...
-        </p>
+      <div aria-busy="true" aria-label="Loading transactions">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <TransactionRowSkeleton key={i} />
+        ))}
       </div>
     )
   }
 
   return (
-    <div className="w-full">
+    <div
+      className={cn(
+        'w-full transition-opacity duration-200',
+        isFetching && transactions.length > 0 ? 'opacity-90' : 'opacity-100',
+      )}
+    >
       {/* Selection Mode List Header */}
       {isSelectionMode && visibleTransactions.length > 0 && (
         <div className="flex items-center justify-between px-8 py-4 bg-primary text-white rounded-2xl mb-6 shadow-md shadow-primary/15 animate-in fade-in slide-in-from-top-4 duration-300">
@@ -317,6 +342,14 @@ export function TransactionList({
           )
         }
       />
+
+      {isFetching && transactions.length > 0 && (
+        <div aria-busy="true" aria-label="Loading more transactions">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <TransactionRowSkeleton key={i} />
+          ))}
+        </div>
+      )}
 
       {hasMore && (
         <div className="mt-8 flex justify-center">

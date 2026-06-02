@@ -7,6 +7,8 @@ import {
 } from '../../app/store/api/transactionApi'
 import { Modal } from '../../shared/components/Modal'
 import { Button } from '../../shared/components/Button'
+import { useAppDispatch } from '../../app/store/hooks'
+import { showAlert } from '../../app/store/notificationSlice'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionDetailHeader } from './components/TransactionDetailHeader'
 import { TransactionDetailInfo } from './components/TransactionDetailInfo'
@@ -19,6 +21,7 @@ import { useSetBreadcrumbLabel } from '../../shared/components/BreadcrumbLabelCo
 export function TransactionDetailPage(): ReactElement {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const transactionId = Number(id)
 
   const { data: transaction, isLoading, error } = useGetTransactionQuery(transactionId)
@@ -66,9 +69,23 @@ export function TransactionDetailPage(): ReactElement {
   const handleDelete = async () => {
     try {
       await deleteTransaction(transaction.id).unwrap()
+      dispatch(
+        showAlert({
+          type: 'success',
+          title: 'Transaction Deleted',
+          message: 'The transaction has been removed.',
+        }),
+      )
       navigate('/transactions', { replace: true })
     } catch (err) {
       console.error('Failed to delete transaction:', err)
+      dispatch(
+        showAlert({
+          type: 'error',
+          title: 'Deletion Failed',
+          message: 'Could not delete the transaction. Please try again.',
+        }),
+      )
     }
   }
 
@@ -132,19 +149,21 @@ export function TransactionDetailPage(): ReactElement {
           title="Delete Transaction"
           footer={
             <div className="flex gap-3 mt-6">
-              <button
-                className="flex-1 px-4 py-2.5 bg-surface border border-border rounded-xl text-xs font-semibold uppercase tracking-wide text-text-secondary hover:bg-surface-secondary transition-all shadow-sm"
+              <Button
+                variant="outline"
+                className="flex-1"
                 onClick={() => setIsDeleteModalOpen(false)}
               >
                 Cancel
-              </button>
-              <button
-                className="flex-1 px-4 py-2.5 bg-error border border-error/30 rounded-xl text-xs font-semibold uppercase tracking-wide text-white hover:bg-error/90 transition-all shadow-sm disabled:opacity-50"
-                onClick={handleDelete}
+              </Button>
+              <Button
+                variant="primary"
+                className="flex-1 bg-error hover:bg-error/90 text-white"
                 disabled={isDeleting}
+                onClick={handleDelete}
               >
-                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
-              </button>
+                {isDeleting ? 'Deleting…' : 'Confirm Delete'}
+              </Button>
             </div>
           }
         >

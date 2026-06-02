@@ -320,14 +320,7 @@ export function TransactionListPage(): ReactElement {
         )}
 
         <div className="w-full bg-surface border border-border-subtle rounded-card overflow-hidden shadow-sm">
-          {isLoading && processedTransactions.length === 0 ? (
-            <div className="p-32 flex flex-col items-center justify-center space-y-6">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-              <p className="text-sm font-black uppercase tracking-widest text-text-secondary animate-pulse">
-                Loading Activity...
-              </p>
-            </div>
-          ) : processedTransactions.length === 0 ? (
+          {processedTransactions.length === 0 && !isLoading ? (
             <div className="p-6">
               <TransactionEmptyState
                 isSearchActive={isSearchActive}
@@ -343,7 +336,8 @@ export function TransactionListPage(): ReactElement {
               searchQuery={searchQuery}
               hasMore={hasMore}
               onLoadMore={loadMore}
-              isLoading={isFetching}
+              isLoading={isLoading}
+              isFetching={isFetching}
             />
           )}
         </div>
