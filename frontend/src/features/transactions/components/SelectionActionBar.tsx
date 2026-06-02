@@ -35,21 +35,22 @@ export function SelectionActionBar({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 p-0 rounded-full hover:bg-surface/10 text-text-primary"
+            className="h-8 w-8 p-0 rounded-full hover:bg-text-primary/10 text-text-primary"
             onClick={handleExit}
             title="Exit selection mode"
           >
             <SharedIcon type="ui" name="close" size={18} />
           </Button>
-          <p className="font-semibold text-white tracking-tight">
+          <p className="font-semibold text-text-primary tracking-tight">
             <span className="text-primary mr-1">{selectedIds.length}</span>
             Selected
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {/* TODO: replace text-white below with text-on-error token once added to globals.css */}
           <Button
             size="sm"
-            className="bg-error hover:bg-error/90 text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-lg shadow-ui-danger/20"
+            className="bg-error hover:bg-error/90 text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-lg"
             onClick={onDeleteRequest}
             disabled={selectedIds.length === 0}
           >
