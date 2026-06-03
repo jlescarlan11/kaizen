@@ -7,6 +7,7 @@ import {
   useResetTourFlagMutation,
   useResetOnboardingMutation,
   useToggleRemindersMutation,
+  useDeleteAccountMutation,
 } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
 import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
@@ -151,6 +152,7 @@ export function YourAccountPage(): ReactElement {
   const [resetTourFlag, { isLoading: isResettingTour }] = useResetTourFlagMutation()
   const [resetOnboarding, { isLoading: isResettingOnboarding }] = useResetOnboardingMutation()
   const [toggleReminders, { isLoading: isTogglingReminders }] = useToggleRemindersMutation()
+  const [deleteAccount, { isLoading: isDeletingAccount }] = useDeleteAccountMutation()
   const guidanceDescription = isResettingTour ? 'Resetting tour state…' : tourReminder
 
   const handleToggleReminders = async (enabled: boolean) => {
@@ -187,15 +189,21 @@ export function YourAccountPage(): ReactElement {
     }
   }, [navigate, resetOnboarding, user])
 
-  const handleCloseAccountConfirm = (): void => {
-    dispatch(
-      showAlert({
-        type: 'error',
-        title: 'Not Available',
-        message: 'Account deletion is not yet available.',
-      }),
-    )
-    setIsCloseAccountOpen(false)
+  const handleCloseAccountConfirm = async (): Promise<void> => {
+    try {
+      await deleteAccount().unwrap()
+      setIsCloseAccountOpen(false)
+      navigate('/')
+    } catch (error) {
+      console.error('Failed to delete account:', error)
+      dispatch(
+        showAlert({
+          type: 'error',
+          title: 'Deletion Failed',
+          message: 'Failed to delete your account. Please try again.',
+        }),
+      )
+    }
   }
 
   const handleShowTourAgain = useCallback(async () => {
@@ -455,6 +463,7 @@ export function YourAccountPage(): ReactElement {
             description="Delete your account and all data? This cannot be undone."
             confirmLabel="Delete Account"
             cancelLabel="Cancel"
+            isConfirming={isDeletingAccount}
           />
 
           <div

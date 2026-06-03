@@ -1,15 +1,19 @@
 package com.kaizen.backend.user.controller;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kaizen.backend.auth.config.SessionProperties;
@@ -31,6 +35,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @Tag(name = "User", description = "User account management.")
@@ -301,5 +307,53 @@ public class UserAccountController {
         }
 
         return userAccountService.resetOnboarding(userDetails.getUsername());
+    }
+
+    @Operation(
+        summary = "Delete current user account",
+        description = "Permanently deletes the authenticated user's account and all associated data. Invalidates the session immediately.",
+        operationId = "deleteAccount"
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "204",
+            description = "Account deleted successfully. Session cookie cleared."
+        ),
+        @ApiResponse(
+            responseCode = "401",
+            description = "User must be authenticated.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+        )
+    })
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(
+            @AuthenticationPrincipal UserDetails userDetails,
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        if (userDetails == null) {
+            throw new ProfileNotFoundException();
+        }
+
+        userAccountService.deleteAccount(userDetails.getUsername());
+
+        // Tear down the server-side security state immediately
+        SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        // Clear the persistent session cookie so the client token is immediately useless
+        ResponseCookie clearCookie = ResponseCookie.from(sessionProperties.cookieName(), "")
+                .httpOnly(true)
+                .secure(request.isSecure())
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
     }
 }

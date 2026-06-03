@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kaizen.backend.auth.entity.PersistentSession;
 import com.kaizen.backend.user.entity.UserAccount;
@@ -20,7 +21,12 @@ public interface PersistentSessionRepository extends JpaRepository<PersistentSes
     List<PersistentSession> findAllByUserAccount(UserAccount userAccount);
     
     @Modifying
+    @Transactional
     void deleteByTokenHash(String tokenHash);
+
+    @Modifying
+    @Transactional
+    void deleteByUserAccount(UserAccount userAccount);
 
     @Modifying
     @Query("DELETE FROM PersistentSession s WHERE s.expiresAt < :now")

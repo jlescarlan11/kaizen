@@ -206,6 +206,13 @@ export const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    deleteAccount: builder.mutation<void, void>({
+      query: () => ({
+        url: '/users/me',
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['User'],
+    }),
   }),
 })
 
@@ -220,4 +227,5 @@ export const {
   useResetTourFlagMutation,
   useResetOnboardingMutation,
   useToggleRemindersMutation,
+  useDeleteAccountMutation,
 } = authApi

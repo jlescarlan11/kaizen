@@ -10,6 +10,7 @@ import com.kaizen.backend.user.dto.UserResponse;
 import com.kaizen.backend.user.entity.FundingSourceType;
 import com.kaizen.backend.user.entity.UserAccount;
 import com.kaizen.backend.user.repository.UserAccountRepository;
+import com.kaizen.backend.auth.repository.PersistentSessionRepository;
 import com.kaizen.backend.budget.service.BudgetService;
 import com.kaizen.backend.category.repository.CategoryRepository;
 import com.kaizen.backend.transaction.entity.Transaction;
@@ -17,6 +18,7 @@ import com.kaizen.backend.transaction.repository.TransactionRepository;
 import com.kaizen.backend.payment.entity.PaymentMethod;
 import com.kaizen.backend.payment.repository.PaymentMethodRepository;
 import com.kaizen.backend.common.entity.TransactionType;
+import com.kaizen.backend.user.exception.ProfileNotFoundException;
 import java.time.OffsetDateTime;
 
 @Service
@@ -30,6 +32,7 @@ public class UserAccountService {
     private final TransactionRepository transactionRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final CategoryRepository categoryRepository;
+    private final PersistentSessionRepository persistentSessionRepository;
 
     public UserAccountService(
         UserAccountRepository userAccountRepository,
@@ -38,7 +41,8 @@ public class UserAccountService {
         UserFundingSourceService userFundingSourceService,
         TransactionRepository transactionRepository,
         PaymentMethodRepository paymentMethodRepository,
-        CategoryRepository categoryRepository
+        CategoryRepository categoryRepository,
+        PersistentSessionRepository persistentSessionRepository
     ) {
         this.userAccountRepository = userAccountRepository;
         this.onboardingProgressService = onboardingProgressService;
@@ -47,6 +51,7 @@ public class UserAccountService {
         this.transactionRepository = transactionRepository;
         this.paymentMethodRepository = paymentMethodRepository;
         this.categoryRepository = categoryRepository;
+        this.persistentSessionRepository = persistentSessionRepository;
     }
 
     public UserResponse getByEmail(String email) {
@@ -218,6 +223,25 @@ public class UserAccountService {
     }
 
     @Transactional
+    public void deleteAccount(String email) {
+        UserAccount account = findAccountByEmail(email);
+
+        // 1. Wipe all user data (same order as resetOnboarding)
+        budgetService.deleteAllBudgetsForUser(account);
+        onboardingProgressService.deleteForUser(account);
+        userFundingSourceService.deleteAllForUser(account);
+        transactionRepository.deleteByUserAccountId(account.getId());
+        categoryRepository.deleteByUserId(account.getId());
+        paymentMethodRepository.deleteByUserAccountId(account.getId());
+
+        // 2. Revoke all persistent sessions
+        persistentSessionRepository.deleteByUserAccount(account);
+
+        // 3. Delete the user account itself
+        userAccountRepository.delete(account);
+    }
+
+    @Transactional
     public UserResponse toggleReminders(String email, boolean enabled) {
         UserAccount account = findAccountByEmail(email);
         account.setRemindersEnabled(enabled);
@@ -227,7 +251,7 @@ public class UserAccountService {
 
     private UserAccount findAccountByEmail(String email) {
         return userAccountRepository.findByEmailIgnoreCase(email)
-            .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+            .orElseThrow(ProfileNotFoundException::new);
     }
 
     private UserResponse toUserResponse(UserAccount account) {
