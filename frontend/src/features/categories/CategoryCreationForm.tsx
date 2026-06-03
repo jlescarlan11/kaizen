@@ -172,7 +172,7 @@ export function CategoryCreationForm({
       </div>
 
       {serverError && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-sm text-error" role="alert">
           {serverError}
         </p>
       )}

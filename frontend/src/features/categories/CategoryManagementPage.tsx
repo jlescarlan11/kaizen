@@ -47,16 +47,6 @@ export function CategoryManagementPage(): ReactElement {
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
-        <div className="flex justify-end mb-6">
-          <Button
-            variant="outline"
-            className="w-full sm:w-auto"
-            onClick={() => setIsMergeModalOpen(true)}
-          >
-            Merge Categories
-          </Button>
-        </div>
-
         {error && (
           <Card variant="warning">
             <p className="text-sm text-text-primary">{error}</p>
@@ -76,12 +66,23 @@ export function CategoryManagementPage(): ReactElement {
               <h3 className="text-lg md:text-xl font-semibold tracking-tight text-text-primary">
                 Your categories
               </h3>
-              <p className="text-xs uppercase text-text-secondary">Automatic refresh</p>
+              <Button
+                variant="outline"
+                className="shrink-0"
+                onClick={() => setIsMergeModalOpen(true)}
+              >
+                Merge Categories
+              </Button>
             </div>
             <CategoryList
               categories={categories}
               isLoading={isLoading}
               onEdit={(category) => setEditingCategory(category)}
+              onAddCategory={() => {
+                const el = document.getElementById('category-name')
+                el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                el?.focus()
+              }}
             />
           </Card>
         </div>

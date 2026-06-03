@@ -4,6 +4,7 @@ import {
   useGetCategoryTransactionCountQuery,
   useMergeCategoriesMutation,
 } from '../../app/store/api/categoryApi'
+import { getErrorMessage } from '../../app/store/api/errors'
 import { Button } from '../../shared/components/Button'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { CategorySelector } from './CategorySelector'
@@ -18,6 +19,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
   const [sourceId, setSourceId] = useState<string | null>(null)
   const [targetId, setTargetId] = useState<string | null>(null)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [mergeError, setMergeError] = useState<string | null>(null)
 
   const [mergeCategories, { isLoading: isMerging }] = useMergeCategoriesMutation()
 
@@ -26,6 +28,14 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
     parseInt(sourceId!),
     { skip: !sourceId || !showConfirm },
   )
+
+  const handleClose = () => {
+    setSourceId(null)
+    setTargetId(null)
+    setShowConfirm(false)
+    setMergeError(null)
+    onClose()
+  }
 
   const handleNext = () => {
     if (sourceId && targetId && sourceId !== targetId) {
@@ -46,8 +56,9 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
       setShowConfirm(false)
       setSourceId(null)
       setTargetId(null)
+      setMergeError(null)
     } catch (err) {
-      console.error('Failed to merge categories:', err)
+      setMergeError(getErrorMessage(err))
     }
   }
 
@@ -56,7 +67,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
 
   return (
     <>
-      <ResponsiveModal open={open} onClose={onClose} title="Merge Categories">
+      <ResponsiveModal open={open} onClose={handleClose} title="Merge Categories">
         <div className="space-y-6">
           <p className="text-sm text-text-secondary">
             Consolidate two categories into one. All transactions from the source category will be
@@ -86,7 +97,7 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
           )}
 
           <div className="flex gap-3 pt-2">
-            <Button variant="ghost" className="flex-1" onClick={onClose}>
+            <Button variant="ghost" className="flex-1" onClick={handleClose}>
               Cancel
             </Button>
             <Button
@@ -103,7 +114,10 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
       {/* Confirmation Step */}
       <ResponsiveModal
         open={showConfirm}
-        onClose={() => setShowConfirm(false)}
+        onClose={() => {
+          setShowConfirm(false)
+          setMergeError(null)
+        }}
         title="Confirm Category Merge"
       >
         <div className="space-y-6">
@@ -131,11 +145,29 @@ export function MergeCategoriesModal({ open, onClose }: MergeCategoriesModalProp
             <strong>{targetName}</strong>? This action will permanently delete the source category.
           </p>
 
+          {mergeError && (
+            <p role="alert" className="text-xs text-error">
+              {mergeError}
+            </p>
+          )}
+
           <div className="flex gap-3">
-            <Button variant="ghost" className="flex-1" onClick={() => setShowConfirm(false)}>
+            <Button
+              variant="ghost"
+              className="flex-1"
+              onClick={() => {
+                setShowConfirm(false)
+                setMergeError(null)
+              }}
+            >
               Back
             </Button>
-            <Button className="flex-1" onClick={handleMerge} isLoading={isMerging}>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={handleMerge}
+              isLoading={isMerging}
+            >
               Merge Now
             </Button>
           </div>

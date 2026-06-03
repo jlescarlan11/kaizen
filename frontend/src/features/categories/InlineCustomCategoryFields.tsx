@@ -108,7 +108,7 @@ export function InlineCustomCategoryFields({
         />
 
         {serverError ? (
-          <p className="text-sm text-error/70" role="alert">
+          <p className="text-sm text-error" role="alert">
             {serverError}
           </p>
         ) : null}

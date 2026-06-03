@@ -4,6 +4,7 @@ import { resolveCategoryDesign } from '../../categories/designSystem'
 import { formatCurrency } from '../../../shared/lib/formatCurrency'
 import { cn } from '../../../shared/lib/cn'
 import { fluidLayout } from '../../../shared/styles/layout'
+import { Button } from '../../../shared/components/Button'
 import type { BudgetPeriod } from '../constants'
 import type { PendingBudget } from '../../onboarding/onboardingSlice'
 
@@ -53,30 +54,24 @@ export function BudgetCard({ budget, isInvalid, onEdit, onRemove }: BudgetCardPr
       </div>
 
       <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onEdit}
-          className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text-primary active:scale-95',
-            fluidLayout.touchTarget,
-            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
-          )}
+          className={cn(fluidLayout.touchTarget, 'sm:h-9 sm:min-h-0')}
           aria-label={`Edit ${budget.categoryName} budget`}
         >
           Edit
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onRemove}
-          className={cn(
-            'flex items-center justify-center rounded-xl px-4 text-sm font-semibold text-text-secondary transition-colors hover:bg-error/10 hover:text-error/70 active:scale-95',
-            fluidLayout.touchTarget,
-            'sm:h-9 sm:min-h-0 sm:px-3 sm:py-2',
-          )}
+          className={cn(fluidLayout.touchTarget, 'sm:h-9 sm:min-h-0 text-error hover:!text-error')}
           aria-label={`Delete ${budget.categoryName} budget`}
         >
           Delete
-        </button>
+        </Button>
       </div>
     </div>
   )

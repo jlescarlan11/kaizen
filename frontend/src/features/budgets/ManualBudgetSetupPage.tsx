@@ -3,6 +3,9 @@ import type { ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../shared/components/Button'
 import { Card } from '../../shared/components/Card'
+import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
+import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
+import { SharedIcon } from '../../shared/components/IconRegistry'
 import { Input } from '../../shared/components/Input'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { useAuthState } from '../../shared/hooks/useAuthState'
@@ -36,6 +39,7 @@ import { BudgetPeriodSelector } from './components/BudgetPeriodSelector'
 import { SkipBudgetTrigger } from './components/SkipBudgetTrigger'
 import { useCompleteOnboardingMutation } from '../../app/store/api/authApi'
 import { useGetBudgetsQuery, useSaveSmartBudgetsMutation } from '../../app/store/api/budgetApi'
+import { cn } from '../../shared/lib/cn'
 import { pageLayout } from '../../shared/styles/layout'
 import { formatCurrency } from '../../shared/lib/formatCurrency'
 import { getErrorMessage } from '../../app/store/api/errors'
@@ -55,6 +59,12 @@ export function ManualBudgetSetupPage(): ReactElement | null {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoadingCategories, setIsLoadingCategories] = useState(true)
   const [categoryError, setCategoryError] = useState<string | null>(null)
+
+  const [budgetToDelete, setBudgetToDelete] = useState<PendingBudget | null>(null)
+  // Holds the last non-null value so the dialog description doesn't flash "undefined"
+  // during the close transition after setBudgetToDelete(null) fires.
+  const lastBudgetToDeleteRef = useRef<PendingBudget | null>(null)
+  if (budgetToDelete !== null) lastBudgetToDeleteRef.current = budgetToDelete
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedBudgetId, setSelectedBudgetId] = useState<number | null>(null)
@@ -314,7 +324,7 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           </header>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Card className="space-y-1 border border-border-subtle p-5">
+            <Card variant="accent" className="space-y-1 p-5">
               <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
                 Allocated
               </p>
@@ -325,14 +335,15 @@ export function ManualBudgetSetupPage(): ReactElement | null {
                 {allocationPercentage}% of balance
               </p>
             </Card>
-            <Card className="space-y-1 border border-border-subtle p-5">
+            <Card variant={isOverAllocated ? 'error' : 'neutral'} className="space-y-1 p-5">
               <p className="text-xs font-medium uppercase tracking-wider text-text-secondary">
                 Unallocated
               </p>
               <p
-                className={`text-2xl font-semibold ${
-                  unallocated < 0 ? 'text-error' : 'text-text-primary'
-                }`}
+                className={cn(
+                  'text-2xl font-semibold',
+                  unallocated < 0 ? 'text-error' : 'text-text-primary',
+                )}
               >
                 {formatCurrency(unallocated)}
               </p>
@@ -353,18 +364,21 @@ export function ManualBudgetSetupPage(): ReactElement | null {
 
             <div className="space-y-0">
               {sessionBudgets.length === 0 ? (
-                <p className="text-sm text-text-secondary px-1 py-4">
-                  No budgets added yet. Tap + Add Budget to begin.
-                </p>
+                <EmptyStateCard
+                  icon={<SharedIcon type="ui" name="wallet" size={24} />}
+                  title="No budgets yet"
+                  description="Add a budget to start allocating your balance."
+                  primaryAction={{ label: '+ Add Budget', onClick: () => openModal() }}
+                />
               ) : (
                 sessionBudgets.map((budget, index) => (
-                  <div key={`${budget.categoryId}-${index}`}>
+                  <div key={budget.categoryId}>
                     {index > 0 && <hr className="border-border-subtle" />}
                     <BudgetCard
                       budget={budget}
                       isInvalid={invalidBudgetIds.has(budget.categoryId)}
                       onEdit={() => openModal(budget)}
-                      onRemove={() => handleDeleteBudget(budget.categoryId)}
+                      onRemove={() => setBudgetToDelete(budget)}
                     />
                   </div>
                 ))
@@ -378,13 +392,11 @@ export function ManualBudgetSetupPage(): ReactElement | null {
             )}
 
             <div className="flex flex-wrap gap-3">
-              <Button type="button" onClick={() => openModal()}>
-                + Add Budget
-              </Button>
               <Button
                 type="button"
-                variant="secondary"
+                variant="primary"
                 isLoading={isCompleting || isSavingBatch}
+                disabled={sessionBudgets.length === 0 || isOverAllocated}
                 onClick={async () => {
                   if (sessionBudgets.length === 0) {
                     // Instruction 6 / PRD Section 4, Story 12: zero-budget "Done" branch routes to the skip flow stub until the affordance location is resolved (PRD Open Question 5).
@@ -427,11 +439,19 @@ export function ManualBudgetSetupPage(): ReactElement | null {
                     )
                   }
                 }}
-                disabled={sessionBudgets.length > 0 && isOverAllocated}
               >
                 Done
               </Button>
+              <Button type="button" variant="secondary" onClick={() => openModal()}>
+                + Add Budget
+              </Button>
             </div>
+
+            {isOverAllocated && sessionBudgets.length > 0 && (
+              <p className="text-xs text-error">
+                Reduce your budgets to match your available balance before continuing.
+              </p>
+            )}
 
             {!user.onboardingCompleted && (
               <div className="flex justify-end text-sm">
@@ -535,6 +555,19 @@ export function ManualBudgetSetupPage(): ReactElement | null {
           />
         </div>
       </ResponsiveModal>
+
+      <DestructiveActionDialog
+        isOpen={budgetToDelete !== null}
+        onClose={() => setBudgetToDelete(null)}
+        onConfirm={() => {
+          if (budgetToDelete) {
+            handleDeleteBudget(budgetToDelete.categoryId)
+            setBudgetToDelete(null)
+          }
+        }}
+        title="Remove budget?"
+        description={`${lastBudgetToDeleteRef.current?.categoryName} will be removed from your budget plan.`}
+      />
     </>
   )
 }

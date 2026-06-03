@@ -82,14 +82,18 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
   }, [filterState, setSearchParams, searchParams])
 
   // 4. Backend Fetching (via useTransactionPagination)
-  const apiFilters = useMemo<TransactionFilters>(() => ({
-    search: debouncedSearch.trim() || undefined,
-    categoryIds: filterState.categories.length > 0 ? filterState.categories : undefined,
-    paymentMethodIds: filterState.paymentMethods.length > 0 ? filterState.paymentMethods : undefined,
-    startDate: filterState.startDate,
-    endDate: filterState.endDate,
-    types: filterState.types.length > 0 ? filterState.types : undefined,
-  }), [debouncedSearch, filterState])
+  const apiFilters = useMemo<TransactionFilters>(
+    () => ({
+      search: debouncedSearch.trim() || undefined,
+      categoryIds: filterState.categories.length > 0 ? filterState.categories : undefined,
+      paymentMethodIds:
+        filterState.paymentMethods.length > 0 ? filterState.paymentMethods : undefined,
+      startDate: filterState.startDate,
+      endDate: filterState.endDate,
+      types: filterState.types.length > 0 ? filterState.types : undefined,
+    }),
+    [debouncedSearch, filterState],
+  )
 
   const {
     transactions,
