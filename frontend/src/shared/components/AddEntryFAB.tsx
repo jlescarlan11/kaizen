@@ -38,7 +38,7 @@ export function AddEntryFAB({
         onAddTransaction()
         setIsOpen(false)
       },
-      color: 'bg-zinc-900 text-white',
+      color: 'bg-surface text-text-primary',
     },
     {
       icon: <SharedIcon type="ui" name="wallet" size={20} />,
@@ -47,7 +47,7 @@ export function AddEntryFAB({
         onCreateBudget()
         setIsOpen(false)
       },
-      color: 'bg-zinc-900 text-white',
+      color: 'bg-surface text-text-primary',
     },
     {
       icon: <SharedIcon type="ui" name="target" size={20} />,
@@ -56,7 +56,7 @@ export function AddEntryFAB({
         onCreateGoal()
         setIsOpen(false)
       },
-      color: 'bg-zinc-900 text-white',
+      color: 'bg-surface text-text-primary',
     },
     {
       icon: <SharedIcon type="ui" name="hand" size={20} />,
@@ -65,7 +65,7 @@ export function AddEntryFAB({
         onHoldPurchase()
         setIsOpen(false)
       },
-      color: 'bg-zinc-900 text-white',
+      color: 'bg-surface text-text-primary',
     },
   ]
 

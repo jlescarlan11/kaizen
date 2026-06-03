@@ -12,6 +12,7 @@ import { CategoryBreakdown } from './components/CategoryBreakdown'
 import { SpendingTrends } from './components/SpendingTrends'
 import { pageLayout } from '../../shared/styles/layout'
 import { cn } from '../../shared/lib/cn'
+import { Card, typography } from '../../shared/components'
 
 export default function InsightsPage() {
   const { period, dateRange, updatePeriod } = useInsightsPeriod()
@@ -40,17 +41,15 @@ export default function InsightsPage() {
   return (
     <div className="w-full">
       <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
-        <div className="flex justify-end mb-6">
+        <div className="flex flex-col gap-4 mb-6 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className={typography.h1}>Spending Insights</h1>
           <PeriodSelector value={period} onChange={updatePeriod} />
         </div>
 
         {error && (
-          <div
-            role="alert"
-            className="rounded-2xl border-2 border-error/20 bg-error/5 p-5 text-error font-bold uppercase tracking-tight text-center"
-          >
-            {error instanceof Error ? error.message : 'Failed to load insights.'}
-          </div>
+          <Card variant="error" role="alert">
+            <p>Failed to load insights. Please try again.</p>
+          </Card>
         )}
 
         <div className="space-y-5">

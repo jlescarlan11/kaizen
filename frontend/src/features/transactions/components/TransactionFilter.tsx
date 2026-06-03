@@ -122,7 +122,7 @@ export function TransactionFilter({
                   {hasActiveFilters && (
                     <button
                       onClick={onClear}
-                      className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors"
+                      className="text-xs font-semibold text-primary hover:text-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                     >
                       Clear all
                     </button>

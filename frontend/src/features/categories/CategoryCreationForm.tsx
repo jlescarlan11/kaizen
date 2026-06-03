@@ -5,7 +5,10 @@ import { Input } from '../../shared/components/Input'
 import { CategoryBadge } from './CategoryBadge'
 import { CategoryColorPicker } from './CategoryColorPicker'
 import { CategoryIconPicker } from './CategoryIconPicker'
-import { createCategory, updateCategory } from './api'
+import {
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from '../../app/store/api/categoryApi'
 import {
   getAutoAssignedCategoryDesign,
   isCategoryIconName,
@@ -29,8 +32,10 @@ export function CategoryCreationForm({
 }: CategoryCreationFormProps): ReactElement {
   const isEditMode = Boolean(initialCategory)
   const [name, setName] = useState(initialCategory?.name ?? '')
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation()
+  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation()
+  const isSubmitting = isCreating || isUpdating
 
   const trimmedName = name.trim()
   const normalizedName = trimmedName.toLowerCase()
@@ -51,6 +56,7 @@ export function CategoryCreationForm({
   )
   const [selectedColor, setSelectedColor] = useState(initialCategory?.color ?? assignedDesign.color)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setName(initialCategory?.name ?? '')
     if (initialCategory?.icon && isCategoryIconName(initialCategory.icon)) {
@@ -60,6 +66,7 @@ export function CategoryCreationForm({
     }
     setSelectedColor(initialCategory?.color ?? assignedDesign.color)
   }, [assignedDesign.color, assignedDesign.icon, initialCategory])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const duplicateNameError = useMemo(() => {
     if (!trimmedName) {
@@ -81,7 +88,6 @@ export function CategoryCreationForm({
     event.preventDefault()
     if (fieldError) return
 
-    setIsSubmitting(true)
     setServerError(null)
 
     try {
@@ -92,8 +98,8 @@ export function CategoryCreationForm({
       }
       const saved =
         isEditMode && initialCategory
-          ? await updateCategory(initialCategory.id, payload)
-          : await createCategory(payload)
+          ? await updateCategory({ categoryId: initialCategory.id, payload }).unwrap()
+          : await createCategory(payload).unwrap()
 
       onCategorySaved(saved)
       if (!isEditMode) {
@@ -111,8 +117,6 @@ export function CategoryCreationForm({
             : 'Unable to save category. Please try again.',
         ),
       )
-    } finally {
-      setIsSubmitting(false)
     }
   }
 

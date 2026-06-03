@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { Card } from '../../../shared/components/Card'
 import { ChartSkeleton } from '../../../shared/components/ChartSkeleton'
+import { EmptyStateCard } from '../../../shared/components/EmptyStateCard'
 import type { CategoryBreakdown as CategoryBreakdownType } from '../types'
 import { getCategoricalColor } from '../../../shared/lib/chartTheme'
 
@@ -27,11 +28,7 @@ export function CategoryBreakdown({
   if (!breakdown.categories || breakdown.categories.length === 0) {
     return (
       <Card title={title}>
-        <div className="flex h-64 items-center justify-center">
-          <p className="text-sm leading-6 italic text-text-secondary">
-            No spending data for this period.
-          </p>
-        </div>
+        <EmptyStateCard title="No spending data for this period." />
       </Card>
     )
   }

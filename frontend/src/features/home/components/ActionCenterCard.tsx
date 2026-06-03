@@ -37,9 +37,9 @@ export const ActionCenterCard: React.FC = () => {
               }}
               className={cn(
                 'px-3 py-2.5 rounded-xl border transition-all cursor-pointer hover:scale-[1.01] active:scale-95 flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
-                item.type === 'ALERT' && 'bg-amber-50 border-amber-200',
-                item.type === 'WIN' && 'bg-green-50 border-green-200',
-                item.type === 'TASK' && 'bg-blue-50 border-blue-200',
+                item.type === 'ALERT' && 'bg-warning/10 border-warning/30',
+                item.type === 'WIN' && 'bg-success/10 border-success/30',
+                item.type === 'TASK' && 'bg-info/10 border-info/30',
               )}
             >
               <SharedIcon
@@ -53,18 +53,18 @@ export const ActionCenterCard: React.FC = () => {
                 }
                 size={12}
                 className={cn(
-                  item.type === 'ALERT' && 'text-amber-600',
-                  item.type === 'WIN' && 'text-green-600',
-                  item.type === 'TASK' && 'text-blue-600',
+                  item.type === 'ALERT' && 'text-warning',
+                  item.type === 'WIN' && 'text-success',
+                  item.type === 'TASK' && 'text-info',
                 )}
               />
               <div className="min-w-0">
                 <p
                   className={cn(
                     'text-2xs font-semibold truncate',
-                    item.type === 'ALERT' && 'text-amber-800',
-                    item.type === 'WIN' && 'text-green-800',
-                    item.type === 'TASK' && 'text-blue-800',
+                    item.type === 'ALERT' && 'text-warning',
+                    item.type === 'WIN' && 'text-success',
+                    item.type === 'TASK' && 'text-info',
                   )}
                 >
                   {item.title}

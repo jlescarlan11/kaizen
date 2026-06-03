@@ -1,4 +1,5 @@
 import { useState, useMemo, type ReactElement } from 'react'
+import { typography } from '../../shared/styles/typography'
 import { TransactionList } from './components/TransactionList'
 import { SelectionActionBar } from './components/SelectionActionBar'
 import { ConfirmBulkDeleteDialog } from './components/ConfirmBulkDeleteDialog'
@@ -125,6 +126,7 @@ export function TransactionListPage(): ReactElement {
   return (
     <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
       <div className="w-full space-y-6">
+        <h1 className={typography.h1}>Transactions</h1>
         <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
 
         <ConfirmBulkDeleteDialog
@@ -226,13 +228,15 @@ export function TransactionListPage(): ReactElement {
                   >
                     {type === 'INCOME' ? 'Income' : 'Expense'}
                     <button
+                      aria-label={`Remove ${type === 'INCOME' ? 'Income' : 'Expense'} filter`}
                       onClick={() =>
                         setFilterState((prev) => ({
                           ...prev,
                           types: prev.types.filter((t) => t !== type),
                         }))
                       }
-                      className="hover:scale-110 transition-transform opacity-60"
+                      type="button"
+                      className="hover:scale-110 transition-transform opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                     >
                       <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
                     </button>
@@ -257,7 +261,8 @@ export function TransactionListPage(): ReactElement {
                             categories: prev.categories.filter((id) => id !== categoryId),
                           }))
                         }
-                        className="hover:scale-110 transition-transform opacity-60"
+                        type="button"
+                        className="hover:scale-110 transition-transform opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                       >
                         <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
                       </button>
@@ -283,7 +288,8 @@ export function TransactionListPage(): ReactElement {
                             paymentMethods: prev.paymentMethods.filter((id) => id !== methodId),
                           }))
                         }
-                        className="hover:scale-110 transition-transform opacity-60"
+                        type="button"
+                        className="hover:scale-110 transition-transform opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                       >
                         <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
                       </button>
@@ -302,7 +308,8 @@ export function TransactionListPage(): ReactElement {
                           endDate: undefined,
                         }))
                       }
-                      className="hover:scale-110 transition-transform opacity-60"
+                      type="button"
+                      className="hover:scale-110 transition-transform opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                     >
                       <SharedIcon type="ui" name="close" size={10} strokeWidth={3} />
                     </button>
@@ -310,7 +317,7 @@ export function TransactionListPage(): ReactElement {
                 )}
                 <button
                   onClick={handleClearAll}
-                  className="text-3xs font-bold text-error uppercase tracking-widest hover:underline ml-2"
+                  className="text-3xs font-bold text-error uppercase tracking-widest hover:underline ml-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded"
                 >
                   Clear All
                 </button>

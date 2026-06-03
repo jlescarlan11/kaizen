@@ -1,55 +1,37 @@
-import { useCallback, useEffect, useState, type ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
 import { Card } from '../../shared/components/Card'
 import { ResponsiveModal } from '../../shared/components/ResponsiveModal'
 import { Button } from '../../shared/components/Button'
 import { CategoryCreationForm } from './CategoryCreationForm'
 import { CategoryList } from './CategoryList'
 import { MergeCategoriesModal } from './MergeCategoriesModal'
-import { getCategories } from './api'
+import { useGetCategoriesQuery } from '../../app/store/api/categoryApi'
 import type { Category } from './types'
 import { pageLayout } from '../../shared/styles/layout'
+import { typography } from '../../shared/styles/typography'
 
 export function CategoryManagementPage(): ReactElement {
-  const [categories, setCategories] = useState<Category[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data: categories = [], isLoading, error } = useGetCategoriesQuery()
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false)
 
-  const loadCategories = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const fetched = await getCategories()
-      setCategories(fetched)
-    } catch {
-      setError('Unable to load categories at this time.')
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    void loadCategories()
-  }, [loadCategories])
-
-  const handleCategoryCreated = (category: Category) => {
-    setCategories((prev) => [category, ...prev])
+  const handleCategoryCreated = () => {
+    // RTK Query invalidates 'Categories' tag on create — list auto-refreshes.
   }
 
-  const handleCategoryUpdated = (updatedCategory: Category) => {
-    setCategories((prev) =>
-      prev.map((category) => (category.id === updatedCategory.id ? updatedCategory : category)),
-    )
+  const handleCategoryUpdated = () => {
+    // RTK Query invalidates 'Categories' tag on update — list auto-refreshes.
     setEditingCategory(null)
   }
 
   return (
     <div className="w-full">
       <section className={pageLayout.sectionGap}>
+        <h1 className={typography.h1}>Categories</h1>
+
         {error && (
-          <Card variant="warning">
-            <p className="text-sm text-text-primary">{error}</p>
+          <Card variant="error" role="alert">
+            <p className="text-sm text-text-primary">Unable to load categories at this time.</p>
           </Card>
         )}
 

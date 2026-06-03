@@ -10,6 +10,12 @@ export interface CategoryResponse {
   type: TransactionType
 }
 
+export interface CategoryCreatePayload {
+  name: string
+  icon: string
+  color: string
+}
+
 export const categoryApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getCategories: builder.query<CategoryResponse[], void>({
@@ -27,6 +33,25 @@ export const categoryApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Categories', 'Transactions'],
     }),
+    createCategory: builder.mutation<CategoryResponse, CategoryCreatePayload>({
+      query: (payload) => ({
+        url: '/categories',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['Categories'],
+    }),
+    updateCategory: builder.mutation<
+      CategoryResponse,
+      { categoryId: number; payload: CategoryCreatePayload }
+    >({
+      query: ({ categoryId, payload }) => ({
+        url: `/categories/${categoryId}`,
+        method: 'PUT',
+        body: payload,
+      }),
+      invalidatesTags: ['Categories'],
+    }),
   }),
 })
 
@@ -34,4 +59,6 @@ export const {
   useGetCategoriesQuery,
   useGetCategoryTransactionCountQuery,
   useMergeCategoriesMutation,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
 } = categoryApi

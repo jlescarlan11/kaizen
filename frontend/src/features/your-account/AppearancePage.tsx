@@ -49,8 +49,8 @@ export function AppearancePage(): ReactElement {
                 className={cn(
                   'flex items-center gap-5 p-5 rounded-2xl border-2 transition-all text-left group',
                   isSelected
-                    ? 'bg-white border-primary shadow-lg shadow-primary/5'
-                    : 'bg-white border-border-subtle hover:border-primary/20',
+                    ? 'bg-surface border-primary shadow-lg shadow-primary/5'
+                    : 'bg-surface border-border-subtle hover:border-primary/20',
                 )}
               >
                 {/* Icon */}

@@ -8,10 +8,12 @@ import { Badge } from '../../shared/components/Badge'
 import { DataList } from '../../shared/components/DataList'
 import { SharedIcon } from '../../shared/components/IconRegistry'
 import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
+import { CardSkeleton } from '../../shared/components/CardSkeleton'
 import { cn } from '../../shared/lib/cn'
 import { withOpacity } from '../../shared/lib/colorUtils'
 import { PageTabs } from '../../shared/components/PageTabs'
 import { ProgressBar } from '../../shared/components/ProgressBar'
+import { typography } from '../../shared/styles/typography'
 
 const BudgetRow = ({
   budget,
@@ -155,6 +157,9 @@ const BudgetRow = ({
                   <p className="text-xs text-text-secondary">est. total</p>
                 </div>
               </div>
+              {hasInsufficientData && (
+                <p className="text-xs text-text-secondary mt-2">Available after 3 days of data</p>
+              )}
             </DisclosurePanel>
           </Transition>
         </>
@@ -183,15 +188,39 @@ export function BudgetsPage(): ReactElement {
 
   if (isBudgetsLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-xl shadow-primary/10"></div>
-        <p className="text-xs text-text-secondary animate-pulse opacity-60">Loading Budgets...</p>
+      <div className="w-full animate-entrance-slide-up pb-24">
+        <h1 className={typography.h1}>Budgets</h1>
+        <div className="space-y-2">
+          {[0, 1, 2, 3].map((i) => (
+            <CardSkeleton key={i}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-4">
+                  <div className="h-11 w-11 rounded-[10px] bg-surface-secondary" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-32 rounded bg-surface-secondary" />
+                    <div className="h-3 w-20 rounded bg-surface-secondary" />
+                  </div>
+                </div>
+                <div className="space-y-2 text-right">
+                  <div className="h-4 w-16 rounded bg-surface-secondary" />
+                  <div className="h-3 w-12 rounded bg-surface-secondary" />
+                </div>
+              </div>
+              <div className="h-2 w-full rounded-full bg-surface-secondary" />
+              <div className="flex justify-between mt-2">
+                <div className="h-3 w-24 rounded bg-surface-secondary" />
+                <div className="h-3 w-16 rounded bg-surface-secondary" />
+              </div>
+            </CardSkeleton>
+          ))}
+        </div>
       </div>
     )
   }
 
   return (
     <div className="w-full animate-entrance-slide-up pb-24">
+      <h1 className={typography.h1}>Budgets</h1>
       <div className="flex justify-end mb-6">
         <Button variant="primary" size="sm" onClick={() => navigate('/budgets/add')}>
           + New Budget

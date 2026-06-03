@@ -416,6 +416,7 @@ export function TransactionEntryForm({
             onBlur={(e) => validateField('amount', e.target.value)}
             className="w-full text-5xl md:text-6xl font-bold tracking-tighter text-text-primary bg-transparent border-none focus:ring-0 p-0 placeholder-text-secondary/10"
             required
+            autoFocus={!editId}
           />
         </div>
         {errors.amount && (

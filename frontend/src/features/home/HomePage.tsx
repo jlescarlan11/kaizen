@@ -27,7 +27,7 @@ export function HomePage(): ReactElement {
       </section>
 
       {/* Row 1 — 5/4/3: Spending Chart · Wallets · Action Center */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-start lg:items-stretch lg:h-[290px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-start lg:items-stretch lg:min-h-[290px]">
         <div className="lg:col-span-5">
           <SpendingGraphCard />
         </div>

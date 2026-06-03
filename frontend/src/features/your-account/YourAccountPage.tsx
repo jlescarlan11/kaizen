@@ -9,11 +9,14 @@ import {
   useToggleRemindersMutation,
 } from '../../app/store/api/authApi'
 import { LogoutConfirmationModal } from '../../shared/components/LogoutConfirmationModal'
+import { DestructiveActionDialog } from '../../shared/components/DestructiveActionDialog'
 import { Button } from '../../shared/components/Button'
 import { Badge } from '../../shared/components/Badge'
 import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { clearStoredOnboardingDraft } from '../onboarding/onboardingDraftStorage'
+import { useAppDispatch } from '../../app/store/hooks'
+import { showAlert } from '../../app/store/notificationSlice'
 const IS_DEV = import.meta.env.DEV
 
 type AccountItem = {
@@ -137,8 +140,10 @@ export function YourAccountPage(): ReactElement {
   const { user } = useAuthState()
   const isMobile = useMediaQuery('(max-width: 640px)')
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const [logoutMutation, { isLoading: isLoggingOut }] = useLogoutMutation()
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false)
+  const [isCloseAccountOpen, setIsCloseAccountOpen] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [tourReminder, setTourReminder] = useState(
     'Replay the Dashboard tour the next time you open it.',
@@ -181,6 +186,17 @@ export function YourAccountPage(): ReactElement {
       console.error('Failed to reset onboarding:', error)
     }
   }, [navigate, resetOnboarding, user])
+
+  const handleCloseAccountConfirm = (): void => {
+    dispatch(
+      showAlert({
+        type: 'error',
+        title: 'Not Available',
+        message: 'Account deletion is not yet available.',
+      }),
+    )
+    setIsCloseAccountOpen(false)
+  }
 
   const handleShowTourAgain = useCallback(async () => {
     try {
@@ -305,6 +321,7 @@ export function YourAccountPage(): ReactElement {
           description: 'Delete your account and data',
           icon: <CloseAccountIcon />,
           destructive: true,
+          onClick: () => setIsCloseAccountOpen(true),
         },
         // Mobile only: logout lives here
         ...(isMobile
@@ -340,7 +357,7 @@ export function YourAccountPage(): ReactElement {
         </div>
         <button
           type="button"
-          className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary border border-white flex items-center justify-center text-white shadow-sm hover:brightness-105 transition-all"
+          className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary border border-surface flex items-center justify-center text-white shadow-sm hover:brightness-105 transition-all"
           aria-label="Change photo"
         >
           <CameraIcon />
@@ -386,7 +403,7 @@ export function YourAccountPage(): ReactElement {
 
   const mobileProfileHero = (
     <div className="flex flex-col items-center text-center gap-4 pt-2 pb-6">
-      <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden border-2 border-white flex items-center justify-center text-2xl font-bold text-text-primary shadow-lg">
+      <div className="h-20 w-20 rounded-full bg-surface-secondary overflow-hidden border-2 border-surface-secondary flex items-center justify-center text-2xl font-bold text-text-primary shadow-lg">
         {user?.picture && !imageError ? (
           <img
             src={user.picture}
@@ -410,7 +427,7 @@ export function YourAccountPage(): ReactElement {
       </div>
 
       {user?.email && (
-        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-white border border-border-subtle text-3xs font-bold uppercase tracking-widest text-text-secondary shadow-sm">
+        <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-surface-secondary border border-border-subtle text-3xs font-bold uppercase tracking-widest text-text-secondary shadow-sm">
           {user.email}
         </span>
       )}
@@ -428,6 +445,16 @@ export function YourAccountPage(): ReactElement {
             onClose={() => setIsLogoutModalOpen(false)}
             onConfirm={handleLogout}
             isLoading={isLoggingOut}
+          />
+
+          <DestructiveActionDialog
+            isOpen={isCloseAccountOpen}
+            onClose={() => setIsCloseAccountOpen(false)}
+            onConfirm={handleCloseAccountConfirm}
+            title="Close Account"
+            description="Delete your account and all data? This cannot be undone."
+            confirmLabel="Delete Account"
+            cancelLabel="Cancel"
           />
 
           <div
