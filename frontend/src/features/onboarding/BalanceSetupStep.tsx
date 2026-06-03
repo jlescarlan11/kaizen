@@ -10,6 +10,7 @@ import {
   setFundingSourceType,
   updateInitialBalance,
   selectInitialBalances,
+  hydrateOnboardingState,
 } from './onboardingSlice'
 import { OnboardingErrorBlock } from './OnboardingErrorBlock'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
@@ -56,6 +57,14 @@ export function BalanceSetupStep(): ReactElement {
   const handleBalanceChange = (paymentMethodId: number, value: string) => {
     const amount = parseFloat(value) || 0
     dispatch(updateInitialBalance({ paymentMethodId, amount }))
+  }
+
+  const handleSkip = (): void => {
+    dispatch(hydrateOnboardingState({ initialBalances: [] }))
+    dispatch(setStartingFunds(0))
+    dispatch(setFundingSourceType('CASH_ON_HAND'))
+    dispatch(setCurrentStep('BUDGET'))
+    navigate(ONBOARDING_STEP_ROUTE_MAP['BUDGET'])
   }
 
   const handleContinue = async (): Promise<void> => {
@@ -154,15 +163,20 @@ export function BalanceSetupStep(): ReactElement {
             </p>
           </div>
 
-          <Button
-            onClick={handleContinue}
-            variant="primary"
-            className={cn(fluidLayout.touchTarget, 'rounded-xl px-8 gap-2')}
-            disabled={!hasAnyBalance}
-          >
-            <span>Continue to budgets</span>
-            <SharedIcon type="ui" name="arrow-right" size={18} />
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+            <Button
+              onClick={handleContinue}
+              variant="primary"
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-8 gap-2')}
+              disabled={!hasAnyBalance}
+            >
+              <span>Continue to budgets</span>
+              <SharedIcon type="ui" name="arrow-right" size={18} />
+            </Button>
+            <Button onClick={handleSkip} variant="ghost" size="md" className="text-text-secondary">
+              Skip — start with ₱0
+            </Button>
+          </div>
         </div>
 
         {onboardingError ? (

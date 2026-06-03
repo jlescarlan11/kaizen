@@ -41,9 +41,10 @@ import {
   resetBudgetEditorDraft,
   setBudgetEditorDraft,
   setPendingBudgets,
+  setCurrentStep,
   type PendingBudget,
 } from './onboardingSlice'
-import { type OnboardingStep } from './onboardingStep'
+import { type OnboardingStep, ONBOARDING_STEP_ROUTE_MAP } from './onboardingStep'
 import { useOnboardingErrorHandler } from './useOnboardingErrorHandler'
 import { cn } from '../../shared/lib/cn'
 import { fluidLayout } from '../../shared/styles/layout'
@@ -143,13 +144,13 @@ export function OnboardingBudgetStep(): ReactElement | null {
   } = budgetEditorDraft
 
   useEffect(() => {
-    if (balance <= 0 || fundingSourceType == null) {
+    if (reduxBalance == null || fundingSourceType == null) {
       navigate('/onboarding/balance', { replace: true })
     }
-  }, [balance, fundingSourceType, navigate])
+  }, [reduxBalance, fundingSourceType, navigate])
 
   useEffect(() => {
-    if (balance <= 0 || fundingSourceType == null) {
+    if (reduxBalance == null || fundingSourceType == null) {
       return
     }
 
@@ -158,7 +159,7 @@ export function OnboardingBudgetStep(): ReactElement | null {
       startingFunds: balance,
       fundingSourceType,
     }).catch((error) => console.error('Failed to persist onboarding budget step:', error))
-  }, [balance, fundingSourceType, updateProgress])
+  }, [balance, reduxBalance, fundingSourceType, updateProgress])
 
   useEffect(() => {
     let mounted = true
@@ -391,6 +392,11 @@ export function OnboardingBudgetStep(): ReactElement | null {
     !isOverAllocated &&
     !isLoadingCategories
 
+  const handleBack = (): void => {
+    dispatch(setCurrentStep('BALANCE'))
+    navigate(ONBOARDING_STEP_ROUTE_MAP['BALANCE'])
+  }
+
   const handleFinishSetup = async (): Promise<void> => {
     if (!canFinish) {
       setSubmissionError('Add at least one valid budget before finishing setup.')
@@ -529,12 +535,18 @@ export function OnboardingBudgetStep(): ReactElement | null {
             <p className="text-xs font-medium text-text-secondary sm:text-sm sm:text-text-primary">
               Total Starting Funds
             </p>
-            <p className="text-lg font-semibold text-text-primary">
-              {formatCurrency(totalAllocated)}
-            </p>
+            <p className="text-lg font-semibold text-text-primary">{formatCurrency(balance)}</p>
           </div>
 
           <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className={cn(fluidLayout.touchTarget, 'rounded-xl px-4 gap-1 text-muted-foreground')}
+            >
+              <SharedIcon type="ui" name="chevron-left" size={16} />
+              <span>Back</span>
+            </Button>
             <SkipBudgetTrigger className="hidden sm:inline-block" />
             <Button
               variant="primary"

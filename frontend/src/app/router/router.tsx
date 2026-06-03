@@ -246,6 +246,16 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'budgets/add',
+            element: <ManualBudgetSetupPage />,
+            handle: {
+              backButton: {
+                label: 'Budgets',
+                fallbackPath: '/budgets',
+              },
+            },
+          },
+          {
             path: 'budgets/:id',
             element: <BudgetDetailPage />,
             handle: {
@@ -262,16 +272,6 @@ export const router = createBrowserRouter([
               backButton: {
                 label: 'Home',
                 fallbackPath: '/',
-              },
-            },
-          },
-          {
-            path: 'budgets/add',
-            element: <ManualBudgetSetupPage />,
-            handle: {
-              backButton: {
-                label: 'Budgets',
-                fallbackPath: '/budgets',
               },
             },
           },

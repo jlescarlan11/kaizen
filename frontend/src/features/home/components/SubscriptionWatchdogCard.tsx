@@ -80,7 +80,12 @@ export const SubscriptionWatchdogCard: React.FC = () => {
 
       <div className="mt-8 pt-4 border-t border-border/5">
         <button
-          onClick={() => navigate('/transactions')}
+          onClick={() => {
+            const topName = subscriptions[0]?.name ?? ''
+            navigate(
+              topName ? `/transactions?search=${encodeURIComponent(topName)}` : '/transactions',
+            )
+          }}
           className="w-full text-center text-4xs font-black uppercase tracking-[0.2em] text-text-tertiary hover:text-primary transition-all"
         >
           Manage Subscriptions

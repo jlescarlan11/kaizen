@@ -1,4 +1,4 @@
-import { useState, type ReactElement } from 'react'
+import { type ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Disclosure, DisclosureButton, DisclosurePanel, Transition } from '@headlessui/react'
 import { useGetBudgetsQuery, type BudgetResponse } from '../../app/store/api/budgetApi'
@@ -11,7 +11,6 @@ import { EmptyStateCard } from '../../shared/components/EmptyStateCard'
 import { CardSkeleton } from '../../shared/components/CardSkeleton'
 import { cn } from '../../shared/lib/cn'
 import { withOpacity } from '../../shared/lib/colorUtils'
-import { PageTabs } from '../../shared/components/PageTabs'
 import { ProgressBar } from '../../shared/components/ProgressBar'
 import { typography } from '../../shared/styles/typography'
 
@@ -170,17 +169,10 @@ const BudgetRow = ({
 
 export function BudgetsPage(): ReactElement {
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active')
   const { data: budgets, isLoading: isBudgetsLoading } = useGetBudgetsQuery()
   const { data: categories = [] } = useGetCategoriesQuery()
 
-  // BudgetResponse does not have an `archived` field — treat all budgets as active.
-  // Cast to a local interface to safely access the field without `any`.
-  type BudgetMaybeArchived = BudgetResponse & { archived?: boolean }
-  const visibleBudgets: BudgetResponse[] =
-    (budgets as BudgetMaybeArchived[] | undefined)?.filter((b) =>
-      activeTab === 'archived' ? (b.archived ?? false) : !(b.archived ?? false),
-    ) ?? []
+  const visibleBudgets: BudgetResponse[] = budgets ?? []
 
   const handleNewBudget = () => {
     navigate('/budgets/add')
@@ -226,14 +218,6 @@ export function BudgetsPage(): ReactElement {
           + New Budget
         </Button>
       </div>
-      <PageTabs
-        tabs={[
-          { key: 'active', label: 'Active' },
-          { key: 'archived', label: 'Archived' },
-        ]}
-        activeTab={activeTab}
-        onChange={setActiveTab}
-      />
       <DataList
         data={visibleBudgets}
         hideBorders
@@ -245,7 +229,7 @@ export function BudgetsPage(): ReactElement {
             description="You haven't set up any budgets yet."
             primaryAction={{
               label: 'Smart Allocation',
-              onClick: () => navigate('/budgets/smart'),
+              onClick: () => navigate('/budgets/add'),
             }}
             secondaryAction={{ label: 'Manual Setup', onClick: handleNewBudget }}
           />

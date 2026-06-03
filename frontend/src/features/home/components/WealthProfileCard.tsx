@@ -57,7 +57,7 @@ export const WealthProfileCard: React.FC = () => {
             onClick={() => navigate('/your-account/profile')}
             className="text-4xs font-black uppercase tracking-widest text-primary hover:underline transition-all"
           >
-            Profile XP →
+            View Profile
           </button>
         }
         className="mb-5 relative z-10"

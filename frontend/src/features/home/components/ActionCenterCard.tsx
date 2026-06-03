@@ -31,9 +31,30 @@ export const ActionCenterCard: React.FC = () => {
               key={item.id}
               role="button"
               tabIndex={0}
-              onClick={() => navigate('/transactions')}
+              onClick={() => {
+                const route =
+                  item.type === 'TASK'
+                    ? '/transactions/add'
+                    : item.type === 'ALERT'
+                      ? '/budgets'
+                      : item.type === 'WIN'
+                        ? '/insights'
+                        : '/transactions'
+                navigate(route)
+              }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') navigate('/transactions')
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  const route =
+                    item.type === 'TASK'
+                      ? '/transactions/add'
+                      : item.type === 'ALERT'
+                        ? '/budgets'
+                        : item.type === 'WIN'
+                          ? '/insights'
+                          : '/transactions'
+                  navigate(route)
+                }
               }}
               className={cn(
                 'px-3 py-2.5 rounded-xl border transition-all cursor-pointer hover:scale-[1.01] active:scale-95 flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',

@@ -2,6 +2,7 @@ import { type ReactElement, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink } from 'react-router-dom'
 import { KaizenLogo } from './KaizenLogo'
+import { Badge } from './Badge'
 import { cn } from '../lib/cn'
 import { type DashboardTourAnchorKey } from '../../features/home/DashboardTourAnchorsContext'
 import { useRegisterDashboardTourAnchor } from '../../features/home/DashboardTourAnchorsHooks'
@@ -12,6 +13,7 @@ export type SidebarNavItem = {
   icon: ReactElement
   end?: boolean
   anchorKey?: DashboardTourAnchorKey
+  badge?: string
 }
 
 interface AppSidebarProps {
@@ -82,21 +84,28 @@ function SidebarContent({
                 ? registerGoalsTab
                 : undefined
 
+          const isDisabled = !!item.badge
+
           return (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.end ?? false}
-              onClick={onClose}
+              onClick={isDisabled ? (e) => e.preventDefault() : onClose}
               ref={anchorRef}
               onMouseEnter={(e) => showTooltip(e, item.label)}
               onMouseLeave={hideTooltip}
+              tabIndex={isDisabled ? -1 : undefined}
+              aria-disabled={isDisabled ? true : undefined}
+              aria-label={isDisabled ? `${item.label}, coming soon` : undefined}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 px-2 py-2.5 rounded-lg text-sm transition-colors duration-150',
-                  isActive
-                    ? 'bg-primary/10 text-primary font-semibold'
-                    : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-medium',
+                  isDisabled
+                    ? 'text-text-secondary font-medium pointer-events-none cursor-not-allowed opacity-60'
+                    : isActive
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-text-secondary hover:bg-surface-secondary hover:text-text-primary font-medium',
                 )
               }
             >
@@ -104,6 +113,15 @@ function SidebarContent({
               <span className={cn('truncate', collapsed ? 'hidden' : 'hidden lg:block')}>
                 {item.label}
               </span>
+              {!collapsed && item.badge && (
+                <Badge
+                  variant="neutral"
+                  emphasis="soft"
+                  className="ml-auto shrink-0 hidden lg:inline-flex"
+                >
+                  {item.badge}
+                </Badge>
+              )}
             </NavLink>
           )
         })}

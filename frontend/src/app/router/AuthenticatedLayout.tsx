@@ -74,6 +74,7 @@ function AuthenticatedLayoutContent(): ReactElement {
     icon: ReactElement
     end?: boolean
     anchorKey?: DashboardTourAnchorKey
+    badge?: string
   }
 
   const navItems: ReadonlyArray<NavItem> = [
@@ -81,7 +82,7 @@ function AuthenticatedLayoutContent(): ReactElement {
     { label: 'Transactions', to: '/transactions', icon: <TransactionsIcon /> },
     { label: 'Budgets', to: '/budgets', icon: <BudgetIcon />, anchorKey: 'budgetsTab' },
     { label: 'Insights', to: '/insights', icon: <InsightsIcon /> },
-    { label: 'Goals', to: '/goals', icon: <GoalIcon />, anchorKey: 'goalsTab' },
+    { label: 'Goals', to: '/goals', icon: <GoalIcon />, anchorKey: 'goalsTab', badge: 'Soon' },
     { label: 'Categories', to: '/categories', icon: <CategoriesIcon /> },
     { label: 'Payments', to: '/payment-summary', icon: <PaymentsIcon /> },
   ]

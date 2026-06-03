@@ -31,7 +31,7 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
   const [searchParams, setSearchParams] = useSearchParams()
 
   // 1. State Management
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('search') ?? '')
   const [filterState, setFilterState] = useState<FilterState>(() => {
     const categories = searchParams
       .getAll('category')
@@ -64,12 +64,7 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
 
   // 3. URL Synchronization
   useEffect(() => {
-    const newParams = new URLSearchParams(searchParams)
-    newParams.delete('category')
-    newParams.delete('type')
-    newParams.delete('paymentMethod')
-    newParams.delete('startDate')
-    newParams.delete('endDate')
+    const newParams = new URLSearchParams()
 
     filterState.categories.forEach((c) => newParams.append('category', String(c)))
     filterState.types.forEach((t) => newParams.append('type', t))
@@ -78,8 +73,10 @@ export function useTransactionPipeline(sortState: SortState): TransactionPipelin
     if (filterState.startDate) newParams.set('startDate', filterState.startDate)
     if (filterState.endDate) newParams.set('endDate', filterState.endDate)
 
+    if (debouncedSearch.trim()) newParams.set('search', debouncedSearch.trim())
+
     setSearchParams(newParams, { replace: true })
-  }, [filterState, setSearchParams, searchParams])
+  }, [filterState, debouncedSearch, setSearchParams])
 
   // 4. Backend Fetching (via useTransactionPagination)
   const apiFilters = useMemo<TransactionFilters>(

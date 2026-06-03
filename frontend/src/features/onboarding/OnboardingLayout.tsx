@@ -14,6 +14,7 @@ export function OnboardingLayout({ children }: PropsWithChildren): ReactElement 
     currentStep === 'COMPLETE' ? 'BALANCE' : (currentStep as ActiveStep)
 
   const metadata = ONBOARDING_STEP_METADATA[activeStep]
+  const stepNumber = activeStep === 'BALANCE' ? 1 : 2
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col">
@@ -21,6 +22,7 @@ export function OnboardingLayout({ children }: PropsWithChildren): ReactElement 
         <div className="space-y-2">
           <h1 className={typography.h1}>{metadata.title}</h1>
           <p className={typography['body-sm']}>{metadata.description}</p>
+          <p className="text-sm text-muted-foreground">Step {stepNumber} of 2</p>
         </div>
 
         <div className="flex-1">{children}</div>

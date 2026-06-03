@@ -23,8 +23,10 @@ export const HomeDashboardHeader: React.FC<HomeDashboardHeaderProps> = ({ balanc
       {/* Privacy Toggle */}
       <button
         onClick={() => dispatch(togglePrivacyMode())}
-        className="absolute top-6 right-8 z-20 p-2 rounded-full bg-surface-secondary/50 border border-border/10 text-text-tertiary hover:text-primary transition-colors group/privacy"
-        title={isPrivacyMode ? 'Show Balances' : 'Hide Balances'}
+        className="absolute top-6 right-8 z-20 p-2 rounded-full bg-surface-secondary/50 border border-border/10 text-text-tertiary hover:text-primary transition-colors group/privacy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+        title={isPrivacyMode ? 'Show balances' : 'Hide balances'}
+        aria-label={isPrivacyMode ? 'Show balances' : 'Hide balances'}
+        aria-pressed={isPrivacyMode}
       >
         <SharedIcon type="ui" name={isPrivacyMode ? 'eye-off' : 'eye'} size={16} />
       </button>

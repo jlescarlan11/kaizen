@@ -18,11 +18,17 @@ export function CircleGauge({
   className,
 }: CircleGaugeProps) {
   const circumference = 2 * Math.PI * radius
-  const offset = circumference - (Math.min(100, Math.max(0, percent)) / 100) * circumference
+  const offset =
+    circumference - (Math.min(100, Math.max(0, isNaN(percent) ? 0 : percent)) / 100) * circumference
 
   return (
     <div className={cn('relative flex items-center justify-center shrink-0', className)}>
-      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+      <svg
+        className="w-20 h-20 -rotate-90"
+        viewBox="0 0 80 80"
+        role="img"
+        aria-label={`${label}${sublabel ? ' ' + sublabel : ''}`}
+      >
         <circle
           cx="40"
           cy="40"
@@ -45,7 +51,10 @@ export function CircleGauge({
           className="text-primary transition-all duration-1000 ease-out"
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div
+        className="absolute inset-0 flex flex-col items-center justify-center"
+        aria-hidden="true"
+      >
         <span className="text-lg font-black text-text-primary leading-none">{label}</span>
         {sublabel && (
           <span className="text-6xs font-bold text-text-tertiary uppercase tracking-tighter mt-0.5">

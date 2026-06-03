@@ -256,9 +256,12 @@ export function TransactionList({
             <p
               className={cn(
                 'text-lg font-bold tracking-tighter',
-                tx.type === 'EXPENSE' ? 'text-text-primary' : 'text-success',
+                tx.type === 'EXPENSE' ? 'text-error' : 'text-success',
               )}
             >
+              <span className="mr-0.5 text-xs font-bold text-text-secondary opacity-30 italic">
+                PHP
+              </span>
               {tx.type === 'EXPENSE' ? '-' : '+'}
               <SearchHighlight
                 text={Math.abs(tx.amount).toLocaleString(undefined, {
@@ -267,9 +270,6 @@ export function TransactionList({
                 })}
                 query={searchQuery}
               />
-              <span className="ml-1.5 text-xs font-bold text-text-secondary opacity-30 italic">
-                PHP
-              </span>
             </p>
             <Badge variant={tx.type === 'INCOME' ? 'success' : 'neutral'} className="mt-2">
               {tx.type === 'INCOME' ? 'Income' : 'Expense'}
