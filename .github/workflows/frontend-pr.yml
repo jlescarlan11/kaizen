@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm --prefix frontend ci
 
+      - name: Typecheck frontend
+        run: npm --prefix frontend run typecheck
+
       - name: Lint frontend
         run: npm --prefix frontend run lint
 
