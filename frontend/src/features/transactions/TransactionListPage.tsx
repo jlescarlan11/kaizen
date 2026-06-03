@@ -1,7 +1,6 @@
 import { useState, useMemo, type ReactElement } from 'react'
 import { typography } from '../../shared/styles/typography'
 import { TransactionList } from './components/TransactionList'
-import { SelectionActionBar } from './components/SelectionActionBar'
 import { ConfirmBulkDeleteDialog } from './components/ConfirmBulkDeleteDialog'
 import { pageLayout } from '../../shared/styles/layout'
 import { TransactionSearch } from './components/TransactionSearch'
@@ -13,6 +12,7 @@ import { useTransactionPipeline } from './hooks/useTransactionPipeline'
 import { useSortPersistence } from './hooks/useSortPersistence'
 import { Button } from '../../shared/components/Button'
 import { Badge } from '../../shared/components/Badge'
+import { Checkbox } from '../../shared/components/Checkbox'
 import { cn } from '../../shared/lib/cn'
 import { useAppSelector, useAppDispatch } from '../../app/store/hooks'
 import { useBulkDeleteTransactionsMutation } from '../../app/store/api/transactionApi'
@@ -21,6 +21,7 @@ import {
   setSelectionMode,
   clearSelection,
   selectSelectedIds,
+  setSelectedIds,
 } from './transactionSlice'
 import { showAlert } from '../../app/store/notificationSlice'
 
@@ -89,6 +90,18 @@ export function TransactionListPage(): ReactElement {
     clearFilters()
   }
 
+  const allSelected =
+    processedTransactions.length > 0 &&
+    processedTransactions.every((tx) => selectedIds.includes(tx.id))
+
+  const handleToggleSelectAll = () => {
+    if (allSelected) {
+      dispatch(setSelectedIds([]))
+    } else {
+      dispatch(setSelectedIds(processedTransactions.map((tx) => tx.id)))
+    }
+  }
+
   const toggleSelectionMode = () => {
     if (isSelectionMode) {
       dispatch(setSelectionMode(false))
@@ -127,8 +140,6 @@ export function TransactionListPage(): ReactElement {
     <div className={cn(pageLayout.sectionGap, 'animate-entrance-slide-up pb-24')}>
       <div className="w-full space-y-6">
         <h1 className={typography.h1}>Transactions</h1>
-        <SelectionActionBar onDeleteRequest={() => setIsConfirmDialogOpen(true)} />
-
         <ConfirmBulkDeleteDialog
           isOpen={isConfirmDialogOpen}
           onClose={() => setIsConfirmDialogOpen(false)}
@@ -327,6 +338,35 @@ export function TransactionListPage(): ReactElement {
             </div>
           )}
         </div>
+
+        {isSelectionMode && (
+          <div className="flex items-center justify-between px-6 py-4 bg-primary text-white rounded-card animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-center gap-4">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={handleToggleSelectAll}
+                className="border-white/60 bg-transparent data-[state=checked]:bg-white data-[state=checked]:border-white"
+              />
+              <span className="text-sm font-bold uppercase tracking-widest">
+                {selectedIds.length} of {processedTransactions.length} Selected
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-3xs font-bold uppercase tracking-widest opacity-70">
+                Selection Mode
+              </span>
+              <Button
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-white border-0 px-4 font-semibold uppercase tracking-wide text-xs h-9 shadow-sm"
+                onClick={() => setIsConfirmDialogOpen(true)}
+                disabled={selectedIds.length === 0}
+              >
+                <SharedIcon type="ui" name="trash" size={14} className="mr-2" />
+                Delete
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="w-full bg-surface border border-border-subtle rounded-card overflow-hidden shadow-sm">
           {processedTransactions.length === 0 && !isLoading ? (

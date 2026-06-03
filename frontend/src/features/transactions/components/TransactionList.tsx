@@ -99,19 +99,6 @@ export function TransactionList({
     return flattenTransactions(visibleTransactions, groupTransactionsByDate)
   }, [visibleTransactions])
 
-  const allVisibleSelected = useMemo(() => {
-    if (visibleTransactions.length === 0) return false
-    return visibleTransactions.every((tx) => selectedIds.includes(tx.id))
-  }, [visibleTransactions, selectedIds])
-
-  const toggleSelectAll = () => {
-    if (allVisibleSelected) {
-      dispatch(setSelectedIds([]))
-    } else {
-      dispatch(setSelectedIds(visibleTransactions.map((tx) => tx.id)))
-    }
-  }
-
   const renderItem = (item: FlattenedTransactionItem, index: number) => {
     if (item.type === 'header') {
       return (
@@ -297,25 +284,6 @@ export function TransactionList({
         isFetching && transactions.length > 0 ? 'opacity-90' : 'opacity-100',
       )}
     >
-      {/* Selection Mode List Header */}
-      {isSelectionMode && visibleTransactions.length > 0 && (
-        <div className="flex items-center justify-between px-8 py-4 bg-primary text-white rounded-2xl mb-6 shadow-md shadow-primary/15 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-4">
-            <Checkbox
-              checked={allVisibleSelected}
-              onCheckedChange={toggleSelectAll}
-              className="border-text-primary bg-transparent checked:bg-text-primary checked:border-text-primary"
-            />
-            <span className="text-xs font-black uppercase tracking-widest">
-              Selected {selectedIds.length} of {visibleTransactions.length}
-            </span>
-          </div>
-          <span className="text-3xs font-black uppercase tracking-widest opacity-80">
-            Selection Mode
-          </span>
-        </div>
-      )}
-
       <DataList
         data={flattenedItems}
         renderItem={renderItem}
